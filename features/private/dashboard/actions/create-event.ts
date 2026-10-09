@@ -10,7 +10,7 @@ export const createEventAction = async (payloadData: CreateEventPayload): Promis
 
   const newEvent: EventItem = {
     id: `evt-${Date.now()}`,
-    code: `JL-2026-${formattedIndex}`,
+    code: `CEBA-2026-${formattedIndex}`,
     name: payload.NAME,
     category: payload.CATEGORY,
     date: payload.DATE,
@@ -27,6 +27,6 @@ export const createEventAction = async (payloadData: CreateEventPayload): Promis
   return {
     success: true,
     data: newEvent,
-    message: 'Evento creado exitosamente en el sistema',
+    message: 'Actividad académica registrada exitosamente en el sistema CEBA Lister',
   };
 };

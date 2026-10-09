@@ -1,6 +1,6 @@
 export type EventStatus = 'ACTIVO' | 'PENDIENTE' | 'FINALIZADO' | 'CANCELADO';
 
-export type EventCategory = 'CONFERENCIA' | 'TALLER' | 'SEMINARIO' | 'CIRUGIA_DEMO' | 'SIMPOSIO' | 'CAPACITACION';
+export type EventCategory = 'MATRICULA' | 'EVALUACION' | 'TALLER_NIVELACION' | 'CONFERENCIA_DOCENTE' | 'CAPACITACION' | 'GRADUACION' | 'MODULO_ACADEMICO';
 
 export interface EventItem {
   id: string;

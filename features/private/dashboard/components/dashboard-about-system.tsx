@@ -1,5 +1,5 @@
 import type { JSX } from 'react';
-import { ShieldCheck, Server, Zap, Clock, Cpu, HeartPulse, Award, Layers } from 'lucide-react';
+import { Award, BookOpen, CheckCircle, Clock, Cpu, Layers, Server, Zap } from 'lucide-react';
 import type { DashboardAboutSystemProps } from '../types';
 
 export const DashboardAboutSystem = ({ systemInfo, stats }: DashboardAboutSystemProps): JSX.Element => {
@@ -8,18 +8,18 @@ export const DashboardAboutSystem = ({ systemInfo, stats }: DashboardAboutSystem
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-[#2E3545]/60">
         <div className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400">
-            <HeartPulse className="h-5 w-5" />
+            <BookOpen className="h-5 w-5" />
           </div>
           <div>
             <h2 className="text-xl md:text-2xl font-bold text-white tracking-tight">Acerca del sistema</h2>
-            <p className="text-xs md:text-sm text-[#908FA0]">Información de la infraestructura médica y estado del ecosistema Joseph Lister</p>
+            <p className="text-xs md:text-sm text-[#908FA0]">Información de la infraestructura académica y estado del CEBA Joseph Lister</p>
           </div>
         </div>
 
         <div className="flex items-center gap-2">
           <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-xs font-semibold text-emerald-400">
-            <ShieldCheck className="h-4 w-4" />
-            Cumplimiento ISO 13485 Aséptico
+            <CheckCircle className="h-4 w-4" />
+            Normativa EBA / MINEDU Acreditada
           </span>
         </div>
       </div>
@@ -29,15 +29,15 @@ export const DashboardAboutSystem = ({ systemInfo, stats }: DashboardAboutSystem
           <div className="space-y-4">
             <div className="flex items-center gap-2 text-indigo-400 text-xs font-bold uppercase tracking-wider">
               <Layers className="h-4 w-4" />
-              <span>Propósito y Misión</span>
+              <span>Propósito y Modelo Educativo</span>
             </div>
             <p className="text-sm text-[#DCE2F7] leading-relaxed">{systemInfo.description}</p>
-            <p className="text-xs text-[#908FA0] leading-relaxed">Inspirado en el legado del Dr. Joseph Lister, pionero de la antisepsia moderna, este módulo coordina la logística, control de aforo y certificación de credenciales para jornadas médicas de alta complejidad.</p>
+            <p className="text-xs text-[#908FA0] leading-relaxed">Orientado a la inclusión y culminación de estudios de jóvenes y adultos, el sistema integra la administración curricular de ciclos formativos (Inicial, Intermedio y Avanzado) con certificación modular progresiva.</p>
           </div>
 
           <div className="mt-6 pt-4 border-t border-[#2E3545]/40 grid grid-cols-2 sm:grid-cols-3 gap-4 text-xs">
             <div>
-              <span className="text-[#908FA0] block">Entorno Activo:</span>
+              <span className="text-[#908FA0] block">Entorno Académico:</span>
               <strong className="text-white font-medium">{systemInfo.environment}</strong>
             </div>
             <div>
@@ -45,8 +45,8 @@ export const DashboardAboutSystem = ({ systemInfo, stats }: DashboardAboutSystem
               <strong className="text-white font-medium">{systemInfo.lastSync}</strong>
             </div>
             <div>
-              <span className="text-[#908FA0] block">Eventos Registrados:</span>
-              <strong className="text-indigo-400 font-bold">{stats.totalEvents} eventos</strong>
+              <span className="text-[#908FA0] block">Actividades Registradas:</span>
+              <strong className="text-indigo-400 font-bold">{stats.totalEvents} actividades</strong>
             </div>
           </div>
         </div>
@@ -72,7 +72,7 @@ export const DashboardAboutSystem = ({ systemInfo, stats }: DashboardAboutSystem
             <div className="flex items-center justify-between rounded-lg bg-[#0C1322]/80 border border-[#2E3545]/40 p-2.5 text-xs">
               <span className="text-[#908FA0] flex items-center gap-2">
                 <Zap className="h-3.5 w-3.5 text-amber-400" />
-                Latencia de Base de Datos:
+                Latencia Base de Datos:
               </span>
               <strong className="text-emerald-400 font-mono">{systemInfo.databaseLatencyMs} ms</strong>
             </div>

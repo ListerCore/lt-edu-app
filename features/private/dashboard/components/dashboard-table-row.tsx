@@ -39,30 +39,13 @@ const getStatusBadge = (status: EventStatus): JSX.Element => {
 
 const getCategoryBadge = (category: EventCategory): JSX.Element => {
   const categoryLabels: Record<EventCategory, { label: string; color: string }> = {
-    CONFERENCIA: {
-      label: 'Conferencia',
-      color: 'text-sky-400 border-sky-500/30 bg-sky-500/10',
-    },
-    TALLER: {
-      label: 'Taller Práctico',
-      color: 'text-teal-400 border-teal-500/30 bg-teal-500/10',
-    },
-    SEMINARIO: {
-      label: 'Seminario',
-      color: 'text-violet-400 border-violet-500/30 bg-violet-500/10',
-    },
-    CIRUGIA_DEMO: {
-      label: 'Demostración Quirúrgica',
-      color: 'text-rose-400 border-rose-500/30 bg-rose-500/10',
-    },
-    SIMPOSIO: {
-      label: 'Simposio',
-      color: 'text-amber-400 border-amber-500/30 bg-amber-500/10',
-    },
-    CAPACITACION: {
-      label: 'Capacitación',
-      color: 'text-blue-400 border-blue-500/30 bg-blue-500/10',
-    },
+    MATRICULA: { label: 'Matrícula', color: 'text-sky-400 border-sky-500/30 bg-sky-500/10' },
+    EVALUACION: { label: 'Evaluación', color: 'text-rose-400 border-rose-500/30 bg-rose-500/10' },
+    TALLER_NIVELACION: { label: 'Nivelación', color: 'text-teal-400 border-teal-500/30 bg-teal-500/10' },
+    CONFERENCIA_DOCENTE: { label: 'Jornada Docente', color: 'text-violet-400 border-violet-500/30 bg-violet-500/10' },
+    CAPACITACION: { label: 'Capacitación', color: 'text-blue-400 border-blue-500/30 bg-blue-500/10' },
+    GRADUACION: { label: 'Graduación', color: 'text-amber-400 border-amber-500/30 bg-amber-500/10' },
+    MODULO_ACADEMICO: { label: 'Módulo Formativo', color: 'text-purple-400 border-purple-500/30 bg-purple-500/10' },
   };
 
   const item = categoryLabels[category] || {
@@ -98,7 +81,7 @@ export const DashboardTableRow = ({ event }: DashboardTableRowProps): JSX.Elemen
           <span className="font-mono text-xs font-bold text-indigo-400">{event.code}</span>
           <span className="font-semibold text-white group-hover:text-indigo-300 transition-colors">{event.name}</span>
           <span className="text-xs text-[#908FA0]">
-            Resp: <strong className="text-zinc-300">{event.organizer}</strong>
+            Responsable: <strong className="text-zinc-300">{event.organizer}</strong>
           </span>
         </div>
       </td>
@@ -137,7 +120,7 @@ export const DashboardTableRow = ({ event }: DashboardTableRowProps): JSX.Elemen
 
       <td className="py-4 px-4 text-right whitespace-nowrap">
         <div className="flex items-center justify-end gap-2">
-          <button type="button" title="Ver detalles del evento" className="inline-flex items-center gap-1 rounded-lg border border-[#2E3545] bg-[#0C1322]/80 px-2.5 py-1.5 text-xs font-medium text-zinc-300 hover:text-white hover:border-indigo-500 hover:bg-indigo-500/10 transition-all cursor-pointer">
+          <button type="button" title="Ver detalles de la actividad" className="inline-flex items-center gap-1 rounded-lg border border-[#2E3545] bg-[#0C1322]/80 px-2.5 py-1.5 text-xs font-medium text-zinc-300 hover:text-white hover:border-indigo-500 hover:bg-indigo-500/10 transition-all cursor-pointer">
             <Eye className="h-3.5 w-3.5 text-indigo-400" />
             <span>Ver</span>
           </button>

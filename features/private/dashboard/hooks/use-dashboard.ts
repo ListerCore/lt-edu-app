@@ -6,14 +6,14 @@ import { useCreateEvent } from './use-create-event';
 import { useGetEvent } from './use-get-event';
 
 const SYSTEM_METADATA: SystemInfo = {
-  name: 'Sistema Joseph Lister Core',
+  name: 'CEBA Joseph Lister - Academic Management System',
   version: 'v2.6.4-prod',
-  environment: 'Producción (Cluster Biomédico)',
+  environment: 'Producción (Campus Virtual / MINEDU)',
   status: 'OPTIMO',
   lastSync: 'Hace 2 minutos',
   uptime: '99.98%',
-  databaseLatencyMs: 24,
-  description: 'Plataforma centralizada para la gestión, registro y control de eventos médicos, talleres clínicos y simposios quirúrgicos bajo estándares antisépticos internacionales.',
+  databaseLatencyMs: 22,
+  description: 'Plataforma integral de gestión académica para el Centro de Educación Básica Alternativa (CEBA) Joseph Lister. Administra ciclos formativos Inicial, Intermedio y Avanzado, control de aforo, nivelación de aprendizajes y certificación modular oficial.',
 };
 
 export const useDashboard = (initialFilter = true): UseDashboardResult => {

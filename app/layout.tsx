@@ -14,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'Joseph Lister | Dashboard de Eventos Médicos',
-  description: 'Sistema centralizado de gestión y monitoreo de eventos clínicos, talleres y simposios quirúrgicos.',
+  title: 'CEBA Joseph Lister | Sistema de Gestión Académica',
+  description: 'Plataforma centralizada de gestión académica, matrículas y ciclos formativos para el Centro de Educación Básica Alternativa Joseph Lister.',
 };
 
 interface RootLayoutProps {

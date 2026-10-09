@@ -8,10 +8,10 @@ import type { CreateEventRawData, DashboardCreateModalProps } from '../types';
 export const DashboardCreateModal = ({ isOpen, isCreating, onClose, onSubmit }: DashboardCreateModalProps): JSX.Element | null => {
   const [formData, setFormData] = useState<CreateEventRawData>({
     name: '',
-    category: 'SIMPOSIO',
+    category: 'MATRICULA',
     date: '',
     location: '',
-    maxCapacity: 50,
+    maxCapacity: 40,
     organizer: '',
   });
 
@@ -24,25 +24,25 @@ export const DashboardCreateModal = ({ isOpen, isCreating, onClose, onSubmit }: 
     setFormError(null);
 
     if (!formData.name.trim()) {
-      setFormError('El nombre del evento es obligatorio.');
+      setFormError('El nombre de la actividad académica es obligatorio.');
       return;
     }
     if (!formData.location.trim()) {
-      setFormError('La ubicación o auditorio es obligatoria.');
+      setFormError('El aula o ubicación es obligatoria.');
       return;
     }
     if (!formData.organizer.trim()) {
-      setFormError('El responsable u organizador es obligatorio.');
+      setFormError('El docente o responsable es obligatorio.');
       return;
     }
 
     await onSubmit(formData);
     setFormData({
       name: '',
-      category: 'SIMPOSIO',
+      category: 'MATRICULA',
       date: '',
       location: '',
-      maxCapacity: 50,
+      maxCapacity: 40,
       organizer: '',
     });
   };
@@ -56,8 +56,8 @@ export const DashboardCreateModal = ({ isOpen, isCreating, onClose, onSubmit }: 
               <Sparkles className="h-5 w-5" />
             </div>
             <div>
-              <h3 className="text-xl font-bold text-white">Registrar Nuevo Evento</h3>
-              <p className="text-xs text-[#908FA0]">Ingresa los datos del evento médico o simposio</p>
+              <h3 className="text-xl font-bold text-white">Registrar Actividad Académica</h3>
+              <p className="text-xs text-[#908FA0]">Ingresa los datos de matrícula, taller, evaluación o módulo CEBA</p>
             </div>
           </div>
           <button type="button" onClick={onClose} className="rounded-lg p-2 text-[#908FA0] hover:text-white hover:bg-[#191F2F] transition-colors cursor-pointer">
@@ -74,13 +74,13 @@ export const DashboardCreateModal = ({ isOpen, isCreating, onClose, onSubmit }: 
 
         <form onSubmit={handleSubmit} className="mt-6 space-y-4">
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-[#908FA0] mb-1.5">Nombre del Evento *</label>
+            <label className="block text-xs font-semibold uppercase tracking-wider text-[#908FA0] mb-1.5">Nombre de la Actividad / Evento *</label>
             <input
               type="text"
               required
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              placeholder="Ej. Simposio Nacional de Cirugía Aséptica"
+              placeholder="Ej. Taller de Nivelación en Comunicación - Ciclo Avanzado"
               className="w-full rounded-xl border border-[#2E3545] bg-[#0C1322] px-4 py-2.5 text-sm text-white placeholder-[#908FA0] focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
             />
           </div>
@@ -89,12 +89,13 @@ export const DashboardCreateModal = ({ isOpen, isCreating, onClose, onSubmit }: 
             <div>
               <label className="block text-xs font-semibold uppercase tracking-wider text-[#908FA0] mb-1.5">Categoría *</label>
               <select value={formData.category} onChange={(e) => setFormData({ ...formData, category: e.target.value })} className="w-full rounded-xl border border-[#2E3545] bg-[#0C1322] px-3.5 py-2.5 text-sm text-white focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 cursor-pointer">
-                <option value="SIMPOSIO">Simposio</option>
-                <option value="CONFERENCIA">Conferencia</option>
-                <option value="TALLER">Taller Práctico</option>
-                <option value="CIRUGIA_DEMO">Demostración Quirúrgica</option>
+                <option value="MATRICULA">Matrícula</option>
+                <option value="EVALUACION">Evaluación</option>
+                <option value="TALLER_NIVELACION">Taller de Nivelación</option>
+                <option value="CONFERENCIA_DOCENTE">Jornada Docente</option>
                 <option value="CAPACITACION">Capacitación</option>
-                <option value="SEMINARIO">Seminario</option>
+                <option value="GRADUACION">Graduación</option>
+                <option value="MODULO_ACADEMICO">Módulo Formativo</option>
               </select>
             </div>
 
@@ -106,31 +107,31 @@ export const DashboardCreateModal = ({ isOpen, isCreating, onClose, onSubmit }: 
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-[#908FA0] mb-1.5">Ubicación / Auditorio *</label>
+              <label className="block text-xs font-semibold uppercase tracking-wider text-[#908FA0] mb-1.5">Aula / Ubicación *</label>
               <input
                 type="text"
                 required
                 value={formData.location}
                 onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                placeholder="Ej. Auditorio Quirúrgico 4A"
+                placeholder="Ej. Aula 104 - Pabellón Central"
                 className="w-full rounded-xl border border-[#2E3545] bg-[#0C1322] px-4 py-2.5 text-sm text-white placeholder-[#908FA0] focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-[#908FA0] mb-1.5">Aforo / Capacidad Máxima *</label>
+              <label className="block text-xs font-semibold uppercase tracking-wider text-[#908FA0] mb-1.5">Vacantes / Capacidad Máxima *</label>
               <input type="number" min="1" required value={formData.maxCapacity} onChange={(e) => setFormData({ ...formData, maxCapacity: e.target.value })} className="w-full rounded-xl border border-[#2E3545] bg-[#0C1322] px-4 py-2.5 text-sm text-white focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20" />
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-[#908FA0] mb-1.5">Responsable / Ponente Principal *</label>
+            <label className="block text-xs font-semibold uppercase tracking-wider text-[#908FA0] mb-1.5">Docente / Responsable *</label>
             <input
               type="text"
               required
               value={formData.organizer}
               onChange={(e) => setFormData({ ...formData, organizer: e.target.value })}
-              placeholder="Ej. Dr. Alexander Fleming"
+              placeholder="Ej. Prof. Carlos Mejía"
               className="w-full rounded-xl border border-[#2E3545] bg-[#0C1322] px-4 py-2.5 text-sm text-white placeholder-[#908FA0] focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
             />
           </div>
@@ -146,7 +147,7 @@ export const DashboardCreateModal = ({ isOpen, isCreating, onClose, onSubmit }: 
                   <span>Guardando...</span>
                 </>
               ) : (
-                <span>Guardar Evento</span>
+                <span>Guardar Actividad</span>
               )}
             </button>
           </div>

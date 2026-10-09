@@ -1,5 +1,5 @@
 import type { JSX } from 'react';
-import { Plus, Activity, CalendarCheck, Users, Sparkles } from 'lucide-react';
+import { Plus, Activity, CalendarCheck, Users, GraduationCap } from 'lucide-react';
 import type { DashboardHeaderProps } from '../types';
 
 export const DashboardHeader = ({ title, subtitle, onOpenCreateModal, stats }: DashboardHeaderProps): JSX.Element => {
@@ -13,13 +13,13 @@ export const DashboardHeader = ({ title, subtitle, onOpenCreateModal, stats }: D
           <div className="flex items-center gap-3">
             <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-xs font-semibold text-emerald-400">
               <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
-              SISTEMA EN LÍNEA
+              SISTEMA ACADÉMICO ACTIVO
             </span>
-            <span className="inline-flex items-center gap-1 rounded-full border border-[#464554] bg-[#1E2538] px-2.5 py-0.5 text-xs font-mono text-[#C7C4D7]">v2.6.4</span>
+            <span className="inline-flex items-center gap-1 rounded-full border border-[#464554] bg-[#1E2538] px-2.5 py-0.5 text-xs font-mono text-[#C7C4D7]">CEBA LISTER v2.6.4</span>
           </div>
 
           <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-white flex items-center gap-3">
-            <Sparkles className="h-8 w-8 text-indigo-400 inline-block" />
+            <GraduationCap className="h-8 w-8 text-indigo-400 inline-block" />
             {title}
           </h1>
           <p className="text-sm md:text-base text-[#908FA0] max-w-2xl font-medium">{subtitle}</p>
@@ -43,7 +43,7 @@ export const DashboardHeader = ({ title, subtitle, onOpenCreateModal, stats }: D
             <CalendarCheck className="h-5 w-5" />
           </div>
           <div>
-            <p className="text-xs font-medium text-[#908FA0] uppercase tracking-wider">Total Eventos</p>
+            <p className="text-xs font-medium text-[#908FA0] uppercase tracking-wider">Total Actividades</p>
             <p className="text-xl font-bold text-white tracking-tight">{stats.totalEvents}</p>
           </div>
         </div>
@@ -53,7 +53,7 @@ export const DashboardHeader = ({ title, subtitle, onOpenCreateModal, stats }: D
             <Activity className="h-5 w-5" />
           </div>
           <div>
-            <p className="text-xs font-medium text-[#908FA0] uppercase tracking-wider">Eventos Activos</p>
+            <p className="text-xs font-medium text-[#908FA0] uppercase tracking-wider">Actividades Activas</p>
             <p className="text-xl font-bold text-emerald-400 tracking-tight">{stats.activeEvents}</p>
           </div>
         </div>
@@ -63,7 +63,7 @@ export const DashboardHeader = ({ title, subtitle, onOpenCreateModal, stats }: D
             <Users className="h-5 w-5" />
           </div>
           <div>
-            <p className="text-xs font-medium text-[#908FA0] uppercase tracking-wider">Asistentes Totales</p>
+            <p className="text-xs font-medium text-[#908FA0] uppercase tracking-wider">Estudiantes Registrados</p>
             <p className="text-xl font-bold text-white tracking-tight">{stats.totalAttendees.toLocaleString('es-ES')}</p>
           </div>
         </div>
@@ -73,7 +73,7 @@ export const DashboardHeader = ({ title, subtitle, onOpenCreateModal, stats }: D
             <span className="text-base font-bold">%</span>
           </div>
           <div>
-            <p className="text-xs font-medium text-[#908FA0] uppercase tracking-wider">Tasa Ocupación</p>
+            <p className="text-xs font-medium text-[#908FA0] uppercase tracking-wider">Tasa Asistencia / Aforo</p>
             <p className="text-xl font-bold text-purple-300 tracking-tight">{stats.averageOccupancyRate}%</p>
           </div>
         </div>

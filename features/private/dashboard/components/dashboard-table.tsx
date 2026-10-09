@@ -18,7 +18,7 @@ export const DashboardTable = ({ events, pagination, isLoading, searchTerm, sele
             type="text"
             value={searchTerm}
             onChange={(e) => onSearchChange(e.target.value)}
-            placeholder="Buscar eventos por título, código, ponente o lugar..."
+            placeholder="Buscar por actividad académica, código, docente o aula..."
             className="w-full rounded-xl border border-[#2E3545] bg-[#0C1322] pl-10 pr-4 py-2.5 text-sm text-white placeholder-[#908FA0] focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all"
           />
         </div>
@@ -29,12 +29,13 @@ export const DashboardTable = ({ events, pagination, isLoading, searchTerm, sele
             <span className="text-xs font-medium text-[#908FA0] uppercase tracking-wider">Categoría:</span>
             <select value={selectedCategory} onChange={(e) => onCategoryChange(e.target.value)} className="rounded-lg border border-[#2E3545] bg-[#0C1322] px-3 py-2 text-xs font-medium text-white focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 cursor-pointer">
               <option value="TODAS">Todas las categorías</option>
-              <option value="SIMPOSIO">Simposio</option>
-              <option value="CONFERENCIA">Conferencia</option>
-              <option value="TALLER">Taller</option>
-              <option value="CIRUGIA_DEMO">Demostración Quirúrgica</option>
+              <option value="MATRICULA">Matrícula</option>
+              <option value="EVALUACION">Evaluación</option>
+              <option value="TALLER_NIVELACION">Taller de Nivelación</option>
+              <option value="CONFERENCIA_DOCENTE">Jornada Docente</option>
               <option value="CAPACITACION">Capacitación</option>
-              <option value="SEMINARIO">Seminario</option>
+              <option value="GRADUACION">Graduación</option>
+              <option value="MODULO_ACADEMICO">Módulo Formativo</option>
             </select>
           </div>
 
@@ -56,16 +57,16 @@ export const DashboardTable = ({ events, pagination, isLoading, searchTerm, sele
           <thead>
             <tr className="border-b border-[#2E3545] bg-[#0C1322]/60 text-xs font-semibold uppercase tracking-wider text-[#908FA0]">
               <th scope="col" className="py-3.5 px-4 md:px-6">
-                Código / Evento
+                Código / Actividad Académica
               </th>
               <th scope="col" className="py-3.5 px-4">
                 Categoría
               </th>
               <th scope="col" className="py-3.5 px-4">
-                Fecha & Ubicación
+                Fecha & Aula / Lugar
               </th>
               <th scope="col" className="py-3.5 px-4">
-                Ocupación / Aforo
+                Ocupación / Vacantes
               </th>
               <th scope="col" className="py-3.5 px-4">
                 Estado
@@ -81,7 +82,7 @@ export const DashboardTable = ({ events, pagination, isLoading, searchTerm, sele
                 <td colSpan={6} className="py-16 text-center text-[#908FA0]">
                   <div className="flex flex-col items-center justify-center gap-3">
                     <Loader2 className="h-8 w-8 animate-spin text-indigo-400" />
-                    <p className="text-sm font-medium">Cargando eventos del sistema...</p>
+                    <p className="text-sm font-medium">Cargando actividades del sistema...</p>
                   </div>
                 </td>
               </tr>
@@ -92,11 +93,11 @@ export const DashboardTable = ({ events, pagination, isLoading, searchTerm, sele
                     <div className="h-12 w-12 rounded-full bg-zinc-800/80 flex items-center justify-center text-zinc-400">
                       <Sparkles className="h-6 w-6" />
                     </div>
-                    <p className="text-base font-semibold text-white">No se encontraron eventos</p>
+                    <p className="text-base font-semibold text-white">No se encontraron actividades</p>
                     <p className="text-xs text-[#908FA0]">No hay registros que coincidan con los criterios de búsqueda actuales.</p>
                     <button type="button" onClick={onOpenCreateModal} className="mt-2 inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-4 py-2 text-xs font-semibold text-white hover:bg-indigo-500 transition-all cursor-pointer">
                       <PlusCircle className="h-4 w-4" />
-                      Crear nuevo evento
+                      Crear nueva actividad
                     </button>
                   </div>
                 </td>
@@ -110,7 +111,7 @@ export const DashboardTable = ({ events, pagination, isLoading, searchTerm, sele
 
       <div className="p-4 md:px-6 border-t border-[#2E3545]/60 bg-[#0C1322]/40 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 text-xs text-[#908FA0]">
         <div>
-          Mostrando <strong className="text-white">{startItem}</strong> - <strong className="text-white">{endItem}</strong> de <strong className="text-white">{pagination.totalItems}</strong> eventos registrados
+          Mostrando <strong className="text-white">{startItem}</strong> - <strong className="text-white">{endItem}</strong> de <strong className="text-white">{pagination.totalItems}</strong> actividades registradas
         </div>
 
         <div className="flex items-center gap-2 self-end sm:self-auto">

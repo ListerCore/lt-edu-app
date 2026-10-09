@@ -29,7 +29,7 @@ export const DashboardBody = ({ initialFilter = true }: DashboardBodyProps): JSX
           </div>
         )}
 
-        <DashboardHeader title="Dashboard de Eventos" subtitle="Panel central de control y monitoreo de actividades médicas, talleres y simposios clínicos Joseph Lister." onOpenCreateModal={openCreateModal} stats={stats} />
+        <DashboardHeader title="Dashboard de Gestión Académica" subtitle="Panel central de control y monitoreo de ciclos formativos, talleres y actividades del CEBA Joseph Lister." onOpenCreateModal={openCreateModal} stats={stats} />
 
         <DashboardTable
           events={events}
