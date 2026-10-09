@@ -1,0 +1,25 @@
+# Dependencies and build output are rebuilt inside the image
+node_modules
+.next
+out
+build
+coverage
+
+# VCS and editor files
+.git
+.gitignore
+.vscode
+.idea
+.DS_Store
+
+# Secrets: pass env vars through Dokploy, never bake them in
+.env*
+*.pem
+
+# Logs and misc
+*.log
+*.tsbuildinfo
+.vercel
+Dockerfile
+.dockerignore
+README.md
