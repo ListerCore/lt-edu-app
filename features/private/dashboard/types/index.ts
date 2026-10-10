@@ -201,3 +201,11 @@ export interface DashboardAboutSystemProps {
 export interface DashboardBodyProps {
   initialFilter?: boolean;
 }
+
+export interface DashboardSidebarProps {
+  currentPath?: string;
+  totalEvents?: number;
+  activeEvents?: number;
+  isOpenMobile?: boolean;
+  onCloseMobile?: () => void;
+}
