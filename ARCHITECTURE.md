@@ -105,7 +105,7 @@ export type DashboardItem = {
 Example:
 
 ```ts
-import type { DashboardData, DashboardFilters } from "../types";
+import type { DashboardData, DashboardFilters } from '../types';
 ```
 
 Do not duplicate the same `type` or `interface` across different files.
@@ -579,7 +579,7 @@ getEventAction({
   filter: true,
   page: 1,
   limit: 10,
-  search: "juan",
+  search: 'juan',
 });
 ```
 
@@ -915,11 +915,9 @@ Rules:
 Component example:
 
 ```tsx
-import type { DashboardHeaderProps } from "../types";
+import type { DashboardHeaderProps } from '../types';
 
-export const DashboardHeader = ({
-  title,
-}: DashboardHeaderProps): JSX.Element => {
+export const DashboardHeader = ({ title }: DashboardHeaderProps): JSX.Element => {
   return <h1>{title}</h1>;
 };
 ```
@@ -927,11 +925,9 @@ export const DashboardHeader = ({
 Action example:
 
 ```ts
-import type { GetEventParams, GetEventResponse } from "../types";
+import type { GetEventParams, GetEventResponse } from '../types';
 
-export const getEventAction = async (
-  params: GetEventParams,
-): Promise<GetEventResponse> => {
+export const getEventAction = async (params: GetEventParams): Promise<GetEventResponse> => {
   // communication with the endpoint
 };
 ```
@@ -939,11 +935,9 @@ export const getEventAction = async (
 Hook example:
 
 ```ts
-import type { UseGetEventParams, UseGetEventResult } from "../types";
+import type { UseGetEventParams, UseGetEventResult } from '../types';
 
-export const useGetEvent = ({
-  filter,
-}: UseGetEventParams): UseGetEventResult => {
+export const useGetEvent = ({ filter }: UseGetEventParams): UseGetEventResult => {
   // hook logic
 };
 ```
@@ -1007,8 +1001,8 @@ export const EventsHeader = (): JSX.Element => {
 Toasts and error messages shown by hooks must also be in Spanish:
 
 ```ts
-toast.success("Evento creado correctamente");
-toast.error("No se pudo crear el evento");
+toast.success('Evento creado correctamente');
+toast.error('No se pudo crear el evento');
 ```
 
 ---

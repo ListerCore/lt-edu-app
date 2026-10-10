@@ -71,7 +71,6 @@ export const useGetEvent = ({ filter = true, search = '', category = 'TODAS', st
           setError(response.message || 'Error al cargar los eventos del sistema');
         }
 
-        // If filter is active, also get full summary stats once
         if (filter) {
           const fullResponse = await getEventAction({ filter: false });
           if (!isCancelled && fullResponse.success) {

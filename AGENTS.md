@@ -32,9 +32,7 @@ Example:
 
 ```ts
 // Fetches events; filter=true paginates and filters, filter=false returns all
-export const getEventAction = async (
-  params: GetEventParams,
-): Promise<GetEventResponse> => {
+export const getEventAction = async (params: GetEventParams): Promise<GetEventResponse> => {
   // ...
 };
 ```

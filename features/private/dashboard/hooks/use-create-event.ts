@@ -22,7 +22,6 @@ export const useCreateEvent = (): UseCreateEventResult => {
     setNotification(null);
 
     try {
-      // 1. Clean & validate data
       const cleanedName = rawData.name.trim();
       const cleanedOrganizer = rawData.organizer.trim();
       const cleanedLocation = rawData.location.trim();
@@ -37,13 +36,11 @@ export const useCreateEvent = (): UseCreateEventResult => {
         throw new Error('La capacidad máxima debe ser un número entero mayor a 0.');
       }
 
-      // 2. Transform values to uppercase as per Architecture specification
       const upperName = cleanedName.toUpperCase();
       const upperOrganizer = cleanedOrganizer.toUpperCase();
       const upperLocation = cleanedLocation.toUpperCase();
       const upperCategory = (cleanedCategory.toUpperCase() || 'CONFERENCIA') as EventCategory;
 
-      // 3. Build payload for action
       const payload: CreateEventPayload = {
         payload: {
           NAME: upperName,
@@ -56,7 +53,6 @@ export const useCreateEvent = (): UseCreateEventResult => {
         },
       };
 
-      // 4. Call action
       const response = await createEventAction(payload);
 
       if (response.success) {
