@@ -13,8 +13,8 @@ export const DashboardBody = ({ initialFilter = true }: DashboardBodyProps): JSX
   const { events, stats, systemInfo, pagination, isLoading, searchTerm, selectedCategory, selectedStatus, isCreateModalOpen, isCreating, notification, setSearchTerm, setSelectedCategory, setSelectedStatus, goToPage, nextPage, prevPage, openCreateModal, closeCreateModal, handleCreateSubmit, clearNotification } = useDashboard(initialFilter);
 
   return (
-    <main className="min-h-screen bg-[#070E1D] text-[#DCE2F7] antialiased selection:bg-indigo-500/30 selection:text-indigo-200">
-      <div className="h-1.5 w-full bg-linear-to-r from-indigo-500 via-emerald-500 to-indigo-600" />
+    <main className="min-h-screen bg-[#070E1D] text-[#DCE2F7] antialiased selection:bg-emerald-500/30 selection:text-emerald-200">
+      <div className="h-1.5 w-full bg-linear-to-r from-emerald-500 via-teal-500 to-indigo-600" />
 
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 md:py-12 space-y-8">
         {notification && (

@@ -49,18 +49,18 @@ export const DashboardCreateModal = ({ isOpen, isCreating, onClose, onSubmit }: 
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm">
-      <div className="relative w-full max-w-xl rounded-2xl border border-[#2E3545] bg-[#141B2D] p-6 sm:p-8 shadow-2xl shadow-black/80">
-        <div className="flex items-center justify-between pb-5 border-b border-[#2E3545]/60">
+      <div className="relative w-full max-w-xl rounded-2xl border border-[#22334F] bg-[#132036] p-6 sm:p-8 shadow-2xl shadow-black/80">
+        <div className="flex items-center justify-between pb-5 border-b border-[#22334F]/60">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">
               <Sparkles className="h-5 w-5" />
             </div>
             <div>
               <h3 className="text-xl font-bold text-white">Registrar Actividad Académica</h3>
-              <p className="text-xs text-[#908FA0]">Ingresa los datos de matrícula, taller, evaluación o módulo CEBA</p>
+              <p className="text-xs text-[#94A3B8]">Ingresa los datos de matrícula, taller, evaluación o módulo CEBA</p>
             </div>
           </div>
-          <button type="button" onClick={onClose} className="rounded-lg p-2 text-[#908FA0] hover:text-white hover:bg-[#191F2F] transition-colors cursor-pointer">
+          <button type="button" onClick={onClose} className="rounded-lg p-2 text-[#94A3B8] hover:text-white hover:bg-[#1A2942] transition-colors cursor-pointer">
             <X className="h-5 w-5" />
           </button>
         </div>
@@ -74,21 +74,21 @@ export const DashboardCreateModal = ({ isOpen, isCreating, onClose, onSubmit }: 
 
         <form onSubmit={handleSubmit} className="mt-6 space-y-4">
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-[#908FA0] mb-1.5">Nombre de la Actividad / Evento *</label>
+            <label className="block text-xs font-semibold uppercase tracking-wider text-[#94A3B8] mb-1.5">Nombre de la Actividad / Evento *</label>
             <input
               type="text"
               required
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
               placeholder="Ej. Taller de Nivelación en Comunicación - Ciclo Avanzado"
-              className="w-full rounded-xl border border-[#2E3545] bg-[#0C1322] px-4 py-2.5 text-sm text-white placeholder-[#908FA0] focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+              className="w-full rounded-xl border border-[#22334F] bg-[#0B1528] px-4 py-2.5 text-sm text-white placeholder-[#94A3B8] focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
             />
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-[#908FA0] mb-1.5">Categoría *</label>
-              <select value={formData.category} onChange={(e) => setFormData({ ...formData, category: e.target.value })} className="w-full rounded-xl border border-[#2E3545] bg-[#0C1322] px-3.5 py-2.5 text-sm text-white focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 cursor-pointer">
+              <label className="block text-xs font-semibold uppercase tracking-wider text-[#94A3B8] mb-1.5">Categoría *</label>
+              <select value={formData.category} onChange={(e) => setFormData({ ...formData, category: e.target.value })} className="w-full rounded-xl border border-[#22334F] bg-[#0B1528] px-3.5 py-2.5 text-sm text-white focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 cursor-pointer">
                 <option value="MATRICULA">Matrícula</option>
                 <option value="EVALUACION">Evaluación</option>
                 <option value="TALLER_NIVELACION">Taller de Nivelación</option>
@@ -100,47 +100,47 @@ export const DashboardCreateModal = ({ isOpen, isCreating, onClose, onSubmit }: 
             </div>
 
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-[#908FA0] mb-1.5">Fecha y Hora *</label>
-              <input type="datetime-local" required value={formData.date} onChange={(e) => setFormData({ ...formData, date: e.target.value })} className="w-full rounded-xl border border-[#2E3545] bg-[#0C1322] px-3.5 py-2.5 text-sm text-white focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20" />
+              <label className="block text-xs font-semibold uppercase tracking-wider text-[#94A3B8] mb-1.5">Fecha y Hora *</label>
+              <input type="datetime-local" required value={formData.date} onChange={(e) => setFormData({ ...formData, date: e.target.value })} className="w-full rounded-xl border border-[#22334F] bg-[#0B1528] px-3.5 py-2.5 text-sm text-white focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20" />
             </div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-[#908FA0] mb-1.5">Aula / Ubicación *</label>
+              <label className="block text-xs font-semibold uppercase tracking-wider text-[#94A3B8] mb-1.5">Aula / Ubicación *</label>
               <input
                 type="text"
                 required
                 value={formData.location}
                 onChange={(e) => setFormData({ ...formData, location: e.target.value })}
                 placeholder="Ej. Aula 104 - Pabellón Central"
-                className="w-full rounded-xl border border-[#2E3545] bg-[#0C1322] px-4 py-2.5 text-sm text-white placeholder-[#908FA0] focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                className="w-full rounded-xl border border-[#22334F] bg-[#0B1528] px-4 py-2.5 text-sm text-white placeholder-[#94A3B8] focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-[#908FA0] mb-1.5">Vacantes / Capacidad Máxima *</label>
-              <input type="number" min="1" required value={formData.maxCapacity} onChange={(e) => setFormData({ ...formData, maxCapacity: e.target.value })} className="w-full rounded-xl border border-[#2E3545] bg-[#0C1322] px-4 py-2.5 text-sm text-white focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20" />
+              <label className="block text-xs font-semibold uppercase tracking-wider text-[#94A3B8] mb-1.5">Vacantes / Capacidad Máxima *</label>
+              <input type="number" min="1" required value={formData.maxCapacity} onChange={(e) => setFormData({ ...formData, maxCapacity: e.target.value })} className="w-full rounded-xl border border-[#22334F] bg-[#0B1528] px-4 py-2.5 text-sm text-white focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20" />
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-[#908FA0] mb-1.5">Docente / Responsable *</label>
+            <label className="block text-xs font-semibold uppercase tracking-wider text-[#94A3B8] mb-1.5">Docente / Responsable *</label>
             <input
               type="text"
               required
               value={formData.organizer}
               onChange={(e) => setFormData({ ...formData, organizer: e.target.value })}
               placeholder="Ej. Prof. Carlos Mejía"
-              className="w-full rounded-xl border border-[#2E3545] bg-[#0C1322] px-4 py-2.5 text-sm text-white placeholder-[#908FA0] focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+              className="w-full rounded-xl border border-[#22334F] bg-[#0B1528] px-4 py-2.5 text-sm text-white placeholder-[#94A3B8] focus:border-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/20"
             />
           </div>
 
-          <div className="mt-8 flex items-center justify-end gap-3 pt-5 border-t border-[#2E3545]/60">
-            <button type="button" onClick={onClose} disabled={isCreating} className="rounded-xl border border-[#2E3545] bg-[#0C1322] px-5 py-2.5 text-sm font-medium text-zinc-300 hover:bg-[#191F2F] hover:text-white transition-all cursor-pointer">
+          <div className="mt-8 flex items-center justify-end gap-3 pt-5 border-t border-[#22334F]/60">
+            <button type="button" onClick={onClose} disabled={isCreating} className="rounded-xl border border-[#22334F] bg-[#0B1528] px-5 py-2.5 text-sm font-medium text-zinc-300 hover:bg-[#1A2942] hover:text-white transition-all cursor-pointer">
               Cancelar
             </button>
-            <button type="submit" disabled={isCreating} className="inline-flex items-center gap-2 rounded-xl bg-linear-to-r from-indigo-600 to-indigo-500 px-6 py-2.5 text-sm font-bold text-white shadow-lg shadow-indigo-600/30 hover:shadow-indigo-500/50 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 transition-all cursor-pointer">
+            <button type="submit" disabled={isCreating} className="inline-flex items-center gap-2 rounded-xl bg-linear-to-r from-emerald-600 to-teal-600 px-6 py-2.5 text-sm font-bold text-white shadow-lg shadow-emerald-600/30 hover:shadow-emerald-500/50 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 transition-all cursor-pointer">
               {isCreating ? (
                 <>
                   <Loader2 className="h-4 w-4 animate-spin" />
