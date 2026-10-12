@@ -1,8 +1,7 @@
 import type { JSX } from 'react';
-import { DashboardBody } from '../features/private/dashboard/components/dashboard-body';
 
 const HomePage = (): JSX.Element => {
-  return <DashboardBody />;
+  return <main>Hello from NextJs</main>;
 };
 
 export default HomePage;
