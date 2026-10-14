@@ -24,8 +24,9 @@ const InstitutionalLinks = (): JSX.Element => (
 );
 
 const Footer = (): JSX.Element => (
-  <footer className="border-t border-border bg-background text-foreground">
-    <div className="mx-auto max-w-7xl px-4 pb-8 pt-10 sm:px-6 lg:px-8 lg:pt-12">
+  <footer className="relative isolate overflow-hidden border-t border-border bg-background text-foreground">
+    <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-[url('/patterns/grid-lines.svg')] bg-[size:32px_32px] opacity-60" />
+    <div className="relative z-10 mx-auto max-w-7xl px-4 pb-8 pt-10 sm:px-6 lg:px-8 lg:pt-12">
       <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-[1.2fr_1fr_1fr_1.1fr] lg:gap-10">
         <section aria-labelledby="footer-brand-title">
           <Link href="/" className="inline-flex items-center gap-2.5">
