@@ -9,7 +9,7 @@ const navigationItems: Array<{ label: string; href: string }> = [
   { label: 'Ciclos', href: '/#programs' },
   { label: 'Modalidad Virtual', href: '/#virtual-learning' },
   { label: 'Admisión', href: '/#admissions' },
-  { label: 'Contacto', href: '/#contact' },
+  { label: 'Contacto', href: '/contact' },
 ];
 
 const Navbar = (): JSX.Element => (
