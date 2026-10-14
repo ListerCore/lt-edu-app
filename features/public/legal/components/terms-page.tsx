@@ -1,9 +1,10 @@
 import type { JSX } from 'react';
 import Link from 'next/link';
-import { BookOpenCheck, Bot, CalendarCheck, CreditCard, FileCheck2, FileText, Gauge, Gavel, GraduationCap, HeartHandshake, LockKeyhole, Scale, ShieldCheck, ShieldEllipsis, Sparkles, UserRoundCheck, UsersRound } from 'lucide-react';
+import { BadgeCheck, BookOpenCheck, Bot, CalendarCheck, CreditCard, FileCheck2, FileText, Gauge, Gavel, GraduationCap, HeartHandshake, LockKeyhole, Scale, ShieldCheck, ShieldEllipsis, Sparkles, UserRoundCheck, UsersRound } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { LegalPage } from './legal-page';
 import { LegalSectionHeading } from './legal-section-heading';
+import { TermsAcknowledgement } from './terms-acknowledgement';
 
 const sections = [
   'Aceptación de los términos',
@@ -77,6 +78,32 @@ export const TermsPage = (): JSX.Element => (
         <section key={section.id} id={section.id} className="scroll-mt-24">
           <LegalSectionHeading icon={Icon} number={`Sección ${String(index + 1).padStart(2, '0')}`} title={section.title} />
           <p>{sectionText[index]}</p>
+          {index === 1 && (
+            <div className="mt-4 grid gap-2 sm:grid-cols-2">
+              {[
+                { title: 'Plataforma SIGE-JL', body: 'Canales digitales institucionales utilizados para facilitar el acceso a recursos, actividades y comunicaciones educativas.', icon: GraduationCap },
+                { title: 'Estudiante EBA', body: 'Persona matriculada en un programa de Educación Básica Alternativa.', icon: UserRoundCheck },
+                { title: 'Apoderado o tutor', body: 'Persona que representa o acompaña al estudiante cuando corresponde.', icon: UsersRound },
+                { title: 'Institución', body: 'CEBA Privado Virtual Joseph Lister, responsable de la prestación educativa descrita para cada periodo.', icon: ShieldCheck },
+              ].map(({ title, body, icon: DefinitionIcon }) => <div key={title} className="rounded-lg border border-border bg-background p-3"><DefinitionIcon aria-hidden="true" className="size-4 text-secondary" /><h3 className="mt-2 text-xs font-semibold text-foreground">{title}</h3><p className="mt-1 text-xs leading-5 text-muted-foreground">{body}</p></div>)}
+            </div>
+          )}
+          {index === 2 && (
+            <div className="mt-4 grid gap-2 sm:grid-cols-3">
+              {[
+                { title: 'Aula virtual', body: 'Acceso digital a materiales, actividades y recursos de estudio.', icon: BookOpenCheck },
+                { title: 'Acompañamiento', body: 'Orientación académica y comunicación con el equipo educativo.', icon: HeartHandshake },
+                { title: 'Seguimiento', body: 'Información sobre participación, actividades y progreso de aprendizaje.', icon: Gauge },
+              ].map(({ title, body, icon: ServiceIcon }) => <div key={title} className="rounded-lg border border-border bg-background p-3"><ServiceIcon aria-hidden="true" className="size-4 text-secondary" /><h3 className="mt-2 text-xs font-semibold text-foreground">{title}</h3><p className="mt-1 text-xs leading-5 text-muted-foreground">{body}</p></div>)}
+            </div>
+          )}
+          {index === 3 && <div className="mt-4 rounded-lg border border-secondary/20 bg-secondary/5 p-4"><h3 className="text-xs font-semibold text-foreground">Antes de completar tu matrícula</h3><ul className="mt-2 list-disc space-y-1 pl-5 text-xs leading-5 text-muted-foreground"><li>Comparte información correcta sobre tus estudios anteriores.</li><li>Presenta los documentos que se te soliciten para revisar tu trayectoria.</li><li>Confirma el ciclo, las condiciones y los costos vigentes con admisión.</li><li>La matrícula queda confirmada luego de completar los pasos indicados por la institución.</li></ul></div>}
+          {index === 4 && <div className="mt-4 grid gap-2 sm:grid-cols-2"><div className="rounded-lg border border-destructive/20 bg-destructive/5 p-3"><h3 className="text-xs font-semibold text-foreground">Credenciales personales</h3><p className="mt-1 text-xs leading-5 text-muted-foreground">No compartas contraseñas ni permitas que otras personas ingresen con tu cuenta.</p></div><div className="rounded-lg border border-border bg-background p-3"><h3 className="text-xs font-semibold text-foreground">Recuperación y bloqueo</h3><p className="mt-1 text-xs leading-5 text-muted-foreground">Si pierdes acceso o detectas actividad inusual, comunícate por los canales institucionales para recibir orientación.</p></div></div>}
+          {index === 5 && <div className="mt-4 grid gap-2 sm:grid-cols-3">{[{ title: 'Trato digno', body: 'Respeta a estudiantes, docentes y personal en todas las actividades.' }, { title: 'Uso responsable', body: 'Utiliza los canales y recursos virtuales para fines educativos.' }, { title: 'Protección de la comunidad', body: 'Informa situaciones que afecten la seguridad o convivencia.' }].map(({ title, body }) => <div key={title} className="rounded-lg border border-border bg-background p-3"><HeartHandshake aria-hidden="true" className="size-4 text-secondary" /><h3 className="mt-2 text-xs font-semibold">{title}</h3><p className="mt-1 text-xs leading-5 text-muted-foreground">{body}</p></div>)}</div>}
+          {index === 6 && <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4">{[{ grade: 'AD', label: 'Logro destacado' }, { grade: 'A', label: 'Logro esperado' }, { grade: 'B', label: 'En proceso' }, { grade: 'C', label: 'En inicio' }].map(({ grade, label }) => <div key={grade} className="rounded-lg border border-border bg-background p-3 text-center"><p className="font-heading text-lg font-bold text-secondary">{grade}</p><p className="mt-1 text-[10px] text-muted-foreground">{label}</p></div>)}</div>}
+          {index === 7 && <div className="mt-4 rounded-lg border border-border bg-background p-4"><h3 className="flex items-center gap-2 text-xs font-semibold"><CreditCard aria-hidden="true" className="size-4 text-secondary" />Información de pagos</h3><p className="mt-2 text-xs leading-5 text-muted-foreground">Las fechas, importes y medios de pago se comunican antes de contratar el servicio. Conserva tus comprobantes y consulta con la institución si necesitas revisar un saldo o una fecha de vencimiento.</p></div>}
+          {index === 8 && <div className="mt-4 rounded-lg border border-primary/20 bg-primary/5 p-4"><h3 className="flex items-center gap-2 text-xs font-semibold"><Bot aria-hidden="true" className="size-4 text-primary" />Asistente pedagógico y recursos automatizados</h3><p className="mt-2 text-xs leading-5 text-muted-foreground">Las respuestas generadas pueden requerir verificación. No compartas información sensible en consultas y solicita apoyo docente cuando una explicación no sea clara.</p></div>}
+          {index === 10 && <div className="mt-4 grid gap-2 sm:grid-cols-2"><p className="rounded-lg border border-border bg-background p-3 text-xs leading-5 text-muted-foreground"><CalendarCheck aria-hidden="true" className="mr-2 inline size-4 text-secondary" />Pueden programarse tareas de mantenimiento para conservar la disponibilidad y seguridad de las plataformas.</p><p className="rounded-lg border border-border bg-background p-3 text-xs leading-5 text-muted-foreground"><ShieldCheck aria-hidden="true" className="mr-2 inline size-4 text-secondary" />Las interrupciones se atienden priorizando la continuidad y protección de la información.</p></div>}
           {index === 12 && (
             <p className="mt-3">
               <Link href="/legal/privacy" className="font-medium text-secondary underline underline-offset-4">
@@ -94,6 +121,11 @@ export const TermsPage = (): JSX.Element => (
         </section>
       );
     })}
+    <section>
+      <LegalSectionHeading icon={BadgeCheck} title="Confirmación de aceptación y declaración" />
+      <p className="mb-4">Confirma que revisaste estas condiciones y la política de privacidad relacionada con el uso de los servicios digitales.</p>
+      <TermsAcknowledgement />
+    </section>
     <section>
       <h2>¿Tienes dudas sobre estos términos?</h2>
       <p>

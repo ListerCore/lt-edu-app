@@ -5,6 +5,7 @@ import { BadgeCheck, BookOpenCheck, Clock3, ExternalLink, ShieldCheck } from 'lu
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { LegalPage } from './legal-page';
 import { ComplaintForm } from './complaints-form';
+import { ComplaintStatusForm } from './complaint-status-form';
 
 export const ComplaintsPage = (): JSX.Element => (
   <LegalPage eyebrow="Canal de atención al estudiante" title="Libro de Reclamaciones Virtual" summary="Tu opinión nos ayuda a mejorar. Registra una queja o reclamo relacionado con los servicios educativos de CEBA Joseph Lister." tags={['D.S. N.° 011-2011-PCM', 'Ley N.° 29571', 'Atención virtual']} icon={BookOpenCheck}>
@@ -43,14 +44,18 @@ export const ComplaintsPage = (): JSX.Element => (
               <dd className="mt-1 font-semibold text-foreground">CEBA Privado Virtual Joseph Lister</dd>
             </div>
             <div>
+              <dt className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Identificación y autorización</dt>
+              <dd className="mt-1 text-muted-foreground">RUC 20603819201 · R.D.R. N.° 01482-2018</dd>
+            </div>
+            <div>
               <dt className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Domicilio de atención</dt>
-              <dd className="mt-1 text-muted-foreground">Jr. 28 de Julio N.° 342, Centro Histórico, Huamanga, Ayacucho, Perú</dd>
+              <dd className="mt-1 text-muted-foreground">Jr. 28 de Julio N.° 450, Centro Histórico, Huamanga, Ayacucho, Perú</dd>
             </div>
             <div>
               <dt className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Correo</dt>
               <dd className="mt-1">
-                <a className="break-all font-medium text-secondary underline underline-offset-4" href="mailto:informes@cebajosephlister.edu.pe">
-                  informes@cebajosephlister.edu.pe
+                <a className="break-all font-medium text-secondary underline underline-offset-4" href="mailto:libroreclamaciones@cebalister.edu.pe">
+                  libroreclamaciones@cebalister.edu.pe
                 </a>
               </dd>
             </div>
@@ -81,8 +86,8 @@ export const ComplaintsPage = (): JSX.Element => (
           </Link>
           </CardContent>
         </Card>
-        <p className="px-1 text-[11px] leading-5 text-muted-foreground">
-          ¿Necesitas ayuda para completar la solicitud?{' '}
+          <p className="px-1 text-[11px] leading-5 text-muted-foreground">
+          ¿Necesitas ayuda para completar la solicitud? También puedes pedir el Libro de Reclamaciones físico en secretaría general.{' '}
           <a className="font-medium text-secondary underline underline-offset-4" href="tel:+5166314520">
             Llámanos al (066) 31-4520
           </a>
@@ -90,5 +95,9 @@ export const ComplaintsPage = (): JSX.Element => (
         </p>
       </aside>
     </div>
+    <section className="rounded-xl border border-border bg-muted/60 p-4 sm:p-5" aria-labelledby="complaint-status-title">
+      <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center"><div><p className="text-[10px] font-semibold uppercase tracking-wider text-secondary">Seguimiento de solicitud</p><h2 id="complaint-status-title" className="mt-1 font-heading text-lg font-bold text-foreground">Consulta el estado de tu reclamación</h2><p className="mt-1 text-xs leading-5 text-muted-foreground">Ingresa el número de hoja y el documento usado en el registro para preparar una consulta al equipo de atención.</p></div><span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-2.5 py-1.5 text-[10px] font-medium text-muted-foreground"><ShieldCheck aria-hidden="true" className="size-3.5 text-secondary" /> Verificación de identidad</span></div>
+      <ComplaintStatusForm />
+    </section>
   </LegalPage>
 );
