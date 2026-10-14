@@ -1,34 +1,28 @@
 'use client';
 
-import { createContext, use, useCallback, useMemo, useSyncExternalStore, useEffect, type ReactNode } from 'react';
+import { createContext, use, useCallback, useEffect, useMemo, useSyncExternalStore, type JSX } from 'react';
 import { Sun, Moon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import type { Theme, ThemeContextValue, ThemeProviderProps, ThemeToggleProps } from './types';
 
-type Theme = 'light' | 'dark';
-type ThemeContextType = {
-  theme: Theme;
-  toggleTheme: () => void;
-};
-
-const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
-const STORAGE_KEY = 'montessori-theme';
+const ThemeContext = createContext<ThemeContextValue | undefined>(undefined);
+const STORAGE_KEY = 'sige-jl-theme';
 
 const getSnapshot = (): Theme => {
-  if (typeof window === 'undefined') return 'light';
   const stored = localStorage.getItem(STORAGE_KEY);
   if (stored === 'light' || stored === 'dark') return stored;
-  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  return 'dark';
 };
 
-const getServerSnapshot = (): Theme => 'light';
+const getServerSnapshot = (): Theme => 'dark';
 
 const subscribe = (callback: () => void): (() => void) => {
   window.addEventListener('storage', callback);
   return () => window.removeEventListener('storage', callback);
 };
 
-export const ThemeProvider = ({ children }: { children: ReactNode }): ReactNode => {
+export const ThemeProvider = ({ children }: ThemeProviderProps): JSX.Element => {
   const theme = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 
   useEffect(() => {
@@ -46,13 +40,13 @@ export const ThemeProvider = ({ children }: { children: ReactNode }): ReactNode 
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
 };
 
-export const useTheme = (): ThemeContextType => {
+export const useTheme = (): ThemeContextValue => {
   const context = use(ThemeContext);
   if (!context) throw new Error('useTheme must be used within a ThemeProvider');
   return context;
 };
 
-const ThemeToggle = ({ className }: { className?: string }): React.ReactNode => {
+const ThemeToggle = ({ className }: ThemeToggleProps): JSX.Element => {
   const { theme, toggleTheme } = useTheme();
 
   return (

@@ -1,14 +1,11 @@
 import type { Metadata } from 'next';
-import { Geist, Geist_Mono, Inter } from 'next/font/google';
+import { Inter, Manrope } from 'next/font/google';
 import type { JSX, ReactNode } from 'react';
 import './globals.css';
-import { cn } from "@/lib/utils";
+import { AppProviders } from '../components/providers/providers';
 
-const inter = Inter({subsets:['latin'],variable:'--font-sans'});
-
-const geistSans = Geist({ variable: '--font-geist-sans', subsets: ['latin'] });
-
-const geistMono = Geist_Mono({ variable: '--font-geist-mono', subsets: ['latin'] });
+const manrope = Manrope({ subsets: ['latin'], variable: '--font-manrope' });
+const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 
 export const metadata: Metadata = {
   title: 'CEBA Joseph Lister | Sistema de Gestión Académica',
@@ -21,9 +18,9 @@ interface RootLayoutProps {
 
 const RootLayout = ({ children }: RootLayoutProps): JSX.Element => {
   return (
-    <html lang="es" className={cn("h-full", "antialiased", "dark", geistSans.variable, geistMono.variable, "font-sans", inter.variable)}>
-      <body className="min-h-full flex flex-col bg-[#070E1D] text-[#DCE2F7]">
-        <div className="flex-1">{children}</div>
+    <html lang="es" className={`${manrope.variable} ${inter.variable} h-full dark`} suppressHydrationWarning>
+      <body className="min-h-full bg-background font-sans text-foreground">
+        <AppProviders>{children}</AppProviders>
       </body>
     </html>
   );
