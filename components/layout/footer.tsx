@@ -10,6 +10,7 @@ const institutionalLinks: Array<{ label: string; href: string }> = [
   { label: 'Ciclos: Inicial, Intermedio y Avanzado', href: '/#programs' },
   { label: 'Plataforma Virtual 100% Flexible', href: '/#virtual-learning' },
   { label: 'Requisitos de Admisión', href: '/#admissions' },
+  { label: 'Centro de Ayuda y Tutoriales', href: '/help' },
   { label: 'Contacto y atención', href: '/contact' },
 ];
 

@@ -10,6 +10,7 @@ const navigationItems: Array<{ label: string; href: string }> = [
   { label: 'Ciclos', href: '/#programs' },
   { label: 'Modalidad Virtual', href: '/#virtual-learning' },
   { label: 'Admisión', href: '/#admissions' },
+  { label: 'Tutoriales', href: '/help' },
   { label: 'Contacto', href: '/contact' },
 ];
 
