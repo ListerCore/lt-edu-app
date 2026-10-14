@@ -3,6 +3,7 @@ import Link from 'next/link';
 import type { JSX } from 'react';
 import { ArrowRight, GraduationCap, Menu, Monitor, UserRound } from 'lucide-react';
 import { ThemeToggle } from '../providers/theme';
+import { ActiveNavigationLink } from './active-navigation';
 
 const navigationItems: Array<{ label: string; href: string }> = [
   { label: 'Nosotros', href: '/#about-us' },
@@ -25,9 +26,7 @@ const Navbar = (): JSX.Element => (
 
       <nav className="hidden items-center gap-1 xl:flex" aria-label="Navegación principal">
         {navigationItems.map((item): JSX.Element => (
-          <Link key={item.label} href={item.href} className="rounded-lg border border-transparent px-3 py-2 text-[11px] font-medium text-muted-foreground transition-colors hover:bg-card hover:text-foreground">
-            {item.label}
-          </Link>
+          <ActiveNavigationLink key={item.label} href={item.href} label={item.label} />
         ))}
       </nav>
 
@@ -54,9 +53,7 @@ const Navbar = (): JSX.Element => (
           </summary>
           <nav aria-label="Navegación móvil" className="absolute right-0 top-12 grid w-[min(20rem,calc(100vw-2rem))] gap-1 rounded-xl border border-border bg-card p-2 shadow-xl">
             {navigationItems.map((item): JSX.Element => (
-              <Link key={item.label} href={item.href} className="flex min-h-11 items-center gap-2 rounded-lg px-3 text-[13px] text-muted-foreground transition-colors hover:bg-accent hover:text-foreground">
-                {item.label}
-              </Link>
+              <ActiveNavigationLink key={item.label} href={item.href} label={item.label} mobile />
             ))}
             <Link href="/login" className="mt-1 flex min-h-11 items-center gap-2 rounded-lg border-t border-border px-3 pt-2 text-[13px] font-semibold text-foreground">
               <Monitor aria-hidden="true" className="size-4 text-secondary" />

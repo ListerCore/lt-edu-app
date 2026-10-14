@@ -2,6 +2,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import type { JSX } from 'react';
 import { BadgeCheck, BookOpen, ChevronRight, Clock3, Gavel, Mail, MapPin, Phone, ShieldCheck } from 'lucide-react';
+import { ActiveNavigationLink } from './active-navigation';
 
 const institutionalLinks: Array<{ label: string; href: string }> = [
   { label: 'Inicio', href: '/' },
@@ -13,13 +14,10 @@ const institutionalLinks: Array<{ label: string; href: string }> = [
 ];
 
 const InstitutionalLinks = (): JSX.Element => (
-  <ul className="mt-4 space-y-2.5">
+  <ul className="mt-4 flex flex-col gap-2">
     {institutionalLinks.map((item): JSX.Element => (
       <li key={item.label}>
-        <Link href={item.href} className="group inline-flex items-start gap-1.5 text-xs leading-5 text-muted-foreground transition-colors hover:text-secondary">
-          <ChevronRight aria-hidden="true" className="mt-0.5 size-4 shrink-0 transition-transform group-hover:translate-x-0.5" />
-          {item.label}
-        </Link>
+        <ActiveNavigationLink href={item.href} label={item.label} compact className="-mx-2 w-full" />
       </li>
     ))}
   </ul>
