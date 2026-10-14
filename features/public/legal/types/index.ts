@@ -21,3 +21,9 @@ export interface LegalSectionHeadingProps {
   title: string;
   number?: string;
 }
+
+export interface FieldLabelProps {
+  icon: LucideIcon;
+  label: string;
+  children: ReactNode;
+}

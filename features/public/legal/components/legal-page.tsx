@@ -1,6 +1,8 @@
 import Link from 'next/link';
-import type { JSX } from 'react';
+import { Children, type JSX } from 'react';
 import { BadgeCheck, ChevronRight, FileText, Home } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import type { LegalPageProps } from '../types';
 
 const LegalPage = ({ eyebrow, title, summary, tags = [], sections = [], icon: PageIcon, children }: LegalPageProps): JSX.Element => (
@@ -16,12 +18,7 @@ const LegalPage = ({ eyebrow, title, summary, tags = [], sections = [], icon: Pa
     </nav>
     <header className="mb-8 border-b border-border pb-7">
       <div className="mb-4 flex flex-wrap gap-2">
-        {tags.map((tag) => (
-          <span key={tag} className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1 text-[11px] font-semibold text-secondary">
-            <BadgeCheck aria-hidden="true" className="size-3.5" />
-            {tag}
-          </span>
-        ))}
+        {tags.map((tag) => <Badge key={tag} variant="secondary"><BadgeCheck aria-hidden="true" className="size-3.5" />{tag}</Badge>)}
       </div>
       <div className="flex flex-col justify-between gap-5 md:flex-row md:items-end">
         <div className="max-w-4xl">
@@ -39,8 +36,9 @@ const LegalPage = ({ eyebrow, title, summary, tags = [], sections = [], icon: Pa
     </header>
     <div className={`grid gap-6 ${sections.length > 0 ? 'lg:grid-cols-[260px_minmax(0,1fr)] xl:grid-cols-[280px_minmax(0,1fr)]' : 'grid-cols-1'}`}>
       {sections.length > 0 && (
-        <aside className="h-fit rounded-xl border border-border bg-card p-4 lg:sticky lg:top-24 print:hidden">
-          <h2 className="font-heading text-sm font-semibold">Índice del documento</h2>
+        <Card className="h-fit lg:sticky lg:top-24 print:hidden">
+          <CardHeader><CardTitle className="text-sm">Índice del documento</CardTitle></CardHeader>
+          <CardContent>
           <nav className="mt-3 grid max-h-[65vh] gap-1 overflow-y-auto">
             {sections.map((section, index) => (
               <a key={section.id} href={`#${section.id}`} className="flex items-start gap-2 rounded-md px-2.5 py-2 text-xs leading-5 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground">
@@ -52,9 +50,10 @@ const LegalPage = ({ eyebrow, title, summary, tags = [], sections = [], icon: Pa
               </a>
             ))}
           </nav>
-        </aside>
+          </CardContent>
+        </Card>
       )}
-      <div className="min-w-0 space-y-5 [&>section]:rounded-xl [&>section]:border [&>section]:border-border [&>section]:bg-card [&>section]:p-5 sm:[&>section]:p-6">{children}</div>
+      <div className="min-w-0 space-y-5">{sections.length > 0 ? Children.map(children, (child, index) => <Card key={index} className="overflow-visible"><CardContent className="p-5 sm:p-6">{child}</CardContent></Card>) : children}</div>
     </div>
   </div>
 );

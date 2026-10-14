@@ -1,6 +1,7 @@
 import type { JSX } from 'react';
 import Link from 'next/link';
 import { BookOpenCheck, Bot, CalendarCheck, CreditCard, FileCheck2, FileText, Gauge, Gavel, GraduationCap, HeartHandshake, LockKeyhole, Scale, ShieldCheck, ShieldEllipsis, Sparkles, UserRoundCheck, UsersRound } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
 import { LegalPage } from './legal-page';
 import { LegalSectionHeading } from './legal-section-heading';
 
@@ -58,13 +59,15 @@ export const TermsPage = (): JSX.Element => (
           { title: 'Información vigente', body: 'Confirma directamente con la institución las condiciones de matrícula y costos del periodo.', icon: CalendarCheck },
           { title: 'Protección de datos', body: 'Consulta la política de privacidad para conocer cómo se trata la información personal.', icon: ShieldCheck },
         ].map(({ title, body, icon: Icon }) => (
-          <div key={title} className="rounded-lg border border-border bg-background p-4">
+          <Card key={title} size="sm" className="bg-background shadow-none">
+            <CardContent>
             <span className="mb-3 grid size-9 place-items-center rounded-lg bg-secondary/10 text-secondary">
               <Icon aria-hidden="true" className="size-4" />
             </span>
             <h3 className="text-sm font-semibold text-foreground">{title}</h3>
-            <p className="mt-2 text-xs leading-5 text-muted-foreground">{body}</p>
-          </div>
+            <p className="text-xs leading-5 text-muted-foreground">{body}</p>
+            </CardContent>
+          </Card>
         ))}
       </div>
     </section>

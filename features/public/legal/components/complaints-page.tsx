@@ -1,12 +1,15 @@
 import type { JSX } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
-import { BadgeCheck, BookOpenCheck, Building2, Clock3, ExternalLink, ShieldCheck } from 'lucide-react';
+import { BadgeCheck, BookOpenCheck, Clock3, ExternalLink, ShieldCheck } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { LegalPage } from './legal-page';
 import { ComplaintForm } from './complaints-form';
 
 export const ComplaintsPage = (): JSX.Element => (
   <LegalPage eyebrow="Canal de atención al estudiante" title="Libro de Reclamaciones Virtual" summary="Tu opinión nos ayuda a mejorar. Registra una queja o reclamo relacionado con los servicios educativos de CEBA Joseph Lister." tags={['D.S. N.° 011-2011-PCM', 'Ley N.° 29571', 'Atención virtual']} icon={BookOpenCheck}>
-    <section className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+    <Card className="sm:flex-row sm:items-center sm:justify-between">
+      <CardContent className="w-full flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
       <div>
         <p className="text-xs font-semibold uppercase tracking-wider text-secondary">Atención de solicitudes</p>
         <h2 className="mt-1 flex items-center gap-2 font-heading text-xl font-bold text-foreground">
@@ -23,20 +26,17 @@ export const ComplaintsPage = (): JSX.Element => (
         <p className="mt-1 font-heading text-lg font-bold text-foreground">15 días hábiles</p>
         <p className="mt-1 text-[11px] text-secondary">No prorrogables</p>
       </div>
-    </section>
+      </CardContent>
+    </Card>
     <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1.8fr)_minmax(280px,0.9fr)]">
       <ComplaintForm />
       <aside className="space-y-5">
-        <section className="rounded-xl border border-border bg-card p-5">
-          <div className="flex items-center gap-3 border-b border-border pb-4">
-            <span className="grid size-10 place-items-center rounded-lg bg-secondary/10 text-secondary">
-              <Building2 aria-hidden="true" className="size-5" />
-            </span>
-            <div>
-              <h2 className="font-heading text-sm font-bold">Proveedor educativo</h2>
-              <p className="text-[11px] text-muted-foreground">Datos de atención institucional</p>
-            </div>
-          </div>
+        <Card>
+          <CardHeader className="grid-cols-[auto_1fr] items-center gap-3 border-b border-border">
+            <Image src="/logo.png" alt="CEBA Joseph Lister" width={40} height={40} className="size-10 rounded-lg object-contain" />
+            <div><CardTitle className="text-sm">Proveedor educativo</CardTitle><p className="text-[11px] text-muted-foreground">Datos de atención institucional</p></div>
+          </CardHeader>
+          <CardContent>
           <dl className="mt-4 space-y-4 text-xs leading-5">
             <div>
               <dt className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Institución</dt>
@@ -59,17 +59,14 @@ export const ComplaintsPage = (): JSX.Element => (
               <dd className="mt-1 text-foreground">(066) 31-4520 / +51 966 845 120</dd>
             </div>
           </dl>
-        </section>
-        <section className="rounded-xl border border-border bg-card p-5">
-          <div className="flex items-center gap-3">
-            <span className="grid size-10 place-items-center rounded-lg bg-secondary/10 text-secondary">
-              <ShieldCheck aria-hidden="true" className="size-5" />
-            </span>
-            <div>
-              <h2 className="font-heading text-sm font-bold">Garantía y plazos</h2>
-              <p className="text-[11px] text-secondary">Información para consumidores</p>
-            </div>
-          </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="grid-cols-[auto_1fr] items-center gap-3">
+            <span className="grid size-10 place-items-center rounded-lg bg-secondary/10 text-secondary"><ShieldCheck aria-hidden="true" className="size-5" /></span>
+            <div><CardTitle className="text-sm">Garantía y plazos</CardTitle><p className="text-[11px] text-secondary">Información para consumidores</p></div>
+          </CardHeader>
+          <CardContent>
           <div className="mt-4 rounded-lg border border-border bg-background p-4">
             <p className="inline-flex items-center gap-2 text-xs font-semibold text-foreground">
               <Clock3 aria-hidden="true" className="size-4 text-secondary" /> Respuesta dentro de 15 días hábiles no prorrogables.
@@ -82,7 +79,8 @@ export const ComplaintsPage = (): JSX.Element => (
             </span>
             <ExternalLink aria-hidden="true" className="size-4 text-muted-foreground" />
           </Link>
-        </section>
+          </CardContent>
+        </Card>
         <p className="px-1 text-[11px] leading-5 text-muted-foreground">
           ¿Necesitas ayuda para completar la solicitud?{' '}
           <a className="font-medium text-secondary underline underline-offset-4" href="tel:+5166314520">

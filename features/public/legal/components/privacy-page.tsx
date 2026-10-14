@@ -1,5 +1,6 @@
 import type { JSX } from 'react';
 import { Cookie, Database, FileText, GraduationCap, Handshake, LockKeyhole, Scale, ShieldCheck, UserRound, UsersRound, Workflow, BadgeCheck, ContactRound, History } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
 import { LegalPage } from './legal-page';
 import { LegalSectionHeading } from './legal-section-heading';
 
@@ -32,13 +33,15 @@ export const PrivacyPage = (): JSX.Element => (
           { title: '¿Con quién?', body: 'Solo con personal y proveedores que necesiten los datos para prestar el servicio, además de comunicaciones exigidas por ley.', icon: UsersRound },
           { title: 'Tus derechos', body: 'Puedes solicitar acceso, rectificación, cancelación u oposición según la normativa aplicable.', icon: Scale },
         ].map(({ title, body, icon: Icon }) => (
-          <div key={title} className="rounded-lg border border-border bg-background p-4">
+          <Card key={title} size="sm" className="bg-background shadow-none">
+            <CardContent>
             <span className="mb-3 grid size-9 place-items-center rounded-lg bg-secondary/10 text-secondary">
               <Icon aria-hidden="true" className="size-4" />
             </span>
             <h3 className="text-sm font-semibold text-foreground">{title}</h3>
-            <p className="mt-2 text-xs leading-5 text-muted-foreground">{body}</p>
-          </div>
+            <p className="text-xs leading-5 text-muted-foreground">{body}</p>
+            </CardContent>
+          </Card>
         ))}
       </div>
     </section>
