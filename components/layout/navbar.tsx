@@ -32,7 +32,7 @@ const Navbar = (): JSX.Element => (
 
       <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
         <ThemeToggle className="size-9 rounded-lg text-muted-foreground" />
-        <Link href="/login" className="hidden h-10 items-center gap-2 rounded-lg border border-border bg-card px-3 text-[11px] font-semibold text-foreground transition-colors hover:bg-accent sm:inline-flex">
+        <Link href="/auth/signin" className="hidden h-10 items-center gap-2 rounded-lg border border-border bg-card px-3 text-[11px] font-semibold text-foreground transition-colors hover:bg-accent sm:inline-flex">
           <Monitor aria-hidden="true" className="size-4 text-secondary" />
           Aula Virtual
         </Link>
@@ -41,7 +41,7 @@ const Navbar = (): JSX.Element => (
           <span className="hidden sm:inline">Matricúlate</span>
           <ArrowRight aria-hidden="true" className="size-3.5 sm:hidden" />
         </Link>
-        <Link href="/login" aria-label="Acceso de usuario" className="hidden size-9 place-items-center rounded-full border border-border bg-card text-muted-foreground transition-colors hover:text-foreground md:grid">
+        <Link href="/auth/signin" aria-label="Acceso de usuario" className="hidden size-9 place-items-center rounded-full border border-border bg-card text-muted-foreground transition-colors hover:text-foreground md:grid">
           <UserRound aria-hidden="true" className="size-4" />
         </Link>
         <details className="group relative xl:hidden">
@@ -55,7 +55,7 @@ const Navbar = (): JSX.Element => (
             {navigationItems.map((item): JSX.Element => (
               <ActiveNavigationLink key={item.label} href={item.href} label={item.label} mobile />
             ))}
-            <Link href="/login" className="mt-1 flex min-h-11 items-center gap-2 rounded-lg border-t border-border px-3 pt-2 text-[13px] font-semibold text-foreground">
+            <Link href="/auth/signin" className="mt-1 flex min-h-11 items-center gap-2 rounded-lg border-t border-border px-3 pt-2 text-[13px] font-semibold text-foreground">
               <Monitor aria-hidden="true" className="size-4 text-secondary" />
               Aula Virtual
             </Link>
