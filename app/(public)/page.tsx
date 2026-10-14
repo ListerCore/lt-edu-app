@@ -1,7 +1,5 @@
-import type { JSX } from 'react';
+import { LandingPage } from '@/features/public/landing/components/landing-page';
 
-const HomePage = (): JSX.Element => {
-  return <main>Hello from NextJs</main>;
-};
+const Page = (): React.ReactNode => <LandingPage />;
 
-export default HomePage;
+export default Page;
