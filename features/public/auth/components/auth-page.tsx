@@ -30,10 +30,9 @@ const AuthPage = ({ mode }: AuthPageProps): JSX.Element => {
       <div className="relative z-10 flex w-full max-w-md flex-col items-center gap-4">
         <Card className="w-full gap-6 border-border/80 bg-card/90 px-1 py-6 shadow-xl shadow-primary/5 backdrop-blur-md sm:px-2 sm:py-8">
           <CardHeader className="items-center gap-3 text-center">
-            <Link href="/" aria-label="CEBA Joseph Lister, inicio" className="mb-1 inline-flex rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-4">
-              <Image src="/logo.png" alt="CEBA Joseph Lister" width={80} height={80} priority className="size-18 object-contain" />
+            <Link href="/" aria-label="CEBA Joseph Lister, inicio" className="mx-auto mb-1 inline-flex rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-4">
+              <Image src="/logo.png" alt="CEBA Joseph Lister" width={80} height={80} priority className="mx-auto size-18 object-contain" />
             </Link>
-            <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-secondary">Educación Básica Alternativa</p>
             <CardTitle className="text-2xl font-bold tracking-tight text-foreground">{title}</CardTitle>
             <CardDescription className="max-w-xs text-[13px] leading-5">{description}</CardDescription>
           </CardHeader>
