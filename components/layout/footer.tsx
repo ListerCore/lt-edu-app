@@ -5,11 +5,11 @@ import { BadgeCheck, BookOpen, ChevronRight, Clock3, Gavel, Mail, MapPin, Phone,
 
 const institutionalLinks: Array<{ label: string; href: string }> = [
   { label: 'Inicio', href: '/' },
-  { label: 'Nosotros y Misión', href: '/#nosotros' },
-  { label: 'Ciclos: Inicial, Intermedio y Avanzado', href: '/#ciclos-formativos' },
-  { label: 'Plataforma Virtual 100% Flexible', href: '/#modalidad-virtual' },
-  { label: 'Requisitos de Admisión', href: '/#matricula-pasos' },
-  { label: 'Preguntas Frecuentes', href: '/#faq-section' },
+  { label: 'Nosotros y Misión', href: '/#about-us' },
+  { label: 'Ciclos: Inicial, Intermedio y Avanzado', href: '/#programs' },
+  { label: 'Plataforma Virtual 100% Flexible', href: '/#virtual-learning' },
+  { label: 'Requisitos de Admisión', href: '/#admissions' },
+  { label: 'Preguntas Frecuentes', href: '/#faqs' },
 ];
 
 const InstitutionalLinks = (): JSX.Element => (
@@ -69,7 +69,7 @@ const Footer = (): JSX.Element => (
             </a>
             <p className="flex items-center gap-2.5">
               <Clock3 aria-hidden="true" className="size-4 shrink-0 text-secondary" />
-              <span>Lunes a sábado: 8:00 a. m. – 7:00 p. m.</span>
+              <span>Lunes a sábado: 8:00 a. m. - 7:00 p. m.</span>
             </p>
           </address>
         </section>
@@ -80,21 +80,21 @@ const Footer = (): JSX.Element => (
           </h2>
           <p className="mt-4 text-xs leading-5 text-muted-foreground">Accede a nuestros canales de transparencia y atención al estudiante.</p>
           <div className="mt-4 space-y-2.5">
-            <Link href="/complaints" className="group flex min-h-11 items-center justify-between gap-3 rounded-lg border border-border bg-card px-3.5 py-2.5 text-xs font-medium text-foreground transition-colors hover:border-ring">
+            <Link href="/legal/complaints" className="group flex min-h-11 items-center justify-between gap-3 rounded-lg border border-border bg-card px-3.5 py-2.5 text-xs font-medium text-foreground transition-colors hover:border-ring">
               <span className="inline-flex items-center gap-2">
                 <BookOpen aria-hidden="true" className="size-4 text-secondary" />
                 Libro de Reclamaciones
               </span>
               <ChevronRight aria-hidden="true" className="size-4 text-muted-foreground group-hover:text-foreground" />
             </Link>
-            <Link href="/privacy" className="group flex min-h-11 items-center justify-between gap-3 rounded-lg border border-border bg-card px-3.5 py-2.5 text-xs font-medium text-foreground transition-colors hover:border-ring">
+            <Link href="/legal/privacy" className="group flex min-h-11 items-center justify-between gap-3 rounded-lg border border-border bg-card px-3.5 py-2.5 text-xs font-medium text-foreground transition-colors hover:border-ring">
               <span className="inline-flex items-center gap-2">
                 <ShieldCheck aria-hidden="true" className="size-4 text-secondary" />
                 Política de Privacidad
               </span>
               <ChevronRight aria-hidden="true" className="size-4 text-muted-foreground group-hover:text-foreground" />
             </Link>
-            <Link href="/terms" className="group flex min-h-11 items-center justify-between gap-3 rounded-lg border border-border bg-card px-3.5 py-2.5 text-xs font-medium text-foreground transition-colors hover:border-ring">
+            <Link href="/legal/terms" className="group flex min-h-11 items-center justify-between gap-3 rounded-lg border border-border bg-card px-3.5 py-2.5 text-xs font-medium text-foreground transition-colors hover:border-ring">
               <span className="inline-flex items-center gap-2">
                 <Gavel aria-hidden="true" className="size-4 text-secondary" />
                 Términos del Servicio
