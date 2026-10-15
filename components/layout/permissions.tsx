@@ -2,7 +2,7 @@ import type { JSX } from 'react';
 import Link from 'next/link';
 import { ChevronDown, GraduationCap, LifeBuoy, ShieldCheck } from 'lucide-react';
 import { SidebarFooter, SidebarHeader } from '@/components/ui/sidebar';
-import type { DashboardPermissionsProps } from '@/features/private/dashboard/types';
+import type { DashboardPermissionsProps } from '@/features/protected/dashboard/types';
 
 const Permissions = ({ placement }: DashboardPermissionsProps): JSX.Element =>
   placement === 'header' ? (

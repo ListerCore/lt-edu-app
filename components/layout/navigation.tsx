@@ -8,7 +8,7 @@ import { Activity, Bell, BookOpen, CalendarDays, ChevronDown, ClipboardCheck, Da
 import { ThemeToggle } from '@/components/providers/theme';
 import { Permissions } from '@/components/layout/permissions';
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarInset, SidebarMenu, SidebarMenuBadge, SidebarMenuButton, SidebarMenuItem, SidebarProvider, SidebarSeparator, SidebarTrigger, useSidebar } from '@/components/ui/sidebar';
-import type { DashboardNavigationProps, DashboardNavigationSection } from '@/features/private/dashboard/types';
+import type { DashboardNavigationProps, DashboardNavigationSection } from '@/features/protected/dashboard/types';
 
 const sections: DashboardNavigationSection[] = [
   { label: 'PRINCIPAL', items: [{ label: 'Panel principal', href: '/dashboard', icon: LayoutDashboard }] },

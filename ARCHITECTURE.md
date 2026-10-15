@@ -16,7 +16,7 @@ The structure must be:
 
 ```text
 features/
-└── private/
+└── protected/
     └── <module>/
         ├── components/
         ├── hooks/
@@ -29,7 +29,7 @@ For the `dashboard` module:
 
 ```text
 features/
-└── private/
+└── protected/
     └── dashboard/
         ├── components/
         ├── hooks/
@@ -60,7 +60,7 @@ types/index.ts
 For `dashboard`:
 
 ```text
-features/private/dashboard/types/index.ts
+features/protected/dashboard/types/index.ts
 ```
 
 Do not create separate files such as:
@@ -117,13 +117,13 @@ Do not duplicate the same `type` or `interface` across different files.
 Components must live inside:
 
 ```text
-features/private/<module>/components/
+features/protected/<module>/components/
 ```
 
 For `dashboard`:
 
 ```text
-features/private/dashboard/components/
+features/protected/dashboard/components/
 ```
 
 The structure of `dashboard/components` must be exactly:
@@ -162,7 +162,7 @@ The full structure is:
 
 ```text
 features/
-└── private/
+└── protected/
     └── dashboard/
         ├── components/
         │   ├── dashboard-header.tsx
@@ -867,7 +867,7 @@ A module may end up with a structure like:
 
 ```text
 features/
-└── private/
+└── protected/
     └── dashboard/
         │
         ├── components/
