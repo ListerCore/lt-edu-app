@@ -1,8 +1,9 @@
 'use client';
 
-import { useState, type JSX } from 'react';
+import { useState, type FormEvent, type JSX } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { ArrowLeft, ArrowRight, AtSign, FileText, KeyRound, LockKeyhole, ShieldCheck, UserRound } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -12,16 +13,22 @@ import { TurnstileChallenge } from './turnstile-challenge';
 import type { AuthPageProps } from '../types';
 
 const AuthPage = ({ mode }: AuthPageProps): JSX.Element => {
+  const router = useRouter();
   const isSignIn = mode === 'signin';
   const isSignUp = mode === 'signup';
   const isSetup = mode === 'setup-password';
   const isTwoFactor = mode === 'two-factor';
   const [useBackupCode, setUseBackupCode] = useState(false);
-  const [turnstileToken, setTurnstileToken] = useState('');
+  const [, setTurnstileToken] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const title = isSignIn ? 'Continúa tu aprendizaje' : isSignUp ? 'Crea tu cuenta' : isSetup ? 'Configura tu contraseña' : isTwoFactor ? 'Verificación en dos pasos' : 'Recupera tu acceso';
   const description = isSignIn ? 'Ingresa a tu aula virtual para continuar con tus clases y actividades.' : isSignUp ? 'Regístrate para acceder a tu espacio de aprendizaje.' : isSetup ? 'Es tu primer ingreso. Crea una contraseña personal para proteger tu cuenta.' : isTwoFactor ? 'Ingresa el código de tu aplicación de autenticación o usa uno de tus códigos de respaldo.' : 'Escribe el correo asociado a tu cuenta para recibir ayuda con el acceso.';
+
+  const handleSignIn = (event: FormEvent<HTMLFormElement>): void => {
+    event.preventDefault();
+    router.push('/dashboard');
+  };
 
   return (
     <main className="relative flex min-h-svh items-center justify-center overflow-hidden px-4 py-12 sm:px-6">
@@ -37,9 +44,9 @@ const AuthPage = ({ mode }: AuthPageProps): JSX.Element => {
             <CardDescription className="max-w-xs text-[13px] leading-5">{description}</CardDescription>
           </CardHeader>
           <CardContent className="flex flex-col gap-5">
-            <form className="flex flex-col gap-4">
+            <form className="flex flex-col gap-4" onSubmit={isSignIn ? handleSignIn : undefined}>
               {isSignUp && <AuthField id="name" label="Nombres y apellidos" icon={UserRound} placeholder="Tu nombre completo" autoComplete="name" />}
-              {(isSignIn || isSignUp || mode === 'forgot-password') && <AuthField id="email" label="Correo electrónico" icon={AtSign} type="email" placeholder="nombre@correo.com" autoComplete="email" value={isSignIn ? email : undefined} onChange={isSignIn ? (event): void => setEmail(event.currentTarget.value) : undefined} />}
+              {(isSignIn || isSignUp || mode === 'forgot-password') && <AuthField id="email" label="Correo electrónico" icon={AtSign} type={isSignIn ? 'text' : 'email'} placeholder="nombre@correo.com" autoComplete="email" value={isSignIn ? email : undefined} onChange={isSignIn ? (event): void => setEmail(event.currentTarget.value) : undefined} />}
               {(isSignIn || isSignUp) && <AuthField id="password" label={isSignUp ? 'Crea una contraseña' : 'Contraseña'} icon={LockKeyhole} type="password" placeholder={isSignUp ? 'Mínimo 8 caracteres' : 'Ingresa tu contraseña'} autoComplete={isSignUp ? 'new-password' : 'current-password'} value={isSignIn ? password : undefined} onChange={isSignIn ? (event): void => setPassword(event.currentTarget.value) : undefined} />}
               {isSetup && <AuthField id="password" label="Nueva contraseña" icon={LockKeyhole} type="password" placeholder="Crea una contraseña segura" autoComplete="new-password" />}
               {(isSignUp || isSetup) && <AuthField id="confirmation" label="Confirma tu contraseña" icon={KeyRound} type="password" placeholder="Repite tu contraseña" autoComplete="new-password" />}
@@ -58,12 +65,8 @@ const AuthPage = ({ mode }: AuthPageProps): JSX.Element => {
                   </Link>
                 </div>
               )}
-              {(isSignIn || isSignUp) && (
-                <>
-                  <TurnstileChallenge onTokenChange={setTurnstileToken} />
-                </>
-              )}
-              <Button type="button" size="lg" className="mt-1 h-11 w-full rounded-lg font-semibold" disabled={isSignIn && (!email.trim() || !password || !turnstileToken)}>
+              {isSignUp && <TurnstileChallenge onTokenChange={setTurnstileToken} />}
+              <Button type={isSignIn ? 'submit' : 'button'} size="lg" className="mt-1 h-11 w-full rounded-lg font-semibold">
                 {isSignIn ? 'Iniciar sesión' : isSignUp ? 'Crear cuenta' : isSetup ? 'Guardar contraseña' : isTwoFactor ? 'Verificar código' : 'Enviar instrucciones'}
                 <ArrowRight aria-hidden="true" className="size-4" />
               </Button>
