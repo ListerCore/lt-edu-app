@@ -1,5 +1,5 @@
 import type { JSX } from 'react';
-import { DashboardNotFound } from '@/features/private/dashboard/components/dashboard-not-found';
+import { DashboardNotFound } from '@/features/protected/dashboard/components/dashboard-not-found';
 
 const DashboardNotFoundPage = (): JSX.Element => <DashboardNotFound />;
 

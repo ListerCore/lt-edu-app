@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import type { JSX } from 'react';
 import { Navigation } from '@/components/layout/navigation';
-import type { DashboardNavigationProps } from '@/features/private/dashboard/types';
+import type { DashboardNavigationProps } from '@/features/protected/dashboard/types';
 
 export const metadata: Metadata = {
   title: 'Panel principal | SIGE-JL',

@@ -1,5 +1,5 @@
 import type { JSX } from 'react';
-import { DashboardBody } from '@/features/private/dashboard/components/dashboard-body';
+import { DashboardBody } from '@/features/protected/dashboard/components/dashboard-body';
 
 const DashboardPage = (): JSX.Element => <DashboardBody />;
 
