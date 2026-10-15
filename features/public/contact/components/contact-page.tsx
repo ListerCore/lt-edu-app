@@ -3,27 +3,15 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { useState, type FormEvent, type JSX } from 'react';
-import { ArrowRight, BadgeCheck, Building2, CalendarClock, CheckCircle2, ChevronDown, Clock3, GraduationCap, Headphones, Mail, MapPin, MapPinned, MessageCircle, MonitorPlay, Phone, Send, ShieldCheck, WalletCards } from 'lucide-react';
+import { ArrowRight, Building2, CalendarClock, Clock3, GraduationCap, Headphones, Mail, MapPin, MapPinned, MessageCircle, Phone, Send, ShieldCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-
-const whatsappHref = 'https://wa.me/51966845120';
-
-const supportChannels = [
-  { title: 'Soporte de aula virtual', description: 'Acceso a SIGE-JL, restablecimiento de contraseña y orientación sobre tus recursos de estudio.', icon: MonitorPlay, action: 'Consultar por WhatsApp', message: 'Hola, necesito soporte para el aula virtual SIGE-JL.' },
-  { title: 'Admisión y matrícula', description: 'Orientación sobre ciclos, requisitos, evaluación de ubicación y proceso de matrícula.', icon: GraduationCap, action: 'Consultar admisión', message: 'Hola, deseo información sobre admisión y matrícula.' },
-  { title: 'Pensiones y trámites', description: 'Consultas sobre pagos, constancias, documentos y atención administrativa.', icon: WalletCards, action: 'Consultar trámites', message: 'Hola, deseo orientación sobre pagos o trámites.' },
-];
-
-const contactFaqs = [
-  { question: '¿Cómo puedo coordinar una visita a la sede?', answer: 'Escríbenos por WhatsApp o llámanos para coordinar la atención presencial en nuestra sede de Huamanga.' },
-  { question: '¿Cuáles son los canales oficiales de atención?', answer: 'Puedes comunicarte a la central (066) 31-4520, al WhatsApp +51 966 845 120 o escribir a informes@cebajosephlister.edu.pe.' },
-  { question: '¿Puedo solicitar orientación si vivo fuera de Ayacucho?', answer: 'Sí. Puedes comunicarte con el equipo de admisión por teléfono, correo o WhatsApp para recibir orientación a distancia.' },
-];
+import { supportChannels, whatsappHref } from './contact-data';
+import { ContactFaqAndAction } from './contact-faq-action';
 
 const ContactPage = (): JSX.Element => {
   const [messageLength, setMessageLength] = useState(0);
@@ -49,24 +37,7 @@ const ContactPage = (): JSX.Element => {
         <span className="font-medium text-foreground">Contacto</span>
       </div>
 
-      <section className="flex flex-col justify-between gap-5 py-7 sm:flex-row sm:items-end sm:py-9">
-        <div>
-          <p className="text-[10px] font-bold uppercase tracking-[0.17em] text-secondary">Estamos para ayudarte</p>
-          <h1 className="mt-2 font-heading text-3xl font-bold tracking-tight text-foreground sm:text-4xl">Contáctanos</h1>
-          <p className="mt-2 max-w-xl text-xs leading-5 text-muted-foreground sm:text-sm">Estamos para ayudarte a empezar o continuar tus estudios. Escríbenos, llámanos o visítanos.</p>
-        </div>
-        <div className="flex flex-wrap gap-2 text-[9px] font-medium">
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-secondary/20 bg-secondary/10 px-2.5 py-1.5 text-secondary">
-            <CheckCircle2 className="size-3" /> Atención virtual
-          </span>
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-2.5 py-1.5 text-muted-foreground">
-            <MapPin className="size-3 text-secondary" /> Sede Huamanga
-          </span>
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-2.5 py-1.5 text-muted-foreground">
-            <BadgeCheck className="size-3 text-secondary" /> CEBA Joseph Lister
-          </span>
-        </div>
-      </section>
+      <ContactFaqAndAction />
 
       <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4" aria-label="Canales de contacto">
         <Card className="gap-0 border-border py-0">
@@ -304,41 +275,7 @@ const ContactPage = (): JSX.Element => {
         </div>
       </section>
 
-      <section className="py-10" aria-labelledby="contact-faq-title">
-        <div className="mx-auto max-w-2xl">
-          <h2 id="contact-faq-title" className="text-center font-heading text-xl font-bold tracking-tight text-foreground">
-            Dudas sobre contacto y atención
-          </h2>
-          <p className="mt-2 text-center text-[10px] text-muted-foreground">Información útil para comunicarte con nuestra institución.</p>
-          <div className="mt-5 space-y-2">
-            {contactFaqs.map(({ question, answer }) => (
-              <details key={question} className="group rounded-lg border border-border bg-card px-4">
-                <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 text-[10px] font-semibold text-foreground [&::-webkit-details-marker]:hidden">
-                  {question}
-                  <ChevronDown className="size-3.5 shrink-0 text-muted-foreground transition-transform group-open:rotate-180" />
-                </summary>
-                <p className="pb-3 pr-5 text-[9px] leading-4 text-muted-foreground">{answer}</p>
-              </details>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="rounded-2xl bg-primary px-5 py-8 text-primary-foreground sm:flex sm:items-center sm:justify-between sm:gap-6 sm:px-8">
-        <div>
-          <span className="inline-flex rounded-full bg-white/10 px-2.5 py-1 text-[8px] font-bold uppercase tracking-wide">Matrículas abiertas</span>
-          <h2 className="mt-2 font-heading text-xl font-bold tracking-tight">¿Listo para dar el siguiente paso?</h2>
-          <p className="mt-1 max-w-xl text-[10px] leading-4 text-primary-foreground/75">Nunca es tarde para culminar tus estudios con horarios que se adaptan a ti.</p>
-        </div>
-        <div className="mt-4 flex flex-wrap gap-2 sm:mt-0">
-          <Link href="/#admissions" className="inline-flex h-9 items-center gap-1.5 rounded-md bg-secondary px-3 text-[9px] font-semibold text-secondary-foreground hover:bg-secondary/85">
-            <GraduationCap className="size-3.5" /> Ver admisión
-          </Link>
-          <a href={`${whatsappHref}?text=Hola%2C%20deseo%20hablar%20con%20un%20asesor`} target="_blank" rel="noreferrer" className="inline-flex h-9 items-center gap-1.5 rounded-md bg-white/10 px-3 text-[9px] font-semibold text-white hover:bg-white/15">
-            <Image src="/icons/whatsapp-icon.svg" alt="" width={14} height={14} className="size-3.5" /> Hablar con un asesor
-          </a>
-        </div>
-      </section>
+      <ContactFaqAndAction />
     </div>
   );
 };
