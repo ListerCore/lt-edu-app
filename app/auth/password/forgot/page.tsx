@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { AuthPage } from '@/features/public/auth/components/auth-page';
+import { AuthPage } from '@/features/auth/components/auth-page';
 
 export const metadata: Metadata = {
   title: 'Recuperar contraseña | CEBA Joseph Lister',
