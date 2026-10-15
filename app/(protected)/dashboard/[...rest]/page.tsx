@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 
 export const instant = false;
 
-const navigationRoutes = ['students', 'enrollment', 'attendance', 'evaluation', 'academics', 'classrooms', 'wellbeing', 'finance', 'reports', 'alerts', 'settings'];
+const navigationRoutes = ['students', 'enrollment', 'attendance', 'evaluation', 'academics', 'classrooms', 'wellbeing', 'finance', 'reports', 'alerts'];
 
 export const generateStaticParams = (): { rest: string[] }[] => navigationRoutes.map((route) => ({ rest: [route] }));
 
