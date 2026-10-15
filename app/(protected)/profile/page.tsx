@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import type { JSX } from 'react';
-import { ProfilePage } from '@/features/private/profile/components/profile-page';
+import { ProfilePage } from '@/features/protected/profile/components/profile-page';
 
 export const metadata: Metadata = {
   title: 'Mi perfil | SIGE-JL',
