@@ -8,9 +8,11 @@ export interface ProfileField {
 
 export interface ProfileSectionLink {
   label: string;
-  href: string;
+  tab: ProfileTab;
   icon: LucideIcon;
 }
+
+export type ProfileTab = 'general' | 'personal' | 'institutional' | 'security' | 'notifications' | 'activity';
 
 export interface ProfileChecklistItem {
   label: string;

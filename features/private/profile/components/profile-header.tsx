@@ -1,30 +1,12 @@
 import type { JSX } from 'react';
+import { Suspense } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowLeft, CalendarDays, ChevronRight, Download, LayoutDashboard, MapPin, PencilLine, ShieldCheck } from 'lucide-react';
-import { ThemeToggle } from '@/components/providers/theme';
-import { profileSectionLinks } from '../data/profile-data';
+import { ProfileTabs } from './profile-tabs';
 
 const ProfileHeader = (): JSX.Element => (
-  <>
-    <header className="sticky top-0 z-30 flex h-16 items-center justify-between gap-3 border-b border-border bg-card/95 px-4 backdrop-blur sm:px-6 lg:px-8">
-      <Link href="/dashboard" className="flex min-w-0 items-center gap-3">
-        <span className="flex size-9 shrink-0 items-center justify-center rounded-md bg-primary text-xs font-extrabold text-primary-foreground">JL</span>
-        <span className="min-w-0">
-          <span className="block text-xs font-extrabold tracking-tight text-primary">SIGE-JL</span>
-          <span className="block truncate text-[9px] text-muted-foreground">CEBA Privado Virtual Joseph Lister</span>
-        </span>
-      </Link>
-      <div className="flex shrink-0 items-center gap-2">
-        <span className="hidden text-[10px] font-semibold text-muted-foreground sm:block">Ayacucho · Perú</span>
-        <ThemeToggle className="size-9 rounded-md text-muted-foreground hover:bg-muted hover:text-foreground" />
-        <Link href="/dashboard" className="inline-flex h-9 items-center gap-1.5 rounded-md bg-primary px-3 text-[10px] font-semibold text-primary-foreground transition-opacity hover:opacity-90 sm:text-[11px]">
-          <ArrowLeft aria-hidden="true" className="size-3.5" />
-          <span className="hidden sm:inline">Volver al panel</span>
-          <span className="sm:hidden">Panel</span>
-        </Link>
-      </div>
-    </header>
+  <div className="flex flex-col gap-4 sm:gap-5">
     <div className="flex flex-col gap-3 rounded-lg border border-border bg-card px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-5">
       <nav aria-label="Migas de pan" className="flex items-center gap-2 text-[11px] text-muted-foreground">
         <Link href="/dashboard" className="inline-flex items-center gap-1.5 transition-colors hover:text-foreground">
@@ -77,24 +59,19 @@ const ProfileHeader = (): JSX.Element => (
           </div>
         </div>
         <div className="flex flex-wrap gap-2 lg:pb-1">
-          <a href="#informacion-personal" className="inline-flex h-9 flex-1 items-center justify-center gap-2 rounded-md border border-border bg-card px-3 text-[10px] font-semibold text-foreground transition-colors hover:bg-muted sm:flex-none sm:text-[11px]">
+          <Link href="/profile?tab=personal" className="inline-flex h-9 flex-1 items-center justify-center gap-2 rounded-md border border-border bg-card px-3 text-[10px] font-semibold text-foreground transition-colors hover:bg-muted sm:flex-none sm:text-[11px]">
             <PencilLine aria-hidden="true" className="size-3.5 text-primary" /> Editar perfil
-          </a>
-          <a href="#datos-institucionales" className="inline-flex h-9 flex-1 items-center justify-center gap-2 rounded-md bg-secondary px-3 text-[10px] font-semibold text-secondary-foreground transition-opacity hover:opacity-90 sm:flex-none sm:text-[11px]">
+          </Link>
+          <Link href="/profile?tab=institutional" className="inline-flex h-9 flex-1 items-center justify-center gap-2 rounded-md bg-secondary px-3 text-[10px] font-semibold text-secondary-foreground transition-opacity hover:opacity-90 sm:flex-none sm:text-[11px]">
             <Download aria-hidden="true" className="size-3.5" /> Descargar ficha
-          </a>
+          </Link>
         </div>
       </div>
-      <nav aria-label="Secciones del perfil" className="flex gap-1 overflow-x-auto border-t border-border bg-muted/40 px-3 sm:px-5 lg:px-7">
-        {profileSectionLinks.map(({ label, href, icon: Icon }, index) => (
-          <a key={href} href={href} className={`inline-flex min-h-11 shrink-0 items-center gap-2 border-b-2 px-2 text-[10px] font-semibold transition-colors sm:px-3 sm:text-[11px] ${index === 0 ? 'border-primary text-primary' : 'border-transparent text-muted-foreground hover:text-foreground'}`}>
-            <Icon aria-hidden="true" className="size-4" />
-            {label}
-          </a>
-        ))}
-      </nav>
+      <Suspense fallback={<div aria-hidden="true" className="h-12 border-t border-border bg-muted/40" />}>
+        <ProfileTabs />
+      </Suspense>
     </section>
-  </>
+  </div>
 );
 
 export { ProfileHeader };
