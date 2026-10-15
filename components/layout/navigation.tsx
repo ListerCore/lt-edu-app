@@ -4,7 +4,7 @@ import { Suspense, type JSX } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Activity, Bell, BookOpen, CalendarDays, ChevronDown, ClipboardCheck, FileBarChart2, GraduationCap, LayoutDashboard, LogOut, Search, Settings2, ShieldCheck, UserRound, Users, Wallet } from 'lucide-react';
+import { Activity, Bell, BookOpen, CalendarDays, ChevronDown, ClipboardCheck, DatabaseBackup, FileBarChart2, GraduationCap, LayoutDashboard, LogOut, Search, Settings2, ShieldCheck, UserRound, Users, Wallet } from 'lucide-react';
 import { ThemeToggle } from '@/components/providers/theme';
 import { Permissions } from '@/components/layout/permissions';
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarInset, SidebarMenu, SidebarMenuBadge, SidebarMenuButton, SidebarMenuItem, SidebarProvider, SidebarSeparator, SidebarTrigger, useSidebar } from '@/components/ui/sidebar';
@@ -28,6 +28,7 @@ const sections: DashboardNavigationSection[] = [
     items: [
       { label: 'Gestión económica', href: '/dashboard/finance', icon: Wallet },
       { label: 'Reportes y analítica', href: '/dashboard/reports', icon: FileBarChart2 },
+      { label: 'Backup y recuperación', href: '/dashboard/backup', icon: DatabaseBackup },
       { label: 'Alertas e inteligencia', href: '/dashboard/alerts', icon: Activity },
       { label: 'Configuración', href: '/dashboard/settings', icon: Settings2 },
     ],
