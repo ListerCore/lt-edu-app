@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import type { JSX } from 'react';
-import { BackupPage } from '@/features/private/backup/components/backup-page';
+import { BackupPage } from '@/features/protected/backup/components/backup-page';
 
 export const metadata: Metadata = {
   title: 'Backup y recuperación | SIGE-JL',
