@@ -1,4 +1,5 @@
 import type { JSX } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { ChevronDown, GraduationCap, LifeBuoy, ShieldCheck } from 'lucide-react';
 import { SidebarFooter, SidebarHeader } from '@/components/ui/sidebar';
@@ -8,9 +9,14 @@ const Permissions = ({ placement }: DashboardPermissionsProps): JSX.Element =>
   placement === 'header' ? (
     <SidebarHeader className="group-data-[collapsible=icon]:items-center gap-3 border-b border-sidebar-border px-4 py-4 group-data-[collapsible=icon]:px-2">
       <Link href="/dashboard" aria-label="SIGE-JL, panel principal" className="flex items-center gap-3 group-data-[collapsible=icon]:justify-center">
-        <span className="flex size-10 items-center justify-center rounded-md bg-primary text-primary-foreground">
-          <GraduationCap className="size-5" />
-        </span>
+        <Image
+          src="/logo.png"
+          alt="CEBA Joseph Lister"
+          width={40}
+          height={40}
+          priority
+          className="size-10 shrink-0 object-contain"
+        />
         <span className="min-w-0 group-data-[collapsible=icon]:hidden">
           <span className="block font-heading text-sm font-extrabold tracking-tight text-sidebar-foreground">SIGE-JL</span>
           <span className="mt-0.5 block truncate text-[10px] text-muted-foreground">CEBA Virtual Ayacucho</span>
