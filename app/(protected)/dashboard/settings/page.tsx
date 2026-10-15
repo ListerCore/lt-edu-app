@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import type { JSX } from 'react';
-import { SettingsPage } from '@/features/private/settings/components/settings-page';
+import { SettingsPage } from '@/features/protected/settings/components/settings-page';
 
 export const metadata: Metadata = {
   title: 'Administración, roles y seguridad | SIGE-JL',
