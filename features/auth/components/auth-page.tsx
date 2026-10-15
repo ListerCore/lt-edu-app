@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, ArrowRight, AtSign, BookOpen, Building2, CheckCircle2, Eye, EyeOff, Fingerprint, FlaskConical, GraduationCap, KeyRound, LockKeyhole, ShieldCheck, UserRound, Users } from 'lucide-react';
 import { ThemeToggle } from '@/components/providers/theme';
+import { setAuthSession } from '@/lib/auth-session';
 import { AuthField } from './auth-field';
 import { TurnstileChallenge } from './turnstile-challenge';
 import type { AuthPageProps } from '../types';
@@ -50,6 +51,7 @@ const AuthPage = ({ mode }: AuthPageProps): JSX.Element => {
   const handleSubmit = (event: FormEvent<HTMLFormElement>): void => {
     event.preventDefault();
     if (isSignIn || isTwoFactor) {
+      setAuthSession(true);
       router.push('/dashboard');
       return;
     }
