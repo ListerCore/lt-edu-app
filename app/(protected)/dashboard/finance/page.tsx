@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import type { JSX } from 'react';
-import { FinancePage } from '@/features/private/finance/components/finance-page';
+import { FinancePage } from '@/features/protected/finance/components/finance-page';
 
 export const metadata: Metadata = {
   title: 'Gestión económica y pensiones | SIGE-JL',
