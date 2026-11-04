@@ -31,7 +31,6 @@ export const Navbar = (): JSX.Element => {
             </span>
           </Link>
 
-          {/* Compact "you are here" chip for small screens, where the section links are hidden */}
           {current && (
             <p className="mr-auto hidden min-w-0 items-center gap-1.5 truncate rounded-full bg-brand-soft px-2.5 py-1 text-xs font-medium text-brand min-[400px]:flex lg:hidden">
               <span aria-hidden="true" className="size-1.5 shrink-0 rounded-full bg-brand" />
@@ -70,7 +69,6 @@ export const Navbar = (): JSX.Element => {
           </div>
         </div>
 
-        {/* Mobile menu: height animates open; inert keeps hidden links out of the tab order */}
         <div id="mobile-menu" className={`overflow-hidden transition-all duration-300 lg:hidden ${open ? 'max-h-128 border-t border-border' : 'max-h-0'}`} inert={!open}>
           <nav className="mx-auto max-w-md px-6 py-4" aria-label="Menú móvil">
             {siteConfig.navigation.map(

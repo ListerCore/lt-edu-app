@@ -6,7 +6,7 @@ import type { ContactRequestSuccessProps } from '../types';
 
 // Shown in place of the form once joseph-api stored the request
 export const ContactRequestSuccess = ({ email, onReset }: ContactRequestSuccessProps): JSX.Element => (
-  <div role="status" className="flex min-h-[32rem] flex-col items-center justify-center gap-6 p-6 text-center md:p-10">
+  <div role="status" className="flex min-h-128 flex-col items-center justify-center gap-6 p-6 text-center md:p-10">
     <span className="flex size-14 items-center justify-center rounded-full bg-success/12 text-success">
       <MorphIcon icon={MailCheck} size={28} />
     </span>

@@ -401,7 +401,6 @@ const Map = forwardRef<MapRef, MapProps>(function Map({ children, className, the
     <MapContext.Provider value={contextValue}>
       <div ref={containerRef} className={cn('relative h-full w-full', className)}>
         {(!isLoaded || loading) && <DefaultLoader />}
-        {/* SSR-safe: children render only when map is loaded on client */}
         {mapInstance && children}
       </div>
     </MapContext.Provider>

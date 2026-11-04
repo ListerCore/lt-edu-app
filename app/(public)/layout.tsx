@@ -14,7 +14,6 @@ const PublicLayout = ({ children }: PublicLayoutProps): JSX.Element => (
     <div className="isolate flex min-h-screen flex-col">
       <SiteBackground />
       <Navbar />
-      {/* At least one screen below the 4rem navbar: the footer only shows once the visitor scrolls */}
       <main className="min-h-[calc(100svh-4rem)] flex-1">{children}</main>
       <Footer />
     </div>

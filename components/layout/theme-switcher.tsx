@@ -26,7 +26,7 @@ export const ThemeSwitcher = ({ className }: ThemeSwitcherProps): JSX.Element =>
     (): boolean => false,
   );
 
-  if (!mounted) return <div aria-hidden="true" className={cn('h-8 w-[92px] rounded-full bg-surface', className)} />;
+  if (!mounted) return <div aria-hidden="true" className={cn('h-8 w-23 rounded-full bg-surface', className)} />;
 
   return (
     <div role="radiogroup" aria-label="Tema de color" className={cn('flex items-center gap-0.5 rounded-full bg-surface p-1', className)}>

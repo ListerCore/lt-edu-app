@@ -54,11 +54,13 @@ export const ContactRequestForm = (): JSX.Element => {
             <SelectValue placeholder="Selecciona el tipo" />
           </SelectTrigger>
           <SelectContent>
-            {institutionTypeOptions.map((option): JSX.Element => (
-              <SelectItem key={option.value} value={option.value}>
-                {option.label}
-              </SelectItem>
-            ))}
+            {institutionTypeOptions.map(
+              (option): JSX.Element => (
+                <SelectItem key={option.value} value={option.value}>
+                  {option.label}
+                </SelectItem>
+              ),
+            )}
           </SelectContent>
         </Select>
       </FormField>
@@ -69,11 +71,13 @@ export const ContactRequestForm = (): JSX.Element => {
             <SelectValue placeholder="Selecciona un rango" />
           </SelectTrigger>
           <SelectContent>
-            {studentRangeOptions.map((option): JSX.Element => (
-              <SelectItem key={option.value} value={option.value}>
-                {option.label}
-              </SelectItem>
-            ))}
+            {studentRangeOptions.map(
+              (option): JSX.Element => (
+                <SelectItem key={option.value} value={option.value}>
+                  {option.label}
+                </SelectItem>
+              ),
+            )}
           </SelectContent>
         </Select>
       </FormField>
