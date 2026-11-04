@@ -2,7 +2,7 @@
 
 import type { InstitutionType, Role } from '@/features/protected/dashboard/types';
 import { paginate } from '@/lib/api/list';
-import { demoCardholders } from '../data/cards-data';
+import { demoCardholders, ownCardholderFor } from '../data/cardholders-roster';
 import type { CardActionResult, Cardholder, CardholdersResponse, GetCardholdersParams } from '../types';
 
 // Simulated latency so loading states are visible; replaced by joseph-api calls later
@@ -21,14 +21,10 @@ export const getCardholdersAction = async ({ institutionType, group, search, pag
   return { ok: true, message: 'ok', data: { data, meta: { search_query: query, filter: { group }, pagination } } };
 };
 
-// Which roster entry is the signed-in person (simulated until the session carries it): students and guardians
-// get a student card, staff roles their own fotocheck
+// The signed-in person's own card (the guardian's child for guardians)
 export const getOwnCardholderAction = async (institutionType: InstitutionType, role: Role): Promise<CardActionResult<Cardholder>> => {
   await simulate(250);
-  const roster = demoCardholders(institutionType);
-  const students = roster.filter(({ group }) => group === 'students');
-  const staff = roster.filter(({ group }) => group === 'staff');
-  const own = role === 'student' || role === 'guardian' ? students[0] : role === 'teacher' ? staff[1] : role === 'tutor' ? staff[2] : staff[0];
+  const own = ownCardholderFor(institutionType, role);
   return own ? { ok: true, message: 'ok', data: own } : { ok: false, message: 'No encontramos tu carnet.' };
 };
 

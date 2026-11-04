@@ -8,6 +8,8 @@ import { sileo } from 'sileo';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { MorphIcon } from '@/components/ui/morph-icon';
 import { endSession } from '@/features/auth/hooks/use-session';
+import { accountPhotoKey } from '@/features/protected/account/data/account-data';
+import { useCardholderPhotos } from '@/features/protected/cards/hooks/use-cardholder-photos';
 import { UserAvatar } from '@/features/protected/dashboard/components/user-avatar';
 import { ACCOUNT_PATH, DASHBOARD_PATH } from '@/features/protected/dashboard/data/dashboard-navigation';
 import { useWorkspace } from '@/features/protected/dashboard/hooks/use-workspace';
@@ -16,7 +18,10 @@ import { useWorkspace } from '@/features/protected/dashboard/hooks/use-workspace
 export const UserMenu = (): JSX.Element => {
   const router = useRouter();
   const pathname = usePathname();
-  const { userName, avatarUrl, roleLabel, institutionName } = useWorkspace();
+  const { userName, avatarUrl: demoAvatarUrl, roleLabel, institutionName, institutionType, role } = useWorkspace();
+  // The photo uploaded in Mi cuenta (or Carnets, same photo) wins over the demo one
+  const photos = useCardholderPhotos();
+  const avatarUrl = photos[accountPhotoKey(institutionType, role)] ?? demoAvatarUrl;
   const inPanel = pathname.startsWith(DASHBOARD_PATH);
 
   const onSignOut = (): void => {

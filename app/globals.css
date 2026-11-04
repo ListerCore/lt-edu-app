@@ -520,3 +520,24 @@
     -webkit-print-color-adjust: exact;
   }
 }
+
+/* Printing the profile report: only the report prints, with its colors */
+@media print {
+  body:has([data-print-report]) * {
+    visibility: hidden;
+  }
+
+  body:has([data-print-report]) [data-print-report],
+  body:has([data-print-report]) [data-print-report] * {
+    visibility: visible;
+  }
+
+  body:has([data-print-report]) [data-print-report] {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+}
