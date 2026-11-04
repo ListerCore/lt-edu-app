@@ -9,6 +9,7 @@ export type Role = 'director' | 'coordinator' | 'secretary' | 'teacher' | 'tutor
 export type ModuleKey =
   | 'home'
   | 'notifications'
+  | 'account'
   | 'institution'
   | 'structure'
   | 'periods'

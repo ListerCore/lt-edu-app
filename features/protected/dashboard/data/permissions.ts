@@ -44,7 +44,7 @@ export const institutionRoles: Record<InstitutionType, Role[]> = {
 };
 
 // Modules every institution type shares
-const coreModules: ModuleKey[] = ['home', 'notifications', 'announcements', 'institution', 'structure', 'periods', 'courses', 'schedules', 'enrollment', 'students', 'staff', 'student-attendance', 'staff-attendance', 'cards', 'tutoring', 'wellbeing', 'payments', 'reports', 'users', 'audit'];
+const coreModules: ModuleKey[] = ['home', 'notifications', 'account', 'announcements', 'institution', 'structure', 'periods', 'courses', 'schedules', 'enrollment', 'students', 'staff', 'student-attendance', 'staff-attendance', 'cards', 'tutoring', 'wellbeing', 'payments', 'reports', 'users', 'audit'];
 
 // Each type adds the modules its academic flow needs (README §2 matrix)
 export const institutionModules: Record<InstitutionType, ModuleKey[]> = {
@@ -68,6 +68,7 @@ const directorPermissions: RolePermissions = Object.fromEntries(allModules.filte
 const teacherPermissions: RolePermissions = {
   home: VIEW,
   notifications: ['view', 'update'],
+  account: ['view', 'update'],
   courses: VIEW,
   schedules: VIEW,
   students: VIEW,
@@ -88,6 +89,7 @@ const teacherPermissions: RolePermissions = {
 const studentPermissions: RolePermissions = {
   home: VIEW,
   notifications: ['view', 'update'],
+  account: ['view', 'update'],
   courses: VIEW,
   schedules: VIEW,
   'student-attendance': VIEW,
@@ -108,6 +110,7 @@ export const rolePermissions: Record<Role, RolePermissions> = {
   coordinator: {
     home: VIEW,
     notifications: ['view', 'update'],
+    account: ['view', 'update'],
     structure: ALL,
     'attention-modes': ALL,
     placement: ALL,
@@ -138,6 +141,7 @@ export const rolePermissions: Record<Role, RolePermissions> = {
   secretary: {
     home: VIEW,
     notifications: ['view', 'update'],
+    account: ['view', 'update'],
     periods: VIEW,
     enrollment: ALL,
     placement: VIEW,
@@ -155,6 +159,7 @@ export const rolePermissions: Record<Role, RolePermissions> = {
   assistant: {
     home: VIEW,
     notifications: ['view', 'update'],
+    account: ['view', 'update'],
     students: VIEW,
     'student-attendance': ALL,
     'staff-attendance': ['view', 'create'],
@@ -163,6 +168,7 @@ export const rolePermissions: Record<Role, RolePermissions> = {
   psychologist: {
     home: VIEW,
     notifications: ['view', 'update'],
+    account: ['view', 'update'],
     students: VIEW,
     tutoring: VIEW,
     psychology: ALL,
@@ -176,6 +182,7 @@ export const rolePermissions: Record<Role, RolePermissions> = {
   treasurer: {
     home: VIEW,
     notifications: ['view', 'update'],
+    account: ['view', 'update'],
     students: VIEW,
     payments: ALL,
     reports: ['view', 'export'],
