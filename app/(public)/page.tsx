@@ -1,5 +1,6 @@
+import type { JSX } from 'react';
 import { LandingPage } from '@/features/public/landing/components/landing-page';
 
-const Page = (): React.ReactNode => <LandingPage />;
+const Page = (): JSX.Element => <LandingPage />;
 
 export default Page;

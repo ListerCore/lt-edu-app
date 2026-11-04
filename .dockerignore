@@ -14,6 +14,7 @@ coverage
 
 # Secrets: pass env vars through Dokploy, never bake them in
 .env*
+!.env.example
 *.pem
 
 # Logs and misc

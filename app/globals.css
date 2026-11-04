@@ -2,9 +2,13 @@
 @import 'tw-animate-css';
 @import 'shadcn/tailwind.css';
 
-@custom-variant dark (&:is(.dark *));
+@custom-variant dark (&:where(.dark, .dark *));
 
 @theme inline {
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
+  --font-heading: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -23,6 +27,15 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
+  --color-brand: var(--brand);
+  --color-brand-foreground: var(--brand-foreground);
+  --color-brand-vivid: var(--brand-vivid);
+  --color-brand-solid: var(--brand-solid);
+  --color-brand-solid-hover: var(--brand-solid-hover);
+  --color-brand-soft: var(--brand-soft);
+  --color-surface: var(--surface);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
   --color-chart-1: var(--chart-1);
   --color-chart-2: var(--chart-2);
   --color-chart-3: var(--chart-3);
@@ -36,86 +49,117 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
-  --font-sans: var(--font-inter);
-  --font-heading: var(--font-manrope);
-  --font-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
-  --radius-sm: calc(var(--radius) * 0.5);
-  --radius-md: calc(var(--radius) * 0.75);
+
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) * 1.5);
-  --radius-2xl: calc(var(--radius) * 2);
-  --radius-3xl: calc(var(--radius) * 3);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+
+  --animate-marquee: marquee 46s linear infinite;
+  --animate-blink: blink 1.1s steps(2, start) infinite;
 }
 
 :root {
   color-scheme: light;
-  --background: #f4f7fa;
-  --foreground: #0b1c30;
-  --card: #ffffff;
-  --card-foreground: #0b1c30;
+
+  --background: #ffffff;
+  --foreground: #2b211b;
+  --surface: #f8f5f2;
+  --card: #f8f5f2;
+  --card-foreground: #2b211b;
   --popover: #ffffff;
-  --popover-foreground: #0b1c30;
-  --primary: #0b3c6f;
+  --popover-foreground: #2b211b;
+  --primary: #c4520a;
   --primary-foreground: #ffffff;
-  --secondary: #1e9e6a;
-  --secondary-foreground: #ffffff;
-  --muted: #eff4f8;
-  --muted-foreground: #64748b;
-  --accent: #e5eef6;
-  --accent-foreground: #0b3c6f;
-  --destructive: #ef4444;
-  --border: #e2e8f0;
-  --input: #cbd5e1;
-  --ring: #0b3c6f;
-  --chart-1: #1e9e6a;
-  --chart-2: #0b3c6f;
-  --chart-3: #f59e0b;
-  --chart-4: #6366f1;
-  --chart-5: #64748b;
-  --sidebar: #ffffff;
-  --sidebar-foreground: #0b1c30;
-  --sidebar-primary: #0b3c6f;
+  --secondary: #f0ebe6;
+  --secondary-foreground: #2b211b;
+  --muted: #f8f5f2;
+  --muted-foreground: #75685e;
+  --accent: rgb(128 96 80 / 0.12);
+  --accent-foreground: #2b211b;
+  --destructive: #c20e4d;
+  --border: #e9e2db;
+  --input: #cfc4ba;
+  --ring: #ee7119;
+  --brand: #c4520a;
+  --brand-foreground: #ffffff;
+  --brand-vivid: #ee7119;
+  --brand-solid: #c4520a;
+  --brand-solid-hover: #b84a08;
+  --brand-soft: rgb(238 113 25 / 0.14);
+  --success: #18794e;
+  --warning: #915930;
+  --chart-1: #ee7119;
+  --chart-2: #f0a020;
+  --chart-3: #18794e;
+  --chart-4: #806050;
+  --chart-5: #75685e;
+  --sidebar: #f8f5f2;
+  --sidebar-foreground: #2b211b;
+  --sidebar-primary: #c4520a;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #eff4f8;
-  --sidebar-accent-foreground: #0b3c6f;
-  --sidebar-border: #e2e8f0;
-  --sidebar-ring: #0b3c6f;
+  --sidebar-accent: #f0ebe6;
+  --sidebar-accent-foreground: #2b211b;
+  --sidebar-border: #e9e2db;
+  --sidebar-ring: #ee7119;
   --radius: 0.5rem;
+
+  /* Hero: gradient name + blurred glow behind the product preview */
+  --hero-name: linear-gradient(124deg, #c4520a 30%, #f0a020);
+  --hero-glow: linear-gradient(-45deg, #ffd08a 50%, #ee7119 50%);
+  --hero-glow-opacity: 0.45;
 }
 
 .dark {
   color-scheme: dark;
-  --background: #121212;
-  --foreground: #ededed;
-  --card: #1c1c1e;
-  --card-foreground: #ededed;
-  --popover: #262628;
-  --popover-foreground: #ededed;
-  --primary: #2fbf84;
-  --primary-foreground: #121212;
-  --secondary: #4a90e2;
-  --secondary-foreground: #121212;
-  --muted: #262628;
-  --muted-foreground: #a1a1a6;
-  --accent: #262628;
-  --accent-foreground: #ededed;
-  --destructive: #f26b6b;
-  --border: #333336;
-  --input: #333336;
-  --ring: #4a90e2;
-  --chart-1: #2fbf84;
-  --chart-2: #4a90e2;
-  --chart-3: #f5b544;
-  --chart-4: #5bb5f0;
-  --chart-5: #a1a1a6;
-  --sidebar: #171717;
-  --sidebar-foreground: #ededed;
-  --sidebar-primary: #2fbf84;
-  --sidebar-primary-foreground: #121212;
-  --sidebar-accent: #262628;
-  --sidebar-accent-foreground: #ededed;
-  --sidebar-border: #333336;
-  --sidebar-ring: #4a90e2;
+
+  --background: #17120f;
+  --foreground: #ede6df;
+  --surface: #211a16;
+  --card: #211a16;
+  --card-foreground: #ede6df;
+  --popover: #211a16;
+  --popover-foreground: #ede6df;
+  --primary: #c4520a;
+  --primary-foreground: #ffffff;
+  --secondary: #322822;
+  --secondary-foreground: #ede6df;
+  --muted: #120e0b;
+  --muted-foreground: #a39689;
+  --accent: rgb(160 128 112 / 0.16);
+  --accent-foreground: #ede6df;
+  --destructive: #f66f81;
+  --border: #2f2621;
+  --input: #463a32;
+  --ring: #fb8a3c;
+  --brand: #fb8a3c;
+  --brand-foreground: #ffffff;
+  --brand-vivid: #ee7119;
+  --brand-solid: #c4520a;
+  --brand-solid-hover: #d35a0c;
+  --brand-soft: rgb(238 113 25 / 0.18);
+  --success: #3dd68c;
+  --warning: #f9b44e;
+  --chart-1: #fb8a3c;
+  --chart-2: #f9b44e;
+  --chart-3: #3dd68c;
+  --chart-4: #b89a85;
+  --chart-5: #a39689;
+  --sidebar: #120e0b;
+  --sidebar-foreground: #ede6df;
+  --sidebar-primary: #c4520a;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #322822;
+  --sidebar-accent-foreground: #ede6df;
+  --sidebar-border: #2f2621;
+  --sidebar-ring: #fb8a3c;
+
+  --hero-name: linear-gradient(124deg, #fb8a3c 30%, #f6c453);
+  --hero-glow: linear-gradient(-45deg, #f6c453 50%, #ee7119 50%);
+  --hero-glow-opacity: 0.28;
 }
 
 @layer base {
@@ -124,19 +168,184 @@
   }
 
   html {
-    @apply min-h-full font-sans;
+    @apply font-sans;
+    scroll-behavior: smooth;
+    scroll-padding-top: 5rem;
   }
 
   body {
-    @apply min-h-full bg-background text-foreground antialiased;
+    @apply bg-background text-foreground antialiased;
+    font-synthesis: style;
+    text-rendering: optimizeLegibility;
+    overflow-x: hidden;
+    transition: background-color 0.25s;
   }
 
-  h1,
-  h2,
-  h3,
-  h4,
-  h5,
-  h6 {
-    font-family: var(--font-manrope), sans-serif;
+  ::selection {
+    background: var(--brand-soft);
+  }
+
+  button:not(:disabled):not([aria-disabled='true']),
+  [role='button']:not([aria-disabled='true']) {
+    cursor: pointer;
+  }
+  .maplibregl-popup-content {
+    @apply bg-transparent! shadow-none! p-0! rounded-none!;
+  }
+  .maplibregl-popup-tip {
+    @apply hidden!;
+  }
+  .maplibregl-ctrl-attrib {
+    @apply bg-background! text-muted-foreground! border-border! rounded-md! border! shadow-sm!;
+  }
+  .maplibregl-ctrl-attrib a {
+    @apply text-muted-foreground!;
+  }
+  .maplibregl-ctrl-attrib a:hover {
+    @apply text-foreground!;
+  }
+  .maplibregl-ctrl-attrib-button {
+    @apply bg-transparent! dark:invert;
+  }
+}
+
+@utility btn-brand {
+  @apply inline-flex h-10 items-center justify-center gap-2 rounded-full border border-transparent bg-brand-solid px-5 text-sm font-semibold whitespace-nowrap text-white transition-colors duration-200 hover:bg-brand-solid-hover disabled:opacity-60;
+}
+
+@utility btn-alt {
+  @apply inline-flex h-10 items-center justify-center gap-2 rounded-full border border-transparent bg-secondary px-5 text-sm font-semibold whitespace-nowrap text-foreground transition-colors duration-200 hover:bg-accent disabled:opacity-60;
+}
+
+@utility soft-card {
+  @apply rounded-xl border border-surface bg-surface transition-colors duration-250;
+}
+
+@utility icon-box {
+  @apply flex size-12 shrink-0 items-center justify-center rounded-md bg-accent text-foreground;
+}
+
+/* Brand underline that grows left to right on hover (own or parent .group) and stays full on the current link */
+@utility link-underline {
+  padding-block: 0.25rem;
+  background: linear-gradient(var(--brand), var(--brand)) no-repeat 0 100% / 0 2px;
+  transition:
+    background-size 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+    color 0.2s;
+
+  &:hover,
+  .group:hover &,
+  .group:focus-visible &,
+  [aria-current] & {
+    background-size: 100% 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
+}
+
+@utility pill {
+  @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium whitespace-nowrap;
+}
+
+@utility text-gradient {
+  background: var(--hero-name);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Blurred two-tone glow placed behind the hero preview */
+.hero-glow {
+  position: absolute;
+  inset-inline-start: 50%;
+  inset-block-start: 50%;
+  z-index: -1;
+  inline-size: min(70%, 40rem);
+  block-size: 60%;
+  border-radius: 9999px;
+  background-image: var(--hero-glow);
+  opacity: var(--hero-glow-opacity);
+  filter: blur(72px);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes blink {
+  to {
+    visibility: hidden;
+  }
+}
+
+@keyframes row-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+}
+
+.row-in {
+  animation: row-in 0.4s cubic-bezier(0.22, 0.68, 0.24, 1) both;
+}
+
+/* Reveal on scroll (driven by ScrollReveal + IntersectionObserver) */
+[data-reveal] {
+  opacity: 0;
+  transform: translateY(16px);
+  transition:
+    opacity 0.6s ease,
+    transform 0.6s cubic-bezier(0.22, 0.68, 0.24, 1);
+  transition-delay: var(--reveal-delay, 0ms);
+}
+
+[data-reveal][data-inview='true'] {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .row-in,
+  .animate-marquee,
+  .animate-blink {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+
+  [data-reveal] {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
+/* Printing a page with an application receipt prints only the receipt (careers success and /tracking) */
+@media print {
+  body:has([data-print-receipt]) * {
+    visibility: hidden;
+  }
+  body:has([data-print-receipt]) [data-print-receipt],
+  body:has([data-print-receipt]) [data-print-receipt] * {
+    visibility: visible;
+  }
+  body:has([data-print-receipt]) [data-print-receipt] {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    border-color: #c4520a;
   }
 }
