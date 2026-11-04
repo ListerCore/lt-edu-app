@@ -308,6 +308,35 @@
   transition-delay: var(--reveal-delay, 0ms);
 }
 
+/* Variants: slide from a side, grow, or draw a connector line */
+[data-reveal='left'] {
+  transform: translateX(-28px);
+}
+
+[data-reveal='right'] {
+  transform: translateX(28px);
+}
+
+[data-reveal='scale'] {
+  transform: scale(0.96);
+}
+
+[data-reveal='line'] {
+  opacity: 1;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.9s cubic-bezier(0.65, 0, 0.35, 1);
+  transition-delay: var(--reveal-delay, 0ms);
+}
+
+[data-reveal='line-y'] {
+  opacity: 1;
+  transform: scaleY(0);
+  transform-origin: top;
+  transition: transform 1.2s cubic-bezier(0.65, 0, 0.35, 1);
+  transition-delay: var(--reveal-delay, 0ms);
+}
+
 [data-reveal][data-inview='true'] {
   opacity: 1;
   transform: none;
@@ -434,5 +463,35 @@
 
   .nf-fly {
     offset-distance: 55%;
+  }
+}
+
+/* Landing hero: the ID card drops in on its lanyard and settles, once */
+@keyframes carnet-swing {
+  0% {
+    opacity: 0;
+    transform: translateY(-28px) rotate(-9deg);
+  }
+  45% {
+    opacity: 1;
+    transform: translateY(0) rotate(4deg);
+  }
+  70% {
+    transform: rotate(-2deg);
+  }
+  100% {
+    transform: rotate(1.5deg);
+  }
+}
+
+.carnet-swing {
+  transform-origin: 50% 0;
+  transform: rotate(1.5deg);
+  animation: carnet-swing 1.6s cubic-bezier(0.22, 0.68, 0.24, 1) 0.2s both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .carnet-swing {
+    animation: none;
   }
 }

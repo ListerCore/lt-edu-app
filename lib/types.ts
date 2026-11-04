@@ -1,3 +1,5 @@
+import type { InstitutionType } from '@/features/protected/dashboard/types';
+
 export interface SiteLink {
   label: string;
   href: string;
@@ -8,6 +10,8 @@ export interface SiteLink {
 export interface SiteConfig {
   name: string;
   domain: string;
+  // Kind of institution this site belongs to; the landing adapts its offer, admission steps and wording to it
+  institutionType: InstitutionType;
   tagline: string;
   description: string;
   emails: {

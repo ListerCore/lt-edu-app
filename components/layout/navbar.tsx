@@ -32,7 +32,7 @@ export const Navbar = (): JSX.Element => {
             <BrandMark className="size-7" />
             <span className="text-xl leading-none font-light tracking-tight whitespace-nowrap text-foreground">
               {siteConfig.name.toLowerCase()}
-              <span className="ml-1 text-xs font-medium text-muted-foreground lg:max-xl:hidden">{siteConfig.tagline.toLowerCase()}</span>
+              <span className="ml-1 hidden text-xs font-medium text-muted-foreground sm:inline lg:max-xl:hidden">{siteConfig.tagline.toLowerCase()}</span>
             </span>
           </Link>
 

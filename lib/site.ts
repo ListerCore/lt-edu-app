@@ -4,6 +4,7 @@ import type { SiteConfig } from './types';
 export const siteConfig: SiteConfig = {
   name: 'Joseph',
   domain: 'joseph.pe',
+  institutionType: 'EBR',
   tagline: 'Comunidad educativa',
   description: 'Sitio oficial de la institución: oferta educativa, admisión, comunicados y acceso a tu cuenta para estudiantes, familias y docentes.',
   emails: {
