@@ -3,11 +3,13 @@ import type { SiteConfig } from './types';
 // Single source for brand, navigation and contact data shared by navbar, footer and metadata
 export const siteConfig: SiteConfig = {
   name: 'Joseph',
+  domain: 'joseph.pe',
   tagline: 'Gestión educativa',
   description: 'Plataforma SaaS para la gestión académica y administrativa de colegios, CEBA, CEBE, centros pre-universitarios e institutos: asistencia, notas, periodos, carnets, tutoría y psicología en una sola aplicación.',
   emails: {
     sales: 'ventas@joseph.pe',
     support: 'soporte@joseph.pe',
+    privacy: 'privacidad@joseph.pe',
   },
   navigation: [
     { label: 'Módulos', href: '/#modules' },

@@ -11,11 +11,13 @@ export interface InstitutionType {
 
 export interface SiteConfig {
   name: string;
+  domain: string;
   tagline: string;
   description: string;
   emails: {
     sales: string;
     support: string;
+    privacy: string;
   };
   navigation: SiteLink[];
   product: SiteLink[];
