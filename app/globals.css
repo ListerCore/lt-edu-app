@@ -349,3 +349,90 @@
     border-color: #c4520a;
   }
 }
+
+/* Panel 404 illustration: chalk strokes draw in once, the rest loops gently */
+@keyframes nf-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes nf-float {
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+@keyframes nf-sweep {
+  0%,
+  100% {
+    transform: translate(0, 0) rotate(-10deg);
+  }
+  50% {
+    transform: translate(170px, -14px) rotate(8deg);
+  }
+}
+
+@keyframes nf-fly {
+  from {
+    offset-distance: 0%;
+  }
+  to {
+    offset-distance: 100%;
+  }
+}
+
+@keyframes nf-twinkle {
+  50% {
+    opacity: 0.25;
+    transform: scale(0.6);
+  }
+}
+
+.nf-draw {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: nf-draw 0.9s cubic-bezier(0.65, 0, 0.35, 1) forwards;
+  animation-delay: var(--nf-delay, 0s);
+}
+
+.nf-float {
+  animation: nf-float 5s ease-in-out infinite;
+}
+
+.nf-sweep {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: nf-sweep 7s ease-in-out infinite;
+}
+
+.nf-fly {
+  offset-path: path('M -20 70 C 80 10, 160 120, 260 40 S 440 30, 520 -10');
+  offset-rotate: auto;
+  animation: nf-fly 6s linear infinite;
+}
+
+.nf-twinkle {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: nf-twinkle 2.4s ease-in-out infinite;
+  animation-delay: var(--nf-delay, 0s);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nf-draw {
+    animation: none;
+    stroke-dashoffset: 0;
+  }
+
+  .nf-float,
+  .nf-sweep,
+  .nf-fly,
+  .nf-twinkle {
+    animation: none;
+  }
+
+  .nf-fly {
+    offset-distance: 55%;
+  }
+}

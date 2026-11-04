@@ -1,11 +1,9 @@
-import { Suspense, type JSX } from 'react';
-import { DashboardModulePlaceholder } from '@/features/protected/dashboard/components/dashboard-module-placeholder';
+import { notFound } from 'next/navigation';
 
-// Module routes without a screen yet; the placeholder reads the pathname, so it streams inside Suspense
-const Page = (): JSX.Element => (
-  <Suspense>
-    <DashboardModulePlaceholder />
-  </Suspense>
-);
+// This route only exists to throw notFound(), so there is no page for instant-navigation validation to render
+export const instant = false;
+
+// Any panel route besides the home falls through to the panel's own 404 (rendered inside the sidebar shell)
+const Page = (): never => notFound();
 
 export default Page;
