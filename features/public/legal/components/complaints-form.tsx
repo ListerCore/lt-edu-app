@@ -134,7 +134,7 @@ export const ComplaintsForm = (): JSX.Element => {
       <SheetHeading index="02" title="Identificación del bien contratado" />
 
       <FormField id="complaint-serviceDescription" label="Servicio" required error={errors.serviceDescription}>
-        <Input id="complaint-serviceDescription" placeholder="Ej. Licencia anual de la plataforma" value={values.serviceDescription} onChange={(event): void => setField('serviceDescription', event.target.value)} className={controlClassName} {...describe('serviceDescription')} />
+        <Input id="complaint-serviceDescription" placeholder="Ej. Matrícula 2026, pensión de marzo, constancia de estudios" value={values.serviceDescription} onChange={(event): void => setField('serviceDescription', event.target.value)} className={controlClassName} {...describe('serviceDescription')} />
       </FormField>
 
       <FormField id="complaint-amount" label="Monto reclamado (S/)" hint="Opcional." error={errors.amount}>

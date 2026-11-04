@@ -7,7 +7,7 @@ import { siteConfig } from '@/lib/site';
 import { contactAssurances, contactChannels } from '../data/contact-data';
 import { ContactRequestForm } from './contact-request-form';
 
-// /contact: pitch and reassurances beside the request form, then direct inboxes beside the office map
+// /contact: reassurances beside the inquiry form, then direct inboxes beside the campus map
 export const ContactPage = (): JSX.Element => (
   <>
     <section aria-labelledby="contact-title">
@@ -28,9 +28,9 @@ export const ContactPage = (): JSX.Element => (
           </nav>
 
           <h1 id="contact-title" className="mt-6 text-[clamp(2.25rem,4.5vw,3.25rem)] leading-[1.08] font-semibold tracking-tight text-balance text-foreground">
-            Lleva tu institución <span className="text-gradient">a una sola plataforma.</span>
+            ¿Tienes una consulta? <span className="text-gradient">Te orientamos.</span>
           </h1>
-          <p className="mt-5 max-w-md text-lg leading-8 text-foreground/85">Cuéntanos cómo es tu colegio, CEBA, CEBE, academia o instituto y te mostramos cómo se vería con sus módulos, periodos y roles.</p>
+          <p className="mt-5 max-w-md text-lg leading-8 text-foreground/85">Admisión, matrícula, pensiones, certificados o el acceso a tu cuenta: escríbenos y secretaría te responde.</p>
 
           <ul className="mt-8 space-y-3">
             {contactAssurances.map(
@@ -51,7 +51,7 @@ export const ContactPage = (): JSX.Element => (
 
         <div className="self-start overflow-hidden rounded-2xl border border-border bg-background shadow-[0_24px_64px_-32px_rgb(0_0_0/0.3)] lg:col-span-7">
           <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border bg-surface px-6 py-3 md:px-8">
-            <span className="font-mono text-xs text-muted-foreground">Formulario · implementación</span>
+            <span className="font-mono text-xs text-muted-foreground">Formulario · informes</span>
             <span className="pill bg-success/12 text-success">
               <span className="size-1.5 rounded-full bg-success" aria-hidden="true" />
               Respuesta en un día hábil

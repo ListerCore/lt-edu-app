@@ -4,17 +4,15 @@ import type { TurnstileInstance } from '@marsidev/react-turnstile';
 import { useCallback, useRef, useState, useTransition } from 'react';
 import { sileo } from 'sileo';
 import { createContactRequestAction } from '../actions/create-contact-request';
-import type { ContactRequestErrors, ContactRequestField, ContactRequestFormValues, ContactRequestPayload, ModuleInterest, UseCreateContactRequestResult } from '../types';
+import type { ContactRequestErrors, ContactRequestField, ContactRequestFormValues, ContactRequestPayload, UseCreateContactRequestResult } from '../types';
 
 const initialValues: ContactRequestFormValues = {
   fullName: '',
-  position: '',
-  institution: '',
-  institutionType: '',
-  students: '',
+  relation: '',
   email: '',
   phone: '',
-  modules: [],
+  topic: '',
+  interest: '',
   message: '',
   consent: false,
 };
@@ -28,30 +26,28 @@ const clean = (value: string): string => value.trim().replace(/\s+/g, ' ');
 const validate = (values: ContactRequestFormValues): ContactRequestErrors => {
   const errors: ContactRequestErrors = {};
   if (clean(values.fullName).length < 3) errors.fullName = 'Ingresa tu nombre completo.';
-  if (clean(values.institution).length < 2) errors.institution = 'Ingresa el nombre de tu institución.';
-  if (!values.institutionType) errors.institutionType = 'Selecciona el tipo de institución.';
+  if (!values.relation) errors.relation = 'Cuéntanos quién escribe.';
   if (!EMAIL_PATTERN.test(values.email.trim())) errors.email = 'Ingresa un correo válido.';
   if (values.phone && values.phone.replace(/\D/g, '').length < 9) errors.phone = 'Ingresa un teléfono de al menos 9 dígitos.';
-  if (clean(values.message).length < 10) errors.message = 'Cuéntanos en pocas líneas qué necesitas.';
-  if (!values.consent) errors.consent = 'Necesitamos tu consentimiento para contactarte.';
+  if (!values.topic) errors.topic = 'Selecciona el motivo de tu consulta.';
+  if (clean(values.message).length < 10) errors.message = 'Cuéntanos en pocas líneas tu consulta.';
+  if (!values.consent) errors.consent = 'Necesitamos tu consentimiento para responderte.';
   return errors;
 };
 
-// Validated form values -> joseph-api payload; only called after validate() passes, so institutionType is set
+// Validated form values -> joseph-api payload; only called after validate() passes, so relation and topic are set
 const toPayload = (values: ContactRequestFormValues): ContactRequestPayload => ({
   nombre: clean(values.fullName),
-  cargo: clean(values.position) || null,
-  institucion: clean(values.institution),
-  tipo_institucion: values.institutionType as ContactRequestPayload['tipo_institucion'],
-  estudiantes: values.students || null,
+  relacion: values.relation as ContactRequestPayload['relacion'],
   email: values.email.trim().toLowerCase(),
   telefono: values.phone.trim() || null,
-  modulos: values.modules,
+  motivo: values.topic as ContactRequestPayload['motivo'],
+  interes: clean(values.interest) || null,
   mensaje: values.message.trim(),
   consentimiento_at: new Date().toISOString(),
 });
 
-// Owns the contact form state and sends it to joseph-api through the server action
+// Owns the inquiry form state and sends it to joseph-api through the server action
 export const useCreateContactRequest = (): UseCreateContactRequestResult => {
   const [values, setValues] = useState<ContactRequestFormValues>(initialValues);
   const [errors, setErrors] = useState<ContactRequestErrors>({});
@@ -69,11 +65,6 @@ export const useCreateContactRequest = (): UseCreateContactRequestResult => {
   const setCaptchaToken = useCallback((token: string | null): void => {
     setCaptchaTokenState(token);
     if (token) setErrors((current): ContactRequestErrors => ({ ...current, captcha: undefined }));
-  }, []);
-
-  // Modules of interest are optional and multi-select; a Set avoids duplicates on fast double clicks
-  const toggleModule = useCallback((code: ModuleInterest, checked: boolean): void => {
-    setValues((current): ContactRequestFormValues => ({ ...current, modules: checked ? [...new Set([...current.modules, code])] : current.modules.filter((item): boolean => item !== code) }));
   }, []);
 
   const submit = useCallback((): void => {
@@ -96,7 +87,7 @@ export const useCreateContactRequest = (): UseCreateContactRequestResult => {
         return;
       }
       setIsSubmitted(true);
-      sileo.success({ title: 'Mensaje enviado', description: 'Te responderemos por correo en un día hábil.' });
+      sileo.success({ title: 'Mensaje enviado', description: 'Te responderemos en un día hábil.' });
     });
   }, [values, captchaToken]);
 
@@ -106,5 +97,5 @@ export const useCreateContactRequest = (): UseCreateContactRequestResult => {
     setIsSubmitted(false);
   }, []);
 
-  return { values, errors, isPending, isSubmitted, turnstileRef, setCaptchaToken, setField, toggleModule, submit, reset };
+  return { values, errors, isPending, isSubmitted, turnstileRef, setCaptchaToken, setField, submit, reset };
 };

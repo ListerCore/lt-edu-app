@@ -1,15 +1,15 @@
 import Link from 'next/link';
 import type { JSX } from 'react';
-import { ArrowLeft, ArrowUpRight, Building2, LayoutGrid, Mail, MonitorPlay } from 'lucide';
+import { ArrowLeft, ArrowUpRight, ClipboardList, GraduationCap, Mail, Megaphone } from 'lucide';
 import type { IconInput } from 'morphicons/react';
 import { MorphIcon } from '@/components/ui/morph-icon';
 import { RequestedPath } from './requested-path';
 
 const suggestions: Array<{ icon: IconInput; label: string; description: string; href: string }> = [
-  { icon: MonitorPlay, label: 'Demo', description: 'Elige tu tipo de institución y un rol para recorrer la plataforma.', href: '/demo' },
-  { icon: LayoutGrid, label: 'Módulos', description: 'Asistencia, notas, periodos, carnets, tutoría y psicología.', href: '/#modules' },
-  { icon: Building2, label: 'Instituciones', description: 'Colegios, CEBA, CEBE, pre-universitarios e institutos.', href: '/#institutions' },
-  { icon: Mail, label: 'Contacto', description: 'Solicita la implementación para tu institución.', href: '/contact' },
+  { icon: GraduationCap, label: 'Oferta educativa', description: 'Niveles, ciclos o programas que ofrece la institución.', href: '/#programs' },
+  { icon: ClipboardList, label: 'Admisión', description: 'Requisitos, fechas y pasos para matricularte.', href: '/#admissions' },
+  { icon: Megaphone, label: 'Comunicados', description: 'Anuncios y avisos para estudiantes y familias.', href: '/news' },
+  { icon: Mail, label: 'Contacto', description: 'Escríbenos o visítanos en nuestra sede.', href: '/contact' },
 ];
 
 // 404: requested route as a failed request, gradient numeral, the way back and the most useful pages
@@ -23,7 +23,7 @@ export const NotFoundPage = (): JSX.Element => (
         <h1 id="not-found-title" className="mt-6 text-[clamp(2.25rem,4.5vw,3.25rem)] leading-[1.08] font-semibold tracking-tight text-balance text-foreground">
           Esta página no existe <span className="text-gradient">o cambió de lugar.</span>
         </h1>
-        <p className="mt-5 max-w-lg text-lg leading-8 text-muted-foreground">Revisa el enlace o sigue por alguna de las páginas de abajo. Si llegaste aquí desde nuestro sitio, avísanos y lo corregimos.</p>
+        <p className="mt-5 max-w-lg text-lg leading-8 text-muted-foreground">Revisa el enlace o sigue por alguna de las secciones de abajo. Si llegaste aquí desde nuestro sitio, avísanos y lo corregimos.</p>
         <div className="mt-8 flex flex-wrap gap-3">
           <Link href="/" className="btn-brand">
             <MorphIcon icon={ArrowLeft} size={16} />

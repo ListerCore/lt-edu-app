@@ -2,11 +2,10 @@ import type { TurnstileInstance } from '@marsidev/react-turnstile';
 import type { RefObject } from 'react';
 import type { IconInput } from 'morphicons/react';
 
-export type InstitutionTypeCode = 'EBR' | 'EBA' | 'EBE' | 'CEPRE' | 'IEST';
+// Who is writing: the applicant, a family member or someone else
+export type ContactRelation = 'applicant' | 'guardian' | 'other';
 
-export type StudentRange = 'lt-200' | '200-500' | '500-1000' | 'gt-1000';
-
-export type ModuleInterest = 'attendance' | 'grades' | 'periods' | 'enrollment' | 'cards' | 'tutoring' | 'payments' | 'reports';
+export type ContactTopic = 'admission' | 'academic' | 'payments' | 'documents' | 'platform' | 'other';
 
 export interface Option<T extends string> {
   value: T;
@@ -29,13 +28,11 @@ export interface ContactChannel {
 // Raw values as the form holds them
 export interface ContactRequestFormValues {
   fullName: string;
-  position: string;
-  institution: string;
-  institutionType: InstitutionTypeCode | '';
-  students: StudentRange | '';
+  relation: ContactRelation | '';
   email: string;
   phone: string;
-  modules: ModuleInterest[];
+  topic: ContactTopic | '';
+  interest: string;
   message: string;
   consent: boolean;
 }
@@ -47,13 +44,11 @@ export type ContactRequestErrors = Partial<Record<ContactRequestField | 'captcha
 // Shape sent to joseph-api, snake_case like the other payloads
 export interface ContactRequestPayload {
   nombre: string;
-  cargo: string | null;
-  institucion: string;
-  tipo_institucion: InstitutionTypeCode;
-  estudiantes: StudentRange | null;
+  relacion: ContactRelation;
   email: string;
   telefono: string | null;
-  modulos: ModuleInterest[];
+  motivo: ContactTopic;
+  interes: string | null;
   mensaje: string;
   consentimiento_at: string;
 }
@@ -69,7 +64,6 @@ export interface UseCreateContactRequestResult {
   isPending: boolean;
   isSubmitted: boolean;
   setField: <K extends ContactRequestField>(field: K, value: ContactRequestFormValues[K]) => void;
-  toggleModule: (code: ModuleInterest, checked: boolean) => void;
   // Turnstile widget and its single-use token (the token is sent with the form, joseph-api verifies it)
   turnstileRef: RefObject<TurnstileInstance | null>;
   setCaptchaToken: (token: string | null) => void;

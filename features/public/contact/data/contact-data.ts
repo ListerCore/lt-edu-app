@@ -1,38 +1,33 @@
-import { CalendarCheck, Clock3, LifeBuoy, Mail, MonitorPlay, ShieldCheck } from 'lucide';
+import { CalendarCheck, ClipboardList, Clock3, LifeBuoy, Mail, ShieldCheck } from 'lucide';
 import { siteConfig } from '@/lib/site';
-import type { ContactAssurance, ContactChannel, InstitutionTypeCode, ModuleInterest, Option, StudentRange } from '../types';
+import type { ContactAssurance, ContactChannel, ContactRelation, ContactTopic, Option } from '../types';
 
-// Institution types offered in the form, same codes as siteConfig.institutions
-export const institutionTypeOptions: Option<InstitutionTypeCode>[] = siteConfig.institutions.map(({ code, label }) => ({ value: code as InstitutionTypeCode, label: `${code} · ${label}` }));
-
-export const studentRangeOptions: Option<StudentRange>[] = [
-  { value: 'lt-200', label: 'Menos de 200' },
-  { value: '200-500', label: '200 a 500' },
-  { value: '500-1000', label: '500 a 1 000' },
-  { value: 'gt-1000', label: 'Más de 1 000' },
+export const relationOptions: Option<ContactRelation>[] = [
+  { value: 'applicant', label: 'Postulante o estudiante' },
+  { value: 'guardian', label: 'Padre, madre o apoderado' },
+  { value: 'other', label: 'Otro' },
 ];
 
-export const moduleOptions: Option<ModuleInterest>[] = [
-  { value: 'attendance', label: 'Asistencia' },
-  { value: 'grades', label: 'Notas y evaluación' },
-  { value: 'periods', label: 'Periodos y cursos' },
-  { value: 'enrollment', label: 'Matrícula' },
-  { value: 'cards', label: 'Carnets y fotochecks' },
-  { value: 'tutoring', label: 'Tutoría y psicología' },
+// Reasons to write, valid for every institution type
+export const topicOptions: Option<ContactTopic>[] = [
+  { value: 'admission', label: 'Admisión y matrícula' },
+  { value: 'academic', label: 'Información académica' },
   { value: 'payments', label: 'Pensiones y pagos' },
-  { value: 'reports', label: 'Reportes' },
+  { value: 'documents', label: 'Certificados y constancias' },
+  { value: 'platform', label: 'Acceso a mi cuenta' },
+  { value: 'other', label: 'Otro' },
 ];
 
 // Reassurances shown beside the form
 export const contactAssurances: ContactAssurance[] = [
-  { icon: Clock3, title: 'Respuesta en un día hábil', description: 'Leemos cada mensaje y te proponemos una reunión para conocer tu institución.' },
-  { icon: MonitorPlay, title: 'Demo con tu tipo de institución', description: 'Te mostramos los módulos y roles exactos que usarías: EBR, CEBA, CEBE, pre-universitario o instituto.' },
-  { icon: CalendarCheck, title: 'Implementación acompañada', description: 'Cargamos tu estructura académica, periodos y usuarios para que empieces el año o ciclo sin fricción.' },
+  { icon: Clock3, title: 'Respuesta en un día hábil', description: 'Secretaría revisa cada mensaje y te responde por correo o WhatsApp.' },
+  { icon: ClipboardList, title: 'Orientación de admisión', description: 'Te explicamos requisitos, fechas y documentos según el nivel, ciclo o programa que te interesa.' },
+  { icon: CalendarCheck, title: 'Visitas a la sede', description: 'Coordina una visita para conocer las instalaciones y al equipo.' },
 ];
 
 // Direct inboxes by topic
 export const contactChannels: ContactChannel[] = [
-  { icon: Mail, label: 'Ventas e implementación', description: 'Cotizaciones, demos y contratos.', email: siteConfig.emails.sales },
-  { icon: LifeBuoy, label: 'Soporte', description: 'Instituciones que ya usan la plataforma.', email: siteConfig.emails.support },
+  { icon: Mail, label: 'Informes y admisión', description: 'Requisitos, vacantes, matrícula y pensiones.', email: siteConfig.emails.info },
+  { icon: LifeBuoy, label: 'Soporte técnico', description: 'Problemas para ingresar o usar tu cuenta.', email: siteConfig.emails.support },
   { icon: ShieldCheck, label: 'Privacidad', description: 'Datos personales y derechos ARCO.', email: siteConfig.emails.privacy },
 ];

@@ -1,56 +1,54 @@
 import Link from 'next/link';
 import type { JSX } from 'react';
-import { siteConfig } from '@/lib/site';
 import type { LegalSection } from '../types';
 import { LegalBlock } from './legal-block';
 import { LegalPage } from './legal-page';
 
 const sections: LegalSection[] = [
   { id: 'objeto', title: 'Objeto' },
-  { id: 'demo', title: 'Uso de la demo' },
-  { id: 'cuentas', title: 'Cuentas y roles' },
-  { id: 'institucion', title: 'Obligaciones de la institución' },
-  { id: 'propiedad', title: 'Propiedad intelectual' },
-  { id: 'servicio', title: 'Contratación del servicio' },
-  { id: 'responsabilidad', title: 'Responsabilidad' },
+  { id: 'cuentas', title: 'Cuentas de acceso' },
+  { id: 'uso', title: 'Uso responsable' },
+  { id: 'comunicados', title: 'Comunicados oficiales' },
+  { id: 'academico', title: 'Información académica' },
+  { id: 'pagos', title: 'Pensiones y pagos' },
+  { id: 'propiedad', title: 'Contenidos' },
   { id: 'reclamos', title: 'Reclamos' },
   { id: 'ley', title: 'Ley aplicable' },
 ];
 
-// Terms of use for the public site, the demo and the per-institution platform
+// Terms of use of the institution's website and of the accounts of its community
 export const TermsPage = (): JSX.Element => (
-  <LegalPage code="LEG/02" eyebrow="Condiciones de uso" title="Términos y" highlight="condiciones." summary={`Reglas para usar ${siteConfig.domain}, la demo por tipo de institución y rol, y la plataforma contratada por cada institución.`} updatedAt="4 de noviembre de 2026" sections={sections}>
+  <LegalPage code="LEG/02" eyebrow="Condiciones de uso" title="Términos y" highlight="condiciones." summary="Reglas para usar el sitio web de la institución y las cuentas de estudiantes, apoderados, docentes y personal." updatedAt="4 de noviembre de 2026" sections={sections}>
     <LegalBlock id="objeto" index={1} title="Objeto">
+      <p>Estos términos regulan el uso de este sitio y de las cuentas que la institución entrega a su comunidad. Al usarlos aceptas estas condiciones, además del reglamento interno de la institución.</p>
+    </LegalBlock>
+    <LegalBlock id="cuentas" index={2} title="Cuentas de acceso">
+      <ul>
+        <li>Cada cuenta es personal e intransferible y se asocia al correo registrado en secretaría.</li>
+        <li>Lo que ves y puedes hacer depende de tu rol: estudiante, apoderado, docente o personal administrativo.</li>
+        <li>Cuida tu contraseña y activa la verificación en dos pasos. Si sospechas un acceso indebido, cámbiala y avisa a soporte.</li>
+      </ul>
+    </LegalBlock>
+    <LegalBlock id="uso" index={3} title="Uso responsable">
+      <p>No intentes acceder a información de otras personas ni a funciones fuera de tu rol, no compartas datos de otros estudiantes o familias y no uses el sitio para fines ajenos a la vida académica. El incumplimiento puede llevar a la suspensión de la cuenta y a las medidas del reglamento interno.</p>
+    </LegalBlock>
+    <LegalBlock id="comunicados" index={4} title="Comunicados oficiales">
       <p>
-        Estos términos regulan el uso de este sitio, de la demo pública y de la plataforma de gestión educativa de <strong>{siteConfig.name}</strong>. Al usarlos aceptas estas condiciones.
+        Los comunicados, anuncios y avisos publicados en la sección{' '}
+        <Link className="text-foreground underline underline-offset-4 hover:text-brand" href="/news">
+          Comunicados
+        </Link>{' '}
+        y dentro de tu cuenta son canales oficiales de la institución. Revísalos con frecuencia.
       </p>
     </LegalBlock>
-    <LegalBlock id="demo" index={2} title="Uso de la demo">
-      <ul>
-        <li>La demo permite elegir un tipo de institución y un rol para evaluar la plataforma. No debe usarse para gestionar una institución real.</li>
-        <li>Contiene datos ficticios y se restablece periódicamente; todo lo que registres puede borrarse sin aviso.</li>
-        <li>No cargues datos personales reales de estudiantes, familias ni personal.</li>
-        <li>Los carnets, reportes y documentos que descargues desde la demo no tienen validez.</li>
-      </ul>
+    <LegalBlock id="academico" index={5} title="Información académica">
+      <p>Las notas, la asistencia y los horarios que ves en tu cuenta son informativos. Los documentos con validez oficial (actas, certificados y constancias) se solicitan en secretaría. Si encuentras un error, comunícalo dentro del plazo que fija el reglamento.</p>
     </LegalBlock>
-    <LegalBlock id="cuentas" index={3} title="Cuentas y roles">
-      <p>Las credenciales son personales e intransferibles. Cada usuario solo puede usar las funciones de su rol; no intentes acceder a módulos o datos fuera de tu alcance ni afectar la disponibilidad del servicio. Si encuentras una vulnerabilidad, repórtala a {siteConfig.emails.support}.</p>
+    <LegalBlock id="pagos" index={6} title="Pensiones y pagos">
+      <p>El estado de cuenta en línea refleja los pagos registrados por la institución. Los montos, fechas de vencimiento y condiciones se rigen por lo informado al momento de la matrícula.</p>
     </LegalBlock>
-    <LegalBlock id="institucion" index={4} title="Obligaciones de la institución">
-      <ul>
-        <li>Asignar los roles y permisos de sus usuarios y mantenerlos actualizados.</li>
-        <li>Contar con la base legal para tratar los datos de sus estudiantes, apoderados y personal.</li>
-        <li>Verificar la información académica (notas, actas, asistencia) antes de emitir documentos oficiales.</li>
-      </ul>
-    </LegalBlock>
-    <LegalBlock id="propiedad" index={5} title="Propiedad intelectual">
-      <p>El software, la marca, los diseños y los contenidos de {siteConfig.name} están protegidos. No se permite copiarlos, descompilarlos ni usarlos para desarrollar un producto competidor. Los datos cargados por cada institución le pertenecen a ella.</p>
-    </LegalBlock>
-    <LegalBlock id="servicio" index={6} title="Contratación del servicio">
-      <p>La contratación de la plataforma se rige por un contrato aparte que define el tipo de institución, los módulos activos, el número de usuarios, el precio, los niveles de soporte y el tratamiento de datos como encargado.</p>
-    </LegalBlock>
-    <LegalBlock id="responsabilidad" index={7} title="Responsabilidad">
-      <p>La demo se ofrece “tal cual”, sin garantía de disponibilidad continua. {siteConfig.name} no responde por decisiones tomadas a partir de los datos ficticios de la demo ni por información cargada incorrectamente por los usuarios de una institución.</p>
+    <LegalBlock id="propiedad" index={7} title="Contenidos">
+      <p>Los materiales, logotipos y contenidos publicados por la institución están protegidos. Puedes usarlos para tus estudios, pero no copiarlos ni difundirlos con otros fines sin autorización.</p>
     </LegalBlock>
     <LegalBlock id="reclamos" index={8} title="Reclamos">
       <p>
@@ -62,7 +60,7 @@ export const TermsPage = (): JSX.Element => (
       </p>
     </LegalBlock>
     <LegalBlock id="ley" index={9} title="Ley aplicable">
-      <p>Estos términos se rigen por las leyes de la República del Perú.</p>
+      <p>Estos términos se rigen por las leyes de la República del Perú y la normativa del sector educación.</p>
     </LegalBlock>
   </LegalPage>
 );

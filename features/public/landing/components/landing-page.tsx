@@ -1,27 +1,27 @@
+import Link from 'next/link';
 import type { JSX } from 'react';
-import { ArrowRight, BookOpen } from 'lucide';
-import { ThemeSwitcher } from '@/components/layout/theme-switcher';
+import { ClipboardList, LogIn } from 'lucide';
 import { MorphIcon } from '@/components/ui/morph-icon';
+import { siteConfig } from '@/lib/site';
 
-// Placeholder landing: hello world rendered with the shared brand tokens and morphicons
+// Home hero placeholder: welcome, admission and sign-in; the landing sections come next
 export const LandingPage = (): JSX.Element => (
   <section className="relative flex min-h-[calc(100svh-4rem)] flex-col items-center justify-center gap-6 px-4 text-center">
     <div aria-hidden="true" className="hero-glow" />
-    <span className="pill bg-brand-soft text-brand">joseph-app</span>
-    <h1 className="text-5xl font-bold tracking-tight sm:text-6xl">
-      Hello, <span className="text-gradient">world</span>
+    <span className="pill bg-brand-soft text-brand">{siteConfig.tagline}</span>
+    <h1 className="max-w-3xl text-5xl font-bold tracking-tight text-balance sm:text-6xl">
+      Bienvenidos a <span className="text-gradient">{siteConfig.name}</span>
     </h1>
-    <p className="max-w-md text-muted-foreground">Estructura inicial lista. Empieza a construir en features/.</p>
-    <div className="flex gap-3">
-      <button type="button" className="btn-brand">
-        Empezar
-        <MorphIcon icon={ArrowRight} size={16} />
-      </button>
-      <button type="button" className="btn-alt">
-        <MorphIcon icon={BookOpen} size={16} />
-        Documentación
-      </button>
+    <p className="max-w-md text-muted-foreground">Conoce nuestra oferta educativa, el proceso de admisión y los últimos comunicados de la institución.</p>
+    <div className="flex flex-wrap justify-center gap-3">
+      <Link href="/#admissions" className="btn-brand">
+        <MorphIcon icon={ClipboardList} size={16} />
+        Admisión
+      </Link>
+      <Link href="/auth/signin" className="btn-alt">
+        <MorphIcon icon={LogIn} size={16} />
+        Ingresar
+      </Link>
     </div>
-    <ThemeSwitcher />
   </section>
 );
