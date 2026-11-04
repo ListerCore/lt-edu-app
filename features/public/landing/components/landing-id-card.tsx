@@ -1,26 +1,8 @@
 import type { JSX } from 'react';
 import { BrandMark } from '@/components/layout/brand-mark';
+import { finderOrigins, isFinder, QR_SIZE, qrCells } from '@/lib/qr-pattern';
 import { siteConfig } from '@/lib/site';
 import type { IdCardProps } from '../types';
-
-const QR_SIZE = 21;
-
-// Deterministic QR-like pattern from the card code: decorative, but stable between renders and builds
-const qrCells = (seed: string): boolean[] => {
-  let state = [...seed].reduce((hash, char) => (hash * 31 + char.charCodeAt(0)) >>> 0, 7);
-  return Array.from({ length: QR_SIZE * QR_SIZE }, () => {
-    state = (state * 1103515245 + 12345) >>> 0;
-    return (state >>> 16) % 2 === 0;
-  });
-};
-
-// The three corner squares every QR has, so the pattern reads as one at a glance
-const isFinder = (x: number, y: number): boolean => (x < 7 && y < 7) || (x >= QR_SIZE - 7 && y < 7) || (x < 7 && y >= QR_SIZE - 7);
-const finderOrigins: Array<[number, number]> = [
-  [0, 0],
-  [QR_SIZE - 7, 0],
-  [0, QR_SIZE - 7],
-];
 
 // Hero ID card (CR80 proportions) hanging from a lanyard: institution, photo, name, level and attendance QR
 export const LandingIdCard = ({ card }: IdCardProps): JSX.Element => {

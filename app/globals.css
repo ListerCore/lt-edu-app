@@ -495,3 +495,28 @@
     animation: none;
   }
 }
+
+/* Printing ID cards: only the sheet prints, at real size, with the brand colors kept */
+@media print {
+  @page {
+    size: A4;
+    margin: 10mm;
+  }
+
+  body:has([data-print-cards]) * {
+    visibility: hidden;
+  }
+
+  body:has([data-print-cards]) [data-print-cards],
+  body:has([data-print-cards]) [data-print-cards] * {
+    visibility: visible;
+  }
+
+  body:has([data-print-cards]) [data-print-cards] {
+    position: absolute;
+    top: 0;
+    left: 0;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+}

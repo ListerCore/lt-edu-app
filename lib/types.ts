@@ -21,7 +21,10 @@ export interface SiteConfig {
   };
   navigation: SiteLink[];
   access: SiteLink[];
+  // Main phone, printed on the back of the ID cards
+  phone: string;
   office: {
+    address: string;
     city: string;
     latitude: number;
     longitude: number;

@@ -28,7 +28,9 @@ export const siteConfig: SiteConfig = {
     { label: 'Recuperar cuenta', href: '/auth/recovery-account' },
   ],
   // Office pin, resolved from the shared Google Maps link
+  phone: '(01) 555 0123',
   office: {
+    address: 'Av. Los Educadores 123, Comas',
     city: 'Lima, Perú',
     latitude: -11.88142,
     longitude: -77.03128,
