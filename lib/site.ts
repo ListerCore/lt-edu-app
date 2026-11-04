@@ -4,33 +4,27 @@ import type { SiteConfig } from './types';
 export const siteConfig: SiteConfig = {
   name: 'Joseph',
   domain: 'joseph.pe',
-  tagline: 'Gestión educativa',
-  description: 'Plataforma SaaS para la gestión académica y administrativa de colegios, CEBA, CEBE, centros pre-universitarios e institutos: asistencia, notas, periodos, carnets, tutoría y psicología en una sola aplicación.',
+  tagline: 'Comunidad educativa',
+  description: 'Sitio oficial de la institución: oferta educativa, admisión, comunicados y acceso a tu cuenta para estudiantes, familias y docentes.',
   emails: {
-    sales: 'ventas@joseph.pe',
+    info: 'informes@joseph.pe',
     support: 'soporte@joseph.pe',
     privacy: 'privacidad@joseph.pe',
   },
+  // Public site of the institution: sections every institution type has, whatever it calls its levels or programs
   navigation: [
-    { label: 'Módulos', href: '/#modules' },
-    { label: 'Instituciones', href: '/#institutions' },
-    { label: 'Roles', href: '/#roles' },
-    { label: 'Carnets', href: '/#cards' },
+    { label: 'Nosotros', href: '/#about' },
+    { label: 'Oferta educativa', href: '/#programs' },
+    { label: 'Admisión', href: '/#admissions' },
+    { label: 'Comunicados', href: '/news', rotatingLabels: ['Comunicados', 'Anuncios', 'Avisos'] },
     { label: 'Contacto', href: '/contact' },
   ],
-  product: [
-    { label: 'Asistencia', href: '/#modules' },
-    { label: 'Notas y evaluación', href: '/#modules' },
-    { label: 'Periodos y cursos', href: '/#modules' },
-    { label: 'Carnets y fotochecks', href: '/#cards' },
-    { label: 'Tutoría y psicología', href: '/#modules' },
-  ],
-  institutions: [
-    { code: 'EBR', label: 'Colegios y escuelas' },
-    { code: 'EBA', label: 'CEBA' },
-    { code: 'EBE', label: 'CEBE y PRITE' },
-    { code: 'CEPRE', label: 'Pre-universitarios' },
-    { code: 'IEST', label: 'Institutos' },
+  // Platform entry points for each kind of user, listed in the footer
+  access: [
+    { label: 'Estudiantes y apoderados', href: '/auth/signin' },
+    { label: 'Docentes y personal', href: '/auth/signin' },
+    { label: 'Crear cuenta', href: '/auth/signup' },
+    { label: 'Recuperar cuenta', href: '/auth/recovery-account' },
   ],
   // Office pin, resolved from the shared Google Maps link
   office: {

@@ -1,3 +1,4 @@
+import type { Announcement } from '@/features/protected/announcements/types';
 import type { IconInput } from 'morphicons/react';
 
 export type InstitutionType = 'EBR' | 'EBA' | 'EBE' | 'CEPRE' | 'IEST';
@@ -21,6 +22,18 @@ export type ModuleKey =
   | 'progress-reports'
   | 'mock-exams'
   | 'internships'
+  | 'report-cards'
+  | 'certificates'
+  | 'attention-modes'
+  | 'placement'
+  | 'individual-plans'
+  | 'therapies'
+  | 'inclusion-support'
+  | 'rankings'
+  | 'question-bank'
+  | 'study-materials'
+  | 'degrees'
+  | 'parent-school'
   | 'cards'
   | 'tutoring'
   | 'psychology'
@@ -115,4 +128,12 @@ export interface UserAvatarProps {
   name: string;
   avatarUrl: string | null;
   className?: string;
+}
+
+export interface UseAnnouncementTickerResult {
+  current: Announcement;
+  index: number;
+  total: number;
+  pause: () => void;
+  resume: () => void;
 }

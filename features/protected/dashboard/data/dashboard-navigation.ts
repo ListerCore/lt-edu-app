@@ -1,4 +1,4 @@
-import { Award, BadgeCheck, Bell, BookOpen, Brain, CalendarDays, CalendarRange, ChartColumn, ClipboardCheck, ClipboardList, Clock, FileText, GraduationCap, HeartHandshake, IdCard, LayoutDashboard, Layers, School, ScrollText, Settings, ShieldAlert, UserCheck, UserCog, Users, UsersRound, Wallet } from 'lucide';
+import { Accessibility, Activity, Award, BadgeCheck, Bell, BookOpen, Brain, Briefcase, CalendarDays, CalendarRange, ChartColumn, ClipboardCheck, ClipboardList, ClipboardPen, Clock, FileSearch, FileText, FolderOpen, GraduationCap, HandHeart, HeartHandshake, Home, IdCard, LayoutDashboard, Layers, Library, NotebookText, School, ScrollText, Settings, Shapes, ShieldAlert, Trophy, UserCheck, UserCog, Users, UsersRound, Wallet } from 'lucide';
 import type { InstitutionType, NavLabel, NavSection } from '../types';
 
 export const DASHBOARD_PATH = '/dashboard';
@@ -25,21 +25,41 @@ export const dashboardNavigation: NavSection[] = [
         label: 'Estructura académica',
         icon: School,
         children: [
-          { label: { default: 'Niveles y grados', EBA: 'Ciclos y grados', CEPRE: 'Ciclos y áreas', IEST: 'Programas de estudio', EBE: 'Niveles y aulas' }, icon: Layers, href: path('academic/structure'), module: 'structure' },
-          { label: { default: 'Bimestres', EBA: 'Semestres', CEPRE: 'Ciclos', IEST: 'Semestres académicos', EBE: 'Trimestres' }, icon: CalendarRange, href: path('academic/periods'), module: 'periods' },
-          { label: { default: 'Cursos', EBR: 'Áreas y cursos', EBA: 'Áreas curriculares', IEST: 'Unidades didácticas' }, icon: BookOpen, href: path('academic/courses'), module: 'courses' },
+          { label: { default: 'Niveles y grados', EBA: 'Ciclos y grados', CEPRE: 'Áreas y aulas', IEST: 'Programas de estudio', EBE: 'Niveles y aulas' }, icon: Layers, href: path('academic/structure'), module: 'structure' },
+          { label: 'Formas de atención', icon: Shapes, href: path('academic/attention-modes'), module: 'attention-modes' },
+          { label: { default: 'Bimestres', EBA: 'Periodos promocionales', CEPRE: 'Ciclos', IEST: 'Semestres académicos', EBE: 'Trimestres' }, icon: CalendarRange, href: path('academic/periods'), module: 'periods' },
+          { label: { default: 'Cursos', EBR: 'Áreas y cursos', EBA: 'Áreas curriculares', IEST: 'Unidades didácticas', EBE: 'Áreas de desarrollo' }, icon: BookOpen, href: path('academic/courses'), module: 'courses' },
           { label: 'Horarios', icon: Clock, href: path('academic/schedules'), module: 'schedules' },
         ],
       },
-      { label: 'Matrícula', icon: ClipboardList, href: path('enrollment'), module: 'enrollment' },
+      {
+        label: { default: 'Matrícula', CEPRE: 'Inscripciones' },
+        icon: ClipboardList,
+        children: [
+          { label: { default: 'Matrícula', CEPRE: 'Inscripción por ciclo' }, icon: ClipboardList, href: path('enrollment'), module: 'enrollment' },
+          { label: 'Ubicación y convalidación', icon: FileSearch, href: path('enrollment/placement'), module: 'placement' },
+        ],
+      },
       {
         label: 'Evaluación',
         icon: GraduationCap,
         children: [
-          { label: 'Notas', icon: ClipboardCheck, href: path('evaluation/grades'), module: 'grades' },
+          { label: { default: 'Notas', EBR: 'Notas por competencias', EBA: 'Notas por competencias', IEST: 'Notas (0 a 20)' }, icon: ClipboardCheck, href: path('evaluation/grades'), module: 'grades' },
+          { label: { default: 'Libretas', IEST: 'Boletas de notas' }, icon: NotebookText, href: path('evaluation/report-cards'), module: 'report-cards' },
           { label: 'Informes de progreso', icon: FileText, href: path('evaluation/progress-reports'), module: 'progress-reports' },
           { label: 'Simulacros', icon: Award, href: path('evaluation/mock-exams'), module: 'mock-exams' },
-          { label: 'Prácticas y créditos', icon: BadgeCheck, href: path('evaluation/internships'), module: 'internships' },
+          { label: 'Ranking', icon: Trophy, href: path('evaluation/rankings'), module: 'rankings' },
+          { label: 'Banco de preguntas', icon: Library, href: path('evaluation/question-bank'), module: 'question-bank' },
+        ],
+      },
+      { label: 'Material de estudio', icon: FolderOpen, href: path('study-materials'), module: 'study-materials' },
+      {
+        label: 'Certificación',
+        icon: BadgeCheck,
+        children: [
+          { label: 'Experiencias formativas', icon: Briefcase, href: path('certification/internships'), module: 'internships' },
+          { label: 'Certificados', icon: ScrollText, href: path('certification/certificates'), module: 'certificates' },
+          { label: 'Titulación', icon: GraduationCap, href: path('certification/degrees'), module: 'degrees' },
         ],
       },
     ],
@@ -47,13 +67,13 @@ export const dashboardNavigation: NavSection[] = [
   {
     label: 'Personas',
     items: [
-      { label: 'Estudiantes', icon: UsersRound, href: path('students'), module: 'students' },
+      { label: { default: 'Estudiantes', CEPRE: 'Alumnos' }, icon: UsersRound, href: path('students'), module: 'students' },
       { label: 'Docentes y personal', icon: Users, href: path('staff'), module: 'staff' },
       {
         label: 'Asistencia',
         icon: UserCheck,
         children: [
-          { label: 'De estudiantes', icon: UsersRound, href: path('attendance/students'), module: 'student-attendance' },
+          { label: { default: 'De estudiantes', CEPRE: 'De alumnos' }, icon: UsersRound, href: path('attendance/students'), module: 'student-attendance' },
           { label: 'De docentes', icon: CalendarDays, href: path('attendance/staff'), module: 'staff-attendance' },
         ],
       },
@@ -63,8 +83,18 @@ export const dashboardNavigation: NavSection[] = [
   {
     label: 'Bienestar',
     items: [
+      {
+        label: 'Atención especializada',
+        icon: HandHeart,
+        children: [
+          { label: 'Planes de orientación individual', icon: ClipboardPen, href: path('special-care/individual-plans'), module: 'individual-plans' },
+          { label: 'Terapias', icon: Activity, href: path('special-care/therapies'), module: 'therapies' },
+          { label: 'Apoyo a la inclusión (SAANEE)', icon: Accessibility, href: path('special-care/inclusion'), module: 'inclusion-support' },
+        ],
+      },
       { label: 'Tutoría', icon: HeartHandshake, href: path('tutoring'), module: 'tutoring' },
       { label: 'Psicología', icon: Brain, href: path('psychology'), module: 'psychology' },
+      { label: 'Escuela de padres', icon: Home, href: path('parent-school'), module: 'parent-school' },
       { label: 'Alertas', icon: ShieldAlert, href: path('wellbeing'), module: 'wellbeing' },
     ],
   },

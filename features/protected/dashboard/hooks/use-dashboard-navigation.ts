@@ -5,8 +5,8 @@ import { dashboardNavigation, resolveLabel } from '../data/dashboard-navigation'
 import type { ResolvedItem, ResolvedSection } from '../types';
 import { useWorkspace } from './use-workspace';
 
-// Sidebar tree for the current workspace: leaves without permission drop out, parents with no leaves left
-// drop out, empty sections drop out, and labels take the institution type's wording
+// Sidebar tree for the current workspace: leaves without permission drop out, parents with no leaves left drop out,
+// parents with one leaf collapse into it, empty sections drop out, and labels take the institution type's wording
 export const useDashboardNavigation = (): ResolvedSection[] => {
   const { institutionType, can } = useWorkspace();
 
@@ -19,7 +19,10 @@ export const useDashboardNavigation = (): ResolvedSection[] => {
             .map((item): ResolvedItem | null => {
               if (item.children) {
                 const children = item.children.filter((leaf) => can(leaf.module)).map((leaf) => ({ label: resolveLabel(leaf.label, institutionType), href: leaf.href, icon: leaf.icon }));
-                return children.length > 0 ? { label: resolveLabel(item.label, institutionType), icon: item.icon, children } : null;
+                if (children.length === 0) return null;
+                // A group left with a single leaf for this type and role becomes that leaf, so no folder holds just one link
+                if (children.length === 1) return { label: children[0].label, icon: children[0].icon, href: children[0].href, children: [] };
+                return { label: resolveLabel(item.label, institutionType), icon: item.icon, children };
               }
               return item.module && item.href && can(item.module) ? { label: resolveLabel(item.label, institutionType), icon: item.icon, href: item.href, children: [] } : null;
             })

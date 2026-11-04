@@ -1,12 +1,8 @@
 export interface SiteLink {
   label: string;
   href: string;
-}
-
-// Institution types the platform supports; each one enables its own set of modules
-export interface InstitutionType {
-  code: string;
-  label: string;
+  // Alternative labels the navbar cycles through (the first one is `label`); the accessible name stays fixed
+  rotatingLabels?: string[];
 }
 
 export interface SiteConfig {
@@ -15,13 +11,12 @@ export interface SiteConfig {
   tagline: string;
   description: string;
   emails: {
-    sales: string;
+    info: string;
     support: string;
     privacy: string;
   };
   navigation: SiteLink[];
-  product: SiteLink[];
-  institutions: InstitutionType[];
+  access: SiteLink[];
   office: {
     city: string;
     latitude: number;
