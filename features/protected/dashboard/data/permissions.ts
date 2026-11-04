@@ -25,6 +25,24 @@ export const roleLabels: Record<Role, string> = {
   guardian: 'Apoderado',
 };
 
+// Some roles carry another name in certain institutions
+const roleLabelOverrides: Partial<Record<InstitutionType, Partial<Record<Role, string>>>> = {
+  EBA: { student: 'Estudiante EBA' },
+  CEPRE: { coordinator: 'Coordinador de ciclo', student: 'Alumno' },
+  IEST: { director: 'Director general', coordinator: 'Jefe de unidad académica', psychologist: 'Bienestar estudiantil' },
+};
+
+export const roleLabel = (role: Role, institutionType: InstitutionType): string => roleLabelOverrides[institutionType]?.[role] ?? roleLabels[role];
+
+// Roles that exist in each institution type, in the order the selector lists them (README §3)
+export const institutionRoles: Record<InstitutionType, Role[]> = {
+  EBR: ['director', 'coordinator', 'secretary', 'teacher', 'tutor', 'assistant', 'psychologist', 'treasurer', 'student', 'guardian'],
+  EBA: ['director', 'coordinator', 'secretary', 'teacher', 'tutor', 'psychologist', 'treasurer', 'student'],
+  EBE: ['director', 'coordinator', 'secretary', 'teacher', 'assistant', 'psychologist', 'treasurer', 'guardian'],
+  CEPRE: ['director', 'coordinator', 'secretary', 'teacher', 'tutor', 'treasurer', 'student', 'guardian'],
+  IEST: ['director', 'coordinator', 'secretary', 'teacher', 'tutor', 'psychologist', 'treasurer', 'student'],
+};
+
 // Modules every institution type shares; the rest depend on the type (README §2 matrix)
 const commonModules: ModuleKey[] = ['home', 'institution', 'structure', 'periods', 'courses', 'schedules', 'enrollment', 'students', 'staff', 'student-attendance', 'staff-attendance', 'cards', 'tutoring', 'psychology', 'wellbeing', 'announcements', 'payments', 'reports', 'users', 'audit'];
 
@@ -126,8 +144,8 @@ export const rolePermissions: Record<Role, RolePermissions> = {
   guardian: { ...studentPermissions, payments: VIEW },
 };
 
-// A module is usable when the institution type has it AND the role is granted the action on it
-export const canAccess = (institutionType: InstitutionType, role: Role, module: ModuleKey, action: PermissionAction = 'view'): boolean => institutionModules[institutionType].includes(module) && (rolePermissions[role][module]?.includes(action) ?? false);
+// A module is usable when the role exists in the institution type, the type has the module and the role is granted the action
+export const canAccess = (institutionType: InstitutionType, role: Role, module: ModuleKey, action: PermissionAction = 'view'): boolean => institutionRoles[institutionType].includes(role) && institutionModules[institutionType].includes(module) && (rolePermissions[role][module]?.includes(action) ?? false);
 
 // Simulated names for the demo workspace
 export const demoInstitutionNames: Record<InstitutionType, string> = {
@@ -150,3 +168,6 @@ export const demoUserNames: Record<Role, string> = {
   student: 'Valeria Ccori',
   guardian: 'Julio Ccori',
 };
+
+// Demo profile photos; roles without one fall back to their initials
+export const demoAvatarUrls: Partial<Record<Role, string>> = {};

@@ -2,6 +2,7 @@ import { Award, BadgeCheck, Bell, BookOpen, Brain, CalendarDays, CalendarRange, 
 import type { InstitutionType, NavLabel, NavSection } from '../types';
 
 export const DASHBOARD_PATH = '/dashboard';
+export const ACCOUNT_PATH = `${DASHBOARD_PATH}/account`;
 
 const path = (segment: string): string => `${DASHBOARD_PATH}/${segment}`;
 

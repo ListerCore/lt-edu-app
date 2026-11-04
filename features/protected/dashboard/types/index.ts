@@ -69,6 +69,12 @@ export interface Workspace {
 export interface WorkspaceProfile {
   institutionName: string;
   userName: string;
+  // Profile photo; null shows the initials instead
+  avatarUrl: string | null;
+  roleLabel: string;
+  institutionTypeLabel: string;
+  // Roles that exist in the current institution type
+  availableRoles: Role[];
 }
 
 export interface UseWorkspaceResult extends Workspace, WorkspaceProfile {
@@ -103,4 +109,10 @@ export interface SidebarNavItemProps {
 
 export interface SidebarNavProps {
   pathname: string | null;
+}
+
+export interface UserAvatarProps {
+  name: string;
+  avatarUrl: string | null;
+  className?: string;
 }

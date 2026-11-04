@@ -6,6 +6,7 @@ import { sileo } from 'sileo';
 import { resendTwoFactorAction, verifyTwoFactorAction } from '../actions/auth-actions';
 import { AFTER_AUTH_PATH, OTP_LENGTH, RESEND_SECONDS } from '../data/auth-data';
 import type { UseTwoFactorResult } from '../types';
+import { startSession } from './use-session';
 
 const emptyDigits = (): string[] => Array.from({ length: OTP_LENGTH }, () => '');
 
@@ -45,6 +46,7 @@ export const useTwoFactor = (): UseTwoFactorResult => {
         sileo.error({ title: 'Código incorrecto', description: result.message });
         return;
       }
+      startSession();
       sileo.success({ title: 'Bienvenido', description: 'Ingresaste correctamente (sesión simulada).' });
       router.push(AFTER_AUTH_PATH);
     });

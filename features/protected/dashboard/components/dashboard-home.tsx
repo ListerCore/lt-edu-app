@@ -1,16 +1,15 @@
 'use client';
 
 import type { JSX } from 'react';
-import { institutionTypeLabels, roleLabels } from '../data/permissions';
 import { useWorkspace } from '../hooks/use-workspace';
 
 // Dashboard landing placeholder: greets the simulated user in their institution
 export const DashboardHome = (): JSX.Element => {
-  const { userName, role, institutionName, institutionType } = useWorkspace();
+  const { userName, roleLabel, institutionName, institutionTypeLabel } = useWorkspace();
   return (
     <section className="px-6 py-10 md:px-10">
       <p className="pill bg-brand-soft text-brand">
-        {institutionTypeLabels[institutionType]} · {roleLabels[role]}
+        {institutionTypeLabel} · {roleLabel}
       </p>
       <h1 className="mt-4 text-3xl font-semibold tracking-tight text-foreground">
         Hola, <span className="text-gradient">{userName.split(' ')[0]}</span>

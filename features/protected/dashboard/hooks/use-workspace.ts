@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useSyncExternalStore } from 'react';
-import { canAccess, demoInstitutionNames, demoUserNames, institutionModules, rolePermissions } from '../data/permissions';
+import { canAccess, demoAvatarUrls, demoInstitutionNames, demoUserNames, institutionRoles, institutionTypeLabels, roleLabel } from '../data/permissions';
 import type { InstitutionType, ModuleKey, PermissionAction, Role, UseWorkspaceResult, Workspace } from '../types';
 
 const STORAGE_KEY = 'joseph-workspace';
@@ -10,9 +10,10 @@ const DEFAULT_WORKSPACE: Workspace = { institutionType: 'EBR', role: 'director' 
 let cached: Workspace | null = null;
 const listeners = new Set<() => void>();
 
+// Valid only when the role exists in that institution type
 const isWorkspace = (value: unknown): value is Workspace => {
   const candidate = value as Partial<Workspace> | null;
-  return Boolean(candidate && candidate.institutionType && candidate.role && candidate.institutionType in institutionModules && candidate.role in rolePermissions);
+  return Boolean(candidate?.institutionType && candidate.role && candidate.institutionType in institutionRoles && institutionRoles[candidate.institutionType].includes(candidate.role));
 };
 
 // Simulated session in localStorage; a module-level cache keeps the snapshot stable between renders
@@ -46,14 +47,28 @@ const subscribe = (listener: () => void): (() => void) => {
 export const useWorkspace = (): UseWorkspaceResult => {
   const workspace = useSyncExternalStore(subscribe, read, () => DEFAULT_WORKSPACE);
 
-  const setInstitutionType = useCallback((institutionType: InstitutionType): void => write({ ...read(), institutionType }), []);
-  const setRole = useCallback((role: Role): void => write({ ...read(), role }), []);
+  // Changing the type keeps the role when that type has it; otherwise falls back to the type's first role
+  const setInstitutionType = useCallback((institutionType: InstitutionType): void => {
+    const roles = institutionRoles[institutionType];
+    const { role } = read();
+    write({ institutionType, role: roles.includes(role) ? role : roles[0] });
+  }, []);
+
+  const setRole = useCallback((role: Role): void => {
+    const current = read();
+    if (institutionRoles[current.institutionType].includes(role)) write({ ...current, role });
+  }, []);
+
   const can = useCallback((module: ModuleKey, action: PermissionAction = 'view'): boolean => canAccess(workspace.institutionType, workspace.role, module, action), [workspace]);
 
   return {
     ...workspace,
     institutionName: demoInstitutionNames[workspace.institutionType],
+    institutionTypeLabel: institutionTypeLabels[workspace.institutionType],
     userName: demoUserNames[workspace.role],
+    avatarUrl: demoAvatarUrls[workspace.role] ?? null,
+    roleLabel: roleLabel(workspace.role, workspace.institutionType),
+    availableRoles: institutionRoles[workspace.institutionType],
     setInstitutionType,
     setRole,
     can,
