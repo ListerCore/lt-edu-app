@@ -2,16 +2,17 @@
 
 import Link from 'next/link';
 import { useState, type JSX } from 'react';
-import { LayoutDashboard, LogIn, Menu, MonitorPlay, X } from 'lucide';
+import { LayoutDashboard, LogIn, Menu, X } from 'lucide';
 import { MorphIcon } from '@/components/ui/morph-icon';
 import { useSession } from '@/features/auth/hooks/use-session';
 import { siteConfig } from '@/lib/site';
 import { BrandMark } from './brand-mark';
+import { NavLabel } from './nav-label';
 import { ThemeSwitcher } from './theme-switcher';
 import { UserMenu } from './user-menu';
 import { useIsActiveLink } from '@/components/providers/section-activity';
 
-// Public header: logo, section links, theme switcher, demo CTA and sign-in; collapses into a sheet below lg
+// Public header: logo, the institution's generic sections (news label rotating), theme switcher and sign-in; collapses into a sheet below lg
 export const Navbar = (): JSX.Element => {
   const [open, setOpen] = useState(false);
   const close = (): void => setOpen(false);
@@ -47,7 +48,7 @@ export const Navbar = (): JSX.Element => {
             <nav className="hidden items-center lg:flex" aria-label="Secciones">
               {siteConfig.navigation.map((link): JSX.Element => (
                 <Link key={link.href} href={link.href} aria-current={ariaCurrent(link.href)} className={`group flex h-16 items-center px-2 text-sm font-medium transition-colors xl:px-3 ${isActive(link.href) ? 'text-brand' : 'text-foreground hover:text-brand'}`}>
-                  <span className="link-underline">{link.label}</span>
+                  <NavLabel link={link} />
                 </Link>
               ))}
             </nav>
@@ -58,16 +59,10 @@ export const Navbar = (): JSX.Element => {
               <ThemeSwitcher />
               {signedIn && <UserMenu />}
               {signedIn === false && (
-                <>
-                  <Link href="/auth/signin" className="hidden h-8 items-center gap-1.5 rounded-full px-3 text-[13px] font-semibold text-foreground transition-colors hover:bg-accent sm:inline-flex lg:max-xl:hidden">
-                    <MorphIcon icon={LogIn} size={14} />
-                    Ingresar
-                  </Link>
-                  <Link href="/demo" className="hidden h-8 items-center gap-1.5 rounded-full bg-brand-solid px-4 text-[13px] font-semibold text-white transition-colors hover:bg-brand-solid-hover sm:inline-flex">
-                    <MorphIcon icon={MonitorPlay} size={14} />
-                    Ver demo
-                  </Link>
-                </>
+                <Link href="/auth/signin" className="hidden h-8 items-center gap-1.5 rounded-full bg-brand-solid px-4 text-[13px] font-semibold text-white transition-colors hover:bg-brand-solid-hover sm:inline-flex">
+                  <MorphIcon icon={LogIn} size={14} />
+                  Ingresar
+                </Link>
               )}
               <button type="button" onClick={(): void => setOpen(!open)} aria-label={open ? 'Cerrar menú' : 'Abrir menú'} aria-expanded={open} aria-controls="mobile-menu" className="flex size-9 items-center justify-center rounded-md text-foreground transition-colors hover:bg-accent lg:hidden">
                 <MorphIcon icon={open ? X : Menu} size={20} />
@@ -81,7 +76,7 @@ export const Navbar = (): JSX.Element => {
             {siteConfig.navigation.map((link): JSX.Element => (
               <Link key={link.href} href={link.href} onClick={close} aria-current={ariaCurrent(link.href)} className={`flex min-h-12 items-center gap-2.5 border-b border-border text-sm font-medium transition-colors ${isActive(link.href) ? 'text-brand' : 'text-foreground hover:text-brand'}`}>
                 <span aria-hidden="true" className={`h-4 w-0.5 rounded-full transition-colors ${isActive(link.href) ? 'bg-brand' : 'bg-transparent'}`} />
-                {link.label}
+                <NavLabel link={link} />
               </Link>
             ))}
             <div className="mt-5 grid gap-2.5">
@@ -91,16 +86,10 @@ export const Navbar = (): JSX.Element => {
                   Ir al panel
                 </Link>
               ) : (
-                <>
-                  <Link href="/demo" onClick={close} className="btn-brand w-full">
-                    <MorphIcon icon={MonitorPlay} size={16} />
-                    Ver demo
-                  </Link>
-                  <Link href="/auth/signin" onClick={close} className="btn-alt w-full">
-                    <MorphIcon icon={LogIn} size={16} />
-                    Ingresar
-                  </Link>
-                </>
+                <Link href="/auth/signin" onClick={close} className="btn-brand w-full">
+                  <MorphIcon icon={LogIn} size={16} />
+                  Ingresar
+                </Link>
               )}
             </div>
           </nav>

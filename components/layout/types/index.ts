@@ -1,3 +1,9 @@
+import type { SiteLink } from '@/lib/types';
+
 export interface BrandMarkProps {
   className?: string;
+}
+
+export interface NavLabelProps {
+  link: SiteLink;
 }
