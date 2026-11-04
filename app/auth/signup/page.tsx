@@ -10,7 +10,7 @@ const Page = (): JSX.Element => (
   <AuthCard
     id="signup-title"
     title="Crea tu cuenta"
-    description="Usa el correo que registró tu institución. La plataforma reconoce automáticamente a qué institución perteneces y qué rol tienes."
+    description="Usa el correo que registraste en secretaría; tu rol (estudiante, apoderado, docente o personal) se asigna automáticamente."
     footer={
       <>
         ¿Ya tienes una cuenta?{' '}

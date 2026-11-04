@@ -4,7 +4,7 @@ import { TermsPage } from '@/features/public/legal/components/terms-page';
 
 export const metadata: Metadata = {
   title: 'Términos y condiciones',
-  description: 'Condiciones de uso del sitio, de la demo por tipo de institución y rol, y de la plataforma de gestión educativa Joseph.',
+  description: 'Condiciones de uso del sitio web y de las cuentas de estudiantes, apoderados, docentes y personal de la institución.',
   alternates: { canonical: '/legal/terms' },
 };
 

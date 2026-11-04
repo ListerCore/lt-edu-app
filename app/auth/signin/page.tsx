@@ -9,8 +9,8 @@ export const metadata: Metadata = { title: 'Ingresar' };
 const Page = (): JSX.Element => (
   <AuthCard
     id="signin-title"
-    title="Ingresar a la plataforma"
-    description="Ingresa con tu correo; la plataforma abre tu institución con los módulos de tu rol."
+    title="Ingresar a tu cuenta"
+    description="Estudiantes, apoderados, docentes y personal ingresan con el correo registrado en secretaría."
     footer={
       <>
         ¿Aún no tienes cuenta?{' '}

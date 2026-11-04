@@ -3,8 +3,8 @@ import type { JSX } from 'react';
 import { ContactPage } from '@/features/public/contact/components/contact-page';
 
 export const metadata: Metadata = {
-  title: 'Contacto: solicita la implementación',
-  description: 'Escríbenos para implementar Joseph en tu colegio, CEBA, CEBE, centro pre-universitario o instituto. Respuesta en un día hábil y oficina en Lima, Perú.',
+  title: 'Contacto e informes',
+  description: 'Consultas de admisión, matrícula, pensiones, certificados o acceso a tu cuenta. Respuesta en un día hábil y sede en Lima, Perú.',
   alternates: { canonical: '/contact' },
 };
 
