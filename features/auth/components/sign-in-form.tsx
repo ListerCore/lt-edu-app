@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import type { FormEvent, JSX } from 'react';
 import { LoaderCircle, LogIn } from 'lucide';
-import { FormField } from '@/components/layout/form-field';
+import { FormField } from '@/components/ui/form-field';
 import { Input } from '@/components/ui/input';
 import { MorphIcon } from '@/components/ui/morph-icon';
 import { useSignIn } from '../hooks/use-sign-in';

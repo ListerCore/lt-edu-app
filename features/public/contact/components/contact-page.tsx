@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import type { JSX } from 'react';
 import { ArrowUpRight, ChevronRight, MapPin } from 'lucide';
-import { OfficeMap } from '@/components/layout/office-map';
+import { OfficeMap } from './office-map';
 import { MorphIcon } from '@/components/ui/morph-icon';
 import { siteConfig } from '@/lib/site';
 import { contactAssurances, contactChannels } from '../data/contact-data';

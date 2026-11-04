@@ -2,7 +2,7 @@
 
 import type { FormEvent, JSX } from 'react';
 import { KeyRound, LoaderCircle } from 'lucide';
-import { FormField } from '@/components/layout/form-field';
+import { FormField } from '@/components/ui/form-field';
 import { MorphIcon } from '@/components/ui/morph-icon';
 import { useChangePassword } from '../hooks/use-change-password';
 import type { ChangePasswordValues } from '../types';

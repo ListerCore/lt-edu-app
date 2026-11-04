@@ -1,6 +1,14 @@
-import type { JSX } from 'react';
+import type { JSX, ReactNode } from 'react';
 import { Label } from '@/components/ui/label';
-import type { FormFieldProps } from './types';
+
+interface FormFieldProps {
+  id: string;
+  label: string;
+  required?: boolean;
+  error?: string;
+  hint?: string;
+  children: ReactNode;
+}
 
 // Label + control + hint/error wrapper; error text is linked to the control via `${id}-error`
 export const FormField = ({ id, label, required = false, error, hint, children }: FormFieldProps): JSX.Element => (

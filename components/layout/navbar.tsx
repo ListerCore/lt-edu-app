@@ -7,7 +7,7 @@ import { MorphIcon } from '@/components/ui/morph-icon';
 import { siteConfig } from '@/lib/site';
 import { BrandMark } from './brand-mark';
 import { ThemeSwitcher } from './theme-switcher';
-import { useIsActiveLink } from './section-activity';
+import { useIsActiveLink } from '@/components/providers/section-activity';
 
 // Public header: logo, section links, theme switcher, demo CTA and sign-in; collapses into a sheet below lg
 export const Navbar = (): JSX.Element => {

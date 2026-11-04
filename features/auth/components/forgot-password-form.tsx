@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import type { FormEvent, JSX } from 'react';
 import { LoaderCircle, MailCheck, RotateCcw, Send } from 'lucide';
-import { FormField } from '@/components/layout/form-field';
+import { FormField } from '@/components/ui/form-field';
 import { Input } from '@/components/ui/input';
 import { MorphIcon } from '@/components/ui/morph-icon';
 import { useForgotPassword } from '../hooks/use-forgot-password';

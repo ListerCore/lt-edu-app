@@ -1,7 +1,7 @@
 import type { PasswordRule } from '../types';
 
-// Where a completed sign-in lands; switch to /dashboard once the panel exists
-export const AFTER_AUTH_PATH = '/';
+// Where a completed sign-in lands
+export const AFTER_AUTH_PATH = '/dashboard';
 
 export const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 

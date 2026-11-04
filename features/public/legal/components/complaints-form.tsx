@@ -8,7 +8,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { FormField } from '@/components/layout/form-field';
+import { FormField } from '@/components/ui/form-field';
 import { TurnstileField } from '@/features/auth/components/turnstile-field';
 import { useCreateComplaint } from '../hooks/use-create-complaint';
 import type { ComplaintField, ComplaintKind, DocumentType } from '../types';

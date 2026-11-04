@@ -81,3 +81,8 @@ export interface ContactRequestSuccessProps {
   email: string;
   onReset: () => void;
 }
+
+export interface OfficeMapProps {
+  className?: string;
+  zoom?: number;
+}

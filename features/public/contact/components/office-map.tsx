@@ -7,7 +7,7 @@ import { Map, MapControls, MapMarker, MarkerContent, MarkerLabel } from '@/compo
 import { MorphIcon } from '@/components/ui/morph-icon';
 import { siteConfig } from '@/lib/site';
 import { cn } from '@/lib/utils';
-import type { OfficeMapProps } from './types';
+import type { OfficeMapProps } from '../types';
 
 const { latitude, longitude } = siteConfig.office;
 
