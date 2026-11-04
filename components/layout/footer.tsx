@@ -48,25 +48,29 @@ export const Footer = (): JSX.Element => {
           <nav aria-labelledby="footer-product">
             <ColumnHeading id="footer-product">Plataforma</ColumnHeading>
             <ul className="mt-4 space-y-3">
-              {siteConfig.product.map(({ href, label }): JSX.Element => (
-                <li key={label}>
-                  <Link href={href} className={linkClass(href)}>
-                    <span className="link-underline">{label}</span>
-                  </Link>
-                </li>
-              ))}
+              {siteConfig.product.map(
+                ({ href, label }): JSX.Element => (
+                  <li key={label}>
+                    <Link href={href} className={linkClass(href)}>
+                      <span className="link-underline">{label}</span>
+                    </Link>
+                  </li>
+                ),
+              )}
             </ul>
           </nav>
 
           <section aria-labelledby="footer-institutions">
             <ColumnHeading id="footer-institutions">Instituciones</ColumnHeading>
             <ul className="mt-4 space-y-3">
-              {siteConfig.institutions.map(({ code, label }): JSX.Element => (
-                <li key={code} className="flex items-center gap-2.5 text-sm text-muted-foreground">
-                  <span className="pill min-w-14 justify-center bg-brand-soft font-mono text-brand">{code}</span>
-                  {label}
-                </li>
-              ))}
+              {siteConfig.institutions.map(
+                ({ code, label }): JSX.Element => (
+                  <li key={code} className="flex items-center gap-2.5 text-sm text-muted-foreground">
+                    <span className="pill min-w-14 justify-center bg-brand-soft font-mono text-brand">{code}</span>
+                    {label}
+                  </li>
+                ),
+              )}
             </ul>
           </section>
 
@@ -74,17 +78,19 @@ export const Footer = (): JSX.Element => {
             <section aria-labelledby="footer-contact">
               <ColumnHeading id="footer-contact">Contacto</ColumnHeading>
               <ul className="mt-4 space-y-3">
-                {contacts.map(({ label, email, icon }): JSX.Element => (
-                  <li key={label}>
-                    <a href={`mailto:${email}`} className="group inline-flex items-start gap-2.5 text-sm">
-                      <MorphIcon icon={icon} size={16} className="mt-0.5 shrink-0 text-muted-foreground transition-colors group-hover:text-brand" />
-                      <span>
-                        <span className="block text-xs text-muted-foreground">{label}</span>
-                        <span className="link-underline text-foreground group-hover:text-brand">{email}</span>
-                      </span>
-                    </a>
-                  </li>
-                ))}
+                {contacts.map(
+                  ({ label, email, icon }): JSX.Element => (
+                    <li key={label}>
+                      <a href={`mailto:${email}`} className="group inline-flex items-start gap-2.5 text-sm">
+                        <MorphIcon icon={icon} size={16} className="mt-0.5 shrink-0 text-muted-foreground transition-colors group-hover:text-brand" />
+                        <span>
+                          <span className="block text-xs text-muted-foreground">{label}</span>
+                          <span className="link-underline text-foreground group-hover:text-brand">{email}</span>
+                        </span>
+                      </a>
+                    </li>
+                  ),
+                )}
               </ul>
               <Link href="/contact" aria-current={pathname === '/contact' ? 'page' : undefined} className={`group mt-4 inline-flex items-center gap-1.5 text-sm font-medium transition-colors ${pathname === '/contact' ? 'text-brand' : 'text-foreground hover:text-brand'}`}>
                 <span className="link-underline">Solicitar implementación</span>
@@ -95,18 +101,18 @@ export const Footer = (): JSX.Element => {
         </div>
 
         <nav aria-label="Legal" className="flex flex-wrap gap-x-6 gap-y-3 border-t border-border py-6">
-          {siteConfig.legal.map(({ href, label }, index): JSX.Element => (
-            <Link key={href} href={href} aria-current={pathname === href ? 'page' : undefined} className={linkClass(href)}>
-              <MorphIcon icon={legalIcons[index] ?? FileText} size={16} />
-              <span className="link-underline">{label}</span>
-            </Link>
-          ))}
+          {siteConfig.legal.map(
+            ({ href, label }, index): JSX.Element => (
+              <Link key={href} href={href} aria-current={pathname === href ? 'page' : undefined} className={linkClass(href)}>
+                <MorphIcon icon={legalIcons[index] ?? FileText} size={16} />
+                <span className="link-underline">{label}</span>
+              </Link>
+            ),
+          )}
         </nav>
 
         <div className="flex flex-col items-center justify-between gap-1 border-t border-border py-6 text-center text-sm text-muted-foreground sm:flex-row">
-          <p>
-            © 2026 {siteConfig.name} · Todos los derechos reservados
-          </p>
+          <p>© 2026 {siteConfig.name} · Todos los derechos reservados</p>
           <p>Hecho en el Perú · Ley N.° 29733</p>
         </div>
       </div>

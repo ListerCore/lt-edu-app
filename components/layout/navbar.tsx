@@ -22,7 +22,7 @@ export const Navbar = (): JSX.Element => {
   return (
     <header className="sticky top-0 z-50">
       <div className="bg-background/85 backdrop-blur-md">
-        <div className="mx-auto flex h-16 max-w-[90rem] items-center justify-between gap-4 px-6 md:px-12 xl:px-16">
+        <div className="mx-auto flex h-16 max-w-360 items-center justify-between gap-4 px-6 md:px-12 xl:px-16">
           <Link href="/" onClick={close} className="flex items-center gap-2.5" aria-label={`${siteConfig.name}, inicio`}>
             <BrandMark className="size-7" />
             <span className="text-xl leading-none font-light tracking-tight whitespace-nowrap text-foreground">
@@ -42,11 +42,13 @@ export const Navbar = (): JSX.Element => {
 
           <div className="flex items-center">
             <nav className="hidden items-center lg:flex" aria-label="Secciones">
-              {siteConfig.navigation.map((link): JSX.Element => (
-                <Link key={link.href} href={link.href} aria-current={ariaCurrent(link.href)} className={`group flex h-16 items-center px-2 text-sm font-medium transition-colors xl:px-3 ${isActive(link.href) ? 'text-brand' : 'text-foreground hover:text-brand'}`}>
-                  <span className="link-underline">{link.label}</span>
-                </Link>
-              ))}
+              {siteConfig.navigation.map(
+                (link): JSX.Element => (
+                  <Link key={link.href} href={link.href} aria-current={ariaCurrent(link.href)} className={`group flex h-16 items-center px-2 text-sm font-medium transition-colors xl:px-3 ${isActive(link.href) ? 'text-brand' : 'text-foreground hover:text-brand'}`}>
+                    <span className="link-underline">{link.label}</span>
+                  </Link>
+                ),
+              )}
             </nav>
 
             <span aria-hidden="true" className="mx-3 hidden h-6 w-px bg-border lg:block" />
@@ -69,14 +71,16 @@ export const Navbar = (): JSX.Element => {
         </div>
 
         {/* Mobile menu: height animates open; inert keeps hidden links out of the tab order */}
-        <div id="mobile-menu" className={`overflow-hidden transition-all duration-300 lg:hidden ${open ? 'max-h-[32rem] border-t border-border' : 'max-h-0'}`} inert={!open}>
+        <div id="mobile-menu" className={`overflow-hidden transition-all duration-300 lg:hidden ${open ? 'max-h-128 border-t border-border' : 'max-h-0'}`} inert={!open}>
           <nav className="mx-auto max-w-md px-6 py-4" aria-label="Menú móvil">
-            {siteConfig.navigation.map((link): JSX.Element => (
-              <Link key={link.href} href={link.href} onClick={close} aria-current={ariaCurrent(link.href)} className={`flex min-h-12 items-center gap-2.5 border-b border-border text-sm font-medium transition-colors ${isActive(link.href) ? 'text-brand' : 'text-foreground hover:text-brand'}`}>
-                <span aria-hidden="true" className={`h-4 w-0.5 rounded-full transition-colors ${isActive(link.href) ? 'bg-brand' : 'bg-transparent'}`} />
-                {link.label}
-              </Link>
-            ))}
+            {siteConfig.navigation.map(
+              (link): JSX.Element => (
+                <Link key={link.href} href={link.href} onClick={close} aria-current={ariaCurrent(link.href)} className={`flex min-h-12 items-center gap-2.5 border-b border-border text-sm font-medium transition-colors ${isActive(link.href) ? 'text-brand' : 'text-foreground hover:text-brand'}`}>
+                  <span aria-hidden="true" className={`h-4 w-0.5 rounded-full transition-colors ${isActive(link.href) ? 'bg-brand' : 'bg-transparent'}`} />
+                  {link.label}
+                </Link>
+              ),
+            )}
             <div className="mt-5 grid gap-2.5">
               <Link href="/demo" onClick={close} className="btn-brand w-full">
                 <MorphIcon icon={MonitorPlay} size={16} />

@@ -32,6 +32,13 @@ export const siteConfig: SiteConfig = {
     { code: 'CEPRE', label: 'Pre-universitarios' },
     { code: 'IEST', label: 'Institutos' },
   ],
+  // Office pin, resolved from the shared Google Maps link
+  office: {
+    city: 'Lima, Perú',
+    latitude: -11.88142,
+    longitude: -77.03128,
+    mapsUrl: 'https://maps.app.goo.gl/cqrbv9NeWJAPxUw38',
+  },
   legal: [
     { label: 'Política de privacidad', href: '/legal/privacy' },
     { label: 'Términos y condiciones', href: '/legal/terms' },

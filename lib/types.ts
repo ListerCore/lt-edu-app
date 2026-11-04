@@ -22,5 +22,11 @@ export interface SiteConfig {
   navigation: SiteLink[];
   product: SiteLink[];
   institutions: InstitutionType[];
+  office: {
+    city: string;
+    latitude: number;
+    longitude: number;
+    mapsUrl: string;
+  };
   legal: SiteLink[];
 }

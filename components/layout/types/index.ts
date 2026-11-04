@@ -12,3 +12,8 @@ export interface FormFieldProps {
   hint?: string;
   children: ReactNode;
 }
+
+export interface OfficeMapProps {
+  className?: string;
+  zoom?: number;
+}
