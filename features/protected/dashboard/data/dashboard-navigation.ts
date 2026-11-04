@@ -1,4 +1,4 @@
-import { Accessibility, Activity, Award, BadgeCheck, Bell, BookOpen, Brain, Briefcase, CalendarDays, CalendarRange, ChartColumn, ClipboardCheck, ClipboardList, ClipboardPen, Clock, FileSearch, FileText, FolderOpen, GraduationCap, HandHeart, HeartHandshake, Home, IdCard, LayoutDashboard, Layers, Library, NotebookText, School, ScrollText, Settings, Shapes, ShieldAlert, Trophy, UserCheck, UserCog, Users, UsersRound, Wallet } from 'lucide';
+import { Accessibility, Activity, Award, BadgeCheck, Bell, BellRing, BookOpen, Brain, Briefcase, CalendarDays, CalendarRange, ChartColumn, ClipboardCheck, ClipboardList, ClipboardPen, Clock, FileSearch, FileText, FolderOpen, GraduationCap, HandHeart, HeartHandshake, Home, IdCard, LayoutDashboard, Layers, Library, NotebookText, School, ScrollText, Settings, Shapes, ShieldAlert, Trophy, UserCheck, UserCog, Users, UsersRound, Wallet } from 'lucide';
 import type { InstitutionType, NavLabel, NavSection } from '../types';
 
 export const DASHBOARD_PATH = '/dashboard';
@@ -15,6 +15,7 @@ export const dashboardNavigation: NavSection[] = [
     label: 'General',
     items: [
       { label: 'Inicio', icon: LayoutDashboard, href: DASHBOARD_PATH, module: 'home' },
+      { label: 'Notificaciones', icon: BellRing, href: path('notifications'), module: 'notifications' },
       { label: 'Comunicados', icon: Bell, href: path('announcements'), module: 'announcements' },
     ],
   },

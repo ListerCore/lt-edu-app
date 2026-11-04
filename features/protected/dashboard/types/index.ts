@@ -8,6 +8,7 @@ export type Role = 'director' | 'coordinator' | 'secretary' | 'teacher' | 'tutor
 // One key per platform module (README §2); permissions and institution types are expressed with these
 export type ModuleKey =
   | 'home'
+  | 'notifications'
   | 'institution'
   | 'structure'
   | 'periods'
