@@ -1,16 +1,24 @@
 import type { JSX, ReactNode } from 'react';
+import { Footer } from '@/components/layout/footer';
+import { Navbar } from '@/components/layout/navbar';
+import { SectionActivityProvider } from '@/components/layout/section-activity';
 import { SiteBackground } from '@/components/layout/site-background';
 
 interface PublicLayoutProps {
   children: ReactNode;
 }
 
-// Public pages share the brand backdrop; navbar and footer go here once they exist
+// Public pages share the backdrop, header and footer
 const PublicLayout = ({ children }: PublicLayoutProps): JSX.Element => (
-  <div className="isolate flex min-h-screen flex-col">
-    <SiteBackground />
-    <main className="flex-1">{children}</main>
-  </div>
+  <SectionActivityProvider>
+    <div className="isolate flex min-h-screen flex-col">
+      <SiteBackground />
+      <Navbar />
+      {/* At least one screen below the 4rem navbar: the footer only shows once the visitor scrolls */}
+      <main className="min-h-[calc(100svh-4rem)] flex-1">{children}</main>
+      <Footer />
+    </div>
+  </SectionActivityProvider>
 );
 
 export default PublicLayout;

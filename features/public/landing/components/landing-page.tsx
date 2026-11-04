@@ -5,7 +5,7 @@ import { MorphIcon } from '@/components/ui/morph-icon';
 
 // Placeholder landing: hello world rendered with the shared brand tokens and morphicons
 export const LandingPage = (): JSX.Element => (
-  <section className="relative flex min-h-screen flex-col items-center justify-center gap-6 px-4 text-center">
+  <section className="relative flex min-h-[calc(100svh-4rem)] flex-col items-center justify-center gap-6 px-4 text-center">
     <div aria-hidden="true" className="hero-glow" />
     <span className="pill bg-brand-soft text-brand">joseph-app</span>
     <h1 className="text-5xl font-bold tracking-tight sm:text-6xl">

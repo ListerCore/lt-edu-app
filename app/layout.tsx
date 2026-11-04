@@ -4,14 +4,15 @@ import type { JSX, ReactNode } from 'react';
 import './globals.css';
 import { AppProviders } from '@/components/providers/providers';
 import { ThemeScript } from '@/components/providers/theme-script';
+import { siteConfig } from '@/lib/site';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 const geistMono = Geist_Mono({ subsets: ['latin'], variable: '--font-geist-mono' });
 
 // Site-wide defaults; pages override title/description as they are added
 export const metadata: Metadata = {
-  title: { default: 'Joseph', template: '%s | Joseph' },
-  description: 'Joseph',
+  title: { default: `${siteConfig.name} | ${siteConfig.tagline}`, template: `%s | ${siteConfig.name}` },
+  description: siteConfig.description,
 };
 
 // Browser chrome follows the page background in each scheme
