@@ -1,11 +1,19 @@
 import type { TurnstileInstance } from '@marsidev/react-turnstile';
 import type { ReactNode, RefObject } from 'react';
 
-// Result shared by every simulated auth action; `code` lets the hooks react to specific failures
+// Result shared by every auth action; `code` (joseph-api's error code) lets the hooks react to specific failures
 export interface AuthActionResult {
   ok: boolean;
   message: string;
-  code?: 'invalid_credentials' | 'email_taken' | 'invalid_code' | 'expired_link';
+  code?: 'invalid_credentials' | 'account_locked' | 'email_taken' | 'not_invited' | 'invalid_code' | 'expired_challenge' | 'expired_link' | 'resend_too_soon' | 'unauthenticated' | 'validation';
+  fields?: Record<string, string>;
+}
+
+// How the second step is passed: a code mailed to the person, or their authenticator app
+export type TwoFactorMethod = 'email' | 'totp';
+
+export interface SignInResult extends AuthActionResult {
+  method?: TwoFactorMethod;
 }
 
 export interface SignInPayload {
@@ -31,8 +39,8 @@ export interface PasswordSetupPayload {
   password: string;
 }
 
+// The sign-in being completed travels in an httpOnly cookie, never in the page
 export interface TwoFactorPayload {
-  email: string;
   code: string;
 }
 
@@ -95,6 +103,7 @@ export interface UsePasswordSetupResult {
 }
 
 export interface UseTwoFactorResult {
+  method: TwoFactorMethod;
   digits: string[];
   error?: string;
   isPending: boolean;

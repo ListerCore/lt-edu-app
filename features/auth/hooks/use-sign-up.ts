@@ -54,7 +54,8 @@ export const useSignUp = (): UseSignUpResult => {
         captchaToken: consume(),
       });
       if (!result.ok) {
-        if (result.code === 'email_taken') setErrors({ email: result.message });
+        if (result.code === 'email_taken' || result.code === 'not_invited') setErrors({ email: result.message });
+        else if (result.fields) setErrors({ fullName: result.fields.full_name, email: result.fields.email, password: result.fields.password });
         sileo.error({ title: 'No se creó la cuenta', description: result.message });
         return;
       }

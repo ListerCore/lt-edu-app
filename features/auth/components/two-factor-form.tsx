@@ -10,13 +10,15 @@ import { OtpInput } from './otp-input';
 
 // Masked destination of the code; reads the query so it must sit under a Suspense boundary
 export const TwoFactorDestination = (): JSX.Element => {
-  const email = useSearchParams().get('email');
+  const params = useSearchParams();
+  const email = params.get('email');
+  if (params.get('method') === 'totp') return <span>tu app autenticadora (o usa un código de respaldo)</span>;
   return email ? <span className="font-medium text-foreground">{maskEmail(email)}</span> : <span>tu correo</span>;
 };
 
 // 2FA step: 6-digit code (auto-submits when complete) and a resend link with cooldown
 export const TwoFactorForm = (): JSX.Element => {
-  const { digits, error, isPending, resendIn, setDigits, submit, resend } = useTwoFactor();
+  const { method, digits, error, isPending, resendIn, setDigits, submit, resend } = useTwoFactor();
 
   const onSubmit = (event: FormEvent<HTMLFormElement>): void => {
     event.preventDefault();
@@ -37,16 +39,18 @@ export const TwoFactorForm = (): JSX.Element => {
         {isPending ? 'Verificando…' : 'Verificar'}
       </button>
 
-      <p className="text-center text-sm text-muted-foreground">
-        ¿No te llegó?{' '}
-        {resendIn > 0 ? (
-          <span className="tabular-nums">Reenviar en {resendIn} s</span>
-        ) : (
-          <button type="button" onClick={resend} disabled={isPending} className="font-medium text-brand transition-colors hover:text-brand-solid-hover">
-            <span className="link-underline">Reenviar código</span>
-          </button>
-        )}
-      </p>
+      {method === 'email' && (
+        <p className="text-center text-sm text-muted-foreground">
+          ¿No te llegó?{' '}
+          {resendIn > 0 ? (
+            <span className="tabular-nums">Reenviar en {resendIn} s</span>
+          ) : (
+            <button type="button" onClick={resend} disabled={isPending} className="font-medium text-brand transition-colors hover:text-brand-solid-hover">
+              <span className="link-underline">Reenviar código</span>
+            </button>
+          )}
+        </p>
+      )}
     </form>
   );
 };

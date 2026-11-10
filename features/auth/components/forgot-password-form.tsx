@@ -1,6 +1,5 @@
 'use client';
 
-import Link from 'next/link';
 import type { FormEvent, JSX } from 'react';
 import { LoaderCircle, MailCheck, RotateCcw, Send } from 'lucide';
 import { FormField } from '@/components/ui/form-field';
@@ -9,7 +8,7 @@ import { MorphIcon } from '@/components/ui/morph-icon';
 import { useForgotPassword } from '../hooks/use-forgot-password';
 import { TurnstileField } from './turnstile-field';
 
-// Reset request: email form, then a neutral confirmation (with the simulated link to keep the flow testable)
+// Reset request: email form, then a neutral confirmation that never says whether the email has an account
 export const ForgotPasswordForm = (): JSX.Element => {
   const { email, error, captchaError, isPending, sentTo, turnstileRef, setCaptchaToken, setEmail, submit, reset } = useForgotPassword();
 
@@ -22,9 +21,6 @@ export const ForgotPasswordForm = (): JSX.Element => {
         <p className="text-sm leading-6 text-muted-foreground">
           Si <span className="font-medium text-foreground">{sentTo}</span> tiene una cuenta, recibirá un enlace para crear una nueva contraseña. Revisa también la carpeta de spam.
         </p>
-        <Link href="/auth/set-password?token=simulado" className="btn-brand w-full">
-          Abrir el enlace (simulado)
-        </Link>
         <button type="button" onClick={reset} className="btn-alt w-full">
           <MorphIcon icon={RotateCcw} size={16} />
           Usar otro correo

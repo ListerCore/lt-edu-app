@@ -5,15 +5,15 @@ import { useCallback, useEffect, useState, useTransition } from 'react';
 import { sileo } from 'sileo';
 import { resendTwoFactorAction, verifyTwoFactorAction } from '../actions/auth-actions';
 import { AFTER_AUTH_PATH, OTP_LENGTH, RESEND_SECONDS } from '../data/auth-data';
-import type { UseTwoFactorResult } from '../types';
+import type { TwoFactorMethod, UseTwoFactorResult } from '../types';
 import { startSession } from './use-session';
 
 const emptyDigits = (): string[] => Array.from({ length: OTP_LENGTH }, () => '');
 
-// Second factor: a 6-digit code sent by email, with a resend cooldown
+// Second factor: a 6-digit code sent by email (with a resend cooldown) or from the authenticator app
 export const useTwoFactor = (): UseTwoFactorResult => {
   const router = useRouter();
-  const email = useSearchParams().get('email') ?? '';
+  const method: TwoFactorMethod = useSearchParams().get('method') === 'totp' ? 'totp' : 'email';
   const [digits, setDigitsState] = useState<string[]>(emptyDigits);
   const [error, setError] = useState<string | undefined>();
   const [resendIn, setResendIn] = useState(RESEND_SECONDS);
@@ -39,28 +39,42 @@ export const useTwoFactor = (): UseTwoFactorResult => {
     }
 
     startTransition(async (): Promise<void> => {
-      const result = await verifyTwoFactorAction({ email, code });
+      const result = await verifyTwoFactorAction({ code });
       if (!result.ok) {
-        setError(result.message);
         setDigitsState(emptyDigits());
+        if (result.code === 'expired_challenge') {
+          sileo.error({ title: 'La verificación venció', description: result.message });
+          router.push('/auth/signin');
+          return;
+        }
+        setError(result.message);
         sileo.error({ title: 'Código incorrecto', description: result.message });
         return;
       }
       startSession();
-      sileo.success({ title: 'Bienvenido', description: 'Ingresaste correctamente (sesión simulada).' });
+      sileo.success({ title: 'Bienvenido', description: 'Ingresaste correctamente.' });
       router.push(AFTER_AUTH_PATH);
     });
-  }, [digits, email, router]);
+  }, [digits, router]);
 
   const resend = useCallback((): void => {
     if (resendIn > 0) return;
     startTransition(async (): Promise<void> => {
       const result = await resendTwoFactorAction();
+      if (!result.ok) {
+        if (result.code === 'expired_challenge') {
+          sileo.error({ title: 'La verificación venció', description: result.message });
+          router.push('/auth/signin');
+          return;
+        }
+        sileo.error({ title: 'No se reenvió el código', description: result.message });
+        return;
+      }
       setDigitsState(emptyDigits());
       setResendIn(RESEND_SECONDS);
       sileo.info({ title: 'Código reenviado', description: result.message });
     });
-  }, [resendIn]);
+  }, [resendIn, router]);
 
-  return { digits, error, isPending, resendIn, setDigits, submit, resend };
+  return { method, digits, error, isPending, resendIn, setDigits, submit, resend };
 };

@@ -10,7 +10,7 @@ import type { FieldErrors, UsePasswordSetupResult } from '../types';
 // New password from a reset or invitation link (?token=...); on success the visitor signs in again
 export const usePasswordSetup = (): UsePasswordSetupResult => {
   const router = useRouter();
-  const token = useSearchParams().get('token') ?? 'simulado';
+  const token = useSearchParams().get('token') ?? '';
   const [password, setPasswordState] = useState('');
   const [confirm, setConfirmState] = useState('');
   const [errors, setErrors] = useState<FieldErrors<'password' | 'confirm'>>({});

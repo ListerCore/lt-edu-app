@@ -1,40 +1,32 @@
 'use client';
 
 import { useSyncExternalStore } from 'react';
+import { SIGNED_IN_COOKIE } from '@/lib/auth/cookies';
 
-const STORAGE_KEY = 'joseph-session';
 const listeners = new Set<() => void>();
 
+// The hint cookie has no change event: re-read when the tab regains focus (sign-in or sign-out in another tab)
 const subscribe = (listener: () => void): (() => void) => {
   listeners.add(listener);
-  window.addEventListener('storage', listener);
+  window.addEventListener('focus', listener);
   return () => {
     listeners.delete(listener);
-    window.removeEventListener('storage', listener);
+    window.removeEventListener('focus', listener);
   };
 };
 
-const read = (): boolean => {
-  try {
-    return localStorage.getItem(STORAGE_KEY) === 'active';
-  } catch {
-    return false;
-  }
-};
+const read = (): boolean => document.cookie.split('; ').includes(`${SIGNED_IN_COOKIE}=1`);
 
-const write = (active: boolean): void => {
-  try {
-    if (active) localStorage.setItem(STORAGE_KEY, 'active');
-    else localStorage.removeItem(STORAGE_KEY);
-  } catch {
-    // Blocked storage: the simulated session lasts only for this page view
-  }
-  listeners.forEach((listener) => listener());
-};
+const notify = (): void => listeners.forEach((listener) => listener());
 
-// Simulated sign-in state (localStorage) until joseph-api issues real sessions
-export const startSession = (): void => write(true);
-export const endSession = (): void => write(false);
+// UI hint of the sign-in state (navbar, menus), from the readable cookie the server sets next to the httpOnly
+// session. The real check is the session cookie, verified by proxy.ts and joseph-api
+export const startSession = (): void => notify();
+
+export const endSession = (): void => {
+  document.cookie = `${SIGNED_IN_COOKIE}=; Max-Age=0; Path=/`;
+  notify();
+};
 
 // true/false once known; null while rendering on the server, so nothing auth-dependent flashes
 export const useSession = (): boolean | null => useSyncExternalStore(subscribe, read, () => null);

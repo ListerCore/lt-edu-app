@@ -1,57 +1,90 @@
 'use server';
 
-import type { AuthActionResult, ChangePasswordPayload, ForgotPasswordPayload, PasswordSetupPayload, SignInPayload, SignUpPayload, TwoFactorPayload } from '../types';
+import { cookies } from 'next/headers';
+import { apiRequest, type ApiError } from '@/lib/api/server';
+import { CHALLENGE_COOKIE, clearSessionCookies, cookieOptions, SESSION_COOKIE, setSessionCookies } from '@/lib/auth/cookies';
+import type { AuthActionResult, ChangePasswordPayload, ForgotPasswordPayload, PasswordSetupPayload, SignInPayload, SignInResult, SignUpPayload, TwoFactorPayload } from '../types';
 
-// Simulated latency so pending states are visible; replaced by joseph-api calls later
-const simulate = async (ms = 700): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms));
+// joseph-api answers (internal/adapter/inbound/http/handler/auth_handler.go)
+interface SignInResponse {
+  challenge_token: string;
+  method: 'email' | 'totp';
+  email: string;
+  expires_at: string;
+}
 
-// Simulated rule: any valid email signs in except passwords containing "error", to exercise the failure path
-export const signInAction = async ({ email, password, captchaToken }: SignInPayload): Promise<AuthActionResult> => {
-  await simulate();
+interface SessionResponse {
+  session: { token: string; expires_at: string };
+}
+
+const failure = (error: ApiError): AuthActionResult => ({ ok: false, code: error.code as AuthActionResult['code'], message: error.message, fields: error.fields });
+
+const sessionToken = async (): Promise<string | undefined> => (await cookies()).get(SESSION_COOKIE)?.value;
+
+// Password + Turnstile; on success the second step's handle stays in an httpOnly cookie
+export const signInAction = async ({ email, password, captchaToken }: SignInPayload): Promise<SignInResult> => {
   if (!captchaToken) return { ok: false, message: 'Completa la verificación de seguridad.' };
-  if (password.toLowerCase().includes('error')) return { ok: false, code: 'invalid_credentials', message: 'Correo o contraseña incorrectos.' };
-  return { ok: true, message: `Enviamos un código de verificación a ${email}.` };
+  const result = await apiRequest<SignInResponse>('/auth/sign-in', { method: 'POST', body: { email, password }, captchaToken });
+  if (!result.ok) return failure(result.error);
+  (await cookies()).set(CHALLENGE_COOKIE, result.data.challenge_token, cookieOptions(new Date(result.data.expires_at)));
+  const message = result.data.method === 'totp' ? 'Ingresa el código de tu app autenticadora.' : `Enviamos un código de verificación a ${result.data.email}.`;
+  return { ok: true, message, method: result.data.method };
 };
 
-// Simulated rule: emails starting with "registrado@" are already taken; the real API also matches the email
-// against the people each institution registered, which decides the institution and the role
-export const signUpAction = async ({ email, captchaToken }: SignUpPayload): Promise<AuthActionResult> => {
-  await simulate(900);
+// joseph-api matches the email against the people each institution registered: that decides institution and role
+export const signUpAction = async ({ nombre, email, password, captchaToken }: SignUpPayload): Promise<AuthActionResult> => {
   if (!captchaToken) return { ok: false, message: 'Completa la verificación de seguridad.' };
-  if (email.startsWith('registrado@')) return { ok: false, code: 'email_taken', message: 'Ya existe una cuenta con ese correo.' };
-  return { ok: true, message: 'Cuenta creada.' };
+  const result = await apiRequest('/auth/sign-up', { method: 'POST', body: { full_name: nombre, email, password }, captchaToken });
+  return result.ok ? { ok: true, message: 'Cuenta creada.' } : failure(result.error);
 };
 
 // Always answers the same way so the form never reveals which emails have an account
-export const forgotPasswordAction = async ({ captchaToken }: ForgotPasswordPayload): Promise<AuthActionResult> => {
-  await simulate();
+export const forgotPasswordAction = async ({ email, captchaToken }: ForgotPasswordPayload): Promise<AuthActionResult> => {
   if (!captchaToken) return { ok: false, message: 'Completa la verificación de seguridad.' };
-  return { ok: true, message: 'Si el correo tiene una cuenta, recibirá un enlace.' };
+  const result = await apiRequest('/auth/password/forgot', { method: 'POST', body: { email }, captchaToken });
+  return result.ok ? { ok: true, message: 'Si el correo tiene una cuenta, recibirá un enlace.' } : failure(result.error);
 };
 
-// Simulated rule: the token "vencido" behaves like an expired link
-export const passwordSetupAction = async ({ token }: PasswordSetupPayload): Promise<AuthActionResult> => {
-  await simulate();
-  if (token === 'vencido') return { ok: false, code: 'expired_link', message: 'El enlace venció. Solicita uno nuevo.' };
-  return { ok: true, message: 'Contraseña actualizada.' };
+export const passwordSetupAction = async ({ token, password }: PasswordSetupPayload): Promise<AuthActionResult> => {
+  if (!token) return { ok: false, code: 'expired_link', message: 'El enlace no es válido. Solicita uno nuevo.' };
+  const result = await apiRequest('/auth/password/reset', { method: 'POST', body: { token, password } });
+  return result.ok ? { ok: true, message: 'Contraseña actualizada.' } : failure(result.error);
 };
 
-// Simulated rule: any 6-digit code works except 000000
+// Second step: on success the session token replaces the challenge cookie
 export const verifyTwoFactorAction = async ({ code }: TwoFactorPayload): Promise<AuthActionResult> => {
-  await simulate(600);
-  if (!/^\d{6}$/.test(code) || code === '000000') return { ok: false, code: 'invalid_code', message: 'El código no es válido o ya venció.' };
+  const store = await cookies();
+  const challenge = store.get(CHALLENGE_COOKIE)?.value;
+  if (!challenge) return { ok: false, code: 'expired_challenge', message: 'La verificación venció. Ingresa de nuevo.' };
+  const result = await apiRequest<SessionResponse>('/auth/sign-in/verify', { method: 'POST', body: { challenge_token: challenge, code } });
+  if (!result.ok) {
+    if (result.error.code === 'expired_challenge') store.delete(CHALLENGE_COOKIE);
+    return failure(result.error);
+  }
+  store.delete(CHALLENGE_COOKIE);
+  setSessionCookies(store, result.data.session.token, result.data.session.expires_at);
   return { ok: true, message: 'Identidad verificada.' };
 };
 
-// Simulated resend of the 2FA code
 export const resendTwoFactorAction = async (): Promise<AuthActionResult> => {
-  await simulate(400);
-  return { ok: true, message: 'Te enviamos un código nuevo.' };
+  const challenge = (await cookies()).get(CHALLENGE_COOKIE)?.value;
+  if (!challenge) return { ok: false, code: 'expired_challenge', message: 'La verificación venció. Ingresa de nuevo.' };
+  const result = await apiRequest('/auth/sign-in/resend', { method: 'POST', body: { challenge_token: challenge } });
+  return result.ok ? { ok: true, message: 'Te enviamos un código nuevo.' } : failure(result.error);
 };
 
-// Simulated rule: a current password containing "error" is rejected
-export const changePasswordAction = async ({ currentPassword }: ChangePasswordPayload): Promise<AuthActionResult> => {
-  await simulate();
-  if (currentPassword.toLowerCase().includes('error')) return { ok: false, code: 'invalid_credentials', message: 'La contraseña actual no es correcta.' };
-  return { ok: true, message: 'Contraseña actualizada.' };
+export const changePasswordAction = async ({ currentPassword, password }: ChangePasswordPayload): Promise<AuthActionResult> => {
+  const token = await sessionToken();
+  if (!token) return { ok: false, code: 'unauthenticated', message: 'Tu sesión venció. Ingresa de nuevo.' };
+  const result = await apiRequest('/auth/password/change', { method: 'POST', body: { current_password: currentPassword, password }, token });
+  return result.ok ? { ok: true, message: 'Contraseña actualizada.' } : failure(result.error);
+};
+
+// Revokes the session in joseph-api and forgets it here; the cookie goes even if the API is unreachable
+export const signOutAction = async (): Promise<AuthActionResult> => {
+  const store = await cookies();
+  const token = store.get(SESSION_COOKIE)?.value;
+  if (token) await apiRequest('/auth/sign-out', { method: 'POST', token });
+  clearSessionCookies(store);
+  return { ok: true, message: 'Sesión cerrada.' };
 };

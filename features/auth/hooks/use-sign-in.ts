@@ -8,7 +8,7 @@ import { EMAIL_PATTERN } from '../data/auth-data';
 import type { FieldErrors, SignInValues, UseSignInResult } from '../types';
 import { useCaptcha } from './use-captcha';
 
-// Email + password sign-in; a valid answer continues to the 2FA step with the email in the query
+// Email + password sign-in; a valid answer continues to the 2FA step (email and method in the query, for display)
 export const useSignIn = (): UseSignInResult => {
   const router = useRouter();
   const [values, setValues] = useState<SignInValues>({ email: '', password: '' });
@@ -41,7 +41,7 @@ export const useSignIn = (): UseSignInResult => {
         sileo.error({ title: 'No pudimos iniciar sesión', description: result.message });
         return;
       }
-      router.push(`/auth/two-factor?email=${encodeURIComponent(email)}`);
+      router.push(`/auth/two-factor?email=${encodeURIComponent(email)}&method=${result.method ?? 'email'}`);
     });
   }, [values, captchaToken, consume, router]);
 

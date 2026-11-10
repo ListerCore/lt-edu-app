@@ -3,6 +3,14 @@ import type { PasswordRule } from '../types';
 // Where a completed sign-in lands
 export const AFTER_AUTH_PATH = '/dashboard';
 
+// Why a redirect (Google callback) sent the visitor back to sign in
+export const authErrorMessages: Record<string, string> = {
+  google_cancelled: 'Cancelaste el ingreso con Google.',
+  google_failed: 'No pudimos ingresar con Google. Inténtalo de nuevo o usa tu correo.',
+  google_not_configured: 'El ingreso con Google no está disponible por ahora. Usa tu correo.',
+  not_invited: 'Tu correo de Google no figura en ninguna institución. Pide a tu institución que te registre.',
+};
+
 export const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export const OTP_LENGTH = 6;
