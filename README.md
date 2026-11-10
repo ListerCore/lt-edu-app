@@ -6,8 +6,8 @@ Estructura inicial (réplica vacía de `lister-app`): Next.js 16, React 19, Tail
 
 ```sh
 cp .env.example .env.local
-bun install
-bun run dev
+pnpm install
+pnpm dev
 ```
 
 ## Estructura

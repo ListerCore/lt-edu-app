@@ -1,0 +1,4 @@
+# Native deps allowed to run install scripts (pnpm blocks build scripts by default)
+allowBuilds:
+  sharp: true
+  unrs-resolver: true

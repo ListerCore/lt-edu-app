@@ -1,17 +1,25 @@
 # syntax=docker/dockerfile:1
 
-# Bun version matches packageManager in package.json
-ARG BUN_VERSION=1.3.14
+# Node and pnpm versions; pnpm matches packageManager in package.json
+ARG NODE_VERSION=24
+ARG PNPM_VERSION=12.18.0
+
+# Base image with pnpm enabled through corepack
+FROM node:${NODE_VERSION}-slim AS base
+ARG PNPM_VERSION
+ENV PNPM_HOME=/pnpm \
+    PATH=/pnpm:$PATH \
+    COREPACK_ENABLE_DOWNLOAD_PROMPT=0
+RUN corepack enable && corepack prepare pnpm@${PNPM_VERSION} --activate
+WORKDIR /app
 
 # Install deps with the frozen lockfile so builds are reproducible
-FROM oven/bun:${BUN_VERSION}-slim AS deps
-WORKDIR /app
-COPY package.json bun.lock ./
-RUN bun install --frozen-lockfile
+FROM base AS deps
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
 
 # Build the Next.js standalone output
-FROM oven/bun:${BUN_VERSION}-slim AS builder
-WORKDIR /app
+FROM base AS builder
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 ENV NEXT_TELEMETRY_DISABLED=1
@@ -21,11 +29,10 @@ ENV NEXT_PUBLIC_TURNSTILE_SITE_KEY=$NEXT_PUBLIC_TURNSTILE_SITE_KEY
 # Canonical origin baked into prerendered pages (metadata, sitemap.xml, robots.txt)
 ARG APP__SITE_URL=https://listercore.pe
 ENV APP__SITE_URL=$APP__SITE_URL
-RUN bun --bun run build
+RUN pnpm run build
 
-# Minimal runtime: only standalone server, static assets and public files. Runs on Node, not Bun: Bun's node:http
-# never hands the upgrade to Next, so the WebSockets of /ws/panel and /ws/observability would hang
-FROM node:24-slim AS runner
+# Minimal runtime: only standalone server, static assets and public files
+FROM node:${NODE_VERSION}-slim AS runner
 WORKDIR /app
 
 # Defaults; Dokploy overrides them at runtime with the APP__* variables
