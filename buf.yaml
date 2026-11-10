@@ -1,0 +1,4 @@
+version: v2
+modules:
+  # proto/joseph is a copy of joseph-api/proto/joseph (pnpm proto:sync); edit it there
+  - path: proto

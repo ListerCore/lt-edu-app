@@ -1,0 +1,14 @@
+version: v2
+# Typed gRPC client for the Next.js server: pnpm proto (needs buf; ts-proto is a dev dependency)
+plugins:
+  - local: node_modules/.bin/protoc-gen-ts_proto
+    out: lib/api/grpc/gen
+    opt:
+      - outputServices=grpc-js
+      - env=node
+      - esModuleInterop=true
+      - useDate=true
+      - useOptionals=messages
+      - oneof=unions-value
+      - outputJsonMethods=false
+      - outputPartialMethods=false

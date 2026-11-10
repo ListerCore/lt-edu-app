@@ -1,4 +1,6 @@
-# Native deps allowed to run install scripts (pnpm blocks build scripts by default)
+# Native deps allowed to run install scripts (pnpm blocks build scripts by default).
+# protobufjs's postinstall only checks versions; it does not need to run
 allowBuilds:
   sharp: true
   unrs-resolver: true
+  protobufjs: false

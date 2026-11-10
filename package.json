@@ -7,10 +7,14 @@
     "build": "next build",
     "start": "NODE_ENV=${APP__NODE_ENV:-production} next start -H ${APP__HOST:-0.0.0.0} -p ${APP__PORT:-3000}",
     "lint": "eslint",
-    "bones": "boneyard-js build"
+    "bones": "boneyard-js build",
+    "proto:sync": "rm -rf proto/joseph && cp -R ../joseph-api/proto/joseph proto/joseph",
+    "proto": "buf generate"
   },
   "dependencies": {
     "@base-ui/react": "^1.9.0",
+    "@bufbuild/protobuf": "^2.17.0",
+    "@grpc/grpc-js": "^1.14.7",
     "@marsidev/react-turnstile": "^1.6.3",
     "boneyard-js": "^1.10.0",
     "class-variance-authority": "^0.7.1",
@@ -38,6 +42,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.4.2",
     "tailwindcss": "^4",
+    "ts-proto": "^2.18.4",
     "typescript": "^5"
   },
   "packageManager": "pnpm@12.18.0"
