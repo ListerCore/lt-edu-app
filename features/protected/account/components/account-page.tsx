@@ -1,62 +1,66 @@
 'use client';
 
 import type { JSX } from 'react';
+import { RefreshCw } from 'lucide';
+import { MorphIcon } from '@/components/ui/morph-icon';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useCardholderPhotos } from '@/features/protected/cards/hooks/use-cardholder-photos';
 import { useUpdateCardholderPhoto } from '@/features/protected/cards/hooks/use-update-cardholder-photo';
-import { useGetAccountProfile } from '../hooks/use-get-account-profile';
-import { usePrintProfileReport } from '../hooks/use-print-profile-report';
-import { AccountActivityCard } from './account-activity-card';
-import { AccountContactCard } from './account-contact-card';
+import { useWorkspace } from '@/features/protected/dashboard/hooks/use-workspace';
+import { accountPhotoKey } from '../data/account-data';
+import { useAccount } from '../hooks/use-account';
 import { AccountHeader } from './account-header';
-import { AccountLinkedCard } from './account-linked-card';
-import { AccountReport } from './account-report';
-import { AccountSectionCard } from './account-section-card';
+import { AccountRolesCard } from './account-roles-card';
 import { AccountSecurityCard } from './account-security-card';
+import { TwoFactorCard } from './two-factor-card';
 
-// Mi cuenta: everything on file for the signed-in person, editable contact, photo (shared with the ID card) and the profile report
+// Mi cuenta: the signed-in account from joseph-api (identity, roles, security) and its two-step verification
 export const AccountPage = (): JSX.Element => {
-  const { profile, isLoading, applyContact } = useGetAccountProfile();
+  const { account, twoFactor, error, isLoading, reload } = useAccount();
+  const { institutionType, role } = useWorkspace();
   const photos = useCardholderPhotos();
   const { setPhoto, error: photoError, isPending: isPhotoPending } = useUpdateCardholderPhoto();
-  const { generatedAt, print } = usePrintProfileReport();
+  const photoKey = accountPhotoKey(institutionType, role);
 
-  if (isLoading || !profile) {
+  if (isLoading) {
     return (
       <section className="mx-auto w-full max-w-6xl space-y-6 px-4 py-8 md:px-8 md:py-10">
         <Skeleton className="h-44 rounded-2xl" />
         <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_22rem]">
-          <Skeleton className="h-[32rem] rounded-2xl" />
-          <Skeleton className="h-[32rem] rounded-2xl" />
+          <Skeleton className="h-96 rounded-2xl" />
+          <Skeleton className="h-80 rounded-2xl" />
         </div>
       </section>
     );
   }
 
-  const photoUrl = photos[profile.photoKey] ?? null;
+  if (!account || !twoFactor) {
+    return (
+      <section className="mx-auto flex w-full max-w-md flex-col items-center gap-4 px-4 py-16 text-center">
+        <p className="text-sm text-muted-foreground">{error ?? 'No pudimos cargar tu cuenta.'}</p>
+        <button type="button" onClick={reload} className="btn-alt">
+          <MorphIcon icon={RefreshCw} size={16} />
+          Reintentar
+        </button>
+      </section>
+    );
+  }
+
+  const activeRole = account.roles.find(({ id }) => id === account.activeRoleId) ?? null;
 
   return (
     <section aria-label="Mi cuenta" className="mx-auto w-full max-w-6xl space-y-6 px-4 py-8 md:px-8 md:py-10">
-      <AccountHeader {...profile} photoUrl={photoUrl} isPhotoPending={isPhotoPending} photoError={photoError} onPhotoSelect={(file): void => setPhoto(profile.photoKey, file)} onDownloadReport={print} />
+      <AccountHeader account={account} activeRole={activeRole} photoUrl={photos[photoKey] ?? null} isPhotoPending={isPhotoPending} photoError={photoError} onPhotoSelect={(file): void => setPhoto(photoKey, file)} />
 
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_22rem]">
         <div className="flex min-w-0 flex-col gap-6">
-          {profile.sections.slice(0, 2).map((section): JSX.Element => (
-            <AccountSectionCard key={section.id} section={section} />
-          ))}
-          {profile.linked.length > 0 && <AccountLinkedCard profile={profile} />}
-          <AccountContactCard key={`${profile.role}-${profile.institutionType}`} contact={profile.contact} onSaved={applyContact} />
-          {profile.sections.slice(2).map((section): JSX.Element => (
-            <AccountSectionCard key={section.id} section={section} />
-          ))}
+          <TwoFactorCard status={twoFactor} email={account.email} onChanged={reload} />
+          <AccountRolesCard account={account} onSwitched={reload} />
         </div>
         <div className="flex flex-col gap-6 lg:sticky lg:top-20 lg:self-start">
-          <AccountSecurityCard profile={profile} />
-          <AccountActivityCard profile={profile} />
+          <AccountSecurityCard account={account} />
         </div>
       </div>
-
-      {generatedAt && <AccountReport profile={profile} photoUrl={photoUrl} generatedAt={generatedAt} />}
     </section>
   );
 };

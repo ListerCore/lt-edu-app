@@ -1,111 +1,139 @@
-import type { IconInput } from 'morphicons/react';
-import type { InstitutionType, Role } from '@/features/protected/dashboard/types';
+export type InstitutionKind = 'ebr' | 'eba' | 'ebe' | 'cepre' | 'institute';
 
-export interface AccountField {
-  label: string;
-  value: string;
-  // Monospace for codes, document numbers and phones
-  mono?: boolean;
-}
-
-export interface AccountSection {
+export interface AccountInstitution {
   id: string;
-  title: string;
-  icon: IconInput;
-  fields: AccountField[];
-}
-
-// A person linked to the account: the guardian's children
-export interface LinkedPerson {
+  slug: string;
   name: string;
-  detail: string;
-  code: string;
+  kind: InstitutionKind;
 }
 
-export interface AccountActivity {
+// One role the person holds; institution roles say where (platform roles have none)
+export interface AccountRole {
   id: string;
-  title: string;
-  detail: string;
-  // ISO date-time; formatted on the client
-  at: string;
-}
-
-// Fields the person can edit themselves
-export interface AccountContact {
-  email: string;
-  phone: string;
-  address: string;
-}
-
-export interface AccountProfile {
-  // Key of the photo in the shared photo store (the same photo prints on the card)
-  photoKey: string;
-  fullName: string;
-  roleLabel: string;
-  institutionName: string;
-  institutionType: InstitutionType;
-  role: Role;
   code: string;
-  headline: string;
-  contact: AccountContact;
-  sections: AccountSection[];
-  linked: LinkedPerson[];
-  activity: AccountActivity[];
-  security: { twoFactor: boolean; passwordUpdatedAt: string; lastAccessAt: string; lastAccessFrom: string };
+  name: string;
+  scope: 'platform' | 'institution';
+  institution: AccountInstitution | null;
 }
 
-export interface AccountActionResult<T> {
+// The signed-in account, from joseph-api's GET /auth/me
+export interface Account {
+  id: string;
+  email: string;
+  fullName: string;
+  avatarUrl: string | null;
+  emailVerified: boolean;
+  hasPassword: boolean;
+  createdAt: string;
+  roles: AccountRole[];
+  activeRoleId: string | null;
+  googleLinked: boolean;
+  passwordChangedAt: string | null;
+  lastSignInAt: string | null;
+}
+
+export interface UsedRecoveryCode {
+  code: string;
+  usedAt: string;
+}
+
+// GET /auth/mfa: the authenticator app and the recovery codes (how many are left, the ones already spent)
+export interface TwoFactorStatus {
+  enabled: boolean;
+  enabledAt: string | null;
+  recovery: { total: number; remaining: number; used: UsedRecoveryCode[] };
+}
+
+// What a mailed code confirms
+export type MfaPurpose = 'mfa_enable' | 'mfa_disable' | 'mfa_recovery_codes';
+
+export interface MailedCode {
+  challengeToken: string;
+  email: string;
+}
+
+export interface TotpSetup {
+  secret: string;
+  otpauthUri: string;
+  // data: URL of the QR the app scans
+  qrPng: string;
+}
+
+export interface AccountActionResult<T = undefined> {
   ok: boolean;
   message: string;
+  code?: string;
   data?: T;
 }
 
-export interface UseGetAccountProfileResult {
-  profile: AccountProfile | null;
+export interface UseAccountResult {
+  account: Account | null;
+  twoFactor: TwoFactorStatus | null;
+  error: string | null;
   isLoading: boolean;
-  // Applies a saved contact without refetching
-  applyContact: (contact: AccountContact) => void;
+  reload: () => void;
 }
 
-export interface UseUpdateAccountContactResult {
-  values: AccountContact;
-  errors: Partial<Record<keyof AccountContact, string>>;
-  isEditing: boolean;
+// idle → email (code mailed) → scan (QR, enabling only) → codes (recovery codes to keep)
+export type TwoFactorStep = 'idle' | 'email' | 'scan' | 'codes';
+
+export interface UseTwoFactorSettingsResult {
+  step: TwoFactorStep;
+  purpose: MfaPurpose | null;
+  email: string;
+  digits: string[];
+  appDigits: string[];
+  setup: TotpSetup | null;
+  codes: string[];
+  issuedAt: Date | null;
+  error?: string;
   isPending: boolean;
-  setField: (field: keyof AccountContact, value: string) => void;
-  startEditing: () => void;
+  resendIn: number;
+  start: (purpose: MfaPurpose) => void;
+  resend: () => void;
+  setDigits: (digits: string[]) => void;
+  setAppDigits: (digits: string[]) => void;
+  submitEmailCode: () => void;
+  submitAppCode: () => void;
+  finish: () => void;
   cancel: () => void;
-  submit: () => void;
 }
 
-export interface UsePrintProfileReportResult {
-  generatedAt: string | null;
-  print: () => void;
+export interface UseSwitchRoleResult {
+  pendingId: string | null;
+  switchTo: (userRoleId: string) => void;
 }
 
-export interface AccountProfileProps {
-  profile: AccountProfile;
-}
-
-export interface AccountHeaderProps extends AccountProfile {
+export interface AccountHeaderProps {
+  account: Account;
+  activeRole: AccountRole | null;
   photoUrl: string | null;
   isPhotoPending: boolean;
   photoError: string | null;
   onPhotoSelect: (file: File) => void;
-  onDownloadReport: () => void;
 }
 
-export interface AccountContactCardProps {
-  contact: AccountContact;
-  onSaved: (contact: AccountContact) => void;
+export interface AccountRolesCardProps {
+  account: Account;
+  onSwitched: () => void;
 }
 
-export interface AccountSectionCardProps {
-  section: AccountSection;
+export interface AccountSecurityCardProps {
+  account: Account;
 }
 
-export interface AccountReportProps {
-  profile: AccountProfile;
-  photoUrl: string | null;
-  generatedAt: string;
+export interface TwoFactorCardProps {
+  status: TwoFactorStatus;
+  email: string;
+  onChanged: () => void;
+}
+
+export interface RecoveryCodesSheetProps {
+  codes: string[];
+  email: string;
+  issuedAt: Date;
+}
+
+export interface UsedRecoveryCodesProps {
+  status: TwoFactorStatus;
 }
