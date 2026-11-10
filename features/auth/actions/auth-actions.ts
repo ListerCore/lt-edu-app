@@ -5,12 +5,13 @@ import { apiRequest, type ApiError } from '@/lib/api/server';
 import { CHALLENGE_COOKIE, clearSessionCookies, cookieOptions, SESSION_COOKIE, setSessionCookies } from '@/lib/auth/cookies';
 import type { AuthActionResult, ChangePasswordPayload, ForgotPasswordPayload, PasswordSetupPayload, SignInPayload, SignInResult, SignUpPayload, TwoFactorPayload } from '../types';
 
-// joseph-api answers (internal/adapter/inbound/http/handler/auth_handler.go)
+// joseph-api answers (internal/adapter/inbound/http/handler/auth_handler.go): a session, or the app step
 interface SignInResponse {
-  challenge_token: string;
-  method: 'email' | 'totp';
-  email: string;
-  expires_at: string;
+  session?: { token: string; expires_at: string };
+  challenge_token?: string;
+  method?: 'totp';
+  email?: string;
+  expires_at?: string;
 }
 
 interface SessionResponse {
@@ -21,14 +22,20 @@ const failure = (error: ApiError): AuthActionResult => ({ ok: false, code: error
 
 const sessionToken = async (): Promise<string | undefined> => (await cookies()).get(SESSION_COOKIE)?.value;
 
-// Password + Turnstile; on success the second step's handle stays in an httpOnly cookie
+// Password + Turnstile. Without an authenticator app the session starts here; with one, its handle stays in an
+// httpOnly cookie for the next step
 export const signInAction = async ({ email, password, captchaToken }: SignInPayload): Promise<SignInResult> => {
   if (!captchaToken) return { ok: false, message: 'Completa la verificación de seguridad.' };
   const result = await apiRequest<SignInResponse>('/auth/sign-in', { method: 'POST', body: { email, password }, captchaToken });
   if (!result.ok) return failure(result.error);
-  (await cookies()).set(CHALLENGE_COOKIE, result.data.challenge_token, cookieOptions(new Date(result.data.expires_at)));
-  const message = result.data.method === 'totp' ? 'Ingresa el código de tu app autenticadora.' : `Enviamos un código de verificación a ${result.data.email}.`;
-  return { ok: true, message, method: result.data.method };
+  const store = await cookies();
+  if (result.data.session) {
+    setSessionCookies(store, result.data.session.token, result.data.session.expires_at);
+    return { ok: true, message: 'Ingresaste correctamente.', signedIn: true };
+  }
+  if (!result.data.challenge_token || !result.data.expires_at) return { ok: false, message: 'No pudimos iniciar sesión. Inténtalo de nuevo.' };
+  store.set(CHALLENGE_COOKIE, result.data.challenge_token, cookieOptions(new Date(result.data.expires_at)));
+  return { ok: true, message: 'Ingresa el código de tu app autenticadora.', signedIn: false };
 };
 
 // joseph-api matches the email against the people each institution registered: that decides institution and role
@@ -51,7 +58,7 @@ export const passwordSetupAction = async ({ token, password }: PasswordSetupPayl
   return result.ok ? { ok: true, message: 'Contraseña actualizada.' } : failure(result.error);
 };
 
-// Second step: on success the session token replaces the challenge cookie
+// Authenticator-app step (app code or recovery code): on success the session replaces the challenge cookie
 export const verifyTwoFactorAction = async ({ code }: TwoFactorPayload): Promise<AuthActionResult> => {
   const store = await cookies();
   const challenge = store.get(CHALLENGE_COOKIE)?.value;
@@ -64,13 +71,6 @@ export const verifyTwoFactorAction = async ({ code }: TwoFactorPayload): Promise
   store.delete(CHALLENGE_COOKIE);
   setSessionCookies(store, result.data.session.token, result.data.session.expires_at);
   return { ok: true, message: 'Identidad verificada.' };
-};
-
-export const resendTwoFactorAction = async (): Promise<AuthActionResult> => {
-  const challenge = (await cookies()).get(CHALLENGE_COOKIE)?.value;
-  if (!challenge) return { ok: false, code: 'expired_challenge', message: 'La verificación venció. Ingresa de nuevo.' };
-  const result = await apiRequest('/auth/sign-in/resend', { method: 'POST', body: { challenge_token: challenge } });
-  return result.ok ? { ok: true, message: 'Te enviamos un código nuevo.' } : failure(result.error);
 };
 
 export const changePasswordAction = async ({ currentPassword, password }: ChangePasswordPayload): Promise<AuthActionResult> => {

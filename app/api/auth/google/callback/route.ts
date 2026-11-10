@@ -47,8 +47,7 @@ export const GET = async (request: Request): Promise<Response> => {
     return response;
   }
   if (data.challenge_token && data.expires_at) {
-    const query = new URLSearchParams({ email: data.email ?? '', method: 'totp' });
-    const response = forget(NextResponse.redirect(`${origin}/auth/two-factor?${query.toString()}`));
+    const response = forget(NextResponse.redirect(`${origin}/auth/two-factor`));
     response.cookies.set(CHALLENGE_COOKIE, data.challenge_token, cookieOptions(new Date(data.expires_at)));
     return response;
   }

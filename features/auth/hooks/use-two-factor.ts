@@ -1,43 +1,54 @@
 'use client';
 
-import { useRouter, useSearchParams } from 'next/navigation';
-import { useCallback, useEffect, useState, useTransition } from 'react';
+import { useRouter } from 'next/navigation';
+import { useCallback, useState, useTransition } from 'react';
 import { sileo } from 'sileo';
-import { resendTwoFactorAction, verifyTwoFactorAction } from '../actions/auth-actions';
-import { AFTER_AUTH_PATH, OTP_LENGTH, RESEND_SECONDS } from '../data/auth-data';
-import type { TwoFactorMethod, UseTwoFactorResult } from '../types';
+import { verifyTwoFactorAction } from '../actions/auth-actions';
+import { AFTER_AUTH_PATH, OTP_LENGTH } from '../data/auth-data';
+import type { TwoFactorMode, UseTwoFactorResult } from '../types';
 import { startSession } from './use-session';
 
 const emptyDigits = (): string[] => Array.from({ length: OTP_LENGTH }, () => '');
 
-// Second factor: a 6-digit code sent by email (with a resend cooldown) or from the authenticator app
+// Recovery codes read ABCDE-23456; anything else in between is ignored
+const RECOVERY_LENGTH = 10;
+
+// Authenticator-app step: the 6 digits of the app, or a recovery code when the phone is not at hand
 export const useTwoFactor = (): UseTwoFactorResult => {
   const router = useRouter();
-  const method: TwoFactorMethod = useSearchParams().get('method') === 'totp' ? 'totp' : 'email';
+  const [mode, setMode] = useState<TwoFactorMode>('app');
   const [digits, setDigitsState] = useState<string[]>(emptyDigits);
+  const [recoveryCode, setRecoveryCodeState] = useState('');
   const [error, setError] = useState<string | undefined>();
-  const [resendIn, setResendIn] = useState(RESEND_SECONDS);
   const [isPending, startTransition] = useTransition();
-
-  // One tick per second while the cooldown runs
-  useEffect(() => {
-    if (resendIn <= 0) return;
-    const timer = window.setTimeout(() => setResendIn((current) => current - 1), 1000);
-    return () => window.clearTimeout(timer);
-  }, [resendIn]);
 
   const setDigits = useCallback((next: string[]): void => {
     setDigitsState(next);
     setError(undefined);
   }, []);
 
+  const setRecoveryCode = useCallback((value: string): void => {
+    setRecoveryCodeState(value.toUpperCase());
+    setError(undefined);
+  }, []);
+
+  const toggleMode = useCallback((): void => {
+    setMode((current) => (current === 'app' ? 'recovery' : 'app'));
+    setDigitsState(emptyDigits());
+    setRecoveryCodeState('');
+    setError(undefined);
+  }, []);
+
   const submit = useCallback((): void => {
-    const code = digits.join('');
-    if (code.length !== OTP_LENGTH) {
-      setError(`Ingresa los ${OTP_LENGTH} dígitos del código.`);
+    const code = mode === 'app' ? digits.join('') : recoveryCode.trim();
+    if (mode === 'app' && code.length !== OTP_LENGTH) {
+      setError(`Ingresa los ${OTP_LENGTH} dígitos de tu app.`);
       return;
     }
-
+    if (mode === 'recovery' && code.replace(/[^A-Z0-9]/gi, '').length !== RECOVERY_LENGTH) {
+      setError('El código de respaldo tiene 10 caracteres, por ejemplo ABCDE-23456.');
+      return;
+    }
     startTransition(async (): Promise<void> => {
       const result = await verifyTwoFactorAction({ code });
       if (!result.ok) {
@@ -55,26 +66,7 @@ export const useTwoFactor = (): UseTwoFactorResult => {
       sileo.success({ title: 'Bienvenido', description: 'Ingresaste correctamente.' });
       router.push(AFTER_AUTH_PATH);
     });
-  }, [digits, router]);
+  }, [mode, digits, recoveryCode, router]);
 
-  const resend = useCallback((): void => {
-    if (resendIn > 0) return;
-    startTransition(async (): Promise<void> => {
-      const result = await resendTwoFactorAction();
-      if (!result.ok) {
-        if (result.code === 'expired_challenge') {
-          sileo.error({ title: 'La verificación venció', description: result.message });
-          router.push('/auth/signin');
-          return;
-        }
-        sileo.error({ title: 'No se reenvió el código', description: result.message });
-        return;
-      }
-      setDigitsState(emptyDigits());
-      setResendIn(RESEND_SECONDS);
-      sileo.info({ title: 'Código reenviado', description: result.message });
-    });
-  }, [resendIn, router]);
-
-  return { method, digits, error, isPending, resendIn, setDigits, submit, resend };
+  return { mode, digits, recoveryCode, error, isPending, setDigits, setRecoveryCode, toggleMode, submit };
 };

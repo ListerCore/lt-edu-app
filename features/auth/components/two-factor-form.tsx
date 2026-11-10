@@ -1,24 +1,16 @@
 'use client';
 
-import { useSearchParams } from 'next/navigation';
 import type { FormEvent, JSX } from 'react';
-import { LoaderCircle, ShieldCheck } from 'lucide';
+import { KeyRound, LoaderCircle, ShieldCheck, Smartphone } from 'lucide';
+import { FormField } from '@/components/ui/form-field';
+import { Input } from '@/components/ui/input';
 import { MorphIcon } from '@/components/ui/morph-icon';
-import { maskEmail } from '../data/auth-data';
 import { useTwoFactor } from '../hooks/use-two-factor';
 import { OtpInput } from './otp-input';
 
-// Masked destination of the code; reads the query so it must sit under a Suspense boundary
-export const TwoFactorDestination = (): JSX.Element => {
-  const params = useSearchParams();
-  const email = params.get('email');
-  if (params.get('method') === 'totp') return <span>tu app autenticadora (o usa un código de respaldo)</span>;
-  return email ? <span className="font-medium text-foreground">{maskEmail(email)}</span> : <span>tu correo</span>;
-};
-
-// 2FA step: 6-digit code (auto-submits when complete) and a resend link with cooldown
+// Authenticator-app step: 6 digits (auto-submits when complete), or a recovery code if the phone is not at hand
 export const TwoFactorForm = (): JSX.Element => {
-  const { method, digits, error, isPending, resendIn, setDigits, submit, resend } = useTwoFactor();
+  const { mode, digits, recoveryCode, error, isPending, setDigits, setRecoveryCode, toggleMode, submit } = useTwoFactor();
 
   const onSubmit = (event: FormEvent<HTMLFormElement>): void => {
     event.preventDefault();
@@ -27,8 +19,14 @@ export const TwoFactorForm = (): JSX.Element => {
 
   return (
     <form onSubmit={onSubmit} noValidate aria-label="Verificación en dos pasos" className="flex flex-col gap-5">
-      <OtpInput digits={digits} invalid={Boolean(error)} disabled={isPending} onChange={setDigits} onComplete={submit} />
-      {error && (
+      {mode === 'app' ? (
+        <OtpInput digits={digits} invalid={Boolean(error)} disabled={isPending} onChange={setDigits} onComplete={submit} />
+      ) : (
+        <FormField id="recovery-code" label="Código de respaldo" error={error}>
+          <Input id="recovery-code" autoComplete="one-time-code" autoCapitalize="characters" spellCheck={false} placeholder="ABCDE-23456" value={recoveryCode} onChange={(event): void => setRecoveryCode(event.target.value)} aria-invalid={Boolean(error)} aria-describedby={error ? 'recovery-code-error' : undefined} className="h-11 w-full rounded-lg bg-background text-center font-mono tracking-widest" />
+        </FormField>
+      )}
+      {mode === 'app' && error && (
         <p role="alert" className="-mt-2 text-xs text-destructive">
           {error}
         </p>
@@ -39,18 +37,10 @@ export const TwoFactorForm = (): JSX.Element => {
         {isPending ? 'Verificando…' : 'Verificar'}
       </button>
 
-      {method === 'email' && (
-        <p className="text-center text-sm text-muted-foreground">
-          ¿No te llegó?{' '}
-          {resendIn > 0 ? (
-            <span className="tabular-nums">Reenviar en {resendIn} s</span>
-          ) : (
-            <button type="button" onClick={resend} disabled={isPending} className="font-medium text-brand transition-colors hover:text-brand-solid-hover">
-              <span className="link-underline">Reenviar código</span>
-            </button>
-          )}
-        </p>
-      )}
+      <button type="button" onClick={toggleMode} disabled={isPending} className="mx-auto inline-flex items-center gap-1.5 text-sm font-medium text-brand transition-colors hover:text-brand-solid-hover">
+        <MorphIcon icon={mode === 'app' ? KeyRound : Smartphone} size={14} />
+        <span className="link-underline">{mode === 'app' ? 'Usar un código de respaldo' : 'Usar el código de mi app'}</span>
+      </button>
     </form>
   );
 };

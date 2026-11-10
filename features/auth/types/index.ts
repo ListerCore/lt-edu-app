@@ -9,11 +9,9 @@ export interface AuthActionResult {
   fields?: Record<string, string>;
 }
 
-// How the second step is passed: a code mailed to the person, or their authenticator app
-export type TwoFactorMethod = 'email' | 'totp';
-
+// signedIn: the session started (no authenticator app); otherwise the app's code is asked next
 export interface SignInResult extends AuthActionResult {
-  method?: TwoFactorMethod;
+  signedIn?: boolean;
 }
 
 export interface SignInPayload {
@@ -102,15 +100,19 @@ export interface UsePasswordSetupResult {
   submit: () => void;
 }
 
+// app: 6 digits from the authenticator app; recovery: one of the backup codes (ABCDE-23456)
+export type TwoFactorMode = 'app' | 'recovery';
+
 export interface UseTwoFactorResult {
-  method: TwoFactorMethod;
+  mode: TwoFactorMode;
   digits: string[];
+  recoveryCode: string;
   error?: string;
   isPending: boolean;
-  resendIn: number;
   setDigits: (digits: string[]) => void;
+  setRecoveryCode: (value: string) => void;
+  toggleMode: () => void;
   submit: () => void;
-  resend: () => void;
 }
 
 export interface PasswordRule {

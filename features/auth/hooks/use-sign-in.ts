@@ -4,11 +4,12 @@ import { useRouter } from 'next/navigation';
 import { useCallback, useState, useTransition } from 'react';
 import { sileo } from 'sileo';
 import { signInAction } from '../actions/auth-actions';
-import { EMAIL_PATTERN } from '../data/auth-data';
+import { AFTER_AUTH_PATH, EMAIL_PATTERN } from '../data/auth-data';
 import type { FieldErrors, SignInValues, UseSignInResult } from '../types';
 import { useCaptcha } from './use-captcha';
+import { startSession } from './use-session';
 
-// Email + password sign-in; a valid answer continues to the 2FA step (email and method in the query, for display)
+// Email + password sign-in: straight to the panel, or to the authenticator-app step when the account has it on
 export const useSignIn = (): UseSignInResult => {
   const router = useRouter();
   const [values, setValues] = useState<SignInValues>({ email: '', password: '' });
@@ -41,7 +42,13 @@ export const useSignIn = (): UseSignInResult => {
         sileo.error({ title: 'No pudimos iniciar sesión', description: result.message });
         return;
       }
-      router.push(`/auth/two-factor?email=${encodeURIComponent(email)}&method=${result.method ?? 'email'}`);
+      if (result.signedIn) {
+        startSession();
+        sileo.success({ title: 'Bienvenido', description: result.message });
+        router.push(AFTER_AUTH_PATH);
+        return;
+      }
+      router.push('/auth/two-factor');
     });
   }, [values, captchaToken, consume, router]);
 
