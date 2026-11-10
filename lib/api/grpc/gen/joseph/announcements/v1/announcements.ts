@@ -51,6 +51,16 @@ export interface Announcement {
   institutionSlug: string;
   /** In order; the first image is the cover */
   attachments: Attachment[];
+  /** Validity window of the home modal (unset: not featured) */
+  featuredFrom?: Date | undefined;
+  featuredUntil?:
+    | Date
+    | undefined;
+  /** Ir | Continuar (empty when not featured) */
+  ctaLabel: string;
+  /** Where the button leads: a site path or an https address; empty means the announcement's own page */
+  ctaUrl: string;
+  updatedAt?: Date | undefined;
 }
 
 export interface ListPublicAnnouncementsRequest {
@@ -77,6 +87,25 @@ export interface ListAnnouncementsRequest {
 export interface ListAnnouncementsResponse {
   announcements: Announcement[];
   canPublish: boolean;
+}
+
+export interface GetAnnouncementRequest {
+  slug: string;
+  /** Empty: the institution of the active role */
+  institutionSlug: string;
+}
+
+export interface GetAnnouncementResponse {
+  announcement?: Announcement | undefined;
+  canEdit: boolean;
+}
+
+export interface ListFeaturedAnnouncementsRequest {
+  institutionSlug: string;
+}
+
+export interface ListFeaturedAnnouncementsResponse {
+  announcements: Announcement[];
 }
 
 function createBaseAttachment(): Attachment {
@@ -194,6 +223,11 @@ function createBaseAnnouncement(): Announcement {
     publishedAt: undefined,
     institutionSlug: "",
     attachments: [],
+    featuredFrom: undefined,
+    featuredUntil: undefined,
+    ctaLabel: "",
+    ctaUrl: "",
+    updatedAt: undefined,
   };
 }
 
@@ -234,6 +268,21 @@ export const Announcement: MessageFns<Announcement> = {
     }
     for (const v of message.attachments) {
       Attachment.encode(v!, writer.uint32(98).fork()).join();
+    }
+    if (message.featuredFrom !== undefined) {
+      Timestamp.encode(toTimestamp(message.featuredFrom), writer.uint32(106).fork()).join();
+    }
+    if (message.featuredUntil !== undefined) {
+      Timestamp.encode(toTimestamp(message.featuredUntil), writer.uint32(114).fork()).join();
+    }
+    if (message.ctaLabel !== "") {
+      writer.uint32(122).string(message.ctaLabel);
+    }
+    if (message.ctaUrl !== "") {
+      writer.uint32(130).string(message.ctaUrl);
+    }
+    if (message.updatedAt !== undefined) {
+      Timestamp.encode(toTimestamp(message.updatedAt), writer.uint32(138).fork()).join();
     }
     return writer;
   },
@@ -345,6 +394,46 @@ export const Announcement: MessageFns<Announcement> = {
             }
 
             message.attachments.push(Attachment.decode(reader, reader.uint32()));
+            continue;
+          }
+          case 13: {
+            if (tag !== 106) {
+              break;
+            }
+
+            message.featuredFrom = fromTimestamp(Timestamp.decode(reader, reader.uint32()));
+            continue;
+          }
+          case 14: {
+            if (tag !== 114) {
+              break;
+            }
+
+            message.featuredUntil = fromTimestamp(Timestamp.decode(reader, reader.uint32()));
+            continue;
+          }
+          case 15: {
+            if (tag !== 122) {
+              break;
+            }
+
+            message.ctaLabel = reader.string();
+            continue;
+          }
+          case 16: {
+            if (tag !== 130) {
+              break;
+            }
+
+            message.ctaUrl = reader.string();
+            continue;
+          }
+          case 17: {
+            if (tag !== 138) {
+              break;
+            }
+
+            message.updatedAt = fromTimestamp(Timestamp.decode(reader, reader.uint32()));
             continue;
           }
         }
@@ -647,6 +736,212 @@ export const ListAnnouncementsResponse: MessageFns<ListAnnouncementsResponse> = 
   },
 };
 
+function createBaseGetAnnouncementRequest(): GetAnnouncementRequest {
+  return { slug: "", institutionSlug: "" };
+}
+
+export const GetAnnouncementRequest: MessageFns<GetAnnouncementRequest> = {
+  encode(message: GetAnnouncementRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.slug !== "") {
+      writer.uint32(10).string(message.slug);
+    }
+    if (message.institutionSlug !== "") {
+      writer.uint32(18).string(message.institutionSlug);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): GetAnnouncementRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseGetAnnouncementRequest();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.slug = reader.string();
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.institutionSlug = reader.string();
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+};
+
+function createBaseGetAnnouncementResponse(): GetAnnouncementResponse {
+  return { announcement: undefined, canEdit: false };
+}
+
+export const GetAnnouncementResponse: MessageFns<GetAnnouncementResponse> = {
+  encode(message: GetAnnouncementResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.announcement !== undefined) {
+      Announcement.encode(message.announcement, writer.uint32(10).fork()).join();
+    }
+    if (message.canEdit !== false) {
+      writer.uint32(16).bool(message.canEdit);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): GetAnnouncementResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseGetAnnouncementResponse();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.announcement = Announcement.decode(reader, reader.uint32());
+            continue;
+          }
+          case 2: {
+            if (tag !== 16) {
+              break;
+            }
+
+            message.canEdit = reader.bool();
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+};
+
+function createBaseListFeaturedAnnouncementsRequest(): ListFeaturedAnnouncementsRequest {
+  return { institutionSlug: "" };
+}
+
+export const ListFeaturedAnnouncementsRequest: MessageFns<ListFeaturedAnnouncementsRequest> = {
+  encode(message: ListFeaturedAnnouncementsRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.institutionSlug !== "") {
+      writer.uint32(10).string(message.institutionSlug);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): ListFeaturedAnnouncementsRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseListFeaturedAnnouncementsRequest();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.institutionSlug = reader.string();
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+};
+
+function createBaseListFeaturedAnnouncementsResponse(): ListFeaturedAnnouncementsResponse {
+  return { announcements: [] };
+}
+
+export const ListFeaturedAnnouncementsResponse: MessageFns<ListFeaturedAnnouncementsResponse> = {
+  encode(message: ListFeaturedAnnouncementsResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    for (const v of message.announcements) {
+      Announcement.encode(v!, writer.uint32(10).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): ListFeaturedAnnouncementsResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseListFeaturedAnnouncementsResponse();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.announcements.push(Announcement.decode(reader, reader.uint32()));
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+};
+
 /**
  * Metadata:
  *   authorization: Bearer <session token>   (ListAnnouncements)
@@ -693,6 +988,32 @@ export const AnnouncementServiceService = {
       Buffer.from(ListAnnouncementsResponse.encode(value).finish()),
     responseDeserialize: (value: Buffer): ListAnnouncementsResponse => ListAnnouncementsResponse.decode(value),
   },
+  /** Panel detail and edit page: one announcement the role may read, and whether it may edit or delete it */
+  getAnnouncement: {
+    path: "/joseph.announcements.v1.AnnouncementService/GetAnnouncement" as const,
+    requestStream: false as const,
+    responseStream: false as const,
+    requestSerialize: (value: GetAnnouncementRequest): Buffer =>
+      Buffer.from(GetAnnouncementRequest.encode(value).finish()),
+    requestDeserialize: (value: Buffer): GetAnnouncementRequest => GetAnnouncementRequest.decode(value),
+    responseSerialize: (value: GetAnnouncementResponse): Buffer =>
+      Buffer.from(GetAnnouncementResponse.encode(value).finish()),
+    responseDeserialize: (value: Buffer): GetAnnouncementResponse => GetAnnouncementResponse.decode(value),
+  },
+  /** Home modal: public announcements within their validity window, newest first */
+  listFeaturedAnnouncements: {
+    path: "/joseph.announcements.v1.AnnouncementService/ListFeaturedAnnouncements" as const,
+    requestStream: false as const,
+    responseStream: false as const,
+    requestSerialize: (value: ListFeaturedAnnouncementsRequest): Buffer =>
+      Buffer.from(ListFeaturedAnnouncementsRequest.encode(value).finish()),
+    requestDeserialize: (value: Buffer): ListFeaturedAnnouncementsRequest =>
+      ListFeaturedAnnouncementsRequest.decode(value),
+    responseSerialize: (value: ListFeaturedAnnouncementsResponse): Buffer =>
+      Buffer.from(ListFeaturedAnnouncementsResponse.encode(value).finish()),
+    responseDeserialize: (value: Buffer): ListFeaturedAnnouncementsResponse =>
+      ListFeaturedAnnouncementsResponse.decode(value),
+  },
 } as const;
 
 export interface AnnouncementServiceServer extends UntypedServiceImplementation {
@@ -702,6 +1023,10 @@ export interface AnnouncementServiceServer extends UntypedServiceImplementation 
   getPublicAnnouncement: handleUnaryCall<GetPublicAnnouncementRequest, GetPublicAnnouncementResponse>;
   /** Panel feed: what the signed-in role may read in the institution, and whether it may publish */
   listAnnouncements: handleUnaryCall<ListAnnouncementsRequest, ListAnnouncementsResponse>;
+  /** Panel detail and edit page: one announcement the role may read, and whether it may edit or delete it */
+  getAnnouncement: handleUnaryCall<GetAnnouncementRequest, GetAnnouncementResponse>;
+  /** Home modal: public announcements within their validity window, newest first */
+  listFeaturedAnnouncements: handleUnaryCall<ListFeaturedAnnouncementsRequest, ListFeaturedAnnouncementsResponse>;
 }
 
 export interface AnnouncementServiceClient extends Client {
@@ -752,6 +1077,38 @@ export interface AnnouncementServiceClient extends Client {
     metadata: Metadata,
     options: Partial<CallOptions>,
     callback: (error: ServiceError | null, response: ListAnnouncementsResponse) => void,
+  ): ClientUnaryCall;
+  /** Panel detail and edit page: one announcement the role may read, and whether it may edit or delete it */
+  getAnnouncement(
+    request: GetAnnouncementRequest,
+    callback: (error: ServiceError | null, response: GetAnnouncementResponse) => void,
+  ): ClientUnaryCall;
+  getAnnouncement(
+    request: GetAnnouncementRequest,
+    metadata: Metadata,
+    callback: (error: ServiceError | null, response: GetAnnouncementResponse) => void,
+  ): ClientUnaryCall;
+  getAnnouncement(
+    request: GetAnnouncementRequest,
+    metadata: Metadata,
+    options: Partial<CallOptions>,
+    callback: (error: ServiceError | null, response: GetAnnouncementResponse) => void,
+  ): ClientUnaryCall;
+  /** Home modal: public announcements within their validity window, newest first */
+  listFeaturedAnnouncements(
+    request: ListFeaturedAnnouncementsRequest,
+    callback: (error: ServiceError | null, response: ListFeaturedAnnouncementsResponse) => void,
+  ): ClientUnaryCall;
+  listFeaturedAnnouncements(
+    request: ListFeaturedAnnouncementsRequest,
+    metadata: Metadata,
+    callback: (error: ServiceError | null, response: ListFeaturedAnnouncementsResponse) => void,
+  ): ClientUnaryCall;
+  listFeaturedAnnouncements(
+    request: ListFeaturedAnnouncementsRequest,
+    metadata: Metadata,
+    options: Partial<CallOptions>,
+    callback: (error: ServiceError | null, response: ListFeaturedAnnouncementsResponse) => void,
   ): ClientUnaryCall;
 }
 

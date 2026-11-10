@@ -3,7 +3,10 @@
 import { useEffect, useRef, useSyncExternalStore } from 'react';
 
 // What joseph-api publishes on the live stream (internal/core/service/live_service.go); ids only, never personal data
-export type LiveEventType = 'system.ping' | 'announcement.published';
+export type LiveEventType = 'system.ping' | 'announcement.published' | 'announcement.updated' | 'announcement.deleted';
+
+// Any change to announcements (published, edited or deleted)
+export const isAnnouncementEvent = (type: LiveEvent['type']): boolean => type.startsWith('announcement.');
 
 // "resync" is local: the socket came back after a drop, so whatever happened meanwhile must be refetched
 export interface LiveEvent {
