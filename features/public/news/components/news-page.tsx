@@ -26,7 +26,7 @@ export const NewsPage = (): JSX.Element => (
     </h1>
     <p className="mt-5 max-w-xl text-lg leading-8 text-muted-foreground">Lo último de la institución para estudiantes, familias y docentes. Lo que es solo para tu sección o tu rol lo encuentras al ingresar a tu cuenta.</p>
     <div className="mt-10">
-      <Suspense fallback={<AnnouncementTabs announcements={[]} isLoading emptyText="" />}>
+      <Suspense fallback={<AnnouncementTabs announcements={[]} isLoading context="public" emptyText="" />}>
         <NewsFeed />
       </Suspense>
     </div>

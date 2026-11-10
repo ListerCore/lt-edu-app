@@ -20,6 +20,10 @@ service AnnouncementService {
   rpc GetPublicAnnouncement(GetPublicAnnouncementRequest) returns (GetPublicAnnouncementResponse);
   // Panel feed: what the signed-in role may read in the institution, and whether it may publish
   rpc ListAnnouncements(ListAnnouncementsRequest) returns (ListAnnouncementsResponse);
+  // Panel detail and edit page: one announcement the role may read, and whether it may edit or delete it
+  rpc GetAnnouncement(GetAnnouncementRequest) returns (GetAnnouncementResponse);
+  // Home modal: public announcements within their validity window, newest first
+  rpc ListFeaturedAnnouncements(ListFeaturedAnnouncementsRequest) returns (ListFeaturedAnnouncementsResponse);
 }
 
 message Attachment {
@@ -49,6 +53,14 @@ message Announcement {
   string institution_slug = 11;
   // In order; the first image is the cover
   repeated Attachment attachments = 12;
+  // Validity window of the home modal (unset: not featured)
+  optional google.protobuf.Timestamp featured_from = 13;
+  optional google.protobuf.Timestamp featured_until = 14;
+  // Ir | Continuar (empty when not featured)
+  string cta_label = 15;
+  // Where the button leads: a site path or an https address; empty means the announcement's own page
+  string cta_url = 16;
+  google.protobuf.Timestamp updated_at = 17;
 }
 
 message ListPublicAnnouncementsRequest {
@@ -75,4 +87,23 @@ message ListAnnouncementsRequest {
 message ListAnnouncementsResponse {
   repeated Announcement announcements = 1;
   bool can_publish = 2;
+}
+
+message GetAnnouncementRequest {
+  string slug = 1;
+  // Empty: the institution of the active role
+  string institution_slug = 2;
+}
+
+message GetAnnouncementResponse {
+  Announcement announcement = 1;
+  bool can_edit = 2;
+}
+
+message ListFeaturedAnnouncementsRequest {
+  string institution_slug = 1;
+}
+
+message ListFeaturedAnnouncementsResponse {
+  repeated Announcement announcements = 1;
 }

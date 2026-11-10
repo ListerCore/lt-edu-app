@@ -21,7 +21,7 @@ export const NewsFeed = async (): Promise<JSX.Element> => {
   return (
     <>
       <NewsLiveRefresh />
-      <AnnouncementTabs announcements={news.items} linkToDetail emptyText="Por ahora no hay publicaciones de este tipo." />
+      <AnnouncementTabs announcements={news.items} context="public" emptyText="Por ahora no hay publicaciones de este tipo." />
     </>
   );
 };

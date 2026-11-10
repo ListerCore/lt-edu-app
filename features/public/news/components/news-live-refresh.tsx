@@ -1,13 +1,13 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useLiveRefresh } from '@/hooks/use-live';
+import { isAnnouncementEvent, useLiveRefresh } from '@/hooks/use-live';
 
-// Re-renders the page when the institution publishes something public (live channel), instead of polling
+// Re-renders the page when a public announcement is published, edited or deleted (live channel), instead of polling
 export const NewsLiveRefresh = (): null => {
   const router = useRouter();
   useLiveRefresh(
-    (event) => event.type === 'announcement.published' && event.data.public === 'true',
+    (event) => isAnnouncementEvent(event.type) && event.data.public === 'true',
     () => router.refresh(),
   );
   return null;

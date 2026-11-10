@@ -42,3 +42,18 @@ const fetchPublicNewsItem = async (slug: string): Promise<NewsItemResult> => {
 export const getPublicNews = (): Promise<NewsResult> => fetchPublicNews(siteInstitution());
 
 export const getPublicNewsItem = async (slug: string): Promise<NewsItemResult> => (SLUG_PATTERN.test(slug) ? fetchPublicNewsItem(slug) : { ok: true, item: null });
+
+// Home modal: public announcements within their validity window. Short cache: windows open and close on their own
+const fetchFeaturedNews = async (institution: string): Promise<NewsResult> => {
+  'use cache';
+  cacheTag(NEWS_TAG);
+  const result = await announcementsRpc.listFeatured(institution, { anonymous: true, timeoutMs: 5000 });
+  if (!result.ok) {
+    cacheLife('seconds');
+    return { ok: false };
+  }
+  cacheLife({ stale: 30, revalidate: 60, expire: 300 });
+  return { ok: true, items: result.data.announcements.map(toAnnouncement) };
+};
+
+export const getFeaturedNews = (): Promise<NewsResult> => fetchFeaturedNews(siteInstitution());
