@@ -7,6 +7,10 @@ const nextConfig: NextConfig = {
   serverExternalPackages: ['@grpc/grpc-js'],
   experimental: {
     agentFeedback: true,
+    serverActions: {
+      // Announcements carry up to 40 MB of images and PDFs (joseph-api's limit) plus the multipart overhead
+      bodySizeLimit: '45mb',
+    },
   },
   cacheComponents: true,
   partialPrefetching: true,

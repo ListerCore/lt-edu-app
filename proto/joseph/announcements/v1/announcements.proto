@@ -1,0 +1,78 @@
+syntax = "proto3";
+
+// Announcements, notices and alerts of each institution, read by joseph-app's server: the public site (/news) and
+// the panel feed. Publishing (multipart with images and PDFs) and the files themselves go over HTTP
+package joseph.announcements.v1;
+
+import "google/protobuf/timestamp.proto";
+
+option go_package = "api/internal/adapter/inbound/grpc/gen/announcementsv1;announcementsv1";
+
+// Metadata:
+//   authorization: Bearer <session token>   (ListAnnouncements)
+//   x-forwarded-for, x-user-agent           (as every joseph-api service)
+//
+// Failed calls return a gRPC status whose details hold one joseph.common.v1.ErrorDetail
+service AnnouncementService {
+  // Public announcements of an institution, pinned first and newest first
+  rpc ListPublicAnnouncements(ListPublicAnnouncementsRequest) returns (ListPublicAnnouncementsResponse);
+  // One public announcement by its 18-character slug; internal or unknown ones are NOT_FOUND
+  rpc GetPublicAnnouncement(GetPublicAnnouncementRequest) returns (GetPublicAnnouncementResponse);
+  // Panel feed: what the signed-in role may read in the institution, and whether it may publish
+  rpc ListAnnouncements(ListAnnouncementsRequest) returns (ListAnnouncementsResponse);
+}
+
+message Attachment {
+  string id = 1;
+  // image | document
+  string kind = 2;
+  string file_name = 3;
+  string content_type = 4;
+  int64 size_bytes = 5;
+  int32 position = 6;
+}
+
+message Announcement {
+  string id = 1;
+  // 18 characters of [a-z0-9]
+  string slug = 2;
+  // announcement | notice | alert
+  string kind = 3;
+  // community | students | guardians | staff
+  string audience = 4;
+  string title = 5;
+  string body = 6;
+  bool is_public = 7;
+  bool pinned = 8;
+  string author_name = 9;
+  google.protobuf.Timestamp published_at = 10;
+  string institution_slug = 11;
+  // In order; the first image is the cover
+  repeated Attachment attachments = 12;
+}
+
+message ListPublicAnnouncementsRequest {
+  string institution_slug = 1;
+}
+
+message ListPublicAnnouncementsResponse {
+  repeated Announcement announcements = 1;
+}
+
+message GetPublicAnnouncementRequest {
+  string slug = 1;
+}
+
+message GetPublicAnnouncementResponse {
+  Announcement announcement = 1;
+}
+
+message ListAnnouncementsRequest {
+  // Empty: the institution of the active role
+  string institution_slug = 1;
+}
+
+message ListAnnouncementsResponse {
+  repeated Announcement announcements = 1;
+  bool can_publish = 2;
+}

@@ -13,8 +13,8 @@ export interface UseFileDropResult {
   };
 }
 
-// Drag-and-drop handlers for a drop zone; hands the first dropped file to onFile
-export const useFileDrop = (onFile: (file: File) => void): UseFileDropResult => {
+// Drag-and-drop handlers for a drop zone; hands the first dropped file to onFile, or every dropped file to onFiles
+export const useFileDrop = (onFile: (file: File) => void, onFiles?: (files: File[]) => void): UseFileDropResult => {
   const [isDragging, setIsDragging] = useState(false);
   // dragenter/dragleave also fire for child elements, so count them instead of toggling
   const depth = useRef(0);
@@ -42,10 +42,15 @@ export const useFileDrop = (onFile: (file: File) => void): UseFileDropResult => 
       event.preventDefault();
       depth.current = 0;
       setIsDragging(false);
+      if (onFiles) {
+        const files = Array.from(event.dataTransfer.files);
+        if (files.length > 0) onFiles(files);
+        return;
+      }
       const file = event.dataTransfer.files.item(0);
       if (file) onFile(file);
     },
-    [onFile],
+    [onFile, onFiles],
   );
 
   return { isDragging, dropHandlers: { onDragEnter, onDragOver, onDragLeave, onDrop } };
