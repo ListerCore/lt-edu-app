@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev -H ${APP__HOST:-localhost} -p ${APP__PORT:-3000}",
+    "dev": "next dev -H ${APP__HOST:-localhost} --port 5173",
     "build": "next build",
     "start": "NODE_ENV=${APP__NODE_ENV:-production} next start -H ${APP__HOST:-0.0.0.0} -p ${APP__PORT:-3000}",
     "lint": "eslint",
