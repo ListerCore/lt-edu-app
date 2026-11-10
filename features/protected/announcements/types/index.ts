@@ -32,8 +32,17 @@ export interface Announcement {
   isPublic: boolean;
   pinned: boolean;
   authorName: string;
+  updatedAt: string;
+  // Validity window of the home modal (null: not featured)
+  featuredFrom: string | null;
+  featuredUntil: string | null;
+  // Button of the modal and where it leads (empty: the announcement's own page)
+  ctaLabel: CtaLabel | '';
+  ctaUrl: string;
   attachments: AnnouncementAttachment[];
 }
+
+export type CtaLabel = 'Ir' | 'Continuar';
 
 export interface KindMeta {
   label: string;
@@ -57,6 +66,14 @@ export interface AnnouncementDraft {
   body: string;
   audience: AnnouncementAudience;
   isPublic: boolean;
+  // Validity window, as <input type="datetime-local"> values in the browser's time zone
+  featured: boolean;
+  featuredFrom: string;
+  featuredUntil: string;
+  ctaLabel: CtaLabel;
+  ctaUrl: string;
+  // Editing: attachments already stored that stay, in order
+  kept: AnnouncementAttachment[];
   files: DraftFile[];
 }
 
@@ -76,24 +93,28 @@ export interface UseGetAnnouncementsResult {
   announcements: Announcement[];
   canPublish: boolean;
   isLoading: boolean;
-  // Puts a just-created announcement at the top without waiting for the live refresh
-  prepend: (announcement: Announcement) => void;
 }
 
-export type DraftErrors = Partial<Record<'title' | 'body' | 'files' | 'kind' | 'audience', string>>;
+export type DraftErrors = Partial<Record<'title' | 'body' | 'files' | 'kind' | 'audience' | 'featured_from' | 'featured_until' | 'cta_label' | 'cta_url', string>>;
 
-export interface UseCreateAnnouncementResult {
+// Text fields of the draft (files and kept attachments have their own setters)
+export type DraftField = Exclude<keyof AnnouncementDraft, 'files' | 'kept'>;
+
+export interface UseAnnouncementFormResult {
   values: AnnouncementDraft;
   errors: DraftErrors;
   isPending: boolean;
-  setField: <K extends Exclude<keyof AnnouncementDraft, 'files'>>(field: K, value: AnnouncementDraft[K]) => void;
+  setField: <K extends DraftField>(field: K, value: AnnouncementDraft[K]) => void;
   addFiles: (files: File[]) => void;
   removeFile: (key: string) => void;
+  removeKept: (id: string) => void;
   submit: () => void;
-  reset: () => void;
 }
 
 export interface AnnouncementFilesDropzoneProps {
+  // Stored attachments that stay (editing)
+  kept?: AnnouncementAttachment[];
+  onRemoveKept?: (id: string) => void;
   files: DraftFile[];
   error?: string;
   disabled?: boolean;
@@ -101,21 +122,49 @@ export interface AnnouncementFilesDropzoneProps {
   onRemove: (key: string) => void;
 }
 
+// panel: the title opens /dashboard/announcements/<slug>; public: /news/<slug>. Both offer "Ver publicación" for
+// public announcements
+export type AnnouncementContext = 'panel' | 'public';
+
 export interface AnnouncementCardProps {
   announcement: Announcement;
-  // Title links to /news/<slug> (public announcements only)
-  linkToDetail?: boolean;
+  context: AnnouncementContext;
 }
 
 export interface AnnouncementTabsProps {
   announcements: Announcement[];
   isLoading?: boolean;
   emptyText: string;
-  linkToDetail?: boolean;
+  context: AnnouncementContext;
 }
 
-export interface AnnouncementFormDialogProps {
-  onCreated: (announcement: Announcement) => void;
+export interface AnnouncementFormProps {
+  // Editing: the announcement as stored; creating: undefined
+  announcement?: Announcement;
+  onSaved: (announcement: Announcement) => void;
+  onCancel: () => void;
+}
+
+export interface AnnouncementDetail {
+  announcement: Announcement;
+  canEdit: boolean;
+}
+
+export interface UseAnnouncementDetailResult {
+  detail: AnnouncementDetail | null;
+  error: string | null;
+  isLoading: boolean;
+  isDeleting: boolean;
+  replace: (announcement: Announcement) => void;
+  remove: () => void;
+}
+
+export interface AnnouncementDetailPageProps {
+  slug: string;
+}
+
+export interface FeaturedAnnouncementsModalProps {
+  announcements: Announcement[];
 }
 
 export interface AttachmentThumbProps {

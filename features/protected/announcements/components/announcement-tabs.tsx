@@ -10,7 +10,7 @@ import type { AnnouncementTabsProps } from '../types';
 import { AnnouncementCard } from './announcement-card';
 
 // Anuncios / Comunicados / Avisos tabs with a count each; shared by the panel and the public /news page
-export const AnnouncementTabs = ({ announcements, isLoading = false, emptyText, linkToDetail = false }: AnnouncementTabsProps): JSX.Element => (
+export const AnnouncementTabs = ({ announcements, isLoading = false, emptyText, context }: AnnouncementTabsProps): JSX.Element => (
   <Tabs defaultValue={announcementKinds[0]}>
     <TabsList variant="line" className="w-full justify-start gap-4 border-b border-border pb-1">
       {announcementKinds.map((kind): JSX.Element => {
@@ -38,7 +38,7 @@ export const AnnouncementTabs = ({ announcements, isLoading = false, emptyText, 
           ) : items.length > 0 ? (
             <div className="grid gap-4 md:grid-cols-2">
               {items.map((announcement): JSX.Element => (
-                <AnnouncementCard key={announcement.id} announcement={announcement} linkToDetail={linkToDetail} />
+                <AnnouncementCard key={announcement.id} announcement={announcement} context={context} />
               ))}
             </div>
           ) : (

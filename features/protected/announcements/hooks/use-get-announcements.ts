@@ -1,8 +1,8 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { sileo } from 'sileo';
-import { useLiveRefresh } from '@/hooks/use-live';
+import { isAnnouncementEvent, useLiveRefresh } from '@/hooks/use-live';
 import { getAnnouncementsAction } from '../actions/announcement-actions';
 import type { Announcement, UseGetAnnouncementsResult } from '../types';
 
@@ -12,7 +12,7 @@ interface FeedState {
   isLoading: boolean;
 }
 
-// Panel feed (gRPC through a server action), refetched whenever someone publishes (live channel)
+// Panel feed (gRPC through a server action), refetched whenever an announcement is published, edited or deleted
 export const useGetAnnouncements = (): UseGetAnnouncementsResult => {
   const [state, setState] = useState<FeedState>({ announcements: [], canPublish: false, isLoading: true });
   const [version, setVersion] = useState(0);
@@ -33,11 +33,9 @@ export const useGetAnnouncements = (): UseGetAnnouncementsResult => {
   }, [version]);
 
   useLiveRefresh(
-    (event) => event.type === 'announcement.published',
+    (event) => isAnnouncementEvent(event.type),
     () => setVersion((current) => current + 1),
   );
 
-  const prepend = useCallback((announcement: Announcement): void => setState((current) => (current.announcements.some(({ id }) => id === announcement.id) ? current : { ...current, announcements: [announcement, ...current.announcements] })), []);
-
-  return { ...state, prepend };
+  return state;
 };

@@ -4,16 +4,18 @@ import type { JSX } from 'react';
 import { ArrowRight, Paperclip, Pin, Users } from 'lucide';
 import { MorphIcon } from '@/components/ui/morph-icon';
 import { cn } from '@/lib/utils';
-import { audienceLabels, coverOf, formatPublishedAt, kindMeta, newsPath } from '../data/announcements-data';
+import { audienceLabels, coverOf, formatPublishedAt, kindMeta, newsPath, panelAnnouncementPath } from '../data/announcements-data';
 import type { AnnouncementCardProps } from '../types';
 import { AnnouncementAttachments } from './announcement-attachments';
 
 // One announcement: cover image (first image), kind, date, title, detail, the other images and PDFs as thumbnails,
-// and the audience; public ones link to their page (/news/<slug>)
-export const AnnouncementCard = ({ announcement, linkToDetail = false }: AnnouncementCardProps): JSX.Element => {
+// and the audience. In the panel the title opens its page there (details, edit, delete); "Ver publicación" always
+// leads to the public page (/news/<slug>) of public ones
+export const AnnouncementCard = ({ announcement, context }: AnnouncementCardProps): JSX.Element => {
   const meta = kindMeta[announcement.kind];
   const cover = coverOf(announcement);
-  const detail = linkToDetail && announcement.isPublic ? newsPath(announcement.slug) : null;
+  const publicPage = announcement.isPublic ? newsPath(announcement.slug) : null;
+  const detail = context === 'panel' ? panelAnnouncementPath(announcement.slug) : publicPage;
   const extra = announcement.attachments.length - (cover ? 1 : 0);
 
   return (
@@ -63,8 +65,8 @@ export const AnnouncementCard = ({ announcement, linkToDetail = false }: Announc
               {announcement.attachments.length} {announcement.attachments.length === 1 ? 'archivo' : 'archivos'}
             </span>
           )}
-          {detail && (
-            <Link href={detail} className="ml-auto inline-flex items-center gap-1 font-medium text-brand transition-colors hover:text-brand-solid-hover">
+          {publicPage && (
+            <Link href={publicPage} className="ml-auto inline-flex items-center gap-1 font-medium text-brand transition-colors hover:text-brand-solid-hover">
               Ver publicación
               <MorphIcon icon={ArrowRight} size={12} />
             </Link>

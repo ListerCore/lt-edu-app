@@ -14,11 +14,13 @@ const noop = (): void => undefined;
 
 // Images and PDFs of a publication: drop or pick several; each one shows its thumbnail (the first page of a PDF,
 // drawn in the browser) with a remove button. The first image becomes the cover
-export const AnnouncementFilesDropzone = ({ files, error, disabled = false, onAdd, onRemove }: AnnouncementFilesDropzoneProps): JSX.Element => {
+export const AnnouncementFilesDropzone = ({ kept = [], onRemoveKept, files, error, disabled = false, onAdd, onRemove }: AnnouncementFilesDropzoneProps): JSX.Element => {
   const inputRef = useRef<HTMLInputElement>(null);
   const { isDragging, dropHandlers } = useFileDrop(noop, onAdd);
-  const coverKey = files.find(({ kind }) => kind === 'image')?.key;
-  const full = files.length >= MAX_ATTACHMENTS;
+  // The cover is the first image, stored ones first
+  const coverKey = kept.find(({ kind }) => kind === 'image')?.id ?? files.find(({ kind }) => kind === 'image')?.key;
+  const total = kept.length + files.length;
+  const full = total >= MAX_ATTACHMENTS;
 
   return (
     <div className="flex flex-col gap-2">
@@ -26,15 +28,38 @@ export const AnnouncementFilesDropzone = ({ files, error, disabled = false, onAd
         <span>
           Imágenes y PDF <span className="font-normal text-muted-foreground">· opcional</span>
         </span>
-        {files.length > 0 && (
+        {total > 0 && (
           <span className="text-xs font-normal text-muted-foreground tabular-nums">
-            {files.length}/{MAX_ATTACHMENTS}
+            {total}/{MAX_ATTACHMENTS}
           </span>
         )}
       </span>
 
-      {files.length > 0 && (
+      {total > 0 && (
         <ul {...dropHandlers} aria-label="Archivos adjuntos" className={cn('grid grid-cols-3 gap-2 rounded-lg p-0.5 sm:grid-cols-4', isDragging && 'ring-3 ring-brand/30')}>
+          {kept.map((stored): JSX.Element => (
+            <li key={stored.id} className="group relative overflow-hidden rounded-lg border border-border bg-surface">
+              <div className="relative aspect-[3/4]">
+                {stored.kind === 'image' ? <Image src={stored.url} alt={`Vista previa de ${stored.fileName}`} fill unoptimized sizes="160px" className="object-cover" /> : <PdfThumbnail key={stored.id} source={stored.url} label={`Primera página de ${stored.fileName}`} className="h-full" />}
+                {stored.id === coverKey && <span className="absolute top-1.5 left-1.5 pill bg-brand-solid px-1.5 text-[10px] font-semibold text-white">Portada</span>}
+                {stored.kind === 'document' && (
+                  <span className="absolute top-1.5 left-1.5 inline-flex items-center gap-1 rounded-md bg-black/65 px-1.5 py-0.5 text-[10px] font-semibold text-white">
+                    <MorphIcon icon={FileText} size={10} />
+                    PDF
+                  </span>
+                )}
+                {onRemoveKept && (
+                  <button type="button" disabled={disabled} onClick={(): void => onRemoveKept(stored.id)} aria-label={`Quitar ${stored.fileName}`} className="absolute top-1.5 right-1.5 flex size-6 items-center justify-center rounded-full bg-background/90 text-foreground shadow-sm transition-colors hover:bg-background hover:text-destructive">
+                    <MorphIcon icon={X} size={12} />
+                  </button>
+                )}
+              </div>
+              <p className="truncate border-t border-border px-2 py-1 text-[11px] text-foreground" title={stored.fileName}>
+                {stored.fileName}
+                <span className="block text-muted-foreground">{formatBytes(stored.sizeBytes)}</span>
+              </p>
+            </li>
+          ))}
           {files.map((draft): JSX.Element => (
             <li key={draft.key} className="group relative overflow-hidden rounded-lg border border-border bg-surface">
               <div className="relative aspect-[3/4]">
@@ -67,7 +92,7 @@ export const AnnouncementFilesDropzone = ({ files, error, disabled = false, onAd
         </ul>
       )}
 
-      {files.length === 0 && (
+      {total === 0 && (
         <button
           type="button"
           disabled={disabled}
