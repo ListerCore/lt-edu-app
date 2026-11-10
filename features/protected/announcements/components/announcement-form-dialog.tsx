@@ -12,7 +12,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { announcementKinds, audienceLabels, kindMeta } from '../data/announcements-data';
 import { useCreateAnnouncement } from '../hooks/use-create-announcement';
 import type { Announcement, AnnouncementAudience, AnnouncementFormDialogProps, AnnouncementKind } from '../types';
-import { AnnouncementImageDropzone } from './announcement-image-dropzone';
+import { AnnouncementFilesDropzone } from './announcement-files-dropzone';
 
 const kindItems = announcementKinds.map((kind) => ({ value: kind, label: kindMeta[kind].label }));
 const audienceItems = (Object.keys(audienceLabels) as AnnouncementAudience[]).map((value) => ({ value, label: audienceLabels[value] }));
@@ -21,7 +21,7 @@ const controlClassName = 'h-10 w-full rounded-lg bg-background';
 // "Publicar" button + dialog to write an announcement, notice or alert (only for roles that can create)
 export const AnnouncementFormDialog = ({ onCreated }: AnnouncementFormDialogProps): JSX.Element => {
   const [open, setOpen] = useState(false);
-  const { values, errors, isPending, setField, setImage, removeImage, submit } = useCreateAnnouncement((announcement: Announcement): void => {
+  const { values, errors, isPending, setField, addFiles, removeFile, submit } = useCreateAnnouncement((announcement: Announcement): void => {
     onCreated(announcement);
     setOpen(false);
   });
@@ -40,7 +40,7 @@ export const AnnouncementFormDialog = ({ onCreated }: AnnouncementFormDialogProp
       <DialogContent className="max-h-[90svh] overflow-y-auto sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>Nueva publicación</DialogTitle>
-          <DialogDescription>Elige el tipo y a quién va dirigida. Las públicas también aparecen en la página de comunicados del sitio.</DialogDescription>
+          <DialogDescription>Elige el tipo y a quién va dirigida. Puedes adjuntar imágenes y PDF. Las públicas también aparecen en la página de comunicados del sitio.</DialogDescription>
         </DialogHeader>
 
         <form onSubmit={onSubmit} noValidate className="mt-2 flex flex-col gap-4">
@@ -79,11 +79,11 @@ export const AnnouncementFormDialog = ({ onCreated }: AnnouncementFormDialogProp
             <Input id="announcement-title" placeholder="Ej. Cambio de horario el viernes" value={values.title} onChange={(event): void => setField('title', event.target.value)} aria-invalid={Boolean(errors.title)} aria-describedby={errors.title ? 'announcement-title-error' : undefined} className={controlClassName} />
           </FormField>
 
-          <FormField id="announcement-summary" label="Detalle" required error={errors.summary}>
-            <Textarea id="announcement-summary" rows={4} maxLength={600} placeholder="Qué pasa, cuándo y qué deben hacer." value={values.summary} onChange={(event): void => setField('summary', event.target.value)} aria-invalid={Boolean(errors.summary)} aria-describedby={errors.summary ? 'announcement-summary-error' : undefined} className="min-h-24 rounded-lg bg-background" />
+          <FormField id="announcement-body" label="Detalle" required error={errors.body}>
+            <Textarea id="announcement-body" rows={4} maxLength={5000} placeholder="Qué pasa, cuándo y qué deben hacer." value={values.body} onChange={(event): void => setField('body', event.target.value)} aria-invalid={Boolean(errors.body)} aria-describedby={errors.body ? 'announcement-body-error' : undefined} className="min-h-24 rounded-lg bg-background" />
           </FormField>
 
-          <AnnouncementImageDropzone imageUrl={values.imageUrl} error={errors.image} disabled={isPending} onSelect={setImage} onRemove={removeImage} />
+          <AnnouncementFilesDropzone files={values.files} error={errors.files} disabled={isPending} onAdd={addFiles} onRemove={removeFile} />
 
           <label className="flex cursor-pointer items-center gap-3 text-sm text-muted-foreground">
             <Checkbox checked={values.isPublic} onCheckedChange={(next): void => setField('isPublic', next)} />

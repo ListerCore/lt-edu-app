@@ -1,21 +1,34 @@
 'use server';
 
-import { demoAnnouncements, sortAnnouncements } from '../data/announcements-data';
-import type { Announcement, AnnouncementActionResult, AnnouncementDraft } from '../types';
+import { updateTag } from 'next/cache';
+import { cookies } from 'next/headers';
+import { announcementsRpc } from '@/lib/api/grpc/announcements';
+import { apiUpload } from '@/lib/api/server';
+import { SESSION_COOKIE } from '@/lib/auth/cookies';
+import { siteInstitution } from '@/lib/site-institution';
+import { NEWS_TAG } from '../data/announcements-data';
+import { fromHttp, toAnnouncement, type HttpAnnouncement } from '../lib/to-announcement';
+import type { Announcement, AnnouncementActionResult, AnnouncementFeed } from '../types';
 
-// Simulated latency so loading states are visible; replaced by joseph-api calls later
-const simulate = async (ms = 500): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms));
+const signedOut = { ok: false, message: 'Tu sesión venció. Ingresa de nuevo.' } as const;
 
-// Lists every announcement for the panel (public and internal), pinned first
-export const getAnnouncementsAction = async (): Promise<AnnouncementActionResult<Announcement[]>> => {
-  await simulate();
-  return { ok: true, message: 'ok', data: sortAnnouncements(demoAnnouncements) };
+// Panel feed over gRPC: what the role may read in the institution, and whether it may publish
+export const getAnnouncementsAction = async (): Promise<AnnouncementActionResult<AnnouncementFeed>> => {
+  const token = (await cookies()).get(SESSION_COOKIE)?.value;
+  if (!token) return signedOut;
+  const result = await announcementsRpc.list(siteInstitution(), { token });
+  if (!result.ok) return { ok: false, message: result.error.message };
+  return { ok: true, message: 'ok', data: { announcements: result.data.announcements.map(toAnnouncement), canPublish: result.data.canPublish } };
 };
 
-// Simulated publish: echoes the draft back with an id and today's date (nothing is stored)
-export const createAnnouncementAction = async (draft: AnnouncementDraft): Promise<AnnouncementActionResult<Announcement>> => {
-  await simulate(700);
-  if (draft.title.trim().length < 5 || draft.summary.trim().length < 10) return { ok: false, message: 'Completa el título y el detalle.' };
-  const announcement: Announcement = { ...draft, title: draft.title.trim(), summary: draft.summary.trim(), id: `n-${Date.now()}`, publishedAt: new Date().toISOString().slice(0, 10), pinned: false };
-  return { ok: true, message: 'Publicado.', data: announcement };
+// Publishes with its images and PDFs (multipart to joseph-api). Public ones refresh /news at once; open pages
+// also hear about it over the live channel
+export const createAnnouncementAction = async (form: FormData): Promise<AnnouncementActionResult<Announcement>> => {
+  const token = (await cookies()).get(SESSION_COOKIE)?.value;
+  if (!token) return signedOut;
+  form.set('institution', siteInstitution());
+  const result = await apiUpload<{ announcement: HttpAnnouncement }>('/panel/announcements', form, { token });
+  if (!result.ok) return { ok: false, message: result.error.message, fields: result.error.fields };
+  updateTag(NEWS_TAG);
+  return { ok: true, message: 'Publicado.', data: fromHttp(result.data.announcement) };
 };
