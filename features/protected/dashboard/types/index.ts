@@ -133,7 +133,8 @@ export interface UserAvatarProps {
 }
 
 export interface UseAnnouncementTickerResult {
-  current: Announcement;
+  // undefined while the feed is empty or loading
+  current: Announcement | undefined;
   index: number;
   total: number;
   pause: () => void;

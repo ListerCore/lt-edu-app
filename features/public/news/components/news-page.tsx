@@ -1,11 +1,11 @@
 import Link from 'next/link';
-import type { JSX } from 'react';
+import { Suspense, type JSX } from 'react';
 import { ChevronRight } from 'lucide';
 import { MorphIcon } from '@/components/ui/morph-icon';
 import { AnnouncementTabs } from '@/features/protected/announcements/components/announcement-tabs';
-import { publicAnnouncements } from '@/features/protected/announcements/data/announcements-data';
+import { NewsFeed } from './news-feed';
 
-// /news: the institution's public announcements, notices and alerts in tabs
+// /news: the institution's public announcements, notices and alerts in tabs, refreshed live
 export const NewsPage = (): JSX.Element => (
   <section aria-labelledby="news-title" className="mx-auto max-w-5xl px-6 pt-10 pb-20 md:px-8 md:pt-14 md:pb-28">
     <nav aria-label="Ruta">
@@ -26,7 +26,9 @@ export const NewsPage = (): JSX.Element => (
     </h1>
     <p className="mt-5 max-w-xl text-lg leading-8 text-muted-foreground">Lo último de la institución para estudiantes, familias y docentes. Lo que es solo para tu sección o tu rol lo encuentras al ingresar a tu cuenta.</p>
     <div className="mt-10">
-      <AnnouncementTabs announcements={publicAnnouncements} emptyText="Por ahora no hay publicaciones de este tipo." />
+      <Suspense fallback={<AnnouncementTabs announcements={[]} isLoading emptyText="" />}>
+        <NewsFeed />
+      </Suspense>
     </div>
   </section>
 );
