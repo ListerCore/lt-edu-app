@@ -7,6 +7,7 @@ import { House, LayoutDashboard, LogOut, UserRound } from 'lucide';
 import { sileo } from 'sileo';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { MorphIcon } from '@/components/ui/morph-icon';
+import { signOutAction } from '@/features/auth/actions/auth-actions';
 import { endSession } from '@/features/auth/hooks/use-session';
 import { accountPhotoKey } from '@/features/protected/account/data/account-data';
 import { useCardholderPhotos } from '@/features/protected/cards/hooks/use-cardholder-photos';
@@ -24,10 +25,12 @@ export const UserMenu = (): JSX.Element => {
   const avatarUrl = photos[accountPhotoKey(institutionType, role)] ?? demoAvatarUrl;
   const inPanel = pathname.startsWith(DASHBOARD_PATH);
 
-  const onSignOut = (): void => {
+  const onSignOut = async (): Promise<void> => {
+    await signOutAction();
     endSession();
     sileo.success({ title: 'Sesión cerrada', description: 'Vuelve cuando quieras desde Ingresar.' });
     router.push('/');
+    router.refresh();
   };
 
   return (

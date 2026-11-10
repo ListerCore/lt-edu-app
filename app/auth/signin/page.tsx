@@ -1,7 +1,8 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import type { JSX } from 'react';
+import { Suspense, type JSX } from 'react';
 import { AuthCard } from '@/features/auth/components/auth-card';
+import { AuthErrorNotice } from '@/features/auth/components/auth-error-notice';
 import { SignInForm } from '@/features/auth/components/sign-in-form';
 
 export const metadata: Metadata = { title: 'Ingresar' };
@@ -20,7 +21,13 @@ const Page = (): JSX.Element => (
       </>
     }
   >
-    <SignInForm />
+    <div className="flex flex-col gap-5">
+      {/* Reason a redirect (Google) sent the visitor back; reads ?error, so it stays inside Suspense */}
+      <Suspense>
+        <AuthErrorNotice />
+      </Suspense>
+      <SignInForm />
+    </div>
   </AuthCard>
 );
 
