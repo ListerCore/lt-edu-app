@@ -11,6 +11,9 @@ import { FormDialog } from '@/features/protected/academic/components/form-dialog
 import { lower, shiftLabels, weekdayLabels } from '@/features/protected/academic/data/academic-data';
 import { runAcademicAction } from '@/features/protected/academic/hooks/use-academic-form';
 import { useAcademicData } from '@/features/protected/academic/hooks/use-academic-data';
+import { useWorkspace } from '@/features/protected/dashboard/hooks/use-workspace';
+import { scheduleIssuesAction } from '@/features/protected/documents/actions/document-actions';
+import type { ListScheduleIssuesResponse } from '@/lib/api/grpc/gen/joseph/documents/v1/documents';
 import { usePeopleContext } from '@/features/protected/people/hooks/use-people-context';
 import { cn } from '@/lib/utils';
 import { autoFillAction, clearSectionAction, getMyScheduleAction, getPlannerAction, placeClassAction, removeClassAction } from '../actions/schedule-actions';
@@ -31,10 +34,25 @@ export const SchedulesPage = (): JSX.Element => {
   const period = periods.find((p) => p.id === periodId) ?? periods.find((p) => p.status === 'active') ?? periods[0];
   const hasMine = Boolean(mine && mine.kind !== 'none');
   const [tab, setTab] = useState<Tab | null>(null);
-  const current: Tab = tab ?? (hasMine ? 'mine' : 'section');
   const staffView = Boolean(ctx);
+  // Tabs follow the role (data/permissions.ts pageTabs); a staff member outside Publicar still gets it while a
+  // version waits for their signature
+  const { canTab } = useWorkspace();
+  const checkSign = staffView && Boolean(period) && !canTab('schedules', 'export');
+  const signCheck = useAcademicData<ListScheduleIssuesResponse | null>(`schedule-sign-check:${slug}:${checkSign ? period?.id : ''}`, async () => (checkSign && period ? scheduleIssuesAction(slug, period.id) : { ok: true, data: null }));
+  const mustSign = Boolean(signCheck.data?.myStaffId && signCheck.data.documents.some((d) => d.versions.some((v) => v.status === 'pending' && v.signatures.some((x) => x.staffId === signCheck.data?.myStaffId && !x.signedAt))));
+  const roleManage = canTab('schedules', 'load');
 
-  const tabs: Array<[Tab, string]> = [...(hasMine ? ([['mine', 'Mi horario']] as Array<[Tab, string]>) : []), ...(staffView ? ([['section', 'Por sección'], ['teacher', 'Por docente'], ['load', 'Carga docente'], ['blocks', 'Horas del día'], ['export', 'Publicar']] as Array<[Tab, string]>) : [])];
+  const candidates: Array<[Tab, string, boolean]> = [
+    ['mine', 'Mi horario', hasMine],
+    ['section', 'Por sección', staffView],
+    ['teacher', 'Por docente', staffView],
+    ['load', 'Carga docente', staffView],
+    ['blocks', 'Horas del día', staffView],
+    ['export', mustSign && !canTab('schedules', 'export') ? 'Por firmar' : 'Publicar', staffView && (canTab('schedules', 'export') || mustSign)],
+  ];
+  const tabs = candidates.filter(([key, , ok]) => ok && (canTab('schedules', key) || (key === 'export' && mustSign))).map(([key, label]): [Tab, string] => [key, label]);
+  const current: Tab | null = tabs.find(([key]) => key === tab)?.[0] ?? tabs[0]?.[0] ?? null;
 
   return (
     <AcademicPage wide titleId="schedules-title" title="Horarios" description="La carga docente de cada sección y su horario semanal, sin docentes en dos lugares a la vez." context={ctx ? { ...ctx.context, canManage: ctx.context.canManage } : hasMine ? { canManage: false } : null}>
@@ -52,20 +70,21 @@ export const SchedulesPage = (): JSX.Element => {
                 </button>
               ))}
             </div>
-            {ctx && current !== 'mine' && current !== 'blocks' && period && (
+            {ctx && current !== null && current !== 'mine' && current !== 'blocks' && period && (
               <div className="w-60">
                 <SelectField id="sched-period" value={period.id} options={periods.map((p) => ({ value: p.id, label: p.name }))} onChange={setPeriodId} />
               </div>
             )}
           </div>
-          {current === 'mine' && mine ? <MineView data={mine} /> : ctx && period ? <PlannerViews key={period.id} slug={slug} periodId={period.id} tab={current} /> : ctx ? <EmptyNote>No hay periodos abiertos.</EmptyNote> : null}
+          {current === null ? <EmptyNote>Tu rol no tiene un horario para ver aquí.</EmptyNote> : current === 'mine' && mine ? <MineView data={mine} /> : ctx && period ? <PlannerViews key={period.id} slug={slug} periodId={period.id} tab={current} manage={roleManage} /> : ctx ? <EmptyNote>No hay periodos abiertos.</EmptyNote> : null}
         </div>
       )}
     </AcademicPage>
   );
 };
 
-const PlannerViews = ({ slug, periodId, tab }: { slug: string; periodId: string; tab: Tab }): JSX.Element => {
+// manage: the role may change the timetable (the API still decides with the session's own role)
+const PlannerViews = ({ slug, periodId, tab, manage }: { slug: string; periodId: string; tab: Tab; manage: boolean }): JSX.Element => {
   const { data, error, reload } = useAcademicData(`planner:${slug}:${periodId}`, () => getPlannerAction(slug, periodId));
   if (error) return <LoadError message={error} onRetry={reload} />;
   if (!data) return <PageSkeleton />;
@@ -77,21 +96,21 @@ const PlannerViews = ({ slug, periodId, tab }: { slug: string; periodId: string;
     case 'blocks':
       return <BlocksView slug={slug} data={data} onChange={reload} />;
     case 'export':
-      return <ScheduleExport slug={slug} data={data} />;
+      return <ScheduleExport slug={slug} data={data} manage={manage} />;
     default:
-      return <SectionView slug={slug} data={data} onChange={reload} />;
+      return <SectionView slug={slug} data={data} manage={manage} onChange={reload} />;
   }
 };
 
 const sectionLabel = (s: Section): string => `${s.gradeShort ? `${s.gradeShort} ` : ''}${s.name} · ${s.levelName}`;
 
-const SectionView = ({ slug, data, onChange }: { slug: string; data: PlannerData; onChange: () => void }): JSX.Element => {
+const SectionView = ({ slug, data, manage, onChange }: { slug: string; data: PlannerData; manage: boolean; onChange: () => void }): JSX.Element => {
   // Start on the first section that has hours to place (inicial plans carry none)
   const [sectionId, setSectionId] = useState((data.sections.find((s) => data.assignments.some((a) => a.sectionId === s.id && a.weeklyHours > 0)) ?? data.sections[0])?.id ?? '');
   const [placing, setPlacing] = useState<{ weekday: number; block: TimeBlock } | null>(null);
   const [isPending, startTransition] = useTransition();
   const section = data.sections.find((s) => s.id === sectionId);
-  const canManage = data.context.canManage && data.period.status !== 'closed';
+  const canManage = manage && data.context.canManage && data.period.status !== 'closed';
   const days = data.context.settings?.weekDays ?? [1, 2, 3, 4, 5];
   if (!section) return <EmptyNote>Este periodo no tiene {lower(data.context.vocabulary?.sections ?? 'secciones')}.</EmptyNote>;
   const blocks = blocksFor(data.blocks, [section.shift]);
@@ -123,7 +142,18 @@ const SectionView = ({ slug, data, onChange }: { slug: string; data: PlannerData
         </p>
         {canManage && (
           <div className="flex flex-wrap gap-2">
-            <ConfirmDelete label="Vaciar" title={`¿Vaciar el horario de ${sectionLabel(section)}?`} description="Se quitan todas sus clases; la carga docente se mantiene." onConfirm={(): void => startTransition(async (): Promise<void> => { await runAcademicAction(clearSectionAction(slug, section.id)); onChange(); })} isPending={isPending} />
+            <ConfirmDelete
+              label="Vaciar"
+              title={`¿Vaciar el horario de ${sectionLabel(section)}?`}
+              description="Se quitan todas sus clases; la carga docente se mantiene."
+              onConfirm={(): void =>
+                startTransition(async (): Promise<void> => {
+                  await runAcademicAction(clearSectionAction(slug, section.id));
+                  onChange();
+                })
+              }
+              isPending={isPending}
+            />
             <button type="button" className="btn-alt" disabled={isPending} onClick={(): void => auto('')}>
               <MorphIcon icon={Sparkles} size={16} />
               Completar todas
@@ -146,7 +176,15 @@ const SectionView = ({ slug, data, onChange }: { slug: string; data: PlannerData
             caption={`Horario de ${sectionLabel(section)}`}
             detail={(e): string => e.staffName || 'Sin docente'}
             onEmpty={canManage ? (weekday, block): void => setPlacing({ weekday, block }) : undefined}
-            onRemove={canManage ? (e): void => startTransition(async (): Promise<void> => { await runAcademicAction(removeClassAction(slug, e.id)); onChange(); }) : undefined}
+            onRemove={
+              canManage
+                ? (e): void =>
+                    startTransition(async (): Promise<void> => {
+                      await runAcademicAction(removeClassAction(slug, e.id));
+                      onChange();
+                    })
+                : undefined
+            }
           />
           <aside className="rounded-2xl border border-border bg-background p-4">
             <h3 className="text-sm font-semibold text-foreground">Horas por curso</h3>

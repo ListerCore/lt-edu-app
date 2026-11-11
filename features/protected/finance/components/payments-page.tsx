@@ -21,11 +21,16 @@ import type { FeePlan, PlanItemDraft, Summary } from '../types';
 import { StatementView } from './statement-view';
 import { receiptPdfAction } from '@/features/protected/documents/actions/document-actions';
 import { usePdf } from '@/features/protected/documents/lib/use-pdf';
+import { useWorkspace } from '@/features/protected/dashboard/hooks/use-workspace';
 
 type Tab = 'summary' | 'accounts' | 'cash' | 'plans';
 type Open = { kind: 'student'; id: string } | { kind: 'receipt'; id: string } | null;
 
-const fold = (v: string): string => v.normalize('NFD').replace(/\p{Diacritic}/gu, '').toLowerCase();
+const fold = (v: string): string =>
+  v
+    .normalize('NFD')
+    .replace(/\p{Diacritic}/gu, '')
+    .toLowerCase();
 
 // Pensiones y pagos: what each period charges, who paid and who owes, the cash of each day and the fee plans.
 // Families see their own account here
@@ -34,7 +39,18 @@ export const PaymentsPage = (): JSX.Element => {
   const mine = useAcademicData(`my-statements:${slug}`, () => getMyStatementsAction(slug), isFinanceEvent);
   const [periodId, setPeriodId] = useState('');
   const summary = useAcademicData(`finance:${slug}:${periodId}`, () => getSummaryAction(slug, periodId), isFinanceEvent);
-  const [tab, setTab] = useState<Tab>('summary');
+  const [picked, setTab] = useState<Tab>('summary');
+  // Tabs follow the role in use (data/permissions.ts pageTabs)
+  const { canTab } = useWorkspace();
+  const tabs = (
+    [
+      ['summary', 'Resumen'],
+      ['accounts', 'Cuentas'],
+      ['cash', 'Caja'],
+      ['plans', 'Planes de pago'],
+    ] as Array<[Tab, string]>
+  ).filter(([k]) => canTab('payments', k));
+  const tab: Tab | undefined = tabs.find(([k]) => k === picked)?.[0] ?? tabs[0]?.[0];
   const [open, setOpen] = useState<Open>(null);
   const [back, setBack] = useState<Open>(null);
   const [debtOnly, setDebtOnly] = useState(false);
@@ -64,14 +80,7 @@ export const PaymentsPage = (): JSX.Element => {
         <div className="space-y-5">
           <div className="flex flex-wrap items-end justify-between gap-3">
             <div role="tablist" aria-label="Vistas" className="flex gap-1 overflow-x-auto border-b border-border">
-              {(
-                [
-                  ['summary', 'Resumen'],
-                  ['accounts', 'Cuentas'],
-                  ['cash', 'Caja'],
-                  ['plans', 'Planes de pago'],
-                ] as Array<[Tab, string]>
-              ).map(([k, label]) => (
+              {tabs.map(([k, label]) => (
                 <button key={k} type="button" role="tab" aria-selected={tab === k} onClick={(): void => setTab(k)} className={cn('-mb-px border-b-2 px-4 py-2.5 text-sm font-medium whitespace-nowrap transition-colors', tab === k ? 'border-brand text-foreground' : 'border-transparent text-muted-foreground hover:text-foreground')}>
                   {label}
                 </button>
@@ -83,7 +92,18 @@ export const PaymentsPage = (): JSX.Element => {
               </div>
             )}
           </div>
-          {tab === 'summary' && <SummaryView slug={slug} data={summary.data} onStudent={(id): void => setOpen({ kind: 'student', id })} onAll={(): void => { setDebtOnly(true); setTab('accounts'); }} />}
+          {!tab && <p className="rounded-xl bg-card p-6 text-sm text-muted-foreground">Tu rol no administra pensiones ni pagos.</p>}
+          {tab === 'summary' && (
+            <SummaryView
+              slug={slug}
+              data={summary.data}
+              onStudent={(id): void => setOpen({ kind: 'student', id })}
+              onAll={(): void => {
+                setDebtOnly(true);
+                setTab('accounts');
+              }}
+            />
+          )}
           {tab === 'accounts' && <AccountsView data={summary.data} debtOnly={debtOnly} onStudent={(id): void => setOpen({ kind: 'student', id })} />}
           {tab === 'cash' && <CashView slug={slug} canManage={summary.data.canManage} onReceipt={openReceipt} />}
           {tab === 'plans' && summary.data.period && <PlansView slug={slug} periodId={summary.data.period.id} periodStart={summary.data.period.startsOn} />}
@@ -180,11 +200,21 @@ const AccountTable = ({ rows, onStudent }: { rows: Summary['accounts']; onStuden
     <table className="w-full min-w-[44rem] text-left text-sm">
       <thead>
         <tr className="border-b border-border text-muted-foreground">
-          <th scope="col" className="px-4 py-3 font-medium">Estudiante</th>
-          <th scope="col" className="px-4 py-3 text-right font-medium">Pagado</th>
-          <th scope="col" className="px-4 py-3 text-right font-medium">Vencido</th>
-          <th scope="col" className="px-4 py-3 font-medium">Desde</th>
-          <th scope="col" className="px-4 py-3 font-medium">Recordatorio</th>
+          <th scope="col" className="px-4 py-3 font-medium">
+            Estudiante
+          </th>
+          <th scope="col" className="px-4 py-3 text-right font-medium">
+            Pagado
+          </th>
+          <th scope="col" className="px-4 py-3 text-right font-medium">
+            Vencido
+          </th>
+          <th scope="col" className="px-4 py-3 font-medium">
+            Desde
+          </th>
+          <th scope="col" className="px-4 py-3 font-medium">
+            Recordatorio
+          </th>
         </tr>
       </thead>
       <tbody className="divide-y divide-border">
@@ -199,7 +229,11 @@ const AccountTable = ({ rows, onStudent }: { rows: Summary['accounts']; onStuden
             <td className="px-4 py-2.5 text-right text-muted-foreground tabular-nums">{soles(a.paid)}</td>
             <td className={cn('px-4 py-2.5 text-right font-semibold tabular-nums', (a.overdue ?? 0) > 0 ? 'text-destructive' : 'text-muted-foreground')}>
               {soles(a.overdue)}
-              {a.overdueCount > 0 && <span className="block text-[11px] font-normal text-muted-foreground">{a.overdueCount} {a.overdueCount === 1 ? 'cuota' : 'cuotas'}</span>}
+              {a.overdueCount > 0 && (
+                <span className="block text-[11px] font-normal text-muted-foreground">
+                  {a.overdueCount} {a.overdueCount === 1 ? 'cuota' : 'cuotas'}
+                </span>
+              )}
             </td>
             <td className="px-4 py-2.5 text-xs text-muted-foreground">{a.oldestDue ? formatDay(a.oldestDue) : '—'}</td>
             <td className="px-4 py-2.5 text-xs text-muted-foreground">{a.lastReminder ? formatDay(a.lastReminder.slice(0, 10)) : '—'}</td>
@@ -316,11 +350,21 @@ const CashView = ({ slug, canManage, onReceipt }: { slug: string; canManage: boo
                 <table className="w-full min-w-[44rem] text-left text-sm">
                   <thead>
                     <tr className="border-b border-border text-muted-foreground">
-                      <th scope="col" className="px-4 py-3 font-medium">Recibo</th>
-                      <th scope="col" className="px-4 py-3 font-medium">Fecha</th>
-                      <th scope="col" className="px-4 py-3 font-medium">Estudiante</th>
-                      <th scope="col" className="px-4 py-3 font-medium">Medio</th>
-                      <th scope="col" className="px-4 py-3 text-right font-medium">Monto</th>
+                      <th scope="col" className="px-4 py-3 font-medium">
+                        Recibo
+                      </th>
+                      <th scope="col" className="px-4 py-3 font-medium">
+                        Fecha
+                      </th>
+                      <th scope="col" className="px-4 py-3 font-medium">
+                        Estudiante
+                      </th>
+                      <th scope="col" className="px-4 py-3 font-medium">
+                        Medio
+                      </th>
+                      <th scope="col" className="px-4 py-3 text-right font-medium">
+                        Monto
+                      </th>
                       {canManage && <th scope="col" className="w-10 print:hidden" />}
                     </tr>
                   </thead>
@@ -354,7 +398,17 @@ const CashView = ({ slug, canManage, onReceipt }: { slug: string; canManage: boo
           </article>
         </div>
       )}
-      {annulling && <AnnulDialog slug={slug} id={annulling} onClose={(): void => setAnnulling(null)} onDone={(): void => { setAnnulling(null); reload(); }} />}
+      {annulling && (
+        <AnnulDialog
+          slug={slug}
+          id={annulling}
+          onClose={(): void => setAnnulling(null)}
+          onDone={(): void => {
+            setAnnulling(null);
+            reload();
+          }}
+        />
+      )}
     </div>
   );
 };
@@ -388,7 +442,11 @@ const AnnulDialog = ({ slug, id, onClose, onDone }: { slug: string; id: string; 
 
 // The internal receipt (not a SUNAT electronic invoice)
 const ReceiptView = ({ slug, id, onBack }: { slug: string; id: string; onBack: () => void }): JSX.Element => {
-  const { data, error, reload } = useAcademicData(`receipt:${slug}:${id}`, () => getPaymentAction(slug, id), () => false);
+  const { data, error, reload } = useAcademicData(
+    `receipt:${slug}:${id}`,
+    () => getPaymentAction(slug, id),
+    () => false,
+  );
   const [isPending, pdf] = usePdf();
   if (error) return <LoadError message={error} onRetry={reload} />;
   if (!data) return <PageSkeleton />;
@@ -438,8 +496,12 @@ const ReceiptView = ({ slug, id, onBack }: { slug: string; id: string; onBack: (
           <table className="mt-5 w-full text-sm">
             <thead>
               <tr className="border-b border-border text-xs text-muted-foreground">
-                <th scope="col" className="py-1.5 text-left font-medium">Concepto</th>
-                <th scope="col" className="py-1.5 text-right font-medium">Importe</th>
+                <th scope="col" className="py-1.5 text-left font-medium">
+                  Concepto
+                </th>
+                <th scope="col" className="py-1.5 text-right font-medium">
+                  Importe
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
@@ -458,9 +520,7 @@ const ReceiptView = ({ slug, id, onBack }: { slug: string; id: string; onBack: (
             </tfoot>
           </table>
           {p.status === 'annulled' && <p className="mt-3 text-sm text-destructive">Anulado: {p.annulReason}</p>}
-          <p className="mt-6 text-xs text-muted-foreground">
-            Recibió: {p.receivedName}. Recibo interno de la institución; no reemplaza al comprobante electrónico de SUNAT.
-          </p>
+          <p className="mt-6 text-xs text-muted-foreground">Recibió: {p.receivedName}. Recibo interno de la institución; no reemplaza al comprobante electrónico de SUNAT.</p>
         </article>
       </div>
     </div>
@@ -511,7 +571,17 @@ const PlansView = ({ slug, periodId, periodStart }: { slug: string; periodId: st
                   </div>
                   {data.canManage && (
                     <span className="flex gap-1">
-                      <button type="button" className="btn-alt h-8 px-3 text-xs" disabled={isPending} onClick={(): void => act(() => generateAction(slug, p.id), (n) => (n === 0 ? 'Todos ya tenían su cronograma' : `${n} cuotas generadas`))}>
+                      <button
+                        type="button"
+                        className="btn-alt h-8 px-3 text-xs"
+                        disabled={isPending}
+                        onClick={(): void =>
+                          act(
+                            () => generateAction(slug, p.id),
+                            (n) => (n === 0 ? 'Todos ya tenían su cronograma' : `${n} cuotas generadas`),
+                          )
+                        }
+                      >
                         Generar cronogramas
                       </button>
                       <button type="button" className="btn-alt h-8 px-3 text-xs" onClick={(): void => setEditing(p)}>
@@ -555,9 +625,7 @@ const PlansView = ({ slug, periodId, periodStart }: { slug: string; periodId: st
 // Plan editor: amounts typed in soles, sent in céntimos
 const PlanDialog = ({ slug, periodId, periodStart, plan, onClose, onSaved }: { slug: string; periodId: string; periodStart: string; plan: FeePlan | null; onClose: () => void; onSaved: () => void }): JSX.Element => {
   const [name, setName] = useState(plan?.name ?? '');
-  const [items, setItems] = useState<PlanItemDraft[]>(
-    plan?.items.map((i) => ({ id: i.id, concept: i.concept, name: i.name, amount: ((i.amount ?? 0) / 100).toFixed(2).replace('.', ','), dueOn: i.dueOn })) ?? [{ id: '', concept: 'enrollment', name: 'Matrícula', amount: '', dueOn: periodStart }],
-  );
+  const [items, setItems] = useState<PlanItemDraft[]>(plan?.items.map((i) => ({ id: i.id, concept: i.concept, name: i.name, amount: ((i.amount ?? 0) / 100).toFixed(2).replace('.', ','), dueOn: i.dueOn })) ?? [{ id: '', concept: 'enrollment', name: 'Matrícula', amount: '', dueOn: periodStart }]);
   const [isPending, startTransition] = useTransition();
   const bad = !name.trim() || items.length === 0 || items.some((i) => !i.name.trim() || Number.isNaN(toCents(i.amount)) || !i.dueOn);
   const set = (k: number, patch: Partial<PlanItemDraft>): void => setItems((xs) => xs.map((x, j) => (j === k ? { ...x, ...patch } : x)));

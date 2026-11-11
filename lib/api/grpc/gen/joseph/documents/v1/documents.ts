@@ -136,7 +136,7 @@ export interface DocumentVersion {
 
 export interface DocumentEvent {
   version: number;
-  /** generated | signed | published | superseded | cancelled */
+  /** generated | signed | published | superseded | cancelled | signers (the signers of a pending version changed) */
   action: string;
   actor: string;
   note: string;

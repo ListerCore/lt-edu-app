@@ -13,6 +13,7 @@ import { formatDay } from '@/features/protected/academic/data/academic-data';
 import { useAcademicData } from '@/features/protected/academic/hooks/use-academic-data';
 import { useAcademicForm } from '@/features/protected/academic/hooks/use-academic-form';
 import { useInstitutionSlug } from '@/features/protected/academic/hooks/use-institution-slug';
+import { useWorkspace } from '@/features/protected/dashboard/hooks/use-workspace';
 import { isExamsEvent } from '@/hooks/use-live';
 import { cn } from '@/lib/utils';
 import { deleteMockAction, getExamsOverviewAction, getMockAction, getMyExamsAction, publishMockAction, saveMockAction } from '../actions/exams-actions';
@@ -56,15 +57,7 @@ export const MocksPage = (): JSX.Element => {
         </button>
       }
     >
-      {error ? (
-        <LoadError message={error} onRetry={reload} />
-      ) : !data ? (
-        <PageSkeleton />
-      ) : open ? (
-        <MockView key={open} slug={slug} id={open} overview={data} onBack={(): void => setOpen(null)} />
-      ) : (
-        <MockList data={data} onPeriod={setPeriodId} onOpen={setOpen} />
-      )}
+      {error ? <LoadError message={error} onRetry={reload} /> : !data ? <PageSkeleton /> : open ? <MockView key={open} slug={slug} id={open} overview={data} onBack={(): void => setOpen(null)} /> : <MockList data={data} onPeriod={setPeriodId} onOpen={setOpen} />}
       {creating && data?.period && (
         <MockDialog
           slug={slug}
@@ -124,15 +117,30 @@ const MockList = ({ data, onPeriod, onOpen }: { data: ExamsOverview; onPeriod: (
 );
 
 const MockView = ({ slug, id, overview, onBack }: { slug: string; id: string; overview: ExamsOverview; onBack: () => void }): JSX.Element => {
-  const { data, error, reload } = useAcademicData(`mock:${slug}:${id}`, () => getMockAction(slug, id), () => false);
+  const { data, error, reload } = useAcademicData(
+    `mock:${slug}:${id}`,
+    () => getMockAction(slug, id),
+    () => false,
+  );
   const [tab, setTab] = useState<Tab | null>(null);
   const [editing, setEditing] = useState(false);
   const [booklet, setBooklet] = useState<'booklet' | 'key' | null>(null);
   const [isPending, startTransition] = useTransition();
+  // Tabs follow the role in use (data/permissions.ts pageTabs): the answer key and the sheets stay with who prepares them
+  const { canTab } = useWorkspace();
   if (error) return <LoadError message={error} onRetry={reload} />;
   if (!data?.mock) return <PageSkeleton />;
   const m = data.mock;
-  const current: Tab = tab ?? (m.questions === 0 ? 'structure' : m.keyed < m.questions ? 'key' : m.sheets === 0 ? 'sheets' : 'results');
+  const tabs = (
+    [
+      ['structure', 'Cursos y pesos'],
+      ['key', `Clave (${m.keyed}/${m.questions})`],
+      ['sheets', `Respuestas (${m.sheets})`],
+      ['results', 'Resultados'],
+    ] as Array<[Tab, string]>
+  ).filter(([k]) => canTab('mocks', k));
+  const preferred: Tab = tab ?? (m.questions === 0 ? 'structure' : m.keyed < m.questions ? 'key' : m.sheets === 0 ? 'sheets' : 'results');
+  const current: Tab | undefined = tabs.some(([k]) => k === preferred) ? preferred : tabs[0]?.[0];
   if (booklet) return <BookletView slug={slug} id={id} withKey={booklet === 'key'} onBack={(): void => setBooklet(null)} />;
 
   const act = (work: () => Promise<{ ok: boolean; message?: string }>, after?: () => void): void =>
@@ -191,14 +199,7 @@ const MockView = ({ slug, id, overview, onBack }: { slug: string; id: string; ov
         </div>
       </div>
       <div role="tablist" aria-label="Simulacro" className="flex gap-1 overflow-x-auto border-b border-border">
-        {(
-          [
-            ['structure', 'Cursos y pesos'],
-            ['key', `Clave (${m.keyed}/${m.questions})`],
-            ['sheets', `Respuestas (${m.sheets})`],
-            ['results', 'Resultados'],
-          ] as Array<[Tab, string]>
-        ).map(([k, label]) => (
+        {tabs.map(([k, label]) => (
           <button key={k} type="button" role="tab" aria-selected={current === k} onClick={(): void => setTab(k)} className={cn('-mb-px border-b-2 px-4 py-2.5 text-sm font-medium whitespace-nowrap transition-colors', current === k ? 'border-brand text-foreground' : 'border-transparent text-muted-foreground hover:text-foreground')}>
             {label}
           </button>
@@ -208,7 +209,18 @@ const MockView = ({ slug, id, overview, onBack }: { slug: string; id: string; ov
       {current === 'key' && <MockKey slug={slug} detail={data} onSaved={reload} />}
       {current === 'sheets' && <MockSheets slug={slug} detail={data} canLoad={overview.canLoad} onSaved={reload} />}
       {current === 'results' && <MockResultsView slug={slug} id={id} levels={overview.levels} />}
-      {editing && <MockDialog slug={slug} periodId={m.periodId} mock={m} onClose={(): void => setEditing(false)} onSaved={(): void => { setEditing(false); reload(); }} />}
+      {editing && (
+        <MockDialog
+          slug={slug}
+          periodId={m.periodId}
+          mock={m}
+          onClose={(): void => setEditing(false)}
+          onSaved={(): void => {
+            setEditing(false);
+            reload();
+          }}
+        />
+      )}
     </div>
   );
 };

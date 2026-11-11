@@ -16,7 +16,7 @@ const stateClass: Record<string, string> = {
   superseded: 'bg-secondary text-muted-foreground',
   cancelled: 'bg-destructive/10 text-destructive',
 };
-const eventLabels: Record<string, string> = { generated: 'Versión generada', signed: 'Firmada', published: 'Publicada', superseded: 'Reemplazada', cancelled: 'Anulada antes de publicarse' };
+const eventLabels: Record<string, string> = { generated: 'Versión generada', signed: 'Firmada', published: 'Publicada', superseded: 'Reemplazada', cancelled: 'Anulada antes de publicarse', signers: 'Firmantes actualizados' };
 
 // "11 nov. 2026, 17:11" in Lima
 const when = (iso: string): string => (iso ? new Intl.DateTimeFormat('es-PE', { dateStyle: 'medium', timeStyle: 'short', timeZone: 'America/Lima' }).format(new Date(iso)) : '');
@@ -33,7 +33,7 @@ const verdictOf = (code: string, matched: DocumentVersion | undefined, current: 
   if (!matched) return { tone: 'bad', title: 'El código no corresponde a este documento', text: 'Revisa el código impreso. Si coincide y aun así no aparece, el papel no fue emitido por la institución.' };
   switch (matched.status) {
     case 'published':
-      return { tone: 'ok', title: 'Documento válido: es la versión vigente', text: `Versión ${matched.number}, firmada por todos y publicada el ${when(matched.publishedAt)}.` };
+      return { tone: 'ok', title: 'Documento válido: es la versión vigente', text: `Versión ${matched.number}, firmada por todos y publicada el ${when(matched.publishedAt)}` };
     case 'superseded':
       return { tone: 'warn', title: `Esta versión fue reemplazada`, text: `El papel corresponde a la versión ${matched.number}. ${current ? `La vigente es la versión ${current.number}.` : ''}` };
     case 'pending':
@@ -107,16 +107,7 @@ export const TrackingDetail = async ({ params, searchParams }: { params: Promise
         <label htmlFor="codigo" className="w-full text-sm font-medium">
           Verificar un código impreso
         </label>
-        <input
-          id="codigo"
-          name="codigo"
-          defaultValue={given}
-          placeholder="XXXX-XXXX-XXXX"
-          autoComplete="off"
-          spellCheck={false}
-          pattern="[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}"
-          className="h-10 w-56 rounded-lg bg-card px-3 font-mono text-sm uppercase ring-1 ring-border outline-none focus-visible:ring-2 focus-visible:ring-brand"
-        />
+        <input id="codigo" name="codigo" defaultValue={given} placeholder="XXXX-XXXX-XXXX" autoComplete="off" spellCheck={false} pattern="[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}" className="h-10 w-56 rounded-lg bg-card px-3 font-mono text-sm uppercase ring-1 ring-border outline-none focus-visible:ring-2 focus-visible:ring-brand" />
         <button type="submit" className="btn-alt h-10">
           <MorphIcon icon={Search} size={16} />
           Verificar

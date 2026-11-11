@@ -1,8 +1,9 @@
 'use client';
 
 import { useCallback, useSyncExternalStore } from 'react';
-import { canAccess, demoAvatarUrls, demoInstitutionNames, demoUserNames, institutionRoles, institutionTypeLabels, roleLabel } from '../data/permissions';
+import { canAccess, canSeeTab, demoAvatarUrls, demoInstitutionNames, demoUserNames, institutionRoles, institutionTypeLabels, roleLabel } from '../data/permissions';
 import type { InstitutionType, ModuleKey, PermissionAction, Role, UseWorkspaceResult, Workspace } from '../types';
+import type { TabPage } from '../data/permissions';
 
 const STORAGE_KEY = 'joseph-workspace';
 const DEFAULT_WORKSPACE: Workspace = { institutionType: 'EBR', role: 'director' };
@@ -61,6 +62,8 @@ export const useWorkspace = (): UseWorkspaceResult => {
 
   const can = useCallback((module: ModuleKey, action: PermissionAction = 'view'): boolean => canAccess(workspace.institutionType, workspace.role, module, action), [workspace]);
 
+  const canTab = useCallback((page: TabPage, tab: string): boolean => canSeeTab(workspace.role, page, tab), [workspace]);
+
   return {
     ...workspace,
     institutionName: demoInstitutionNames[workspace.institutionType],
@@ -72,5 +75,6 @@ export const useWorkspace = (): UseWorkspaceResult => {
     setInstitutionType,
     setRole,
     can,
+    canTab,
   };
 };

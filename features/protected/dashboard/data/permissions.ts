@@ -212,6 +212,26 @@ export const rolePermissions: Record<Role, RolePermissions> = {
 // A module is usable when the role exists in the institution type, the type has the module and the role is granted the action
 export const canAccess = (institutionType: InstitutionType, role: Role, module: ModuleKey, action: PermissionAction = 'view'): boolean => institutionRoles[institutionType].includes(role) && institutionModules[institutionType].includes(module) && (rolePermissions[role][module]?.includes(action) ?? false);
 
+// ---------- tabs ----------
+
+const MANAGERS: Role[] = ['director', 'coordinator'];
+const STAFF: Role[] = ['director', 'coordinator', 'secretary', 'teacher', 'tutor', 'assistant', 'psychologist', 'treasurer'];
+const EVERYONE: Role[] = [...STAFF, 'student', 'guardian'];
+
+// Which roles see each tab of the pages whose views differ by role. A role reaching a page sees only these tabs;
+// the API still checks every call, this only keeps out of sight what the role cannot use
+export const pageTabs = {
+  schedules: { mine: EVERYONE, section: STAFF, teacher: STAFF, load: MANAGERS, blocks: MANAGERS, export: [...MANAGERS, 'secretary'] },
+  payments: { summary: ['director', 'secretary', 'treasurer'], accounts: ['director', 'secretary', 'treasurer'], cash: ['director', 'secretary', 'treasurer'], plans: ['director', 'treasurer'] },
+  reports: { attendance: [...MANAGERS, 'secretary'], performance: MANAGERS, enrollment: [...MANAGERS, 'secretary'], finance: ['director', 'treasurer'], compare: ['director', 'coordinator', 'secretary', 'treasurer'] },
+  mocks: { structure: [...MANAGERS, 'secretary', 'teacher'], key: [...MANAGERS, 'teacher'], sheets: [...MANAGERS, 'secretary', 'teacher'], results: [...MANAGERS, 'secretary', 'teacher', 'tutor'] },
+} satisfies Record<string, Record<string, Role[]>>;
+
+export type TabPage = keyof typeof pageTabs;
+
+// True when the role sees that tab of the page; tabs missing from the map are open to every role
+export const canSeeTab = <P extends TabPage>(role: Role, page: P, tab: string): boolean => (pageTabs[page] as Record<string, Role[]>)[tab]?.includes(role) ?? true;
+
 // Simulated names for the demo workspace
 export const demoInstitutionNames: Record<InstitutionType, string> = {
   EBR: 'Joseph Colegio',

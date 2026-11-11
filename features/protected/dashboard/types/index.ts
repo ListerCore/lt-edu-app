@@ -53,7 +53,7 @@ export type PermissionAction = 'view' | 'create' | 'update' | 'delete' | 'export
 export type RolePermissions = Partial<Record<ModuleKey, PermissionAction[]>>;
 
 // A label can change with the institution type (e.g. "Bimestres" in EBR, "Ciclos" in CEPRE)
-export type NavLabel = string | Partial<Record<InstitutionType, string>> & { default: string };
+export type NavLabel = string | (Partial<Record<InstitutionType, string>> & { default: string });
 
 // Second level: always a link to one module
 export interface NavLeaf {
@@ -98,6 +98,8 @@ export interface UseWorkspaceResult extends Workspace, WorkspaceProfile {
   setInstitutionType: (type: InstitutionType) => void;
   setRole: (role: Role) => void;
   can: (module: ModuleKey, action?: PermissionAction) => boolean;
+  // Whether the role sees a tab of a page (data/permissions.ts pageTabs)
+  canTab: (page: 'schedules' | 'payments' | 'reports' | 'mocks', tab: string) => boolean;
 }
 
 // Navigation already filtered by permissions and with labels resolved for the institution type

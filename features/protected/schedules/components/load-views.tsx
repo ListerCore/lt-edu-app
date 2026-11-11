@@ -76,7 +76,18 @@ export const LoadView = ({ slug, data, onChange }: { slug: string; data: Planner
                   <div className="flex items-center gap-2 text-sm">
                     <span className="text-muted-foreground">Tutor</span>
                     <div className="w-56">
-                      <SelectField id={`tutor-${sec.id}`} value={sec.tutorId} disabled={!canManage || isPending} options={teacherOptions} onChange={(v): void => startTransition(async (): Promise<void> => { await runAcademicAction(setTutorAction(slug, sec.id, v)); onChange(); })} />
+                      <SelectField
+                        id={`tutor-${sec.id}`}
+                        value={sec.tutorId}
+                        disabled={!canManage || isPending}
+                        options={teacherOptions}
+                        onChange={(v): void =>
+                          startTransition(async (): Promise<void> => {
+                            await runAcademicAction(setTutorAction(slug, sec.id, v));
+                            onChange();
+                          })
+                        }
+                      />
                     </div>
                   </div>
                 </div>
@@ -91,7 +102,22 @@ export const LoadView = ({ slug, data, onChange }: { slug: string; data: Planner
                       </span>
                       <SelectField id={`teacher-${a.id}`} value={a.staffId} disabled={!canManage || isPending} options={teacherOptions} onChange={(v): void => update(a, v, a.weeklyHours)} />
                       <HoursInput value={a.weeklyHours} disabled={!canManage || isPending} onCommit={(h): void => update(a, a.staffId, h)} />
-                      {canManage ? <ConfirmDelete compact label="Quitar" title={`¿Quitar ${a.subjectName} de la carga?`} description="También se quitan sus horas del horario." onConfirm={(): void => startTransition(async (): Promise<void> => { await runAcademicAction(deleteAssignmentAction(slug, a.id)); onChange(); })} /> : <span />}
+                      {canManage ? (
+                        <ConfirmDelete
+                          compact
+                          label="Quitar"
+                          title={`¿Quitar ${a.subjectName} de la carga?`}
+                          description="También se quitan sus horas del horario."
+                          onConfirm={(): void =>
+                            startTransition(async (): Promise<void> => {
+                              await runAcademicAction(deleteAssignmentAction(slug, a.id));
+                              onChange();
+                            })
+                          }
+                        />
+                      ) : (
+                        <span />
+                      )}
                     </li>
                   ))}
                 </ul>
@@ -157,7 +183,19 @@ export const BlocksView = ({ slug, data, onChange }: { slug: string; data: Plann
   return (
     <div className="grid gap-5 xl:grid-cols-2">
       {shifts.map((shift) => (
-        <ShiftEditor key={shift + data.blocks.filter((b) => b.shift === shift).map((b) => b.startsAt + b.endsAt + b.kind).join()} slug={slug} shift={shift} data={data} onChange={onChange} />
+        <ShiftEditor
+          key={
+            shift +
+            data.blocks
+              .filter((b) => b.shift === shift)
+              .map((b) => b.startsAt + b.endsAt + b.kind)
+              .join()
+          }
+          slug={slug}
+          shift={shift}
+          data={data}
+          onChange={onChange}
+        />
       ))}
     </div>
   );
@@ -240,7 +278,16 @@ const ShiftEditor = ({ slug, shift, data, onChange }: { slug: string; shift: str
             <span className="text-muted-foreground">–</span>
             <Input value={r.endsAt} inputMode="numeric" placeholder="08:30" maxLength={5} disabled={!canManage} onChange={(e): void => set(i, { endsAt: e.target.value })} className="h-9 w-20 rounded-md bg-background text-center tabular-nums" aria-label="Término (HH:MM)" />
             <div className="w-28">
-              <SelectField id={`kind-${shift}-${i}`} value={r.kind} disabled={!canManage} options={[{ value: 'class', label: 'Clase' }, { value: 'break', label: 'Recreo' }]} onChange={(v): void => set(i, { kind: v })} />
+              <SelectField
+                id={`kind-${shift}-${i}`}
+                value={r.kind}
+                disabled={!canManage}
+                options={[
+                  { value: 'class', label: 'Clase' },
+                  { value: 'break', label: 'Recreo' },
+                ]}
+                onChange={(v): void => set(i, { kind: v })}
+              />
             </div>
             {canManage && (
               <button type="button" onClick={(): void => setRows((x) => x.filter((_, j) => j !== i))} className="ml-auto inline-flex size-8 items-center justify-center rounded-md text-muted-foreground hover:bg-secondary hover:text-destructive" aria-label="Quitar bloque">

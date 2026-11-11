@@ -10,16 +10,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { LoadError, SelectField, StatusPill } from '@/features/protected/academic/components/academic-ui';
 import { FormDialog } from '@/features/protected/academic/components/form-dialog';
 import { useAcademicData } from '@/features/protected/academic/hooks/use-academic-data';
-import {
-  generateSchedulesAction,
-  scheduleIssuesAction,
-  scheduleSignersAction,
-  schedulesPdfAction,
-  schedulesXlsxAction,
-  setScheduleSignersAction,
-  signVersionAction,
-  versionPdfAction,
-} from '@/features/protected/documents/actions/document-actions';
+import { generateSchedulesAction, scheduleIssuesAction, scheduleSignersAction, schedulesPdfAction, schedulesXlsxAction, setScheduleSignersAction, signVersionAction, versionPdfAction } from '@/features/protected/documents/actions/document-actions';
 import { PdfViewer } from '@/features/protected/documents/components/pdf-viewer';
 import { usePdf, usePdfPreview } from '@/features/protected/documents/lib/use-pdf';
 import type { DocumentVersion, IssuedDocument, ListScheduleIssuesResponse, Signer } from '@/lib/api/grpc/gen/joseph/documents/v1/documents';
@@ -47,7 +38,10 @@ export const versionClass: Record<string, string> = {
   cancelled: 'bg-secondary text-muted-foreground line-through',
 };
 
-const eventLabels: Record<string, string> = { generated: 'Generada', signed: 'Firmada', published: 'Publicada', superseded: 'Reemplazada', cancelled: 'Anulada' };
+const eventLabels: Record<string, string> = { generated: 'Generada', signed: 'Firmada', published: 'Publicada', superseded: 'Reemplazada', cancelled: 'Anulada', signers: 'Firmantes actualizados' };
+
+// Most signatures a document can ask for (the API's limit)
+const MAX_SIGNERS = 10;
 
 // "11 nov. 2026, 17:11" in Lima
 export const when = (iso: string): string => (iso ? new Intl.DateTimeFormat('es-PE', { dateStyle: 'medium', timeStyle: 'short', timeZone: 'America/Lima' }).format(new Date(iso)) : '');
@@ -55,21 +49,14 @@ export const when = (iso: string): string => (iso ? new Intl.DateTimeFormat('es-
 // Publicar: the timetables as PDF (preview in a dialog, crossed and without codes), the whole period as Excel and the
 // versioned publications. Dirección or coordinación generate a version; the signers sign it and with the last
 // signature it becomes the current one. Every sheet carries a QR to its public tracking page
-export const ScheduleExport = ({ slug, data }: { slug: string; data: PlannerData }): JSX.Element => {
+export const ScheduleExport = ({ slug, data, manage }: { slug: string; data: PlannerData; manage: boolean }): JSX.Element => {
   const [mode, setMode] = useState<Mode>('section');
   const [target, setTarget] = useState('');
   // Only sections with classes placed are published (inicial plans, for one, carry no hours)
   const sections = useMemo(() => data.sections.filter((s) => data.entries.some((e) => e.sectionId === s.id)), [data]);
   const grades = useMemo(() => gradesOf(sections), [sections]);
   const teachers = useMemo(() => teachersOf(data), [data]);
-  const options =
-    mode === 'section'
-      ? sections.map((s) => ({ value: s.id, label: sectionName(s, true) }))
-      : mode === 'grade'
-        ? grades.map((g) => ({ value: g.id, label: `${g.name} · ${g.levelName}` }))
-        : mode === 'teacher'
-          ? teachers.map((t) => ({ value: t.id, label: t.name }))
-          : [];
+  const options = mode === 'section' ? sections.map((s) => ({ value: s.id, label: sectionName(s, true) })) : mode === 'grade' ? grades.map((g) => ({ value: g.id, label: `${g.name} · ${g.levelName}` })) : mode === 'teacher' ? teachers.map((t) => ({ value: t.id, label: t.name })) : [];
   const all = mode === 'section' ? 'Todas las secciones' : mode === 'grade' ? 'Todos los grados' : 'Todos los docentes';
   const targetLabel = mode === 'general' ? 'Horario general' : (options.find((o) => o.value === target)?.label ?? all);
   const issues = useAcademicData(`schedule-issues:${slug}:${data.period.id}`, () => scheduleIssuesAction(slug, data.period.id));
@@ -78,7 +65,8 @@ export const ScheduleExport = ({ slug, data }: { slug: string; data: PlannerData
   const [dialog, setDialog] = useState<'generate' | 'signers' | null>(null);
 
   if (data.entries.length === 0) return <EmptyNote>Todavía no hay clases ubicadas en este periodo.</EmptyNote>;
-  const canManage = issues.data?.canManage ?? false;
+  // Both the session's role (API) and the role in use must allow generating and choosing signers
+  const canManage = manage && (issues.data?.canManage ?? false);
 
   return (
     <div className="space-y-6">
@@ -122,30 +110,11 @@ export const ScheduleExport = ({ slug, data }: { slug: string; data: PlannerData
           )}
         </div>
       </div>
-      <p className="text-sm text-muted-foreground">
-        Hoja A4 horizontal por {mode === 'general' ? 'turno (cada día con una columna por sección)' : mode === 'grade' ? 'grado' : mode === 'teacher' ? 'docente (cada día con curso y sección)' : 'sección'}, con la leyenda abajo y el espacio para las firmas y el QR. La vista previa no tiene validez: la publicación
-        sale de una versión firmada.
-      </p>
+      <p className="text-sm text-muted-foreground">Hoja A4 horizontal por {mode === 'general' ? 'turno (cada día con una columna por sección)' : mode === 'grade' ? 'grado' : mode === 'teacher' ? 'docente (cada día con curso y sección)' : 'sección'}, con la leyenda abajo y el espacio para las firmas y el QR. La vista previa no tiene validez: la publicación sale de una versión firmada.</p>
 
-      {issues.error ? (
-        <LoadError message={issues.error} onRetry={issues.reload} />
-      ) : issues.data ? (
-        <Publications slug={slug} data={issues.data} onView={viewer.open} onSigners={(): void => setDialog('signers')} onChange={issues.reload} />
-      ) : (
-        <div className="h-32 animate-pulse rounded-xl bg-card" />
-      )}
+      {issues.error ? <LoadError message={issues.error} onRetry={issues.reload} /> : issues.data ? <Publications slug={slug} data={{ ...issues.data, canManage }} onView={viewer.open} onSigners={(): void => setDialog('signers')} onChange={issues.reload} /> : <div className="h-32 animate-pulse rounded-xl bg-card" />}
 
-      {dialog === 'generate' && (
-        <GenerateDialog
-          slug={slug}
-          query={{ periodId: data.period.id, mode, targetId: mode === 'general' ? '' : target }}
-          label={`${targetLabel} (${modeNames[mode]})`}
-          signers={issues.data?.signers ?? []}
-          onClose={(): void => setDialog(null)}
-          onSigners={(): void => setDialog('signers')}
-          onDone={issues.reload}
-        />
-      )}
+      {dialog === 'generate' && <GenerateDialog slug={slug} query={{ periodId: data.period.id, mode, targetId: mode === 'general' ? '' : target }} label={`${targetLabel} (${modeNames[mode]})`} signers={issues.data?.signers ?? []} onClose={(): void => setDialog(null)} onSigners={(): void => setDialog('signers')} onDone={issues.reload} />}
       {dialog === 'signers' && <SignersDialog slug={slug} onClose={(): void => setDialog(null)} onDone={issues.reload} />}
       <PdfViewer file={viewer.file} onClose={viewer.close} />
     </div>
@@ -368,23 +337,7 @@ const DocumentCard = ({ slug, doc, myStaffId, onView, onChange }: { slug: string
 };
 
 // Generates a version of what is chosen: a note on what changed, and the signers it will need
-const GenerateDialog = ({
-  slug,
-  query,
-  label,
-  signers,
-  onClose,
-  onSigners,
-  onDone,
-}: {
-  slug: string;
-  query: { periodId: string; mode: string; targetId: string };
-  label: string;
-  signers: Signer[];
-  onClose: () => void;
-  onSigners: () => void;
-  onDone: () => void;
-}): JSX.Element => {
+const GenerateDialog = ({ slug, query, label, signers, onClose, onSigners, onDone }: { slug: string; query: { periodId: string; mode: string; targetId: string }; label: string; signers: Signer[]; onClose: () => void; onSigners: () => void; onDone: () => void }): JSX.Element => {
   const [note, setNote] = useState('');
   const [isPending, start] = useTransition();
   return (
@@ -454,10 +407,10 @@ const SignersDialog = ({ slug, onClose, onDone }: { slug: string; onClose: () =>
     <FormDialog
       wide
       title="Firmantes de los horarios"
-      description="Firman en este orden. Puede ser solo la dirección o varias personas (coordinación, un responsable designado). El cargo se imprime bajo el nombre."
+      description="Firman en este orden. Puede ser solo la dirección o varias personas (coordinación, un responsable designado). El cargo se imprime bajo el nombre. Las versiones pendientes se actualizan: las firmas hechas se mantienen, quien sale deja de firmar y quien entra pasa a firmar."
       submitLabel="Guardar firmantes"
       isPending={isPending}
-      disabled={!setup.data || list.some((r) => !r.staffId || !r.position.trim())}
+      disabled={!setup.data || list.length === 0 || list.some((r) => !r.staffId || !r.position.trim())}
       onClose={onClose}
       onSubmit={(): void =>
         start(async () => {
@@ -466,7 +419,7 @@ const SignersDialog = ({ slug, onClose, onDone }: { slug: string; onClose: () =>
             setError(r.fields?.signers ?? r.message);
             return;
           }
-          sileo.success({ title: 'Firmantes guardados', description: 'Las versiones que generes desde ahora los piden.' });
+          sileo.success({ title: 'Firmantes guardados', description: 'Las versiones nuevas y las pendientes los piden en este orden.' });
           onDone();
           onClose();
         })
@@ -476,14 +429,15 @@ const SignersDialog = ({ slug, onClose, onDone }: { slug: string; onClose: () =>
       {!setup.data && !setup.error && <div className="h-24 animate-pulse rounded-lg bg-secondary" />}
       {setup.data && (
         <div className="space-y-3">
-          {list.length === 0 && <p className="text-sm text-muted-foreground">Sin firmantes. Agrega al menos uno.</p>}
+          {list.length === 0 && <p className="text-sm text-warning">Sin firmantes. Agrega al menos uno.</p>}
           {list.map((r, i) => (
-            <div key={i} className="grid gap-2 rounded-lg bg-secondary/50 p-3 sm:grid-cols-[1fr_1fr_auto]">
+            <div key={r.staffId || `new-${i}`} className="grid gap-2 rounded-lg bg-secondary/50 p-3 sm:grid-cols-[1fr_1fr_auto]">
               <SelectField
                 id={`signer-${i}`}
                 value={r.staffId}
                 placeholder="Elige a la persona"
-                options={candidates.map((c) => ({ value: c.staffId, label: `${c.name} · ${c.position}` }))}
+                // Someone already in another row is not offered again
+                options={candidates.filter((c) => c.staffId === r.staffId || !list.some((x) => x.staffId === c.staffId)).map((c) => ({ value: c.staffId, label: `${c.name} · ${c.position}` }))}
                 onChange={(v): void => {
                   const c = candidates.find((x) => x.staffId === v);
                   edit(list.map((x, j) => (j === i ? { staffId: v, position: x.position || c?.position || '' } : x)));
@@ -497,18 +451,21 @@ const SignersDialog = ({ slug, onClose, onDone }: { slug: string; onClose: () =>
                 <button type="button" className="btn-alt size-10 p-0" disabled={i === list.length - 1} aria-label="Bajar" onClick={(): void => move(i, 1)}>
                   <MorphIcon icon={ArrowDown} size={15} />
                 </button>
-                <button type="button" className="btn-alt size-10 p-0" aria-label="Quitar" onClick={(): void => edit(list.filter((_, j) => j !== i))}>
+                <button type="button" className="btn-alt size-10 p-0" aria-label={`Quitar a ${candidates.find((c) => c.staffId === r.staffId)?.name ?? 'este firmante'}`} title="Quitar" onClick={(): void => edit(list.filter((_, j) => j !== i))}>
                   <MorphIcon icon={Trash2} size={15} />
                 </button>
               </div>
             </div>
           ))}
-          {list.length < 6 && (
-            <button type="button" className="btn-alt" onClick={(): void => edit([...list, { staffId: '', position: '' }])}>
+          <div className="flex flex-wrap items-center gap-3">
+            <button type="button" className="btn-alt" disabled={list.length >= MAX_SIGNERS} onClick={(): void => edit([...list, { staffId: '', position: '' }])}>
               <MorphIcon icon={UserPlus} size={16} />
               Agregar firmante
             </button>
-          )}
+            <span className="text-xs text-muted-foreground">
+              {list.length} de {MAX_SIGNERS}
+            </span>
+          </div>
           {error && (
             <p role="alert" className="text-sm text-destructive">
               {error}

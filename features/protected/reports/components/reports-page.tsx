@@ -5,6 +5,7 @@ import { Award, CalendarCheck, Hourglass, Percent, UsersRound, Wallet } from 'lu
 import { AcademicPage, LoadError, PageSkeleton } from '@/features/protected/academic/components/academic-ui';
 import { useAcademicData } from '@/features/protected/academic/hooks/use-academic-data';
 import { useInstitutionSlug } from '@/features/protected/academic/hooks/use-institution-slug';
+import { useWorkspace } from '@/features/protected/dashboard/hooks/use-workspace';
 import { soles } from '@/features/protected/finance/data/finance-data';
 import { Filter } from '@/features/protected/wellbeing/components/wellbeing-ui';
 import { isAttendanceEvent, isFinanceEvent, type LiveEvent } from '@/hooks/use-live';
@@ -45,7 +46,9 @@ export const ReportsPage = (): JSX.Element => {
   const [range, setRange] = useState<Range>('90');
   const { data, error, reload } = useAcademicData(`reports:${slug}:${q.periodId}:${q.levelId}:${q.subject}:${q.from}`, () => getBoardAction(slug, q), refreshOn);
   const [tab, setTab] = useState<Tab>('attendance');
-  const tabs: Array<[Tab, string]> = data?.academic
+  // Tabs follow what the API returns and the role in use (data/permissions.ts pageTabs)
+  const { canTab } = useWorkspace();
+  const all: Array<[Tab, string]> = data?.academic
     ? [
         ['attendance', 'Asistencia'],
         ['performance', 'Rendimiento'],
@@ -57,21 +60,21 @@ export const ReportsPage = (): JSX.Element => {
         ['finance', 'Cobranza'],
         ['compare', 'Comparativo'],
       ];
-  const shown = tabs.some(([k]) => k === tab) ? tab : tabs[0][0];
+  const tabs = all.filter(([k]) => canTab('reports', k));
+  const shown: Tab | undefined = tabs.some(([k]) => k === tab) ? tab : tabs[0]?.[0];
   // A new period or level starts over: the default range and every area
   const pick = (patch: Partial<BoardQuery>): void => {
     setQ({ ...q, subject: '', from: '', ...patch });
     setRange('90');
   };
   return (
-    <AcademicPage wide
+    <AcademicPage
+      wide
       titleId="reports-title"
       title="Reportes"
       // Read only: nothing to manage, and no "read only" banner either
       context={null}
-      description={
-        data && !data.academic ? 'La cobranza del periodo: lo vencido, lo pagado, la deuda por antigüedad y la comparación con otros periodos.' : 'Asistencia, rendimiento, cobranza y matrícula del periodo, y cómo se compara con los anteriores. Solo cifras agregadas, sin datos de estudiantes.'
-      }
+      description={data && !data.academic ? 'La cobranza del periodo: lo vencido, lo pagado, la deuda por antigüedad y la comparación con otros periodos.' : 'Asistencia, rendimiento, cobranza y matrícula del periodo, y cómo se compara con los anteriores. Solo cifras agregadas, sin datos de estudiantes.'}
     >
       {error ? (
         <LoadError message={error} onRetry={reload} />
@@ -96,20 +99,12 @@ export const ReportsPage = (): JSX.Element => {
 
           <div role="tablist" aria-label="Secciones del reporte" className="flex gap-1 overflow-x-auto border-b border-border">
             {tabs.map(([k, label]) => (
-              <button
-                key={k}
-                type="button"
-                role="tab"
-                id={`rep-tab-${k}`}
-                aria-selected={shown === k}
-                aria-controls="rep-panel"
-                onClick={(): void => setTab(k)}
-                className={cn('-mb-px shrink-0 border-b-2 px-4 py-2.5 text-sm font-medium', shown === k ? 'border-brand text-foreground' : 'border-transparent text-muted-foreground hover:text-foreground')}
-              >
+              <button key={k} type="button" role="tab" id={`rep-tab-${k}`} aria-selected={shown === k} aria-controls="rep-panel" onClick={(): void => setTab(k)} className={cn('-mb-px shrink-0 border-b-2 px-4 py-2.5 text-sm font-medium', shown === k ? 'border-brand text-foreground' : 'border-transparent text-muted-foreground hover:text-foreground')}>
                 {label}
               </button>
             ))}
           </div>
+          {!shown && <p className="rounded-xl bg-card p-6 text-sm text-muted-foreground">Tu rol no tiene reportes en esta institución.</p>}
           <div id="rep-panel" role="tabpanel" aria-labelledby={`rep-tab-${shown}`}>
             {shown === 'attendance' && (
               <AttendanceSection
@@ -153,10 +148,7 @@ const Kpis = ({ board }: { board: Board }): JSX.Element => {
   }
   const e = board.enrollment;
   const enrolled = (e?.active ?? 0) + (e?.completed ?? 0);
-  const range = board.attendanceDays.reduce(
-    (t, d) => ({ present: t.present + (d.counts?.present ?? 0), late: t.late + (d.counts?.late ?? 0), absent: t.absent + (d.counts?.absent ?? 0), justified: t.justified + (d.counts?.justified ?? 0) }),
-    { present: 0, late: 0, absent: 0, justified: 0 },
-  );
+  const range = board.attendanceDays.reduce((t, d) => ({ present: t.present + (d.counts?.present ?? 0), late: t.late + (d.counts?.late ?? 0), absent: t.absent + (d.counts?.absent ?? 0), justified: t.justified + (d.counts?.justified ?? 0) }), { present: 0, late: 0, absent: 0, justified: 0 });
   const score = board.scale === 'score';
   return (
     <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">

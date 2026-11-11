@@ -148,7 +148,7 @@ message DocumentVersion {
 
 message DocumentEvent {
   int32 version = 1;
-  // generated | signed | published | superseded | cancelled
+  // generated | signed | published | superseded | cancelled | signers (the signers of a pending version changed)
   string action = 2;
   string actor = 3;
   string note = 4;

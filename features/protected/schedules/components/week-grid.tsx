@@ -8,14 +8,7 @@ import { cn } from '@/lib/utils';
 import type { ScheduleEntry, TimeBlock } from '../types';
 
 // Every subject keeps its tone across the week, so the eye finds it again
-const tones = [
-  'border-l-brand bg-brand-soft',
-  'border-l-success bg-success/10',
-  'border-l-warning bg-warning/10',
-  'border-l-chart-2 bg-chart-2/12',
-  'border-l-chart-4 bg-chart-4/14',
-  'border-l-foreground/40 bg-secondary',
-];
+const tones = ['border-l-brand bg-brand-soft', 'border-l-success bg-success/10', 'border-l-warning bg-warning/10', 'border-l-chart-2 bg-chart-2/12', 'border-l-chart-4 bg-chart-4/14', 'border-l-foreground/40 bg-secondary'];
 
 export const toneFor = (key: string): string => {
   let h = 0;
