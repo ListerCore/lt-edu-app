@@ -39,6 +39,7 @@ export type ModuleKey =
   | 'parent-school'
   | 'cards'
   | 'tutoring'
+  | 'discipline'
   | 'psychology'
   | 'wellbeing'
   | 'announcements'

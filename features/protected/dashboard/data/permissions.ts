@@ -49,12 +49,12 @@ const coreModules: ModuleKey[] = ['home', 'notifications', 'account', 'announcem
 // Each type adds the modules its academic flow needs (README §2 matrix)
 export const institutionModules: Record<InstitutionType, ModuleKey[]> = {
   // School: competency grades, report cards, official certificates and the parents' school
-  EBR: [...coreModules, 'grades', 'report-cards', 'closing', 'certificates', 'psychology', 'parent-school'],
+  EBR: [...coreModules, 'grades', 'report-cards', 'closing', 'certificates', 'psychology', 'discipline', 'parent-school'],
   // CEBA: attention modes (in person, blended, distance), placement and validation tests, certificates
-  EBA: [...coreModules, 'attention-modes', 'placement', 'grades', 'report-cards', 'closing', 'certificates', 'psychology'],
+  EBA: [...coreModules, 'attention-modes', 'placement', 'grades', 'report-cards', 'closing', 'certificates', 'psychology', 'discipline'],
   // CEBE: levels per competency against the adaptations of each POI, individual plans, progress reports, therapies and
   // inclusion support (SAANEE)
-  EBE: [...coreModules, 'grades', 'report-cards', 'closing', 'individual-plans', 'progress-reports', 'therapies', 'inclusion-support', 'psychology', 'parent-school'],
+  EBE: [...coreModules, 'grades', 'report-cards', 'closing', 'individual-plans', 'progress-reports', 'therapies', 'inclusion-support', 'psychology', 'discipline', 'parent-school'],
   // Pre-university academy: mock exams, rankings, question bank and study materials; no promotion or certificates
   CEPRE: [...coreModules, 'mock-exams', 'rankings', 'question-bank', 'study-materials'],
   // Institute: grades out of 20, internships (experiencias formativas), certificates and degrees
@@ -85,6 +85,10 @@ const teacherPermissions: RolePermissions = {
   internships: EDIT,
   cards: VIEW,
   announcements: ['view', 'create'],
+  // Teachers report faults and refer students to psychology (they see the status of their referrals)
+  discipline: ['view', 'create'],
+  psychology: ['view', 'create'],
+  therapies: VIEW,
 };
 
 const studentPermissions: RolePermissions = {
@@ -103,6 +107,9 @@ const studentPermissions: RolePermissions = {
   certificates: VIEW,
   cards: VIEW,
   announcements: VIEW,
+  // Families read the tutor's agreements, their commitments and their children's faults and measures
+  tutoring: VIEW,
+  discipline: VIEW,
 };
 
 // What each role may do per module (README §3); a module missing from a role is invisible to it
@@ -137,6 +144,7 @@ export const rolePermissions: Record<Role, RolePermissions> = {
     internships: ALL,
     tutoring: VIEW,
     wellbeing: VIEW,
+    discipline: VIEW,
     announcements: ALL,
     reports: ['view', 'export'],
   },
@@ -161,7 +169,7 @@ export const rolePermissions: Record<Role, RolePermissions> = {
     reports: ['view', 'export'],
   },
   teacher: teacherPermissions,
-  tutor: { ...teacherPermissions, tutoring: ALL, wellbeing: ['view', 'create'], 'parent-school': EDIT },
+  tutor: { ...teacherPermissions, tutoring: ALL, wellbeing: ['view', 'create'], discipline: EDIT, 'parent-school': EDIT },
   assistant: {
     home: VIEW,
     notifications: ['view', 'update'],
@@ -169,6 +177,8 @@ export const rolePermissions: Record<Role, RolePermissions> = {
     students: VIEW,
     'student-attendance': ALL,
     'staff-attendance': ['view', 'create'],
+    discipline: ['view', 'create'],
+    wellbeing: VIEW,
     announcements: VIEW,
   },
   psychologist: {
@@ -179,6 +189,7 @@ export const rolePermissions: Record<Role, RolePermissions> = {
     tutoring: VIEW,
     psychology: ALL,
     wellbeing: ALL,
+    discipline: VIEW,
     therapies: EDIT,
     'individual-plans': VIEW,
     'inclusion-support': EDIT,

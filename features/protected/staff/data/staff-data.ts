@@ -17,5 +17,6 @@ export const staffRoleLabels: Record<string, string> = {
   tutor: 'Tutor(a)',
   assistant: 'Auxiliar',
   psychologist: 'Psicología',
+  special_ed_specialist: 'Especialista de educación especial',
   treasurer: 'Tesorería',
 };
