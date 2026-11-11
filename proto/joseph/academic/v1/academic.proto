@@ -73,6 +73,9 @@ message Settings {
   repeated string shifts = 6;
   // Teaching days, 1 = Monday … 7 = Sunday
   repeated int32 week_days = 7;
+  // Attendance: minutes of tolerance after the first class, and the absence share (%) that raises an alert
+  int32 late_after_minutes = 8;
+  int32 absence_limit_percent = 9;
 }
 
 message AcademicContext {

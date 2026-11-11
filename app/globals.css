@@ -534,9 +534,15 @@
   animation: live-dot 1.6s ease-in-out infinite;
 }
 
+/* Gate: each new arrival card slides in once, keeping its own color */
+.gate-arrival {
+  animation: row-in 0.35s cubic-bezier(0.22, 0.68, 0.24, 1) both;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .bar-grow,
   .checkin-flash,
+  .gate-arrival,
   .live-dot {
     animation: none;
   }

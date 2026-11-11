@@ -1,0 +1,451 @@
+syntax = "proto3";
+
+// Attendance (phase 5 of docs/plan-academico.md): ID card at the gate, the day of each section and of the staff,
+// attendance per class, justifications and absence alerts. Same metadata and institution scoping as
+// joseph.academic.v1. Dates travel as YYYY-MM-DD (empty: today in Lima), instants as RFC 3339, times as HH:MM.
+// Statuses: present | late | absent | justified (empty: not marked yet)
+package joseph.attendance.v1;
+
+option go_package = "api/internal/adapter/inbound/grpc/gen/attendancev1;attendancev1";
+
+// The office (dirección, coordinación, secretaría, auxiliares) scans and marks anyone; tutors mark their sections;
+// teachers take their classes; families see their children and send justifications
+service AttendanceService {
+  rpc GetOverview(GetOverviewRequest) returns (GetOverviewResponse);
+  // A QR payload or a code / DNI typed by hand
+  rpc Scan(ScanRequest) returns (ScanResponse);
+  rpc RecentScans(RecentScansRequest) returns (RecentScansResponse);
+  rpc GetRoster(GetRosterRequest) returns (GetRosterResponse);
+  rpc MarkStudents(MarkStudentsRequest) returns (MarkStudentsResponse);
+  // Absent for whoever has no mark yet (one section, or every section)
+  rpc CloseDay(CloseDayRequest) returns (CloseDayResponse);
+  rpc GetStaffDay(GetStaffDayRequest) returns (GetStaffDayResponse);
+  rpc MarkStaff(MarkStaffRequest) returns (MarkStaffResponse);
+  rpc CloseStaffDay(CloseStaffDayRequest) returns (CloseStaffDayResponse);
+  // The teacher's classes of a day, or a section's
+  rpc ListClasses(ListClassesRequest) returns (ListClassesResponse);
+  rpc GetClass(GetClassRequest) returns (GetClassResponse);
+  rpc SaveClass(SaveClassRequest) returns (SaveClassResponse);
+  rpc ListJustifications(ListJustificationsRequest) returns (ListJustificationsResponse);
+  rpc SubmitJustification(SubmitJustificationRequest) returns (SubmitJustificationResponse);
+  rpc ReviewJustification(ReviewJustificationRequest) returns (ReviewJustificationResponse);
+  rpc GetReport(GetReportRequest) returns (GetReportResponse);
+  rpc GetStudent(GetStudentRequest) returns (GetStudentResponse);
+  // Families: every child (or the adult student)
+  rpc MyAttendance(MyAttendanceRequest) returns (MyAttendanceResponse);
+  rpc CardCodes(CardCodesRequest) returns (CardCodesResponse);
+  // Replaces the secret of a lost card; the old QR stops working
+  rpc RenewCard(RenewCardRequest) returns (RenewCardResponse);
+}
+
+message Tally {
+  int32 present = 1;
+  int32 late = 2;
+  int32 absent = 3;
+  int32 justified = 4;
+}
+
+message SectionDay {
+  string section_id = 1;
+  string section_label = 2;
+  string level_name = 3;
+  string shift = 4;
+  string tutor_name = 5;
+  int32 enrolled = 6;
+  Tally tally = 7;
+}
+
+message Vocabulary {
+  string level = 1;
+  string grade = 2;
+  string section = 3;
+  string period = 4;
+}
+
+message GetOverviewRequest {
+  string institution_slug = 1;
+  string day = 2;
+}
+
+message GetOverviewResponse {
+  string day = 1;
+  string today = 2;
+  bool school_day = 3;
+  int32 late_after_minutes = 4;
+  int32 absence_limit_percent = 5;
+  repeated SectionDay sections = 6;
+  bool can_scan = 7;
+  bool can_manage_staff = 8;
+  bool can_review = 9;
+  bool can_take_classes = 10;
+  repeated string tutoring = 11;
+  int32 pending_justifications = 12;
+  Vocabulary vocabulary = 13;
+  Tally staff_tally = 14;
+  int32 staff_total = 15;
+  repeated int32 week_days = 16;
+}
+
+message CardHolder {
+  // student | staff
+  string kind = 1;
+  string id = 2;
+  string name = 3;
+  string code = 4;
+  string detail = 5;
+}
+
+message ScanRequest {
+  string institution_slug = 1;
+  string input = 2;
+}
+
+message ScanResponse {
+  CardHolder holder = 1;
+  string status = 2;
+  string arrived_at = 3;
+  bool repeated = 4;
+}
+
+message GateScan {
+  string id = 1;
+  CardHolder holder = 2;
+  string scanned_at = 3;
+  // qr | manual
+  string source = 4;
+  string status = 5;
+}
+
+message RecentScansRequest {
+  string institution_slug = 1;
+  int32 limit = 2;
+}
+
+message RecentScansResponse {
+  repeated GateScan scans = 1;
+}
+
+message RosterRow {
+  string student_id = 1;
+  string code = 2;
+  string name = 3;
+  string status = 4;
+  string arrived_at = 5;
+  // gate | manual | closing | justification
+  string source = 6;
+  string note = 7;
+  bool pending_justification = 8;
+}
+
+message GetRosterRequest {
+  string institution_slug = 1;
+  string section_id = 2;
+  string day = 3;
+}
+
+message GetRosterResponse {
+  string day = 1;
+  bool school_day = 2;
+  SectionDay section = 3;
+  repeated RosterRow rows = 4;
+  bool can_edit = 5;
+  string late_after = 6;
+}
+
+message MarkInput {
+  string person_id = 1;
+  string status = 2;
+  string note = 3;
+}
+
+message MarkStudentsRequest {
+  string institution_slug = 1;
+  string section_id = 2;
+  string day = 3;
+  repeated MarkInput marks = 4;
+}
+
+message CloseDayRequest {
+  string institution_slug = 1;
+  string day = 2;
+  // Empty: every section of the day (office only)
+  string section_id = 3;
+}
+
+message CloseDayResponse {
+  int32 marked = 1;
+}
+
+message StaffRow {
+  string staff_id = 1;
+  string code = 2;
+  string name = 3;
+  string position = 4;
+  string status = 5;
+  string arrived_at = 6;
+  string source = 7;
+  string note = 8;
+}
+
+message GetStaffDayRequest {
+  string institution_slug = 1;
+  string day = 2;
+}
+
+message GetStaffDayResponse {
+  string day = 1;
+  bool school_day = 2;
+  repeated StaffRow rows = 3;
+  string late_after = 4;
+}
+
+message MarkStaffRequest {
+  string institution_slug = 1;
+  string day = 2;
+  repeated MarkInput marks = 3;
+}
+
+message CloseStaffDayRequest {
+  string institution_slug = 1;
+  string day = 2;
+}
+
+message ClassSlot {
+  string assignment_id = 1;
+  string section_id = 2;
+  string section_label = 3;
+  string subject_name = 4;
+  string staff_name = 5;
+  string block_id = 6;
+  string starts_at = 7;
+  string ends_at = 8;
+  string room = 9;
+  // Empty: attendance not taken yet
+  string session_id = 10;
+  string topic = 11;
+  int32 absent = 12;
+  int32 students = 13;
+}
+
+message ListClassesRequest {
+  string institution_slug = 1;
+  string day = 2;
+  // Empty: the signed-in teacher's classes
+  string section_id = 3;
+}
+
+message ListClassesResponse {
+  string day = 1;
+  bool school_day = 2;
+  repeated ClassSlot slots = 3;
+  // teacher | section
+  string scope = 4;
+}
+
+message ClassMark {
+  string student_id = 1;
+  string code = 2;
+  string name = 3;
+  // Empty: not taken yet
+  string status = 4;
+  string note = 5;
+  // The day's mark, to suggest the class mark
+  string day_status = 6;
+}
+
+message GetClassRequest {
+  string institution_slug = 1;
+  string assignment_id = 2;
+  string block_id = 3;
+  string day = 4;
+}
+
+message GetClassResponse {
+  string day = 1;
+  ClassSlot slot = 2;
+  repeated ClassMark marks = 3;
+  bool can_edit = 4;
+}
+
+message SaveClassRequest {
+  string institution_slug = 1;
+  string assignment_id = 2;
+  string block_id = 3;
+  string day = 4;
+  string topic = 5;
+  repeated MarkInput marks = 6;
+}
+
+message Justification {
+  string id = 1;
+  string student_id = 2;
+  string student_name = 3;
+  string section_label = 4;
+  string from_day = 5;
+  string to_day = 6;
+  // health | family | procedure | other
+  string reason = 7;
+  string description = 8;
+  // pending | approved | rejected
+  string status = 9;
+  string submitted_name = 10;
+  string submitted_at = 11;
+  string reviewed_name = 12;
+  string reviewed_at = 13;
+  string review_note = 14;
+  int32 absent_days = 15;
+}
+
+message ListJustificationsRequest {
+  string institution_slug = 1;
+  string status = 2;
+  string student_id = 3;
+  int32 limit = 4;
+  int32 offset = 5;
+}
+
+message ListJustificationsResponse {
+  repeated Justification items = 1;
+  int32 total = 2;
+  bool can_review = 3;
+}
+
+message SubmitJustificationRequest {
+  string institution_slug = 1;
+  string student_id = 2;
+  string from_day = 3;
+  string to_day = 4;
+  string reason = 5;
+  string description = 6;
+}
+
+message ReviewJustificationRequest {
+  string institution_slug = 1;
+  string id = 2;
+  bool approve = 3;
+  string note = 4;
+}
+
+message SubmitJustificationResponse {
+  Justification justification = 1;
+}
+
+message ReviewJustificationResponse {
+  Justification justification = 1;
+}
+
+message StudentTally {
+  string student_id = 1;
+  string code = 2;
+  string name = 3;
+  string section_id = 4;
+  string section_label = 5;
+  Tally days = 6;
+}
+
+message SubjectTally {
+  string student_id = 1;
+  string student_name = 2;
+  string section_label = 3;
+  string assignment_id = 4;
+  string subject_name = 5;
+  Tally classes = 6;
+}
+
+message GetReportRequest {
+  string institution_slug = 1;
+  // Empty: the period running today
+  string period_id = 2;
+  string section_id = 3;
+}
+
+message GetReportResponse {
+  string period_id = 1;
+  int32 limit = 2;
+  repeated StudentTally students = 3;
+  // Students at or above three quarters of the limit in some subject
+  repeated SubjectTally subjects = 4;
+}
+
+message DailyMark {
+  string day = 1;
+  string status = 2;
+  string arrived_at = 3;
+  string source = 4;
+  string note = 5;
+}
+
+message GetStudentRequest {
+  string institution_slug = 1;
+  string student_id = 2;
+}
+
+message StudentAttendance {
+  CardHolder student = 1;
+  string section_label = 2;
+  int32 limit = 3;
+  // Not set: no mark today
+  DailyMark today = 4;
+  Tally days = 5;
+  // Days that were not plain present, newest first
+  repeated DailyMark marks = 6;
+  repeated SubjectTally subjects = 7;
+  repeated Justification justifications = 8;
+}
+
+message MyAttendanceRequest {
+  string institution_slug = 1;
+}
+
+message MyAttendanceResponse {
+  repeated StudentAttendance students = 1;
+}
+
+message CardCode {
+  string id = 1;
+  string payload = 2;
+  // Side in modules, and the modules row by row as 0/1
+  int32 size = 3;
+  string modules = 4;
+}
+
+message CardCodesRequest {
+  string institution_slug = 1;
+  // student | staff
+  string kind = 2;
+  repeated string ids = 3;
+}
+
+message CardCodesResponse {
+  repeated CardCode codes = 1;
+}
+
+message RenewCardRequest {
+  string institution_slug = 1;
+  string kind = 2;
+  string id = 3;
+}
+
+message MarkStudentsResponse {
+  GetRosterResponse roster = 1;
+}
+
+message MarkStaffResponse {
+  GetStaffDayResponse day = 1;
+}
+
+message CloseStaffDayResponse {
+  int32 marked = 1;
+}
+
+message SaveClassResponse {
+  GetClassResponse sheet = 1;
+}
+
+message GetStudentResponse {
+  StudentAttendance attendance = 1;
+}
+
+message RenewCardResponse {
+  CardCode code = 1;
+}
