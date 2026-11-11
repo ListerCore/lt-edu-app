@@ -5,18 +5,19 @@ export const siteConfig: SiteConfig = {
   name: 'Joseph',
   domain: 'joseph.pe',
   institutionType: 'EBR',
-  tagline: 'Comunidad educativa',
-  description: 'Sitio oficial de la institución: oferta educativa, admisión, comunicados y acceso a tu cuenta para estudiantes, familias y docentes.',
+  tagline: 'Gestión educativa',
+  description: 'Sistema de gestión educativa: matrícula, asistencia con carnet QR, notas, pensiones y comunicados para colegios, CEBA, CEBE, academias e institutos.',
   emails: {
     info: 'informes@joseph.pe',
     support: 'soporte@joseph.pe',
     privacy: 'privacidad@joseph.pe',
   },
-  // Public site of the institution: sections every institution type has, whatever it calls its levels or programs
+  // Home sections presenting the platform, then the public pages
   navigation: [
-    { label: 'Nosotros', href: '/#about' },
-    { label: 'Oferta educativa', href: '/#programs' },
-    { label: 'Admisión', href: '/#admissions' },
+    { label: 'Módulos', href: '/#modules' },
+    { label: 'Para quién', href: '/#roles' },
+    { label: 'Instituciones', href: '/#institutions' },
+    { label: 'Seguridad', href: '/#security' },
     { label: 'Comunicados', href: '/news', rotatingLabels: ['Comunicados', 'Anuncios', 'Avisos'] },
     { label: 'Contacto', href: '/contact' },
   ],

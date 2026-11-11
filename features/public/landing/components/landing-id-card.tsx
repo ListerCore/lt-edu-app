@@ -2,14 +2,15 @@ import type { JSX } from 'react';
 import { BrandMark } from '@/components/layout/brand-mark';
 import { finderOrigins, isFinder, QR_SIZE, qrCells } from '@/lib/qr-pattern';
 import { siteConfig } from '@/lib/site';
+import { cn } from '@/lib/utils';
 import type { IdCardProps } from '../types';
 
-// Hero ID card (CR80 proportions) hanging from a lanyard: institution, photo, name, level and attendance QR
-export const LandingIdCard = ({ card }: IdCardProps): JSX.Element => {
+// Hero ID card (CR80 proportions) hanging from a lanyard: institution, photo, name, level and the QR read at the gate
+export const LandingIdCard = ({ card, className }: IdCardProps): JSX.Element => {
   const cells = qrCells(card.code);
 
   return (
-    <figure aria-label={`Carnet de ${card.role.toLowerCase()} de ${siteConfig.name}`} className="carnet-swing relative mx-auto w-full max-w-[22rem]">
+    <figure aria-label={`Carnet de ${card.role.toLowerCase()} de ${siteConfig.name}`} className={cn('carnet-swing relative mx-auto w-full max-w-[22rem]', className)}>
       <div aria-hidden="true" className="mx-auto flex h-24 w-12 justify-center">
         <span className="h-full w-4 -skew-x-6 bg-brand-solid" />
         <span className="h-full w-4 skew-x-6 bg-brand-vivid" />

@@ -1,139 +1,134 @@
-import { HeartHandshake, MessagesSquare, Target } from 'lucide';
-import type { InstitutionType } from '@/features/protected/dashboard/types';
-import type { AboutValue, AccountAudience, LandingContent } from '../types';
+import { BookOpen, ClipboardCheck, ClipboardList, FileLock2, GraduationCap, HeartHandshake, KeyRound, Megaphone, Radio, ScanLine, School, UserCog, Users, UsersRound, Wallet } from 'lucide';
+import type { CheckIn, IdCardSample, InstitutionVocabulary, PlatformModule, RoleAccess, SecurityPoint } from '../types';
 
-// Same for every institution: who we are and what each person finds in their account
-export const aboutStatement = 'Acompañamos a cada estudiante con exigencia y cercanía, y mantenemos a su familia al tanto de cada paso.';
+export const heroCard: IdCardSample = { name: 'Valeria Ccori Mamani', detail: '3.° de secundaria · Sección B', code: '2026-0412', role: 'Estudiante' };
 
-export const aboutValues: AboutValue[] = [
-  { icon: HeartHandshake, title: 'Acompañamiento cercano', description: 'Tutoría y psicología para cada estudiante, con seguimiento de su avance durante todo el periodo.' },
-  { icon: MessagesSquare, title: 'Familias informadas', description: 'Comunicados, asistencia y notas en línea, sin esperar a la reunión de fin de periodo.' },
-  { icon: Target, title: 'Exigencia con propósito', description: 'Evaluamos para aprender: cada nota viene con lo que falta lograr y cómo lograrlo.' },
+// The hero log: the last entries read at the gate, newest last (they arrive one after another on load)
+export const heroCheckIns: CheckIn[] = [
+  { time: '07:41', name: 'Diego Quispe Rojas', section: '3.° B', status: 'on-time' },
+  { time: '07:42', name: 'Camila Flores Ayala', section: '1.° A', status: 'on-time' },
+  { time: '07:46', name: 'Mateo Huamán Ccama', section: '5.° C', status: 'late' },
+  { time: '07:47', name: 'Valeria Ccori Mamani', section: '3.° B', status: 'on-time' },
 ];
 
-export const accountAudiences: AccountAudience[] = [
-  { title: 'Estudiantes', items: ['Horario del día y de la semana', 'Notas y avance por curso', 'Asistencia y justificaciones', 'Carnet digital'] },
-  { title: 'Familias', items: ['Asistencia diaria de cada hijo', 'Notas y libretas', 'Estado de pensiones y pagos', 'Comunicados de la institución'] },
-  { title: 'Docentes', items: ['Registro de asistencia por clase', 'Registro de notas', 'Comunicados a sus secciones', 'Horario y carga horaria'] },
+export const heroStats = [
+  { label: 'Presentes', value: '412', detail: 'de 438' },
+  { label: 'Tardanzas', value: '9', detail: 'hasta las 8:00' },
+  { label: 'Por justificar', value: '17', detail: 'avisadas a familias' },
 ];
 
-const commonRequirements = ['Documento de identidad del estudiante', 'Foto tamaño carnet, de frente y con fondo claro'];
+export const supportedInstitutions = ['Colegios de EBR', 'CEBA', 'CEBE', 'Academias preuniversitarias', 'Institutos'];
 
-// Offer, admission and ID card wording per institution type; the site picks one with siteConfig.institutionType
-export const landingContent: Record<InstitutionType, LandingContent> = {
-  EBR: {
-    heroLead: 'Educación inicial, primaria y secundaria con seguimiento diario para estudiantes y familias.',
-    idCard: { name: 'Valeria Ccori Mamani', detail: '3.° de secundaria · Sección B', code: '2026-0412', role: 'Estudiante' },
-    offer: {
-      intro: 'Un mismo proyecto educativo acompaña a tu hijo en cada nivel, con evaluación por competencias.',
-      sequential: true,
-      items: [
-        { name: 'Inicial', range: '3 a 5 años', description: 'Juego, lenguaje y autonomía en aulas pequeñas.' },
-        { name: 'Primaria', range: '1.° a 6.° grado', description: 'Lectura, matemática y ciencia con un tutor por aula.' },
-        { name: 'Secundaria', range: '1.° a 5.° año', description: 'Áreas por especialistas y orientación vocacional.' },
+// Areas of the system in the order of the panel sidebar; each preview is what that screen shows first
+export const platformModules: PlatformModule[] = [
+  {
+    id: 'enrollment',
+    icon: ClipboardList,
+    name: 'Matrícula',
+    summary: 'Vacantes, documentos y matrícula por grado y sección, con el historial de cada estudiante.',
+    features: ['Niveles, grados y secciones', 'Ubicación y convalidación', 'Fichas de estudiante y familia', 'Carnets con código QR'],
+    preview: {
+      title: 'Matrícula 2026',
+      caption: 'Vacantes por grado',
+      rows: [
+        { label: '1.° de secundaria', detail: '3 secciones', value: '86 / 90', tone: 'warning' },
+        { label: '2.° de secundaria', detail: '3 secciones', value: '78 / 90', tone: 'success' },
+        { label: '3.° de secundaria', detail: '2 secciones', value: '60 / 60', tone: 'muted' },
+        { label: '4.° de secundaria', detail: '2 secciones', value: '51 / 60', tone: 'success' },
       ],
-    },
-    admission: {
-      intro: 'Las vacantes se asignan por orden de inscripción. Te acompañamos en cada paso.',
-      steps: [
-        { title: 'Solicita información', description: 'Escríbenos o visítanos para conocer vacantes, horarios y pensiones.' },
-        { title: 'Presenta los documentos', description: 'Entrega los requisitos en secretaría o súbelos en línea.' },
-        { title: 'Entrevista con la familia', description: 'Conversamos con el estudiante y su familia para conocerlos.' },
-        { title: 'Matrícula', description: 'Firmas la matrícula y recibes el acceso a tu cuenta.' },
-      ],
-      requirements: [...commonRequirements, 'Libreta o constancia de notas del último año', 'Partida de nacimiento'],
     },
   },
-  EBA: {
-    heroLead: 'Termina la primaria o la secundaria en horarios que se ajustan a tu trabajo y a tu familia.',
-    idCard: { name: 'José Huamán Quispe', detail: 'Ciclo avanzado · 2.° grado', code: '2026-1187', role: 'Estudiante' },
-    offer: {
-      intro: 'Estudia en forma presencial, semipresencial o a distancia y obtén tu certificado oficial.',
-      sequential: true,
-      items: [
-        { name: 'Ciclo inicial', range: '1.° y 2.° grado', description: 'Lectura, escritura y matemática básica.' },
-        { name: 'Ciclo intermedio', range: '1.° a 3.° grado', description: 'Equivalente a la primaria completa.' },
-        { name: 'Ciclo avanzado', range: '1.° a 4.° grado', description: 'Equivalente a la secundaria completa.' },
+  {
+    id: 'attendance',
+    icon: ScanLine,
+    name: 'Asistencia',
+    summary: 'El carnet se escanea en la puerta y la familia sabe al instante si su hijo llegó.',
+    features: ['Ingreso con QR del carnet', 'Asistencia por clase', 'Justificaciones en línea', 'Asistencia de docentes'],
+    preview: {
+      title: 'Asistencia de hoy',
+      caption: 'Por sección',
+      rows: [
+        { label: '3.° B', detail: 'Tutora: Rosa Medina', value: '31 / 32', tone: 'success' },
+        { label: '3.° C', detail: 'Tutor: Luis Paucar', value: '28 / 31', tone: 'warning' },
+        { label: '4.° A', detail: 'Tutora: Elena Soto', value: '30 / 30', tone: 'success' },
+        { label: '5.° C', detail: 'Tutor: Jorge Vilca', value: '24 / 29', tone: 'warning' },
       ],
-    },
-    admission: {
-      intro: 'Si dejaste tus estudios, retomas desde el grado que te corresponde.',
-      steps: [
-        { title: 'Solicita información', description: 'Te contamos las formas de atención y los horarios disponibles.' },
-        { title: 'Prueba de ubicación', description: 'Si no tienes certificados, una prueba define tu ciclo y grado.' },
-        { title: 'Convalidación', description: 'Reconocemos los grados que ya aprobaste en otra institución.' },
-        { title: 'Matrícula', description: 'Eliges tu forma de atención y recibes el acceso a tu cuenta.' },
-      ],
-      requirements: [...commonRequirements, 'Certificados de estudios anteriores, si los tienes', 'Ser mayor de 14 años'],
     },
   },
-  EBE: {
-    heroLead: 'Atención especializada para estudiantes con discapacidad, con un plan para cada uno y su familia.',
-    idCard: { name: 'Mateo Rojas Flores', detail: 'Primaria · Aula Girasoles', code: '2026-0058', role: 'Estudiante' },
-    offer: {
-      intro: 'Cada estudiante tiene un plan de orientación individual, terapias y un equipo que lo acompaña.',
-      sequential: true,
-      items: [
-        { name: 'PRITE', range: '0 a 3 años', description: 'Intervención temprana con la familia.' },
-        { name: 'Inicial', range: '3 a 6 años', description: 'Desarrollo de la comunicación y la autonomía.' },
-        { name: 'Primaria', range: 'Hasta 20 años', description: 'Aprendizajes funcionales y para la vida diaria.' },
+  {
+    id: 'grades',
+    icon: ClipboardCheck,
+    name: 'Notas',
+    summary: 'Registro por competencias o de 0 a 20, libretas al cierre del bimestre y ranking en academias.',
+    features: ['Notas por competencias', 'Libretas e informes de progreso', 'Simulacros y ranking', 'Banco de preguntas'],
+    preview: {
+      title: 'Matemática · 3.° B',
+      caption: 'II bimestre',
+      rows: [
+        { label: 'Resuelve problemas de cantidad', detail: '32 estudiantes', value: 'A', tone: 'success' },
+        { label: 'Resuelve problemas de regularidad', detail: '32 estudiantes', value: 'B', tone: 'brand' },
+        { label: 'Resuelve problemas de forma', detail: '32 estudiantes', value: 'A', tone: 'success' },
+        { label: 'Resuelve problemas de gestión de datos', detail: 'Falta registrar', value: '—', tone: 'muted' },
       ],
-    },
-    admission: {
-      intro: 'La evaluación inicial define el nivel, el aula y los apoyos que necesita el estudiante.',
-      steps: [
-        { title: 'Solicita información', description: 'Conversamos sobre las necesidades del estudiante.' },
-        { title: 'Evaluación psicopedagógica', description: 'El equipo evalúa al estudiante junto con su familia.' },
-        { title: 'Plan de orientación individual', description: 'Definimos metas, terapias y apoyos para el año.' },
-        { title: 'Matrícula', description: 'La familia recibe el acceso para seguir el avance en línea.' },
-      ],
-      requirements: [...commonRequirements, 'Certificado o informe de discapacidad, si lo tienes', 'Informes médicos o de terapias previas'],
     },
   },
-  CEPRE: {
-    heroLead: 'Prepárate para el examen de admisión con simulacros semanales y un ranking que muestra tu avance.',
-    idCard: { name: 'Lucía Paredes Ríos', detail: 'Ciclo intensivo · Área B', code: '2026-3301', role: 'Alumno' },
-    offer: {
-      intro: 'Todos los ciclos incluyen simulacros, material de estudio y tutoría.',
-      sequential: false,
-      items: [
-        { name: 'Ciclo regular', range: '16 semanas', description: 'Teoría y práctica completa de todos los cursos.' },
-        { name: 'Ciclo intensivo', range: '8 semanas', description: 'Repaso acelerado con simulacros cada semana.' },
-        { name: 'Ciclo de verano', range: '6 semanas', description: 'Para escolares que quieren adelantar su preparación.' },
+  {
+    id: 'payments',
+    icon: Wallet,
+    name: 'Pensiones',
+    summary: 'Cuotas, pagos y deudas por familia, con recordatorios antes del vencimiento.',
+    features: ['Cronograma de pensiones', 'Pagos y comprobantes', 'Deudas por familia', 'Reportes de cobranza'],
+    preview: {
+      title: 'Pensión de noviembre',
+      caption: 'Vence el 30/11',
+      rows: [
+        { label: 'Familia Ccori Mamani', detail: '2 hijos', value: 'Pagado', tone: 'success' },
+        { label: 'Familia Quispe Rojas', detail: '1 hijo', value: 'Pagado', tone: 'success' },
+        { label: 'Familia Huamán Ccama', detail: '1 hijo', value: 'Pendiente', tone: 'warning' },
+        { label: 'Familia Flores Ayala', detail: '3 hijos', value: 'Parcial', tone: 'brand' },
       ],
-    },
-    admission: {
-      intro: 'No hay examen de ingreso: te inscribes en el ciclo y el área de tu carrera.',
-      steps: [
-        { title: 'Elige tu ciclo y área', description: 'Según la universidad y la carrera a la que postulas.' },
-        { title: 'Inscríbete', description: 'Completa tus datos en línea o en secretaría.' },
-        { title: 'Realiza el pago', description: 'Puedes pagar el ciclo completo o en cuotas.' },
-        { title: 'Empieza tus clases', description: 'Recibes tu horario, material y acceso a los simulacros.' },
-      ],
-      requirements: [...commonRequirements, 'Constancia de estudios de 5.° de secundaria o certificado'],
     },
   },
-  IEST: {
-    heroLead: 'Carreras técnicas de tres años con experiencias formativas en empresas desde el primer semestre.',
-    idCard: { name: 'Ana Torres Salazar', detail: 'Enfermería técnica · III semestre', code: '2026-2044', role: 'Estudiante' },
-    offer: {
-      intro: 'Seis semestres académicos, prácticas en situaciones reales de trabajo y título a nombre de la Nación.',
-      sequential: false,
-      items: [
-        { name: 'Enfermería técnica', range: '6 semestres', description: 'Cuidado del paciente en hospitales y centros de salud.' },
-        { name: 'Desarrollo de sistemas', range: '6 semestres', description: 'Programación, bases de datos y soporte de aplicaciones.' },
-        { name: 'Contabilidad', range: '6 semestres', description: 'Contabilidad, tributación y gestión financiera.' },
+  {
+    id: 'announcements',
+    icon: Megaphone,
+    name: 'Comunicados',
+    summary: 'Publica para toda la institución o para una sección; llega en vivo, con imágenes y PDF.',
+    features: ['Por audiencia: familias, docentes, sección', 'Adjuntos con vista previa', 'Destacados en la página de inicio', 'Actualización en tiempo real'],
+    preview: {
+      title: 'Comunicados',
+      caption: 'Esta semana',
+      rows: [
+        { label: 'Reunión de padres de 3.° de secundaria', detail: 'Familias · 3.° B', value: 'Hoy', tone: 'brand' },
+        { label: 'Cronograma de exámenes bimestrales', detail: 'Toda la institución', value: 'Ayer', tone: 'muted' },
+        { label: 'Simulacro de sismo', detail: 'Toda la institución', value: 'Lun', tone: 'muted' },
+        { label: 'Actualización de datos de contacto', detail: 'Familias', value: 'Lun', tone: 'muted' },
       ],
-    },
-    admission: {
-      intro: 'El examen de admisión se toma dos veces al año, antes de cada semestre.',
-      steps: [
-        { title: 'Inscríbete al examen', description: 'Elige tu programa de estudios y completa tus datos.' },
-        { title: 'Rinde el examen', description: 'Evaluamos aptitud académica y conocimientos generales.' },
-        { title: 'Consulta los resultados', description: 'Se publican en la sección de comunicados.' },
-        { title: 'Matrícula', description: 'Si ingresas, te matriculas en el primer semestre.' },
-      ],
-      requirements: [...commonRequirements, 'Certificado de estudios secundarios completos'],
     },
   },
-};
+];
+
+export const roleAccess: RoleAccess[] = [
+  { icon: School, title: 'Dirección', description: 'La institución completa en un vistazo.', items: ['Indicadores de asistencia y notas', 'Cobranza del mes', 'Usuarios, roles y auditoría'] },
+  { icon: UserCog, title: 'Secretaría', description: 'Los trámites, sin papeles sueltos.', items: ['Matrícula y fichas', 'Carnets y constancias', 'Pagos y comprobantes'] },
+  { icon: BookOpen, title: 'Docentes', description: 'Sus secciones y nada más.', items: ['Asistencia por clase', 'Registro de notas', 'Comunicados a sus aulas'] },
+  { icon: GraduationCap, title: 'Estudiantes', description: 'Su día en el celular.', items: ['Horario y material', 'Notas por curso', 'Carnet digital'] },
+  { icon: UsersRound, title: 'Familias', description: 'Al tanto sin esperar la reunión.', items: ['Llegada de cada hijo', 'Libretas y avance', 'Pensiones y comunicados'] },
+  { icon: HeartHandshake, title: 'Tutoría y psicología', description: 'El seguimiento de cada caso.', items: ['Fichas de tutoría', 'Alertas de bienestar', 'Escuela de padres'] },
+];
+
+// Taken from the panel sidebar labels: the same system speaks each institution's language
+export const institutionVocabulary: InstitutionVocabulary[] = [
+  { type: 'EBR', name: 'Educación Básica Regular', levels: 'Inicial, primaria y secundaria', periods: 'Bimestres', courses: 'Áreas y cursos' },
+  { type: 'EBA', name: 'Educación Básica Alternativa', levels: 'Ciclos inicial, intermedio y avanzado', periods: 'Periodos promocionales', courses: 'Áreas curriculares' },
+  { type: 'EBE', name: 'Educación Básica Especial', levels: 'PRITE, inicial y primaria', periods: 'Trimestres', courses: 'Áreas de desarrollo' },
+  { type: 'CEPRE', name: 'Academia preuniversitaria', levels: 'Áreas y aulas', periods: 'Ciclos', courses: 'Cursos y simulacros' },
+  { type: 'IEST', name: 'Instituto de educación superior', levels: 'Programas de estudio', periods: 'Semestres académicos', courses: 'Unidades didácticas' },
+];
+
+export const securityPoints: SecurityPoint[] = [
+  { icon: Users, title: 'Permisos por rol e institución', description: 'Una misma persona puede ser docente en un colegio y apoderada en otro; en cada uno ve solo lo suyo.' },
+  { icon: KeyRound, title: 'Verificación en dos pasos', description: 'Código de una app de autenticación al ingresar y códigos de respaldo para cuando no tienes el celular.' },
+  { icon: FileLock2, title: 'Archivos privados', description: 'Los adjuntos se entregan solo a quien tiene permiso de verlos, nunca con un enlace público.' },
+  { icon: Radio, title: 'Todo al día, en vivo', description: 'Un comunicado publicado o una asistencia registrada aparece al momento, sin recargar la página.' },
+];

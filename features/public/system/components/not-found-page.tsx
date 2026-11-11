@@ -1,13 +1,13 @@
 import Link from 'next/link';
 import type { JSX } from 'react';
-import { ArrowLeft, ArrowUpRight, ClipboardList, GraduationCap, Mail, Megaphone } from 'lucide';
+import { ArrowLeft, ArrowUpRight, LayoutGrid, LogIn, Mail, Megaphone } from 'lucide';
 import type { IconInput } from 'morphicons/react';
 import { MorphIcon } from '@/components/ui/morph-icon';
 import { RequestedPath } from './requested-path';
 
 const suggestions: Array<{ icon: IconInput; label: string; description: string; href: string }> = [
-  { icon: GraduationCap, label: 'Oferta educativa', description: 'Niveles, ciclos o programas que ofrece la institución.', href: '/#programs' },
-  { icon: ClipboardList, label: 'Admisión', description: 'Requisitos, fechas y pasos para matricularte.', href: '/#admissions' },
+  { icon: LayoutGrid, label: 'Módulos', description: 'Matrícula, asistencia, notas, pensiones y comunicados.', href: '/#modules' },
+  { icon: LogIn, label: 'Ingresar', description: 'Entra al panel con tu correo o con Google.', href: '/auth/signin' },
   { icon: Megaphone, label: 'Comunicados', description: 'Anuncios y avisos para estudiantes y familias.', href: '/news' },
   { icon: Mail, label: 'Contacto', description: 'Escríbenos o visítanos en nuestra sede.', href: '/contact' },
 ];

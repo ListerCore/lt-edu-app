@@ -496,6 +496,52 @@
   }
 }
 
+/* Landing console: arrival bars rise once, the scanned student's row lights up and fades, the live dot pulses */
+@keyframes bar-grow {
+  from {
+    transform: scaleY(0);
+  }
+}
+
+.bar-grow {
+  transform-origin: 50% 100%;
+  animation: bar-grow 0.7s cubic-bezier(0.22, 0.68, 0.24, 1) both;
+}
+
+@keyframes checkin-flash {
+  0%,
+  40% {
+    background-color: var(--brand-soft);
+  }
+  100% {
+    background-color: transparent;
+  }
+}
+
+.checkin-flash {
+  animation:
+    row-in 0.4s cubic-bezier(0.22, 0.68, 0.24, 1) both,
+    checkin-flash 2.4s ease-out both;
+}
+
+@keyframes live-dot {
+  50% {
+    opacity: 0.35;
+  }
+}
+
+.live-dot {
+  animation: live-dot 1.6s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bar-grow,
+  .checkin-flash,
+  .live-dot {
+    animation: none;
+  }
+}
+
 /* Printing ID cards: only the sheet prints, at real size, with the brand colors kept */
 @media print {
   @page {
