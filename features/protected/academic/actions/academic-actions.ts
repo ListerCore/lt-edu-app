@@ -1,31 +1,12 @@
 'use server';
 
-import { cookies } from 'next/headers';
 import { academicRpc } from '@/lib/api/grpc/academic';
-import type { GrpcResult } from '@/lib/api/grpc/client';
-import { SESSION_COOKIE } from '@/lib/auth/cookies';
-import { DATE_PATTERN, SLUG_PATTERN, UUID_PATTERN } from '../data/academic-data';
+import { DATE_PATTERN } from '../data/academic-data';
+import { notFound, runRpc, toInt, validIds } from '../lib/run-rpc';
 import type { AcademicContext, AcademicResult, Grade, GradeFormValues, Level, LevelFormValues, Period, PeriodDetailData, PeriodFormValues, PeriodsData, Section, SectionBatchValues, SectionFormValues, SettingsFormValues, StructureData, Term, TermFormValues } from '../types';
 
-const signedOut = { ok: false, message: 'Tu sesión venció. Ingresa de nuevo.' } as const;
-const notFound = { ok: false, message: 'No encontramos lo que buscas. Recarga la página.' } as const;
-
-const sessionToken = async (): Promise<string | undefined> => (await cookies()).get(SESSION_COOKIE)?.value;
-
-// Runs one RPC with the session and turns its answer (or the API error with its field messages) into a result
-const run = async <Res, T>(slug: string, call: (token: string) => Promise<GrpcResult<Res>>, pick: (data: Res) => T | undefined, message?: string): Promise<AcademicResult<T>> => {
-  const token = await sessionToken();
-  if (!token) return signedOut;
-  if (slug && !SLUG_PATTERN.test(slug)) return notFound;
-  const result = await call(token);
-  if (!result.ok) return { ok: false, message: result.error.message, ...(result.error.fields && { fields: result.error.fields }) };
-  const data = pick(result.data);
-  if (data === undefined) return notFound;
-  return { ok: true, data, ...(message && { message }) };
-};
-
-const ids = (...values: string[]): boolean => values.every((value) => UUID_PATTERN.test(value));
-const toInt = (value: string): number | undefined => (/^\d{1,4}$/.test(value.trim()) ? Number(value.trim()) : undefined);
+const run = runRpc;
+const ids = validIds;
 const date = (value: string): string => (DATE_PATTERN.test(value) ? value : '');
 
 // ---------- profile ----------

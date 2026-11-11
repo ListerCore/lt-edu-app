@@ -69,7 +69,7 @@ export const dashboardNavigation: NavSection[] = [
           { label: { default: 'Niveles y grados', EBA: 'Ciclos y grados', CEPRE: 'Áreas y aulas', IEST: 'Programas de estudio', EBE: 'Niveles y aulas' }, icon: Layers, href: path('academic/structure'), module: 'structure' },
           { label: 'Formas de atención', icon: Shapes, href: path('academic/attention-modes'), module: 'attention-modes' },
           { label: { default: 'Bimestres', EBA: 'Periodos promocionales', CEPRE: 'Ciclos', IEST: 'Semestres académicos', EBE: 'Trimestres' }, icon: CalendarRange, href: path('academic/periods'), module: 'periods' },
-          { label: { default: 'Cursos', EBR: 'Áreas y cursos', EBA: 'Áreas curriculares', IEST: 'Unidades didácticas', EBE: 'Áreas de desarrollo' }, icon: BookOpen, href: path('academic/courses'), module: 'courses' },
+          { label: 'Plan de estudios', icon: BookOpen, href: path('academic/courses'), module: 'courses' },
           { label: 'Horarios', icon: Clock, href: path('academic/schedules'), module: 'schedules' },
         ],
       },

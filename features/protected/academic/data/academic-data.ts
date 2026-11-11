@@ -101,3 +101,58 @@ export const suggestedPeriodName = (periodKind: string, season: string, year: nu
       return `Ciclo ${seasonLabels[season] ?? ''} ${year}`.replace(/\s+/g, ' ');
   }
 };
+
+// ---------- study plans ----------
+
+export const CURRICULA_PATH = `${DASHBOARD_PATH}/academic/courses`;
+export const curriculumPath = (id: string): string => `${CURRICULA_PATH}/${id}`;
+
+export const curriculumStatusLabels: Record<string, string> = { draft: 'Borrador', active: 'Vigente', archived: 'Archivado' };
+export const curriculumStatusClass: Record<string, string> = {
+  draft: 'bg-secondary text-muted-foreground',
+  active: 'bg-success/12 text-success',
+  archived: 'bg-brand-soft text-brand',
+};
+
+export const subjectKindLabels: Record<string, string> = {
+  area: 'Área curricular',
+  workshop: 'Taller',
+  tutoring: 'Tutoría',
+  course: 'Curso',
+  unit: 'Unidad didáctica',
+  efsrt: 'Experiencia formativa (EFSRT)',
+};
+export const componentLabels: Record<string, string> = { specific: 'Específica', employability: 'Empleabilidad', efsrt: 'EFSRT' };
+export const componentClass: Record<string, string> = {
+  specific: 'bg-secondary text-foreground',
+  employability: 'bg-brand-soft text-brand',
+  efsrt: 'bg-success/12 text-success',
+};
+
+// Subject kinds each institution kind uses (same rule as the API), the first being the default
+export const subjectKindsFor: Record<string, string[]> = {
+  ebr: ['area', 'workshop', 'tutoring'],
+  eba: ['area', 'workshop', 'tutoring'],
+  ebe: ['area', 'workshop', 'tutoring'],
+  cepre: ['course'],
+  institute: ['unit', 'efsrt'],
+};
+
+// What is assessed: competencies (Educación Básica), capacities (institutes), topics (CEPRE)
+export const assessedNoun: Record<string, { one: string; many: string }> = {
+  ebr: { one: 'Competencia', many: 'Competencias' },
+  eba: { one: 'Competencia', many: 'Competencias' },
+  ebe: { one: 'Competencia', many: 'Competencias' },
+  cepre: { one: 'Tema', many: 'Temas' },
+  institute: { one: 'Capacidad', many: 'Capacidades' },
+};
+
+export const subjectNoun: Record<string, { one: string; many: string }> = {
+  ebr: { one: 'Área', many: 'Áreas' },
+  eba: { one: 'Área', many: 'Áreas' },
+  ebe: { one: 'Área', many: 'Áreas' },
+  cepre: { one: 'Curso', many: 'Cursos' },
+  institute: { one: 'Unidad didáctica', many: 'Unidades didácticas' },
+};
+
+export const creditsOf = (subject: { theoryCredits?: number; practiceCredits?: number }): number => (subject.theoryCredits ?? 0) + (subject.practiceCredits ?? 0);

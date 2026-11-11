@@ -1,6 +1,7 @@
 import type { AcademicContext, Grade, Level, Period, Section, Settings, Term, Vocabulary } from '@/lib/api/grpc/gen/joseph/academic/v1/academic';
+import type { Competency, Curriculum, Module, Subject } from '@/lib/api/grpc/gen/joseph/academic/v1/curriculum';
 
-export type { AcademicContext, Grade, Level, Period, Section, Settings, Term, Vocabulary };
+export type { AcademicContext, Competency, Curriculum, Grade, Level, Module, Period, Section, Settings, Subject, Term, Vocabulary };
 
 // Every academic call answers with this shape; fields maps form inputs to their error
 export type AcademicResult<T> = { ok: true; data: T; message?: string } | { ok: false; message: string; fields?: Record<string, string> };
@@ -95,4 +96,52 @@ export interface FormState<V> {
   isPending: boolean;
   setField: <K extends keyof V>(key: K, value: V[K]) => void;
   submit: () => void;
+}
+
+export interface CurriculaData {
+  context: AcademicContext;
+  levels: Level[];
+  curricula: Curriculum[];
+  templateLevelIds: string[];
+}
+
+export interface CurriculumData {
+  context: AcademicContext;
+  curriculum: Curriculum;
+  level: Level;
+}
+
+export interface NewCurriculumValues {
+  levelId: string;
+  name: string;
+  fromTemplate: boolean;
+}
+
+export interface PlanValues {
+  name: string;
+  notes: string;
+}
+
+export interface ModuleFormValues {
+  name: string;
+  code: string;
+  description: string;
+}
+
+export interface SubjectFormValues {
+  kind: string;
+  component: string;
+  name: string;
+  code: string;
+  description: string;
+  weeklyHours: string;
+  theoryCredits: string;
+  practiceCredits: string;
+  gradeIds: string[];
+  moduleId: string;
+}
+
+export interface CompetencyFormValues {
+  code: string;
+  name: string;
 }
