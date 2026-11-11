@@ -151,16 +151,16 @@ const TherapyDialog = ({ slug, log, session, onClose, onSaved }: { slug: string;
       <div className="grid gap-4 sm:grid-cols-3">
         <DateInput id="th-date" label="Fecha" value={v.heldOn || today} max={today} onChange={(x): void => setV({ ...v, heldOn: x })} required />
         <FormField id="th-min" label="Minutos" required>
-          <Input id="th-min" type="number" min={10} max={240} step={5} value={v.minutes} onChange={(e): void => setV({ ...v, minutes: Number(e.target.value) })} />
+          <Input placeholder="45" id="th-min" type="number" min={10} max={240} step={5} value={v.minutes} onChange={(e): void => setV({ ...v, minutes: Number(e.target.value) })} />
         </FormField>
         <label className={cn('flex items-center gap-2 self-end rounded-lg border border-border px-3 py-2.5 text-sm')}>
           <input type="checkbox" checked={!v.attended} onChange={(e): void => setV({ ...v, attended: !e.target.checked })} className="size-4 accent-brand" />
           No asistió
         </label>
       </div>
-      <TextArea id="th-goal" label="Objetivo de la sesión" value={v.goal} onChange={(x): void => setV({ ...v, goal: x })} max={500} required rows={2} />
-      <TextArea id="th-notes" label="Notas del profesional" value={v.notes} onChange={(x): void => setV({ ...v, notes: x })} max={2000} />
-      <TextArea id="th-home" label="Tareas para casa" value={v.homeTasks} onChange={(x): void => setV({ ...v, homeTasks: x })} max={1000} hint="La familia las ve en su panel." rows={2} />
+      <TextArea id="th-goal" placeholder="Ej.: Mejorar la pronunciación de /r/" label="Objetivo de la sesión" value={v.goal} onChange={(x): void => setV({ ...v, goal: x })} max={500} required rows={2} />
+      <TextArea id="th-notes" placeholder="Cómo respondió y qué observaste" label="Notas del profesional" value={v.notes} onChange={(x): void => setV({ ...v, notes: x })} max={2000} />
+      <TextArea id="th-home" placeholder="Ej.: Leer en voz alta 10 minutos al día" label="Tareas para casa" value={v.homeTasks} onChange={(x): void => setV({ ...v, homeTasks: x })} max={1000} hint="La familia las ve en su panel." rows={2} />
     </FormDialog>
   );
 };

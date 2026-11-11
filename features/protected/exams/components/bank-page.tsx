@@ -166,7 +166,7 @@ const QuestionDialog = ({ slug, courses, question, defaultCourse, onClose, onSav
           {course?.topics.length ? (
             <SelectField id="q-topic" value={values.topic} options={[{ value: '', label: 'Sin tema' }, ...course.topics.map((t) => ({ value: t, label: t }))]} onChange={(v): void => setField('topic', v)} />
           ) : (
-            <Input id="q-topic" value={values.topic} maxLength={160} onChange={(e): void => setField('topic', e.target.value)} />
+            <Input placeholder="Ej.: Ecuaciones de primer grado" id="q-topic" value={values.topic} maxLength={160} onChange={(e): void => setField('topic', e.target.value)} />
           )}
         </FormField>
         <FormField id="q-diff" label="Dificultad" required>
@@ -174,7 +174,7 @@ const QuestionDialog = ({ slug, courses, question, defaultCourse, onClose, onSav
         </FormField>
       </div>
       <FormField id="q-stem" label="Enunciado" required error={errors.stem}>
-        <Textarea id="q-stem" value={values.stem} rows={4} maxLength={3000} onChange={(e): void => setField('stem', e.target.value)} aria-invalid={Boolean(errors.stem)} />
+        <Textarea placeholder="Escribe el enunciado de la pregunta" id="q-stem" value={values.stem} rows={4} maxLength={3000} onChange={(e): void => setField('stem', e.target.value)} aria-invalid={Boolean(errors.stem)} />
       </FormField>
       <fieldset className="space-y-2">
         <legend className="text-sm font-medium text-foreground">
@@ -192,13 +192,13 @@ const QuestionDialog = ({ slug, courses, question, defaultCourse, onClose, onSav
             >
               {letters[i]}
             </button>
-            <Input aria-label={`Alternativa ${letters[i]}`} value={o} maxLength={500} onChange={(e): void => setField('options', values.options.map((x, j) => (j === i ? e.target.value : x)))} />
+            <Input placeholder="Texto de la alternativa" aria-label={`Alternativa ${letters[i]}`} value={o} maxLength={500} onChange={(e): void => setField('options', values.options.map((x, j) => (j === i ? e.target.value : x)))} />
           </div>
         ))}
         {errors.options && <p className="text-xs text-destructive">{errors.options}</p>}
       </fieldset>
       <FormField id="q-expl" label="Solución" hint="Se ve en el banco y en la clave impresa, no en el cuadernillo.">
-        <Textarea id="q-expl" value={values.explanation} rows={2} maxLength={3000} onChange={(e): void => setField('explanation', e.target.value)} />
+        <Textarea placeholder="Por qué es correcta la respuesta" id="q-expl" value={values.explanation} rows={2} maxLength={3000} onChange={(e): void => setField('explanation', e.target.value)} />
       </FormField>
     </FormDialog>
   );

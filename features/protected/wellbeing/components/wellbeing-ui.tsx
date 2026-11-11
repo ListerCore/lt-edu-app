@@ -158,7 +158,7 @@ export const PromptDialog = ({
   return (
     <FormDialog title={title} description={description} submitLabel={submitLabel} isPending={isPending} disabled={!value.trim()} onSubmit={(): void => onSubmit(value, option)} onClose={onClose}>
       {options && <OneOf label="Decisión" value={option} options={options} onChange={setOption} />}
-      {kind === 'date' ? <DateInput id="prompt-date" label={label} value={value} onChange={setValue} required /> : <TextArea id="prompt-text" label={label} value={value} onChange={setValue} max={max} required rows={4} />}
+      {kind === 'date' ? <DateInput id="prompt-date" label={label} value={value} onChange={setValue} required /> : <TextArea id="prompt-text" label={label} value={value} onChange={setValue} max={max} required rows={4} placeholder="Escribe aquí" />}
     </FormDialog>
   );
 };

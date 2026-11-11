@@ -53,7 +53,7 @@ export const NewCurriculumDialog = ({ slug, context, levels, templateLevelIds, i
         />
       </FormField>
       <FormField id="plan-name" label="Nombre" error={errors.name} hint="Vacío: «Plan CNEB», «Plan UNI», «Plan de estudios 2026»…">
-        <Input id="plan-name" value={values.name} maxLength={80} onChange={(e): void => setField('name', e.target.value)} aria-invalid={Boolean(errors.name)} className={controlClassName} />
+        <Input placeholder="Ej.: Plan de estudios 2026" id="plan-name" value={values.name} maxLength={80} onChange={(e): void => setField('name', e.target.value)} aria-invalid={Boolean(errors.name)} className={controlClassName} />
       </FormField>
       <label className="flex items-center justify-between gap-4 rounded-lg border border-border px-4 py-3">
         <span>
@@ -108,11 +108,11 @@ export const PlanDialog = ({ slug, plan, mode, onClose, onSaved }: PlanDialogPro
       onClose={onClose}
     >
       <FormField id="plan-edit-name" label="Nombre" required error={errors.name}>
-        <Input id="plan-edit-name" value={values.name} maxLength={80} onChange={(e): void => setField('name', e.target.value)} aria-invalid={Boolean(errors.name)} className={controlClassName} />
+        <Input placeholder="Ej.: Plan de estudios 2026" id="plan-edit-name" value={values.name} maxLength={80} onChange={(e): void => setField('name', e.target.value)} aria-invalid={Boolean(errors.name)} className={controlClassName} />
       </FormField>
       {!duplicate && (
         <FormField id="plan-edit-notes" label="Notas" error={errors.notes} hint="Resolución que lo aprueba, cambios respecto a la versión anterior…">
-          <Textarea id="plan-edit-notes" rows={4} maxLength={1000} value={values.notes} onChange={(e): void => setField('notes', e.target.value)} className="rounded-lg bg-background" />
+          <Textarea placeholder="Resolución de aprobación, vigencia u otros datos" id="plan-edit-notes" rows={4} maxLength={1000} value={values.notes} onChange={(e): void => setField('notes', e.target.value)} className="rounded-lg bg-background" />
         </FormField>
       )}
     </FormDialog>
@@ -141,13 +141,13 @@ export const ModuleDialog = ({ slug, curriculumId, module, onClose, onSaved }: M
   return (
     <FormDialog title={module ? 'Editar módulo' : 'Nuevo módulo formativo'} description={module ? undefined : 'Al aprobar todas sus unidades y su EFSRT, el estudiante recibe el certificado modular.'} submitLabel={module ? 'Guardar cambios' : 'Agregar módulo'} isPending={isPending} onSubmit={submit} onClose={onClose}>
       <FormField id="module-name" label="Nombre" required error={errors.name}>
-        <Input id="module-name" value={values.name} maxLength={160} onChange={(e): void => setField('name', e.target.value)} aria-invalid={Boolean(errors.name)} className={controlClassName} />
+        <Input placeholder="Ej.: Gestión de cuidados de enfermería" id="module-name" value={values.name} maxLength={160} onChange={(e): void => setField('name', e.target.value)} aria-invalid={Boolean(errors.name)} className={controlClassName} />
       </FormField>
       <FormField id="module-code" label="Código" error={errors.code} hint="Vacío: se arma con el nombre.">
-        <Input id="module-code" value={values.code} maxLength={40} onChange={(e): void => setField('code', e.target.value.toLowerCase())} className={controlClassName} />
+        <Input placeholder="Ej.: modulo-1" id="module-code" value={values.code} maxLength={40} onChange={(e): void => setField('code', e.target.value.toLowerCase())} className={controlClassName} />
       </FormField>
       <FormField id="module-description" label="Descripción" error={errors.description}>
-        <Textarea id="module-description" rows={2} maxLength={1000} value={values.description} onChange={(e): void => setField('description', e.target.value)} className="rounded-lg bg-background" />
+        <Textarea placeholder="Qué competencias desarrolla el módulo" id="module-description" rows={2} maxLength={1000} value={values.description} onChange={(e): void => setField('description', e.target.value)} className="rounded-lg bg-background" />
       </FormField>
     </FormDialog>
   );
@@ -212,14 +212,14 @@ export const SubjectDialog = ({ slug, context, plan, level, subject, initialModu
         </FormField>
       )}
       <FormField id="subject-name" label="Nombre" required error={errors.name}>
-        <Input id="subject-name" value={values.name} maxLength={160} onChange={(e): void => setField('name', e.target.value)} aria-invalid={Boolean(errors.name)} className={controlClassName} />
+        <Input placeholder="Ej.: Matemática" id="subject-name" value={values.name} maxLength={160} onChange={(e): void => setField('name', e.target.value)} aria-invalid={Boolean(errors.name)} className={controlClassName} />
       </FormField>
       <div className="grid gap-5 sm:grid-cols-2">
         <FormField id="subject-code" label="Código" error={errors.code} hint="Vacío: se arma con el nombre.">
-          <Input id="subject-code" value={values.code} maxLength={40} onChange={(e): void => setField('code', e.target.value.toLowerCase())} className={controlClassName} />
+          <Input placeholder="Ej.: matematica" id="subject-code" value={values.code} maxLength={40} onChange={(e): void => setField('code', e.target.value.toLowerCase())} className={controlClassName} />
         </FormField>
         <FormField id="subject-hours" label="Horas semanales" error={errors.weeklyHours} hint={institute ? `Vacío: ${derivedHours} h según los créditos.` : 'Opcional.'}>
-          <Input id="subject-hours" inputMode="numeric" value={values.weeklyHours} onChange={(e): void => setField('weeklyHours', digits(e.target.value))} aria-invalid={Boolean(errors.weeklyHours)} className={controlClassName} />
+          <Input placeholder="Ej.: 5" id="subject-hours" inputMode="numeric" value={values.weeklyHours} onChange={(e): void => setField('weeklyHours', digits(e.target.value))} aria-invalid={Boolean(errors.weeklyHours)} className={controlClassName} />
         </FormField>
       </div>
       {institute && (
@@ -231,10 +231,10 @@ export const SubjectDialog = ({ slug, context, plan, level, subject, initialModu
               </FormField>
             )}
             <FormField id="subject-theory" label="Créditos de teoría" error={errors.theoryCredits}>
-              <Input id="subject-theory" inputMode="numeric" value={values.theoryCredits} onChange={(e): void => setField('theoryCredits', digits(e.target.value))} aria-invalid={Boolean(errors.theoryCredits)} className={controlClassName} />
+              <Input placeholder="Ej.: 2" id="subject-theory" inputMode="numeric" value={values.theoryCredits} onChange={(e): void => setField('theoryCredits', digits(e.target.value))} aria-invalid={Boolean(errors.theoryCredits)} className={controlClassName} />
             </FormField>
             <FormField id="subject-practice" label="Créditos de práctica" error={errors.practiceCredits} hint={`${credits} créditos · ${(Number(values.theoryCredits) || 0) * 16 + (Number(values.practiceCredits) || 0) * 32} horas`}>
-              <Input id="subject-practice" inputMode="numeric" value={values.practiceCredits} onChange={(e): void => setField('practiceCredits', digits(e.target.value))} className={controlClassName} />
+              <Input placeholder="Ej.: 1" id="subject-practice" inputMode="numeric" value={values.practiceCredits} onChange={(e): void => setField('practiceCredits', digits(e.target.value))} className={controlClassName} />
             </FormField>
           </div>
           {plan.modules.length > 0 && (
@@ -256,7 +256,7 @@ export const SubjectDialog = ({ slug, context, plan, level, subject, initialModu
         </FormField>
       )}
       <FormField id="subject-description" label="Descripción" error={errors.description}>
-        <Textarea id="subject-description" rows={2} maxLength={1000} value={values.description} onChange={(e): void => setField('description', e.target.value)} className="rounded-lg bg-background" />
+        <Textarea placeholder="De qué trata y cómo se evalúa" id="subject-description" rows={2} maxLength={1000} value={values.description} onChange={(e): void => setField('description', e.target.value)} className="rounded-lg bg-background" />
       </FormField>
     </FormDialog>
   );
@@ -289,10 +289,10 @@ export const CompetencyDialog = ({ slug, context, curriculumId, subject, compete
   return (
     <FormDialog title={competency ? `Editar ${lower(noun.one)}` : `${context.institutionKind === 'cepre' ? 'Nuevo' : 'Nueva'} ${lower(noun.one)}`} description={where} submitLabel={competency ? 'Guardar cambios' : 'Agregar'} isPending={isPending} onSubmit={submit} onClose={onClose}>
       <FormField id="competency-name" label={noun.one} required error={errors.name}>
-        <Textarea id="competency-name" rows={3} maxLength={300} value={values.name} onChange={(e): void => setField('name', e.target.value)} aria-invalid={Boolean(errors.name)} className="rounded-lg bg-background" />
+        <Textarea placeholder="Ej.: Resuelve problemas de cantidad" id="competency-name" rows={3} maxLength={300} value={values.name} onChange={(e): void => setField('name', e.target.value)} aria-invalid={Boolean(errors.name)} className="rounded-lg bg-background" />
       </FormField>
       <FormField id="competency-code" label="Código" error={errors.code} hint={context.institutionKind === 'cepre' ? 'Opcional.' : 'Opcional: «C25» para la competencia 25 del CNEB.'}>
-        <Input id="competency-code" value={values.code} maxLength={20} onChange={(e): void => setField('code', e.target.value)} className={`${controlClassName} max-w-40`} />
+        <Input placeholder="Ej.: C23" id="competency-code" value={values.code} maxLength={20} onChange={(e): void => setField('code', e.target.value)} className={`${controlClassName} max-w-40`} />
       </FormField>
     </FormDialog>
   );

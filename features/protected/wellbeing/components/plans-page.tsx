@@ -20,15 +20,15 @@ import { TextArea, useAct } from './wellbeing-ui';
 const fold = (v: string): string => v.normalize('NFD').replace(/\p{Diacritic}/gu, '').toLowerCase();
 
 // The sections of a POI, in the order of the printed document
-const sections: Array<{ key: keyof IndividualPlan; label: string; max: number; hint?: string }> = [
-  { key: 'needs', label: 'Necesidades educativas', max: 2000, hint: 'Diagnóstico o condición y barreras para aprender y participar.' },
-  { key: 'strengths', label: 'Fortalezas e intereses', max: 2000 },
-  { key: 'educationalResponse', label: 'Respuesta educativa', max: 4000, hint: 'Cómo se organiza la enseñanza y los apoyos para este estudiante.' },
-  { key: 'curricularAdaptations', label: 'Adaptaciones curriculares', max: 4000, hint: 'Competencias priorizadas y desempeños ajustados.' },
-  { key: 'accessAdaptations', label: 'Adaptaciones de acceso', max: 4000, hint: 'Materiales, espacio, comunicación, tiempos.' },
-  { key: 'evaluationCriteria', label: 'Criterios de evaluación', max: 2000, hint: 'Escala AD/A/B/C frente a lo previsto en las adaptaciones.' },
-  { key: 'actors', label: 'Actores que intervienen', max: 2000 },
-  { key: 'familyCommitments', label: 'Compromisos de la familia', max: 2000 },
+const sections: Array<{ key: keyof IndividualPlan; label: string; max: number; hint?: string; placeholder: string }> = [
+  { key: 'needs', label: 'Necesidades educativas', max: 2000, hint: 'Diagnóstico o condición y barreras para aprender y participar.', placeholder: 'Ej.: Trastorno del espectro autista; dificultad para seguir consignas largas' },
+  { key: 'strengths', label: 'Fortalezas e intereses', max: 2000, placeholder: 'Ej.: Le gusta dibujar y recuerda bien lo que ve' },
+  { key: 'educationalResponse', label: 'Respuesta educativa', max: 4000, hint: 'Cómo se organiza la enseñanza y los apoyos para este estudiante.', placeholder: 'Ej.: Apoyo de la docente SAANEE dos veces por semana' },
+  { key: 'curricularAdaptations', label: 'Adaptaciones curriculares', max: 4000, hint: 'Competencias priorizadas y desempeños ajustados.', placeholder: 'Ej.: Prioriza «Resuelve problemas de cantidad» con números hasta el 100' },
+  { key: 'accessAdaptations', label: 'Adaptaciones de acceso', max: 4000, hint: 'Materiales, espacio, comunicación, tiempos.', placeholder: 'Ej.: Pictogramas, ubicación cerca de la pizarra, más tiempo en las evaluaciones' },
+  { key: 'evaluationCriteria', label: 'Criterios de evaluación', max: 2000, hint: 'Escala AD/A/B/C frente a lo previsto en las adaptaciones.', placeholder: 'Ej.: Logro esperado si resuelve sumas con apoyo concreto' },
+  { key: 'actors', label: 'Actores que intervienen', max: 2000, placeholder: 'Ej.: Docente de aula, terapeuta de lenguaje, familia' },
+  { key: 'familyCommitments', label: 'Compromisos de la familia', max: 2000, placeholder: 'Ej.: Practicar en casa las tareas de terapia' },
 ];
 
 // Planes de orientación individual (EBE): coordinación opens each plan and assigns the specialist, who writes it;
@@ -248,7 +248,7 @@ const PlanEditor = ({ slug, plan, board, onClose, onSaved }: { slug: string; pla
         </FormField>
       )}
       {sections.map((s) => (
-        <TextArea key={s.key} id={`pe-${s.key}`} label={s.label} hint={s.hint} value={String(v[s.key])} max={s.max} onChange={(x): void => setV({ ...v, [s.key]: x })} rows={s.max > 2000 ? 4 : 3} />
+        <TextArea key={s.key} id={`pe-${s.key}`} label={s.label} hint={s.hint} value={String(v[s.key])} max={s.max} onChange={(x): void => setV({ ...v, [s.key]: x })} rows={s.max > 2000 ? 4 : 3} placeholder={s.placeholder} />
       ))}
     </FormDialog>
   );

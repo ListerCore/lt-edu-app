@@ -71,7 +71,7 @@ export const PeriodDialog = ({ slug, context, period, onClose, onSaved }: Period
         </FormField>
       )}
       <FormField id="period-name" label="Nombre" required error={errors.name}>
-        <Input
+        <Input placeholder="Ej.: Año lectivo 2027"
           id="period-name"
           value={values.name}
           maxLength={80}
@@ -123,7 +123,7 @@ export const TermDialog = ({ slug, period, term, onClose, onSaved }: TermDialogP
   return (
     <FormDialog title={`Editar ${term.name}`} description={`Debe quedar dentro de ${period.name}, sin cruzarse con los demás.`} submitLabel="Guardar cambios" isPending={isPending} onSubmit={submit} onClose={onClose}>
       <FormField id="term-name" label="Nombre" required error={errors.name}>
-        <Input id="term-name" value={values.name} maxLength={40} onChange={(e): void => setField('name', e.target.value)} className={controlClassName} />
+        <Input placeholder="Ej.: I bimestre" id="term-name" value={values.name} maxLength={40} onChange={(e): void => setField('name', e.target.value)} className={controlClassName} />
       </FormField>
       <div className="grid gap-5 sm:grid-cols-2">
         <FormField id="term-start" label="Inicio" required error={errors.startsOn}>
@@ -212,14 +212,14 @@ export const SectionsDialog = ({ slug, context, period, levels, initialLevelId, 
             </FormField>
           )}
           <FormField id="sections-names" label="Nombres" required error={errors.names} hint="Separados por comas: «A, B, C»">
-            <Input id="sections-names" value={values.names} maxLength={300} onChange={(e): void => setField('names', e.target.value)} aria-invalid={Boolean(errors.names)} className={controlClassName} />
+            <Input placeholder="Ej.: A, B, C" id="sections-names" value={values.names} maxLength={300} onChange={(e): void => setField('names', e.target.value)} aria-invalid={Boolean(errors.names)} className={controlClassName} />
           </FormField>
           <div className="grid gap-5 sm:grid-cols-3">
             <FormField id="sections-shift" label="Turno" required error={errors.shift}>
               <SelectField id="sections-shift" value={values.shift} options={items(shiftLabels, shifts)} onChange={(v): void => setField('shift', v)} />
             </FormField>
             <FormField id="sections-capacity" label="Vacantes" required error={errors.capacity}>
-              <Input id="sections-capacity" inputMode="numeric" value={values.capacity} onChange={(e): void => setField('capacity', e.target.value.replace(/\D/g, '').slice(0, 3))} aria-invalid={Boolean(errors.capacity)} className={controlClassName} />
+              <Input placeholder="Ej.: 30" id="sections-capacity" inputMode="numeric" value={values.capacity} onChange={(e): void => setField('capacity', e.target.value.replace(/\D/g, '').slice(0, 3))} aria-invalid={Boolean(errors.capacity)} className={controlClassName} />
             </FormField>
             <FormField id="sections-room" label="Ambiente" error={errors.room}>
               <Input id="sections-room" value={values.room} maxLength={60} placeholder="Aula 204" onChange={(e): void => setField('room', e.target.value)} className={controlClassName} />
@@ -261,16 +261,16 @@ export const SectionDialog = ({ slug, context, section, level, onClose, onSaved 
     <FormDialog title={`${context.vocabulary?.section ?? 'Sección'} ${section.gradeShort ? `${section.gradeShort} ` : ''}${section.name}`} description={`${section.levelName}${section.gradeName ? ` · ${section.gradeName}` : ''}`} submitLabel="Guardar cambios" isPending={isPending} onSubmit={submit} onClose={onClose}>
       <div className="grid gap-5 sm:grid-cols-2">
         <FormField id="section-name" label="Nombre" required error={errors.name}>
-          <Input id="section-name" value={values.name} maxLength={40} onChange={(e): void => setField('name', e.target.value)} aria-invalid={Boolean(errors.name)} className={controlClassName} />
+          <Input placeholder="Ej.: A" id="section-name" value={values.name} maxLength={40} onChange={(e): void => setField('name', e.target.value)} aria-invalid={Boolean(errors.name)} className={controlClassName} />
         </FormField>
         <FormField id="section-shift" label="Turno" required error={errors.shift}>
           <SelectField id="section-shift" value={values.shift} options={items(shiftLabels, shifts.includes(values.shift) ? shifts : [...shifts, values.shift])} onChange={(v): void => setField('shift', v)} invalid={Boolean(errors.shift)} />
         </FormField>
         <FormField id="section-capacity" label="Vacantes" required error={errors.capacity}>
-          <Input id="section-capacity" inputMode="numeric" value={values.capacity} onChange={(e): void => setField('capacity', e.target.value.replace(/\D/g, '').slice(0, 3))} aria-invalid={Boolean(errors.capacity)} className={controlClassName} />
+          <Input placeholder="Ej.: 30" id="section-capacity" inputMode="numeric" value={values.capacity} onChange={(e): void => setField('capacity', e.target.value.replace(/\D/g, '').slice(0, 3))} aria-invalid={Boolean(errors.capacity)} className={controlClassName} />
         </FormField>
         <FormField id="section-room" label="Ambiente" error={errors.room}>
-          <Input id="section-room" value={values.room} maxLength={60} onChange={(e): void => setField('room', e.target.value)} className={controlClassName} />
+          <Input placeholder="Ej.: Aula 204" id="section-room" value={values.room} maxLength={60} onChange={(e): void => setField('room', e.target.value)} className={controlClassName} />
         </FormField>
       </div>
       {context.usesAttentionModes && level && (

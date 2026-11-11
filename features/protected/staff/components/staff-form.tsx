@@ -66,28 +66,28 @@ export const StaffForm = ({ slug, staff, readOnly, onSaved, onCancel }: StaffFor
       <fieldset className="grid gap-5 md:grid-cols-3">
         <legend className="mb-4 text-base font-semibold text-foreground">Datos personales</legend>
         <FormField id="sf-given" label="Nombres" required error={errors.givenNames}>
-          <Input id="sf-given" value={values.givenNames} maxLength={80} disabled={dis} onChange={(e): void => setField('givenNames', e.target.value)} aria-invalid={Boolean(errors.givenNames)} className={controlClassName} />
+          <Input placeholder="Ej.: Jorge Luis" id="sf-given" value={values.givenNames} maxLength={80} disabled={dis} onChange={(e): void => setField('givenNames', e.target.value)} aria-invalid={Boolean(errors.givenNames)} className={controlClassName} />
         </FormField>
         <FormField id="sf-surnames" label="Apellidos" required error={errors.surnames}>
-          <Input id="sf-surnames" value={values.surnames} maxLength={120} disabled={dis} onChange={(e): void => setField('surnames', e.target.value)} aria-invalid={Boolean(errors.surnames)} className={controlClassName} />
+          <Input placeholder="Ej.: Mendoza Rojas" id="sf-surnames" value={values.surnames} maxLength={120} disabled={dis} onChange={(e): void => setField('surnames', e.target.value)} aria-invalid={Boolean(errors.surnames)} className={controlClassName} />
         </FormField>
         <FormField id="sf-code" label="Código" error={errors.code} hint={staff ? undefined : 'Vacío: P-0101, P-0102…'}>
-          <Input id="sf-code" value={values.code} maxLength={20} disabled={dis} onChange={(e): void => setField('code', e.target.value)} className={controlClassName} />
+          <Input placeholder="Ej.: P-0151" id="sf-code" value={values.code} maxLength={20} disabled={dis} onChange={(e): void => setField('code', e.target.value)} className={controlClassName} />
         </FormField>
         <FormField id="sf-doctype" label="Documento" required>
           <SelectField id="sf-doctype" value={values.documentType} disabled={dis} options={items(documentTypeLabels)} onChange={(v): void => setField('documentType', v)} />
         </FormField>
         <FormField id="sf-docnumber" label="Número" required error={errors.documentNumber}>
-          <Input id="sf-docnumber" value={values.documentNumber} maxLength={20} disabled={dis} onChange={(e): void => setField('documentNumber', values.documentType === 'dni' ? e.target.value.replace(/\D/g, '').slice(0, 8) : e.target.value)} aria-invalid={Boolean(errors.documentNumber)} className={controlClassName} />
+          <Input placeholder="Ej.: 41234567" id="sf-docnumber" value={values.documentNumber} maxLength={20} disabled={dis} onChange={(e): void => setField('documentNumber', values.documentType === 'dni' ? e.target.value.replace(/\D/g, '').slice(0, 8) : e.target.value)} aria-invalid={Boolean(errors.documentNumber)} className={controlClassName} />
         </FormField>
         <FormField id="sf-hired" label="Fecha de ingreso" error={errors.hiredOn}>
           <Input id="sf-hired" type="date" value={values.hiredOn} disabled={dis} onChange={(e): void => setField('hiredOn', e.target.value)} className={controlClassName} />
         </FormField>
         <FormField id="sf-email" label="Correo" error={errors.email} hint="Con él recibe su rol en el panel.">
-          <Input id="sf-email" type="email" value={values.email} maxLength={254} disabled={dis} onChange={(e): void => setField('email', e.target.value)} className={controlClassName} />
+          <Input placeholder="nombre@correo.com" id="sf-email" type="email" value={values.email} maxLength={254} disabled={dis} onChange={(e): void => setField('email', e.target.value)} className={controlClassName} />
         </FormField>
         <FormField id="sf-phone" label="Celular" error={errors.phone}>
-          <Input id="sf-phone" type="tel" value={values.phone} maxLength={20} disabled={dis} onChange={(e): void => setField('phone', e.target.value)} className={controlClassName} />
+          <Input placeholder="Ej.: 987 654 321" id="sf-phone" type="tel" value={values.phone} maxLength={20} disabled={dis} onChange={(e): void => setField('phone', e.target.value)} className={controlClassName} />
         </FormField>
         <FormField id="sf-status" label="Estado">
           <SelectField id="sf-status" value={values.status} disabled={dis} options={items(staffStatusLabels)} onChange={(v): void => setField('status', v)} />
@@ -97,7 +97,7 @@ export const StaffForm = ({ slug, staff, readOnly, onSaved, onCancel }: StaffFor
       <fieldset className="grid gap-5 md:grid-cols-3">
         <legend className="mb-4 text-base font-semibold text-foreground">Cargo</legend>
         <FormField id="sf-position" label="Cargo" required error={errors.position} hint="Como lo nombra la institución.">
-          <Input id="sf-position" value={values.position} maxLength={80} disabled={dis} onChange={(e): void => setField('position', e.target.value)} aria-invalid={Boolean(errors.position)} className={controlClassName} />
+          <Input placeholder="Ej.: Docente de aula" id="sf-position" value={values.position} maxLength={80} disabled={dis} onChange={(e): void => setField('position', e.target.value)} aria-invalid={Boolean(errors.position)} className={controlClassName} />
         </FormField>
         <label className="flex items-center justify-between gap-4 self-end rounded-lg border border-border px-4 py-2.5 md:col-span-2">
           <span>
@@ -109,17 +109,17 @@ export const StaffForm = ({ slug, staff, readOnly, onSaved, onCancel }: StaffFor
         {values.isTeacher && (
           <>
             <FormField id="sf-specialty" label="Especialidad" error={errors.specialty}>
-              <Input id="sf-specialty" value={values.specialty} maxLength={120} disabled={dis} onChange={(e): void => setField('specialty', e.target.value)} className={controlClassName} />
+              <Input placeholder="Ej.: Matemática" id="sf-specialty" value={values.specialty} maxLength={120} disabled={dis} onChange={(e): void => setField('specialty', e.target.value)} className={controlClassName} />
             </FormField>
             <FormField id="sf-hours" label="Horas semanales contratadas" error={errors.maxWeeklyHours} hint="La carga que pase de aquí se marca.">
-              <Input id="sf-hours" inputMode="numeric" value={values.maxWeeklyHours} disabled={dis} onChange={(e): void => setField('maxWeeklyHours', e.target.value.replace(/\D/g, '').slice(0, 2))} className={controlClassName} />
+              <Input placeholder="Ej.: 30" id="sf-hours" inputMode="numeric" value={values.maxWeeklyHours} disabled={dis} onChange={(e): void => setField('maxWeeklyHours', e.target.value.replace(/\D/g, '').slice(0, 2))} className={controlClassName} />
             </FormField>
           </>
         )}
       </fieldset>
 
       <FormField id="sf-notes" label="Observaciones" error={errors.notes}>
-        <Textarea id="sf-notes" rows={3} maxLength={1000} value={values.notes} disabled={dis} onChange={(e): void => setField('notes', e.target.value)} className="max-w-3xl rounded-lg bg-background" />
+        <Textarea placeholder="Observaciones del registro" id="sf-notes" rows={3} maxLength={1000} value={values.notes} disabled={dis} onChange={(e): void => setField('notes', e.target.value)} className="max-w-3xl rounded-lg bg-background" />
       </FormField>
 
       {!readOnly && (

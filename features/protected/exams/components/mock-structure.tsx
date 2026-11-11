@@ -83,7 +83,7 @@ export const MockStructure = ({ slug, detail, overview, onSaved }: Props): JSX.E
         <div className="flex flex-wrap items-end gap-3 rounded-2xl border border-border bg-background p-4">
           <label className="flex flex-col gap-1 text-sm">
             <span className="font-medium text-foreground">Preguntas en total</span>
-            <input inputMode="numeric" value={total} onChange={(e): void => setTotal(e.target.value.replace(/\D/g, '').slice(0, 3))} className="h-10 w-28 rounded-lg border border-border bg-background px-3 tabular-nums" />
+            <input placeholder="Ej.: 100" inputMode="numeric" value={total} onChange={(e): void => setTotal(e.target.value.replace(/\D/g, '').slice(0, 3))} className="placeholder:text-muted-foreground/60 h-10 w-28 rounded-lg border border-border bg-background px-3 tabular-nums" />
           </label>
           <button type="button" className="btn-alt" disabled={isPending || areas.length === 0} onClick={suggest}>
             <MorphIcon icon={Sparkles} size={16} />
@@ -112,24 +112,24 @@ export const MockStructure = ({ slug, detail, overview, onSaved }: Props): JSX.E
               <tr key={c.code}>
                 <td className="px-3 py-1.5 font-medium text-foreground">{c.name}</td>
                 <td className="px-2 py-1.5 text-center">
-                  <input
+                  <input placeholder="0"
                     aria-label={`Preguntas de ${c.name}`}
                     inputMode="numeric"
                     disabled={locked}
                     value={c.questions || ''}
                     onChange={(e): void => setCourses((cs) => cs.map((x, j) => (j === i ? { ...x, questions: Number(e.target.value.replace(/\D/g, '').slice(0, 3)) || 0 } : x)))}
-                    className="h-8 w-16 rounded-md border border-border bg-background text-center tabular-nums disabled:opacity-100"
+                    className="placeholder:text-muted-foreground/60 h-8 w-16 rounded-md border border-border bg-background text-center tabular-nums disabled:opacity-100"
                   />
                 </td>
                 {levels.map((l) => (
                   <td key={l.id} className="px-2 py-1.5 text-center">
-                    <input
+                    <input placeholder="1"
                       aria-label={`Peso de ${c.name} en ${l.name}`}
                       inputMode="decimal"
                       disabled={locked}
                       value={weights[wkey(l.id, c.code)] ?? '1'}
                       onChange={(e): void => setWeights((w) => ({ ...w, [wkey(l.id, c.code)]: e.target.value.replace(/[^\d.,]/g, '').slice(0, 5) }))}
-                      className={cn('h-8 w-16 rounded-md border border-border bg-background text-center tabular-nums disabled:opacity-100', (weights[wkey(l.id, c.code)] ?? '1') === '0' && 'text-muted-foreground')}
+                      className={cn('placeholder:text-muted-foreground/60 h-8 w-16 rounded-md border border-border bg-background text-center tabular-nums disabled:opacity-100', (weights[wkey(l.id, c.code)] ?? '1') === '0' && 'text-muted-foreground')}
                     />
                   </td>
                 ))}

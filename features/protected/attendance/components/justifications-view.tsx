@@ -123,7 +123,7 @@ const ReviewDialog = ({ slug, j, onClose, onDone }: { slug: string; j: Justifica
         />
       </FormField>
       <FormField id="review-note" label="Respuesta a la familia" required={values.approve === 'no'} error={errors.note} hint="La familia la verá junto a su justificación.">
-        <Textarea id="review-note" value={values.note} maxLength={500} rows={3} onChange={(e): void => setField('note', e.target.value)} aria-invalid={Boolean(errors.note)} />
+        <Textarea placeholder="Motivo de la decisión, si hace falta" id="review-note" value={values.note} maxLength={500} rows={3} onChange={(e): void => setField('note', e.target.value)} aria-invalid={Boolean(errors.note)} />
       </FormField>
     </FormDialog>
   );
@@ -174,7 +174,7 @@ export const SubmitJustificationDialog = ({ slug, students, today, defaultDay, o
         <SelectField id="just-reason" value={values.reason} options={Object.entries(reasonLabels).map(([value, label]) => ({ value, label }))} onChange={(v): void => setField('reason', v)} />
       </FormField>
       <FormField id="just-desc" label="¿Qué pasó?" required error={errors.description} hint="Si tienes una constancia médica, llévala a secretaría.">
-        <Textarea id="just-desc" value={values.description} maxLength={1000} rows={4} onChange={(e): void => setField('description', e.target.value)} aria-invalid={Boolean(errors.description)} />
+        <Textarea placeholder="Ej.: cita médica en el centro de salud, adjunto la constancia" id="just-desc" value={values.description} maxLength={1000} rows={4} onChange={(e): void => setField('description', e.target.value)} aria-invalid={Boolean(errors.description)} />
       </FormField>
     </FormDialog>
   );

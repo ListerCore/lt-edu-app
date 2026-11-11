@@ -209,7 +209,7 @@ const RequirementDialog = ({ requirement, isPending, onClose, onSave }: { requir
         Cumple el requisito
       </label>
       <FormField id="req-note" label="Sustento" hint="Por ejemplo: constancia del centro de idiomas, acta de sustentación o recibo.">
-        <Input id="req-note" value={note} maxLength={300} onChange={(e): void => setNote(e.target.value)} />
+        <Input placeholder="Ej.: Constancia entregada en secretaría" id="req-note" value={note} maxLength={300} onChange={(e): void => setNote(e.target.value)} />
       </FormField>
     </FormDialog>
   );

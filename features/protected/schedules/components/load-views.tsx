@@ -145,7 +145,7 @@ const HoursInput = ({ value, disabled, onCommit }: { value: number; disabled: bo
   return (
     <label className="flex items-center gap-1">
       <span className="sr-only">Horas semanales</span>
-      <Input inputMode="numeric" value={draft} disabled={disabled} onChange={(e): void => setDraft(e.target.value.replace(/\D/g, '').slice(0, 2))} onBlur={commit} onKeyDown={(e): void => (e.key === 'Enter' ? commit() : undefined)} className="h-9 w-12 rounded-md bg-background text-center tabular-nums" />
+      <Input placeholder="0" inputMode="numeric" value={draft} disabled={disabled} onChange={(e): void => setDraft(e.target.value.replace(/\D/g, '').slice(0, 2))} onBlur={commit} onKeyDown={(e): void => (e.key === 'Enter' ? commit() : undefined)} className="h-9 w-12 rounded-md bg-background text-center tabular-nums" />
       <span className="text-xs text-muted-foreground">h</span>
     </label>
   );
@@ -223,7 +223,7 @@ const ShiftEditor = ({ slug, shift, data, onChange }: { slug: string; shift: str
           ).map(([key, label, width]) => (
             <label key={key} className="flex flex-col gap-1">
               <span className="text-xs text-muted-foreground">{label}</span>
-              <Input value={builder[key]} onChange={(e): void => setBuilder((b) => ({ ...b, [key]: e.target.value.slice(0, 5) }))} className={cn('h-9 rounded-md bg-background tabular-nums', width)} />
+              <Input placeholder="07:45" value={builder[key]} onChange={(e): void => setBuilder((b) => ({ ...b, [key]: e.target.value.slice(0, 5) }))} className={cn('h-9 rounded-md bg-background tabular-nums', width)} />
             </label>
           ))}
           <button type="button" className="btn-alt h-9" onClick={build}>

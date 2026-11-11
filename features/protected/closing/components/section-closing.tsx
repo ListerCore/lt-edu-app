@@ -264,7 +264,7 @@ const DecisionDialog = ({ row, isPending, onClose, onSave }: { row: ClosingRow; 
       </FormField>
       {situation && (
         <FormField id="decision-note" label="Motivo" required error={missing ? 'El equipo de evaluación registra por qué decide distinto.' : undefined} hint="Queda en el acta junto al estudiante.">
-          <Textarea id="decision-note" value={note} rows={4} maxLength={500} onChange={(e): void => setNote(e.target.value)} />
+          <Textarea placeholder="Fundamento de la decisión del equipo" id="decision-note" value={note} rows={4} maxLength={500} onChange={(e): void => setNote(e.target.value)} />
         </FormField>
       )}
     </FormDialog>

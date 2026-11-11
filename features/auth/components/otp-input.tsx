@@ -43,7 +43,7 @@ export const OtpInput = ({ digits, invalid, disabled, onChange, onComplete }: Ot
   return (
     <div role="group" aria-label="Código de verificación" className="flex justify-between gap-2">
       {digits.map((digit, index): JSX.Element => (
-        <input
+        <input placeholder="·"
           key={index}
           ref={(element): void => {
             inputs.current[index] = element;
@@ -70,7 +70,7 @@ export const OtpInput = ({ digits, invalid, disabled, onChange, onComplete }: Ot
           onKeyDown={(event): void => onKeyDown(index, event)}
           onPaste={(event): void => onPaste(index, event)}
           onFocus={(event): void => event.target.select()}
-          className={cn('size-12 rounded-lg border bg-background text-center font-mono text-xl font-semibold text-foreground outline-none transition-colors focus-visible:border-brand focus-visible:ring-3 focus-visible:ring-brand/20 disabled:opacity-60 sm:size-14', invalid ? 'border-destructive' : 'border-input')}
+          className={cn('placeholder:text-muted-foreground/60 size-12 rounded-lg border bg-background text-center font-mono text-xl font-semibold text-foreground outline-none transition-colors focus-visible:border-brand focus-visible:ring-3 focus-visible:ring-brand/20 disabled:opacity-60 sm:size-14', invalid ? 'border-destructive' : 'border-input')}
         />
       ))}
     </div>

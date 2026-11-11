@@ -227,7 +227,7 @@ const PlaceDialog = ({ slug, data, section, weekday, block, scheduled, busy, onC
         })}
       </div>
       <FormField id="place-room" label="Ambiente" hint="Opcional. Se avisa si ya está ocupado a esa hora.">
-        <Input id="place-room" value={room} maxLength={60} onChange={(e): void => setRoom(e.target.value)} className={controlClassName} />
+        <Input placeholder="Ej.: Aula 204" id="place-room" value={room} maxLength={60} onChange={(e): void => setRoom(e.target.value)} className={controlClassName} />
       </FormField>
     </FormDialog>
   );

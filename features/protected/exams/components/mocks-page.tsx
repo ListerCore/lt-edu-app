@@ -236,24 +236,24 @@ const MockDialog = ({ slug, periodId, mock, onClose, onSaved }: { slug: string; 
   return (
     <FormDialog title={mock ? 'Datos del simulacro' : 'Nuevo simulacro'} description="Después eliges los cursos, sus preguntas y el peso por área." submitLabel={mock ? 'Guardar' : 'Crear'} isPending={form.isPending} onSubmit={form.submit} onClose={onClose}>
       <FormField id="mock-name" label="Nombre" required error={errors.name}>
-        <Input id="mock-name" value={values.name} maxLength={120} onChange={(e): void => setField('name', e.target.value)} aria-invalid={Boolean(errors.name)} />
+        <Input placeholder="Ej.: Simulacro tipo San Marcos 3" id="mock-name" value={values.name} maxLength={120} onChange={(e): void => setField('name', e.target.value)} aria-invalid={Boolean(errors.name)} />
       </FormField>
       <div className="grid gap-4 sm:grid-cols-2">
         <FormField id="mock-date" label="Fecha" required error={errors.heldOn}>
           <Input id="mock-date" type="date" value={values.heldOn} onChange={(e): void => setField('heldOn', e.target.value)} aria-invalid={Boolean(errors.heldOn)} />
         </FormField>
         <FormField id="mock-duration" label="Duración (minutos)" error={errors.duration}>
-          <Input id="mock-duration" inputMode="numeric" value={values.duration} onChange={(e): void => setField('duration', e.target.value.replace(/\D/g, '').slice(0, 3))} />
+          <Input placeholder="Ej.: 180" id="mock-duration" inputMode="numeric" value={values.duration} onChange={(e): void => setField('duration', e.target.value.replace(/\D/g, '').slice(0, 3))} />
         </FormField>
         <FormField id="mock-right" label="Puntos por acierto" error={errors.pointsRight}>
-          <Input id="mock-right" inputMode="decimal" value={values.pointsRight} onChange={(e): void => setField('pointsRight', e.target.value.replace(/[^\d.,]/g, ''))} />
+          <Input placeholder="Ej.: 20" id="mock-right" inputMode="decimal" value={values.pointsRight} onChange={(e): void => setField('pointsRight', e.target.value.replace(/[^\d.,]/g, ''))} />
         </FormField>
         <FormField id="mock-wrong" label="Descuento por error" error={errors.pointsWrong} hint="La pregunta en blanco no suma ni resta.">
-          <Input id="mock-wrong" inputMode="decimal" value={values.pointsWrong} onChange={(e): void => setField('pointsWrong', e.target.value.replace(/[^\d.,]/g, ''))} />
+          <Input placeholder="Ej.: 1,125" id="mock-wrong" inputMode="decimal" value={values.pointsWrong} onChange={(e): void => setField('pointsWrong', e.target.value.replace(/[^\d.,]/g, ''))} />
         </FormField>
       </div>
       <FormField id="mock-notes" label="Notas">
-        <Textarea id="mock-notes" value={values.notes} rows={2} maxLength={1000} onChange={(e): void => setField('notes', e.target.value)} />
+        <Textarea placeholder="Indicaciones para los estudiantes" id="mock-notes" value={values.notes} rows={2} maxLength={1000} onChange={(e): void => setField('notes', e.target.value)} />
       </FormField>
     </FormDialog>
   );

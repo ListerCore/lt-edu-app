@@ -250,7 +250,7 @@ const ScoreGrid = ({ slug, sheet, onBack, reload }: GridProps): JSX.Element => {
                       const low = passing !== undefined && value(s.id, e.id) !== null && (value(s.id, e.id) ?? 0) < passing;
                       return (
                         <td key={e.id} className="px-2 py-1.5 text-center">
-                          <input
+                          <input placeholder="–"
                             aria-label={`${e.name} de ${s.name}`}
                             inputMode="numeric"
                             value={t}
@@ -269,7 +269,7 @@ const ScoreGrid = ({ slug, sheet, onBack, reload }: GridProps): JSX.Element => {
                               });
                             }}
                             className={cn(
-                              'h-8 w-14 rounded-md border bg-background text-center tabular-nums disabled:opacity-100',
+                              'placeholder:text-muted-foreground/60 h-8 w-14 rounded-md border bg-background text-center tabular-nums disabled:opacity-100',
                               key in drafts ? 'border-brand' : 'border-border',
                               bad && 'border-destructive text-destructive',
                               low && !bad && 'text-destructive',
@@ -317,11 +317,11 @@ const EvaluationDialog = ({ slug, sheet, evaluation, onClose, onSaved }: { slug:
   return (
     <FormDialog title={evaluation ? 'Editar evaluación' : 'Nueva evaluación'} description={sheet.subjectName} submitLabel={evaluation ? 'Guardar' : 'Agregar'} isPending={form.isPending} onSubmit={form.submit} onClose={onClose}>
       <FormField id="ev-name" label="Nombre" required error={errors.name}>
-        <Input id="ev-name" value={values.name} maxLength={120} onChange={(e): void => setField('name', e.target.value)} aria-invalid={Boolean(errors.name)} />
+        <Input placeholder="Ej.: Práctica calificada 1" id="ev-name" value={values.name} maxLength={120} onChange={(e): void => setField('name', e.target.value)} aria-invalid={Boolean(errors.name)} />
       </FormField>
       <div className="grid gap-4 sm:grid-cols-2">
         <FormField id="ev-weight" label="Peso" required error={errors.weight} hint="Pesos iguales: promedio simple.">
-          <Input id="ev-weight" inputMode="numeric" value={values.weight} onChange={(e): void => setField('weight', e.target.value.replace(/\D/g, '').slice(0, 3))} aria-invalid={Boolean(errors.weight)} />
+          <Input placeholder="1" id="ev-weight" inputMode="numeric" value={values.weight} onChange={(e): void => setField('weight', e.target.value.replace(/\D/g, '').slice(0, 3))} aria-invalid={Boolean(errors.weight)} />
         </FormField>
         <FormField id="ev-date" label="Fecha" error={errors.heldOn}>
           <Input id="ev-date" type="date" value={values.heldOn} onChange={(e): void => setField('heldOn', e.target.value)} />

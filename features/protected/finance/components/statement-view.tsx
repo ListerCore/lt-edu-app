@@ -310,7 +310,7 @@ const PayDialog = ({ slug, st, onClose, onPaid }: { slug: string; st: Statement;
     >
       <div className="grid gap-4 sm:grid-cols-2">
         <FormField id="pay-amount" label="Monto (S/)" required error={errors.amount}>
-          <Input id="pay-amount" inputMode="decimal" value={amount} onChange={(e): void => setAmount(e.target.value.replace(/[^\d.,]/g, ''))} className="text-lg font-semibold tabular-nums" />
+          <Input placeholder="0,00" id="pay-amount" inputMode="decimal" value={amount} onChange={(e): void => setAmount(e.target.value.replace(/[^\d.,]/g, ''))} className="text-lg font-semibold tabular-nums" />
         </FormField>
         <FormField id="pay-date" label="Fecha" required error={errors.paidOn}>
           <Input id="pay-date" type="date" value={paidOn} max={st.today} onChange={(e): void => setPaidOn(e.target.value)} />
@@ -327,7 +327,7 @@ const PayDialog = ({ slug, st, onClose, onPaid }: { slug: string; st: Statement;
       </FormField>
       {method !== 'cash' && (
         <FormField id="pay-ref" label="N.° de operación" required error={errors.reference}>
-          <Input id="pay-ref" value={reference} maxLength={80} onChange={(e): void => setReference(e.target.value)} />
+          <Input placeholder="Ej.: N.° de operación 123456" id="pay-ref" value={reference} maxLength={80} onChange={(e): void => setReference(e.target.value)} />
         </FormField>
       )}
       <FormField id="pay-payer" label="Quién paga" hint="Aparece en el recibo.">

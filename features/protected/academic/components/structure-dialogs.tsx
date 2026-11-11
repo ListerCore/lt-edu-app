@@ -54,13 +54,13 @@ export const LevelDialog = ({ slug, context, level, onClose, onSaved }: LevelDia
       onClose={onClose}
     >
       <FormField id="level-name" label="Nombre" required error={errors.name}>
-        <Input id="level-name" value={values.name} maxLength={120} onChange={(e): void => setField('name', e.target.value)} aria-invalid={Boolean(errors.name)} aria-describedby={describedBy('level-name', errors.name)} className={controlClassName} />
+        <Input placeholder="Ej.: Primaria" id="level-name" value={values.name} maxLength={120} onChange={(e): void => setField('name', e.target.value)} aria-invalid={Boolean(errors.name)} aria-describedby={describedBy('level-name', errors.name)} className={controlClassName} />
       </FormField>
       <FormField id="level-code" label="Código" error={errors.code} hint="Identificador corto. Si lo dejas vacío se arma con el nombre.">
         <Input id="level-code" value={values.code} maxLength={40} placeholder="se-arma-con-el-nombre" onChange={(e): void => setField('code', e.target.value.toLowerCase())} aria-invalid={Boolean(errors.code)} className={controlClassName} />
       </FormField>
       <FormField id="level-description" label="Descripción" error={errors.description}>
-        <Textarea id="level-description" rows={2} maxLength={500} value={values.description} onChange={(e): void => setField('description', e.target.value)} className="rounded-lg bg-background" />
+        <Textarea placeholder="Para quiénes es y qué incluye" id="level-description" rows={2} maxLength={500} value={values.description} onChange={(e): void => setField('description', e.target.value)} className="rounded-lg bg-background" />
       </FormField>
       {usesFormativeLevels && (
         <div className="grid gap-5 sm:grid-cols-2">
@@ -68,7 +68,7 @@ export const LevelDialog = ({ slug, context, level, onClose, onSaved }: LevelDia
             <SelectField id="level-formative" value={values.formativeLevel} options={items(formativeLevelLabels)} onChange={(v): void => setField('formativeLevel', v)} invalid={Boolean(errors.formativeLevel)} />
           </FormField>
           <FormField id="level-credits" label="Créditos del plan" required error={errors.credits} hint="Profesional técnico: 120 como mínimo.">
-            <Input id="level-credits" inputMode="numeric" value={values.credits} onChange={(e): void => setField('credits', e.target.value.replace(/\D/g, '').slice(0, 3))} aria-invalid={Boolean(errors.credits)} className={controlClassName} />
+            <Input placeholder="Ej.: 120" id="level-credits" inputMode="numeric" value={values.credits} onChange={(e): void => setField('credits', e.target.value.replace(/\D/g, '').slice(0, 3))} aria-invalid={Boolean(errors.credits)} className={controlClassName} />
           </FormField>
         </div>
       )}
@@ -114,14 +114,14 @@ export const GradeDialog = ({ slug, context, level, grade, onClose, onSaved }: G
   return (
     <FormDialog title={grade ? `Editar ${noun}` : `Nuevo ${noun} en ${level.name}`} submitLabel={grade ? 'Guardar cambios' : 'Agregar'} isPending={isPending} onSubmit={submit} onClose={onClose}>
       <FormField id="grade-name" label="Nombre" required error={errors.name} hint="Por ejemplo «1.° grado», «4 años» o «Semestre III».">
-        <Input id="grade-name" value={values.name} maxLength={80} onChange={(e): void => setField('name', e.target.value)} aria-invalid={Boolean(errors.name)} aria-describedby={describedBy('grade-name', errors.name)} className={controlClassName} />
+        <Input placeholder="Ej.: 1.° grado" id="grade-name" value={values.name} maxLength={80} onChange={(e): void => setField('name', e.target.value)} aria-invalid={Boolean(errors.name)} aria-describedby={describedBy('grade-name', errors.name)} className={controlClassName} />
       </FormField>
       <div className="grid gap-5 sm:grid-cols-2">
         <FormField id="grade-short" label="Nombre corto" error={errors.shortName} hint="Se usa en listas: «1.°», «4 a», «III».">
-          <Input id="grade-short" value={values.shortName} maxLength={20} onChange={(e): void => setField('shortName', e.target.value)} className={controlClassName} />
+          <Input placeholder="Ej.: 1.°" id="grade-short" value={values.shortName} maxLength={20} onChange={(e): void => setField('shortName', e.target.value)} className={controlClassName} />
         </FormField>
         <FormField id="grade-code" label="Código" error={errors.code} hint="Vacío: se arma con el nombre.">
-          <Input id="grade-code" value={values.code} maxLength={40} onChange={(e): void => setField('code', e.target.value.toLowerCase())} className={controlClassName} />
+          <Input placeholder="Ej.: primero" id="grade-code" value={values.code} maxLength={40} onChange={(e): void => setField('code', e.target.value.toLowerCase())} className={controlClassName} />
         </FormField>
       </div>
     </FormDialog>
@@ -170,7 +170,7 @@ export const SettingsDialog = ({ slug, context, onClose, onSaved }: SettingsDial
       </div>
       {scale === 'vigesimal' && (
         <FormField id="settings-passing" label="Nota mínima aprobatoria" required error={errors.passingGrade} hint="En la mayoría de institutos es 13.">
-          <Input id="settings-passing" inputMode="numeric" value={values.passingGrade} onChange={(e): void => setField('passingGrade', e.target.value.replace(/\D/g, '').slice(0, 2))} aria-invalid={Boolean(errors.passingGrade)} className={`${controlClassName} max-w-32`} />
+          <Input placeholder="Ej.: 13" id="settings-passing" inputMode="numeric" value={values.passingGrade} onChange={(e): void => setField('passingGrade', e.target.value.replace(/\D/g, '').slice(0, 2))} aria-invalid={Boolean(errors.passingGrade)} className={`${controlClassName} max-w-32`} />
         </FormField>
       )}
       {scale === 'literal' && (
@@ -190,10 +190,10 @@ export const SettingsDialog = ({ slug, context, onClose, onSaved }: SettingsDial
       </FormField>
       <div className="grid gap-4 sm:grid-cols-2">
         <FormField id="settings-late" label="Tolerancia de llegada (minutos)" required error={errors.lateAfterMinutes} hint="Después de la primera hora de clase más estos minutos, cuenta como tardanza.">
-          <Input id="settings-late" inputMode="numeric" value={values.lateAfterMinutes} onChange={(e): void => setField('lateAfterMinutes', e.target.value.replace(/\D/g, '').slice(0, 3))} aria-invalid={Boolean(errors.lateAfterMinutes)} className={`${controlClassName} max-w-32`} />
+          <Input placeholder="Ej.: 10" id="settings-late" inputMode="numeric" value={values.lateAfterMinutes} onChange={(e): void => setField('lateAfterMinutes', e.target.value.replace(/\D/g, '').slice(0, 3))} aria-invalid={Boolean(errors.lateAfterMinutes)} className={`${controlClassName} max-w-32`} />
         </FormField>
         <FormField id="settings-limit" label="Límite de inasistencias (%)" required error={errors.absenceLimitPercent} hint="Desde este porcentaje de faltas sin justificar se alerta. En institutos suele ser 30 %.">
-          <Input id="settings-limit" inputMode="numeric" value={values.absenceLimitPercent} onChange={(e): void => setField('absenceLimitPercent', e.target.value.replace(/\D/g, '').slice(0, 3))} aria-invalid={Boolean(errors.absenceLimitPercent)} className={`${controlClassName} max-w-32`} />
+          <Input placeholder="Ej.: 30" id="settings-limit" inputMode="numeric" value={values.absenceLimitPercent} onChange={(e): void => setField('absenceLimitPercent', e.target.value.replace(/\D/g, '').slice(0, 3))} aria-invalid={Boolean(errors.absenceLimitPercent)} className={`${controlClassName} max-w-32`} />
         </FormField>
       </div>
       {context.usesAttentionModes && (

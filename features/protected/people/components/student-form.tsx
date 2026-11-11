@@ -84,22 +84,22 @@ export const StudentForm = ({ slug, student, readOnly, onSaved, onCancel }: Stud
       <fieldset className="grid gap-5 md:grid-cols-3">
         <legend className="mb-4 text-base font-semibold text-foreground">Identidad</legend>
         <FormField id="st-given" label="Nombres" required error={errors.givenNames}>
-          <Input id="st-given" value={values.givenNames} maxLength={80} onChange={(e): void => setField('givenNames', e.target.value)} className={controlClassName} {...field('givenNames')} />
+          <Input placeholder="Ej.: María José" id="st-given" value={values.givenNames} maxLength={80} onChange={(e): void => setField('givenNames', e.target.value)} className={controlClassName} {...field('givenNames')} />
         </FormField>
         <FormField id="st-paternal" label="Apellido paterno" required error={errors.paternalSurname}>
-          <Input id="st-paternal" value={values.paternalSurname} maxLength={60} onChange={(e): void => setField('paternalSurname', e.target.value)} className={controlClassName} {...field('paternalSurname')} />
+          <Input placeholder="Ej.: Quispe" id="st-paternal" value={values.paternalSurname} maxLength={60} onChange={(e): void => setField('paternalSurname', e.target.value)} className={controlClassName} {...field('paternalSurname')} />
         </FormField>
         <FormField id="st-maternal" label="Apellido materno" error={errors.maternalSurname}>
-          <Input id="st-maternal" value={values.maternalSurname} maxLength={60} onChange={(e): void => setField('maternalSurname', e.target.value)} className={controlClassName} {...field('maternalSurname')} />
+          <Input placeholder="Ej.: Huamán" id="st-maternal" value={values.maternalSurname} maxLength={60} onChange={(e): void => setField('maternalSurname', e.target.value)} className={controlClassName} {...field('maternalSurname')} />
         </FormField>
         <FormField id="st-doctype" label="Documento" required error={errors.documentType}>
           <SelectField id="st-doctype" value={values.documentType} options={items(documentTypeLabels)} onChange={(v): void => setField('documentType', v)} disabled={readOnly} />
         </FormField>
         <FormField id="st-docnumber" label="Número" required error={errors.documentNumber}>
-          <Input id="st-docnumber" inputMode={values.documentType === 'dni' ? 'numeric' : 'text'} value={values.documentNumber} maxLength={20} onChange={(e): void => setField('documentNumber', values.documentType === 'dni' ? e.target.value.replace(/\D/g, '').slice(0, 8) : e.target.value)} className={controlClassName} {...field('documentNumber')} />
+          <Input placeholder="Ej.: 71234567" id="st-docnumber" inputMode={values.documentType === 'dni' ? 'numeric' : 'text'} value={values.documentNumber} maxLength={20} onChange={(e): void => setField('documentNumber', values.documentType === 'dni' ? e.target.value.replace(/\D/g, '').slice(0, 8) : e.target.value)} className={controlClassName} {...field('documentNumber')} />
         </FormField>
         <FormField id="st-code" label="Código de estudiante" error={errors.code} hint={student ? undefined : 'Vacío: se asigna el siguiente del año.'}>
-          <Input id="st-code" value={values.code} maxLength={20} onChange={(e): void => setField('code', e.target.value)} className={controlClassName} {...field('code')} />
+          <Input placeholder="Ej.: 2026-0412" id="st-code" value={values.code} maxLength={20} onChange={(e): void => setField('code', e.target.value)} className={controlClassName} {...field('code')} />
         </FormField>
         <FormField id="st-birth" label="Fecha de nacimiento" error={errors.birthDate}>
           <Input id="st-birth" type="date" value={values.birthDate} onChange={(e): void => setField('birthDate', e.target.value)} className={controlClassName} {...field('birthDate')} />
@@ -115,13 +115,13 @@ export const StudentForm = ({ slug, student, readOnly, onSaved, onCancel }: Stud
       <fieldset className="grid gap-5 md:grid-cols-3">
         <legend className="mb-4 text-base font-semibold text-foreground">Contacto</legend>
         <FormField id="st-email" label="Correo" error={errors.email} hint="Con él puede ingresar al panel.">
-          <Input id="st-email" type="email" value={values.email} maxLength={254} onChange={(e): void => setField('email', e.target.value)} className={controlClassName} {...field('email')} />
+          <Input placeholder="nombre@correo.com" id="st-email" type="email" value={values.email} maxLength={254} onChange={(e): void => setField('email', e.target.value)} className={controlClassName} {...field('email')} />
         </FormField>
         <FormField id="st-phone" label="Celular" error={errors.phone}>
-          <Input id="st-phone" type="tel" value={values.phone} maxLength={20} onChange={(e): void => setField('phone', e.target.value)} className={controlClassName} {...field('phone')} />
+          <Input placeholder="Ej.: 987 654 321" id="st-phone" type="tel" value={values.phone} maxLength={20} onChange={(e): void => setField('phone', e.target.value)} className={controlClassName} {...field('phone')} />
         </FormField>
         <FormField id="st-address" label="Dirección" error={errors.address}>
-          <Input id="st-address" value={values.address} maxLength={200} onChange={(e): void => setField('address', e.target.value)} className={controlClassName} {...field('address')} />
+          <Input placeholder="Ej.: Jr. Lima 123, Ayacucho" id="st-address" value={values.address} maxLength={200} onChange={(e): void => setField('address', e.target.value)} className={controlClassName} {...field('address')} />
         </FormField>
       </fieldset>
 
@@ -135,7 +135,7 @@ export const StudentForm = ({ slug, student, readOnly, onSaved, onCancel }: Stud
           <Switch checked={values.specialNeeds} disabled={readOnly} onCheckedChange={(next): void => setField('specialNeeds', next)} />
         </label>
         <FormField id="st-notes" label="Observaciones" error={errors.notes}>
-          <Textarea id="st-notes" rows={3} maxLength={1000} value={values.notes} disabled={readOnly} onChange={(e): void => setField('notes', e.target.value)} className="max-w-3xl rounded-lg bg-background" />
+          <Textarea placeholder="Alergias, cuidados o lo que el colegio deba saber" id="st-notes" rows={3} maxLength={1000} value={values.notes} disabled={readOnly} onChange={(e): void => setField('notes', e.target.value)} className="max-w-3xl rounded-lg bg-background" />
         </FormField>
       </fieldset>
 

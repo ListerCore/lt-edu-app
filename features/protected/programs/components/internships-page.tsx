@@ -229,7 +229,7 @@ const Detail = ({ slug, id, onBack }: { slug: string; id: string; onBack: () => 
           </label>
           <label className="flex flex-col gap-1 text-sm">
             <span className="font-medium text-foreground">Horas</span>
-            <Input inputMode="decimal" value={log.hours} onChange={(e): void => setLog((l) => ({ ...l, hours: e.target.value.replace(/[^\d.,]/g, '').slice(0, 4) }))} className="w-20" />
+            <Input placeholder="Ej.: 6" inputMode="decimal" value={log.hours} onChange={(e): void => setLog((l) => ({ ...l, hours: e.target.value.replace(/[^\d.,]/g, '').slice(0, 4) }))} className="w-20" />
           </label>
           <label className="flex min-w-60 flex-1 flex-col gap-1 text-sm">
             <span className="font-medium text-foreground">Actividad</span>
@@ -267,21 +267,21 @@ const companyFields = (values: InternshipValues, errors: Record<string, string>,
   <>
     <div className="grid gap-4 sm:grid-cols-[2fr_1fr]">
       <FormField id="int-company" label="Empresa o institución" required error={errors.company}>
-        <Input id="int-company" value={values.company} maxLength={160} onChange={(e): void => setField('company', e.target.value)} aria-invalid={Boolean(errors.company)} />
+        <Input placeholder="Ej.: Clínica San Juan S.A.C." id="int-company" value={values.company} maxLength={160} onChange={(e): void => setField('company', e.target.value)} aria-invalid={Boolean(errors.company)} />
       </FormField>
       <FormField id="int-ruc" label="RUC" error={errors.companyRuc}>
-        <Input id="int-ruc" inputMode="numeric" value={values.companyRuc} onChange={(e): void => setField('companyRuc', e.target.value.replace(/\D/g, '').slice(0, 11))} aria-invalid={Boolean(errors.companyRuc)} />
+        <Input placeholder="11 dígitos" id="int-ruc" inputMode="numeric" value={values.companyRuc} onChange={(e): void => setField('companyRuc', e.target.value.replace(/\D/g, '').slice(0, 11))} aria-invalid={Boolean(errors.companyRuc)} />
       </FormField>
     </div>
     <div className="grid gap-4 sm:grid-cols-2">
       <FormField id="int-sup" label="Supervisor(a)" required error={errors.supervisor}>
-        <Input id="int-sup" value={values.supervisor} maxLength={160} onChange={(e): void => setField('supervisor', e.target.value)} aria-invalid={Boolean(errors.supervisor)} />
+        <Input placeholder="Nombre y apellidos" id="int-sup" value={values.supervisor} maxLength={160} onChange={(e): void => setField('supervisor', e.target.value)} aria-invalid={Boolean(errors.supervisor)} />
       </FormField>
       <FormField id="int-contact" label="Contacto del supervisor">
-        <Input id="int-contact" value={values.supervisorContact} maxLength={160} onChange={(e): void => setField('supervisorContact', e.target.value)} />
+        <Input placeholder="Teléfono o correo" id="int-contact" value={values.supervisorContact} maxLength={160} onChange={(e): void => setField('supervisorContact', e.target.value)} />
       </FormField>
       <FormField id="int-area" label="Área" error={errors.area}>
-        <Input id="int-area" value={values.area} maxLength={120} onChange={(e): void => setField('area', e.target.value)} />
+        <Input placeholder="Ej.: Hospitalización" id="int-area" value={values.area} maxLength={120} onChange={(e): void => setField('area', e.target.value)} />
       </FormField>
       <div className="grid grid-cols-2 gap-3">
         <FormField id="int-start" label="Inicio" required error={errors.startsOn}>
@@ -373,10 +373,10 @@ const EvaluateDialog = ({ slug, detail, onClose, onSaved }: { slug: string; deta
       onClose={onClose}
     >
       <FormField id="eval-score" label="Nota (0 a 20)" required>
-        <Input id="eval-score" inputMode="numeric" value={score} onChange={(e): void => setScore(e.target.value.replace(/\D/g, '').slice(0, 2))} className="w-24" />
+        <Input placeholder="0 a 20" id="eval-score" inputMode="numeric" value={score} onChange={(e): void => setScore(e.target.value.replace(/\D/g, '').slice(0, 2))} className="w-24" />
       </FormField>
       <FormField id="eval-text" label="Resumen de la evaluación" required hint="Lo que dijo el supervisor sobre su desempeño.">
-        <Textarea id="eval-text" value={text} rows={4} maxLength={1000} onChange={(e): void => setText(e.target.value)} />
+        <Textarea placeholder="Desempeño del practicante y recomendaciones" id="eval-text" value={text} rows={4} maxLength={1000} onChange={(e): void => setText(e.target.value)} />
       </FormField>
     </FormDialog>
   );

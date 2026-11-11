@@ -181,7 +181,7 @@ export const ConclusionDialog = ({ student, competency, value, readOnly, onSave,
         ))}
       </div>
       <FormField id="conclusion" label="Conclusión descriptiva" required={level === 'C'} error={missing ? 'Con C, describe qué le falta lograr y cómo se le apoyará.' : undefined} hint="Lo que logra, lo que le falta y cómo se le acompañará. La familia la lee en la libreta.">
-        <Textarea id="conclusion" value={text} rows={5} maxLength={1000} readOnly={readOnly} onChange={(e): void => setText(e.target.value)} />
+        <Textarea placeholder="Qué logró el estudiante y qué le falta para el siguiente nivel" id="conclusion" value={text} rows={5} maxLength={1000} readOnly={readOnly} onChange={(e): void => setText(e.target.value)} />
       </FormField>
     </FormDialog>
   );

@@ -143,14 +143,14 @@ const TutorGrid = ({ slug, sheet, onBack, reload }: { slug: string; sheet: Sheet
                   })}
                   {sheet.conduct && (
                     <td className="px-2 py-1.5 text-center">
-                      <input
+                      <input placeholder="–"
                         aria-label={`Conducta de ${s.name}`}
                         inputMode="numeric"
                         maxLength={2}
                         value={p.conduct}
                         disabled={!editable || isPending}
                         onChange={(e): void => setP(s.id, { conduct: e.target.value.replace(/\D/g, '') })}
-                        className={cn('h-8 w-14 rounded-md border bg-background text-center tabular-nums disabled:opacity-100', bad ? 'border-destructive text-destructive' : 'border-border')}
+                        className={cn('placeholder:text-muted-foreground/60 h-8 w-14 rounded-md border bg-background text-center tabular-nums disabled:opacity-100', bad ? 'border-destructive text-destructive' : 'border-border')}
                       />
                     </td>
                   )}
@@ -203,11 +203,11 @@ const CommentDialog = ({ student, value, conduct, readOnly, onSave, onClose }: {
   return (
     <FormDialog title={student.name} description="Lo que escribas aquí aparece en su libreta." submitLabel="Aplicar" isPending={false} disabled={readOnly} onSubmit={(): void => onSave({ comment: comment.trim(), note: note.trim() })} onClose={onClose}>
       <FormField id="tutor-comment" label="Comentario a la familia" hint="Cómo le fue en el periodo y qué pueden hacer en casa.">
-        <Textarea id="tutor-comment" value={comment} rows={5} maxLength={1000} readOnly={readOnly} onChange={(e): void => setComment(e.target.value)} />
+        <Textarea placeholder="Cómo le fue en el periodo, sus logros y en qué puede mejorar" id="tutor-comment" value={comment} rows={5} maxLength={1000} readOnly={readOnly} onChange={(e): void => setComment(e.target.value)} />
       </FormField>
       {conduct && (
         <FormField id="conduct-note" label="Observación de conducta">
-          <Input id="conduct-note" value={note} maxLength={500} readOnly={readOnly} onChange={(e): void => setNote(e.target.value)} />
+          <Input placeholder="Ej.: Respetuoso y puntual" id="conduct-note" value={note} maxLength={500} readOnly={readOnly} onChange={(e): void => setNote(e.target.value)} />
         </FormField>
       )}
     </FormDialog>

@@ -236,22 +236,22 @@ const AdmissionDialog = ({ slug, admission, onClose, onSaved }: { slug: string; 
       </FormField>
       <div className="grid gap-4 sm:grid-cols-2">
         <FormField id="adm-uni" label="Universidad" required error={errors.university}>
-          <Input id="adm-uni" value={values.university} maxLength={120} onChange={(e): void => setField('university', e.target.value)} />
+          <Input placeholder="Ej.: UNSCH" id="adm-uni" value={values.university} maxLength={120} onChange={(e): void => setField('university', e.target.value)} />
         </FormField>
         <FormField id="adm-career" label="Carrera" required error={errors.career}>
-          <Input id="adm-career" value={values.career} maxLength={160} onChange={(e): void => setField('career', e.target.value)} aria-invalid={Boolean(errors.career)} />
+          <Input placeholder="Ej.: Medicina Humana" id="adm-career" value={values.career} maxLength={160} onChange={(e): void => setField('career', e.target.value)} aria-invalid={Boolean(errors.career)} />
         </FormField>
         <FormField id="adm-exam" label="Examen" required error={errors.exam} hint="Por ejemplo, Admisión 2027-I.">
-          <Input id="adm-exam" value={values.exam} maxLength={120} onChange={(e): void => setField('exam', e.target.value)} aria-invalid={Boolean(errors.exam)} />
+          <Input placeholder="Ej.: Examen ordinario 2026-II" id="adm-exam" value={values.exam} maxLength={120} onChange={(e): void => setField('exam', e.target.value)} aria-invalid={Boolean(errors.exam)} />
         </FormField>
         <FormField id="adm-date" label="Fecha del examen" required error={errors.admittedOn}>
           <Input id="adm-date" type="date" value={values.admittedOn} onChange={(e): void => setField('admittedOn', e.target.value)} aria-invalid={Boolean(errors.admittedOn)} />
         </FormField>
         <FormField id="adm-place" label="Puesto" error={errors.place}>
-          <Input id="adm-place" inputMode="numeric" value={values.place} onChange={(e): void => setField('place', e.target.value.replace(/\D/g, '').slice(0, 6))} />
+          <Input placeholder="Ej.: 12" id="adm-place" inputMode="numeric" value={values.place} onChange={(e): void => setField('place', e.target.value.replace(/\D/g, '').slice(0, 6))} />
         </FormField>
         <FormField id="adm-score" label="Puntaje" error={errors.score}>
-          <Input id="adm-score" inputMode="decimal" value={values.score} onChange={(e): void => setField('score', e.target.value.replace(/[^\d.,]/g, '').slice(0, 10))} />
+          <Input placeholder="Ej.: 1520,5" id="adm-score" inputMode="decimal" value={values.score} onChange={(e): void => setField('score', e.target.value.replace(/[^\d.,]/g, '').slice(0, 10))} />
         </FormField>
       </div>
     </FormDialog>

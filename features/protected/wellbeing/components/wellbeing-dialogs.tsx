@@ -50,8 +50,8 @@ export const InterviewDialog = ({ slug, studentId, interview, onClose, onSaved }
         </FormField>
         <DateInput id="iv-date" label="Fecha" value={day} max={today} onChange={setHeldOn} required />
       </div>
-      <TextArea id="iv-notes" label="Lo conversado (reservado)" value={notes} onChange={setNotes} max={4000} rows={4} />
-      <TextArea id="iv-agreements" label="Acuerdos" value={agreements} onChange={setAgreements} max={2000} hint="La familia los ve en su panel." />
+      <TextArea id="iv-notes" placeholder="Temas tratados y lo que observaste" label="Lo conversado (reservado)" value={notes} onChange={setNotes} max={4000} rows={4} />
+      <TextArea id="iv-agreements" placeholder="Ej.: La familia revisará las tareas cada noche" label="Acuerdos" value={agreements} onChange={setAgreements} max={2000} hint="La familia los ve en su panel." />
     </FormDialog>
   );
 };
@@ -78,7 +78,7 @@ export const CommitmentDialog = ({ slug, studentId, interviewId = '', onClose, o
       onClose={onClose}
     >
       <OneOf label="Quién se compromete" value={party} options={Object.entries(partyLabels)} onChange={setParty} />
-      <TextArea id="cm-text" label="Compromiso" value={text} onChange={setText} max={500} required />
+      <TextArea id="cm-text" placeholder="Ej.: Entregar las tareas a tiempo durante el bimestre" label="Compromiso" value={text} onChange={setText} max={500} required />
       <DateInput id="cm-due" label="Revisar el" value={dueOn} onChange={setDueOn} required />
     </FormDialog>
   );

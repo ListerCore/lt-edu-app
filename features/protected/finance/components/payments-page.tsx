@@ -597,7 +597,7 @@ const PlanDialog = ({ slug, periodId, periodStart, plan, onClose, onSaved }: { s
                 </option>
               ))}
             </select>
-            <Input aria-label="Nombre de la cuota" value={i.name} maxLength={120} onChange={(e): void => set(k, { name: e.target.value })} />
+            <Input placeholder="Ej.: Pensión de marzo" aria-label="Nombre de la cuota" value={i.name} maxLength={120} onChange={(e): void => set(k, { name: e.target.value })} />
             <Input aria-label="Monto" inputMode="decimal" value={i.amount} placeholder="0,00" onChange={(e): void => set(k, { amount: e.target.value.replace(/[^\d.,]/g, '') })} className="tabular-nums" />
             <Input aria-label="Vencimiento" type="date" value={i.dueOn} onChange={(e): void => set(k, { dueOn: e.target.value })} />
             <button type="button" aria-label="Quitar cuota" className="inline-flex size-8 items-center justify-center rounded-md text-muted-foreground hover:text-destructive" onClick={(): void => setItems((xs) => xs.filter((_, j) => j !== k))}>

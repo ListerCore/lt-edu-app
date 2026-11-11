@@ -152,13 +152,13 @@ export const UnitClosingView = ({ slug, assignmentId, onBack, onRecord }: Props)
                   <td className="px-2 py-2 text-center">
                     {canRecover ? (
                       <span className="inline-flex items-center gap-1">
-                        <input
+                        <input placeholder="–"
                           aria-label={`Recuperación de ${r.student?.name}`}
                           inputMode="numeric"
                           maxLength={2}
                           value={value}
                           onChange={(e): void => setDrafts((d) => ({ ...d, [id]: e.target.value.replace(/\D/g, '') }))}
-                          className="h-8 w-12 rounded-md border border-border bg-background text-center tabular-nums"
+                          className="placeholder:text-muted-foreground/60 h-8 w-12 rounded-md border border-border bg-background text-center tabular-nums"
                         />
                         {id in drafts && (
                           <button type="button" className="btn-brand h-8 px-2 text-xs" disabled={isPending} onClick={(): void => saveRecovery(id)}>

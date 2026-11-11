@@ -264,8 +264,8 @@ const SessionDialog = ({ slug, caseId, onClose, onSaved }: { slug: string; caseI
     >
       <OneOf label="Tipo" value={kind} options={Object.entries(sessionKindLabels)} onChange={setKind} />
       <DateInput id="ss-date" label="Fecha" value={heldOn || today} max={today} onChange={setHeldOn} required />
-      <TextArea id="ss-notes" label="Notas (confidenciales)" value={notes} onChange={setNotes} max={4000} required rows={6} />
-      <TextArea id="ss-next" label="Siguientes pasos" value={next} onChange={setNext} max={1000} />
+      <TextArea id="ss-notes" placeholder="Lo trabajado en la sesión" label="Notas (confidenciales)" value={notes} onChange={setNotes} max={4000} required rows={6} />
+      <TextArea id="ss-next" placeholder="Ej.: Entrevista con la familia la próxima semana" label="Siguientes pasos" value={next} onChange={setNext} max={1000} />
     </FormDialog>
   );
 };
@@ -299,8 +299,8 @@ const CaseDialog = ({ slug, c, onClose, onSaved }: { slug: string; c: PsychCase;
         ]}
         onChange={setPriority}
       />
-      <TextArea id="cs-reason" label="Motivo" value={reason} onChange={setReason} max={2000} required />
-      <TextArea id="cs-note" label="Nota compartida con quien derivó" value={note} onChange={setNote} max={1000} />
+      <TextArea id="cs-reason" placeholder="Por qué se deriva" label="Motivo" value={reason} onChange={setReason} max={2000} required />
+      <TextArea id="cs-note" placeholder="Lo que quien derivó puede saber" label="Nota compartida con quien derivó" value={note} onChange={setNote} max={1000} />
     </FormDialog>
   );
 };

@@ -255,11 +255,11 @@ export const EnrollDialog = ({ slug, ctx, periodId: fixedPeriod, student, initia
       </div>
       {values.kind === 'transfer_in' && (
         <FormField id="en-origin" label="Institución de procedencia" required error={errors.origin}>
-          <Input id="en-origin" value={values.origin} maxLength={160} onChange={(e): void => setField('origin', e.target.value)} aria-invalid={Boolean(errors.origin)} className={controlClassName} />
+          <Input placeholder="Ej.: I.E. José Gálvez" id="en-origin" value={values.origin} maxLength={160} onChange={(e): void => setField('origin', e.target.value)} aria-invalid={Boolean(errors.origin)} className={controlClassName} />
         </FormField>
       )}
       <FormField id="en-notes" label="Observaciones" error={errors.notes}>
-        <Textarea id="en-notes" rows={2} maxLength={1000} value={values.notes} onChange={(e): void => setField('notes', e.target.value)} className="rounded-lg bg-background" />
+        <Textarea placeholder="Observaciones de la matrícula" id="en-notes" rows={2} maxLength={1000} value={values.notes} onChange={(e): void => setField('notes', e.target.value)} className="rounded-lg bg-background" />
       </FormField>
     </FormDialog>
   );
@@ -305,7 +305,7 @@ export const MoveDialog = ({ slug, ctx, enrollment, onClose, onSaved }: MoveDial
       />
       {institute && <UnitPicker board={board} level={level} selected={values.unitIds} onChange={(ids): void => setField('unitIds', ids)} error={errors.unitIds} />}
       <FormField id="mv-notes" label="Observaciones" error={errors.notes}>
-        <Textarea id="mv-notes" rows={2} maxLength={1000} value={values.notes} onChange={(e): void => setField('notes', e.target.value)} className="rounded-lg bg-background" />
+        <Textarea placeholder="Motivo del cambio" id="mv-notes" rows={2} maxLength={1000} value={values.notes} onChange={(e): void => setField('notes', e.target.value)} className="rounded-lg bg-background" />
       </FormField>
     </FormDialog>
   );
@@ -333,7 +333,7 @@ export const EndDialog = ({ slug, enrollment, onClose, onSaved }: { slug: string
       </FormField>
       {values.status === 'transferred' && (
         <FormField id="end-destination" label="Institución de destino" required error={errors.destination}>
-          <Input id="end-destination" value={values.destination} maxLength={160} onChange={(e): void => setField('destination', e.target.value)} aria-invalid={Boolean(errors.destination)} className={controlClassName} />
+          <Input placeholder="Ej.: I.E. San Ramón" id="end-destination" value={values.destination} maxLength={160} onChange={(e): void => setField('destination', e.target.value)} aria-invalid={Boolean(errors.destination)} className={controlClassName} />
         </FormField>
       )}
     </FormDialog>

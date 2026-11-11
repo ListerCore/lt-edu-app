@@ -152,11 +152,11 @@ const PlacementDialog = ({ slug, ctx, onClose, onSaved }: { slug: string; ctx: P
           <Input id="pl-date" type="date" max={today} value={values.decidedOn} onChange={(e): void => setField('decidedOn', e.target.value)} className={controlClassName} />
         </FormField>
         <FormField id="pl-reference" label="Referencia" error={errors.reference} hint="Resolución, acta o certificado.">
-          <Input id="pl-reference" value={values.reference} maxLength={120} onChange={(e): void => setField('reference', e.target.value)} className={controlClassName} />
+          <Input placeholder="Ej.: Informe psicopedagógico N.° 12" id="pl-reference" value={values.reference} maxLength={120} onChange={(e): void => setField('reference', e.target.value)} className={controlClassName} />
         </FormField>
       </div>
       <FormField id="pl-notes" label="Observaciones" error={errors.notes}>
-        <Textarea id="pl-notes" rows={2} maxLength={1000} value={values.notes} onChange={(e): void => setField('notes', e.target.value)} className="rounded-lg bg-background" />
+        <Textarea placeholder="Observaciones de la ubicación" id="pl-notes" rows={2} maxLength={1000} value={values.notes} onChange={(e): void => setField('notes', e.target.value)} className="rounded-lg bg-background" />
       </FormField>
     </FormDialog>
   );

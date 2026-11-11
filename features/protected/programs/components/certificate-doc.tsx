@@ -140,7 +140,7 @@ const AnnulDialog = ({ slug, id, onClose, onDone }: { slug: string; id: string; 
       onClose={onClose}
     >
       <FormField id="annul-reason" label="Motivo" required>
-        <Input id="annul-reason" value={reason} maxLength={300} onChange={(e): void => setReason(e.target.value)} />
+        <Input placeholder="Ej.: Error en los apellidos" id="annul-reason" value={reason} maxLength={300} onChange={(e): void => setReason(e.target.value)} />
       </FormField>
     </FormDialog>
   );

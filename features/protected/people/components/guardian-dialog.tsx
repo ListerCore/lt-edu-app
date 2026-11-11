@@ -81,7 +81,7 @@ export const GuardianDialog = ({ slug, studentId, guardian, isFirst, onClose, on
         </FormField>
         <FormField id="gu-docnumber" label="Número" required error={errors.documentNumber} hint={lookup === 'new' ? 'No está registrado: completa sus datos.' : lookup === 'found' ? 'Ya está registrado (por un hermano): se vinculará.' : undefined}>
           <div className="flex gap-2">
-            <Input
+            <Input placeholder="Ej.: 41234567"
               id="gu-docnumber"
               value={values.documentNumber}
               maxLength={20}
@@ -104,19 +104,19 @@ export const GuardianDialog = ({ slug, studentId, guardian, isFirst, onClose, on
       </div>
       <div className="grid gap-5 sm:grid-cols-2">
         <FormField id="gu-given" label="Nombres" required error={errors.givenNames}>
-          <Input id="gu-given" value={values.givenNames} maxLength={80} disabled={locked} onChange={(e): void => setField('givenNames', e.target.value)} aria-invalid={Boolean(errors.givenNames)} className={controlClassName} />
+          <Input placeholder="Ej.: Rosa Elena" id="gu-given" value={values.givenNames} maxLength={80} disabled={locked} onChange={(e): void => setField('givenNames', e.target.value)} aria-invalid={Boolean(errors.givenNames)} className={controlClassName} />
         </FormField>
         <FormField id="gu-surnames" label="Apellidos" required error={errors.surnames}>
-          <Input id="gu-surnames" value={values.surnames} maxLength={120} disabled={locked} onChange={(e): void => setField('surnames', e.target.value)} aria-invalid={Boolean(errors.surnames)} className={controlClassName} />
+          <Input placeholder="Ej.: Quispe Huamán" id="gu-surnames" value={values.surnames} maxLength={120} disabled={locked} onChange={(e): void => setField('surnames', e.target.value)} aria-invalid={Boolean(errors.surnames)} className={controlClassName} />
         </FormField>
         <FormField id="gu-phone" label="Celular" error={errors.phone}>
-          <Input id="gu-phone" type="tel" value={values.phone} maxLength={20} disabled={locked} onChange={(e): void => setField('phone', e.target.value)} className={controlClassName} />
+          <Input placeholder="Ej.: 987 654 321" id="gu-phone" type="tel" value={values.phone} maxLength={20} disabled={locked} onChange={(e): void => setField('phone', e.target.value)} className={controlClassName} />
         </FormField>
         <FormField id="gu-email" label="Correo" error={errors.email} hint="Con él puede ingresar al panel.">
-          <Input id="gu-email" type="email" value={values.email} maxLength={254} disabled={locked} onChange={(e): void => setField('email', e.target.value)} className={controlClassName} />
+          <Input placeholder="nombre@correo.com" id="gu-email" type="email" value={values.email} maxLength={254} disabled={locked} onChange={(e): void => setField('email', e.target.value)} className={controlClassName} />
         </FormField>
         <FormField id="gu-occupation" label="Ocupación" error={errors.occupation}>
-          <Input id="gu-occupation" value={values.occupation} maxLength={80} disabled={locked} onChange={(e): void => setField('occupation', e.target.value)} className={controlClassName} />
+          <Input placeholder="Ej.: Comerciante" id="gu-occupation" value={values.occupation} maxLength={80} disabled={locked} onChange={(e): void => setField('occupation', e.target.value)} className={controlClassName} />
         </FormField>
         <FormField id="gu-relationship" label="Parentesco" required error={errors.relationship}>
           <SelectField id="gu-relationship" value={values.relationship} options={items(relationshipLabels)} onChange={(v): void => setField('relationship', v)} />
