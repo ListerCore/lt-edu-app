@@ -58,7 +58,7 @@ export const FeaturedAnnouncementsModal = ({ announcements }: FeaturedAnnounceme
 
   return (
     <Dialog open={open} onOpenChange={(next): void => (next ? undefined : close())}>
-      <DialogContent className="max-h-[92svh] gap-0 overflow-y-auto p-0 sm:max-w-xl" onKeyDown={(event): void => {
+      <DialogContent className="max-h-[92svh] gap-0 overflow-y-auto p-0 sm:max-w-2xl lg:max-w-3xl" onKeyDown={(event): void => {
         if (!many) return;
         if (event.key === 'ArrowRight') go(1);
         if (event.key === 'ArrowLeft') go(-1);
@@ -66,14 +66,14 @@ export const FeaturedAnnouncementsModal = ({ announcements }: FeaturedAnnounceme
         <div key={item.id} className="row-in" aria-roledescription={many ? 'diapositiva' : undefined} aria-label={many ? `${index + 1} de ${items.length}` : undefined}>
           {cover ? (
             <div className="relative aspect-video bg-surface">
-              <Image src={cover.url} alt="" fill unoptimized sizes="(min-width: 640px) 576px, 100vw" className="object-cover" />
+              <Image src={cover.url} alt="" fill unoptimized sizes="(min-width: 1024px) 768px, (min-width: 640px) 672px, 100vw" className="object-cover" />
             </div>
           ) : (
-            <div className={cn('flex h-24 items-center justify-center', meta.className)}>
-              <MorphIcon icon={meta.icon} size={32} />
+            <div className={cn('flex h-32 items-center justify-center', meta.className)}>
+              <MorphIcon icon={meta.icon} size={40} />
             </div>
           )}
-          <div className="p-6">
+          <div className="p-6 sm:p-8">
             <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
               <span className={cn('pill gap-1.5 font-semibold', meta.className)}>
                 <MorphIcon icon={meta.icon} size={12} />
@@ -86,10 +86,10 @@ export const FeaturedAnnouncementsModal = ({ announcements }: FeaturedAnnounceme
                 </span>
               )}
             </div>
-            <DialogTitle className="mt-3 text-xl leading-snug font-semibold text-foreground">{item.title}</DialogTitle>
-            <DialogDescription className="mt-2 line-clamp-5 text-sm leading-6 whitespace-pre-line text-muted-foreground">{item.body}</DialogDescription>
+            <DialogTitle className="mt-3 text-xl leading-snug sm:text-2xl font-semibold text-foreground">{item.title}</DialogTitle>
+            <DialogDescription className="mt-3 line-clamp-6 text-sm leading-6 sm:text-base sm:leading-7 whitespace-pre-line text-muted-foreground">{item.body}</DialogDescription>
 
-            <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
+            <div className="mt-8 flex flex-wrap items-center justify-between gap-3">
               {many ? (
                 <div className="flex items-center gap-1">
                   <button type="button" onClick={(): void => go(-1)} aria-label="Anterior" className="flex size-8 items-center justify-center rounded-full border border-border text-foreground transition-colors hover:border-brand hover:text-brand">
