@@ -11,6 +11,7 @@ export const staffStatusClass: Record<string, string> = { active: 'bg-success/12
 export const staffRoleLabels: Record<string, string> = {
   director: 'Director(a)',
   academic_coordinator: 'Coordinación académica',
+  program_coordinator: 'Coordinación de programa',
   secretary: 'Secretaría',
   teacher: 'Docente',
   tutor: 'Tutor(a)',
