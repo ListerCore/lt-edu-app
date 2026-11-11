@@ -372,17 +372,39 @@
   page: acta;
 }
 
+/* Agency FB: the typeface of the printed documents (report cards, published timetables); condensed, so dense tables
+   still fit on one sheet */
+@font-face {
+  font-family: 'Agency FB';
+  src: url('/fonts/agency-fb-regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Agency FB';
+  src: url('/fonts/agency-fb-bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+.font-document {
+  font-family: 'Agency FB', 'Arial Narrow', Arial, sans-serif;
+}
+
 /* SIAGIE report card (A4 landscape, front and back side by side; the @page rule is rendered with the card): sizes
    inside are in em of this base */
 .siagie {
-  font-family: Arial, Helvetica, sans-serif;
-  font-size: 11px;
-  line-height: 1.25;
+  font-family: 'Agency FB', 'Arial Narrow', Arial, sans-serif;
+  font-size: 13px;
+  line-height: 1.2;
 }
 
 @media print {
   .siagie {
-    font-size: 6.6pt;
+    font-size: 7.4pt;
   }
 }
 
@@ -408,6 +430,25 @@
   }
   [data-print-card]:last-child {
     break-after: auto;
+  }
+}
+
+/* Published timetables: only the sheets print, one per page, with their course colours */
+@media print {
+  body:has([data-print-schedule]) * {
+    visibility: hidden;
+  }
+  body:has([data-print-schedule]) [data-print-schedule],
+  body:has([data-print-schedule]) [data-print-schedule] * {
+    visibility: visible;
+  }
+  body:has([data-print-schedule]) [data-print-schedule] {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
   }
 }
 

@@ -3,10 +3,10 @@ import type { JSX, ReactNode } from 'react';
 import { cn } from '@/lib/utils';
 import type { CardCompetency, CardSubject, ReportCard } from '../types';
 
-// Printed lines that fit on the front under the header (A4 landscape at 6.6 pt); the remaining areas go to the back
+// Printed lines that fit on the front under the header (A4 landscape, Agency FB 7.4 pt); the remaining areas go to the back
 const FRONT_LINES = 34;
 // Characters of a competency that fit on one line of its column
-const LINE_CHARS = 50;
+const LINE_CHARS = 58;
 
 // Lines a competency takes on paper, from the length of its name
 const linesOf = (c: CardCompetency): number => Math.max(1, Math.ceil(c.name.length / LINE_CHARS));

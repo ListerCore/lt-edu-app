@@ -16,9 +16,10 @@ import { cn } from '@/lib/utils';
 import { autoFillAction, clearSectionAction, getMyScheduleAction, getPlannerAction, placeClassAction, removeClassAction } from '../actions/schedule-actions';
 import type { MyScheduleData, PlannerData, Section, TimeBlock } from '../types';
 import { BlocksView, LoadView } from './load-views';
+import { ScheduleExport } from './schedule-export';
 import { blocksFor, EmptyNote, toneFor, WeekGrid } from './week-grid';
 
-type Tab = 'mine' | 'section' | 'teacher' | 'load' | 'blocks';
+type Tab = 'mine' | 'section' | 'teacher' | 'load' | 'blocks' | 'export';
 
 // Horarios: my week (teachers, students, families), each section's timetable, each teacher's week, the teaching
 // load and the school day of each shift
@@ -33,7 +34,7 @@ export const SchedulesPage = (): JSX.Element => {
   const current: Tab = tab ?? (hasMine ? 'mine' : 'section');
   const staffView = Boolean(ctx);
 
-  const tabs: Array<[Tab, string]> = [...(hasMine ? ([['mine', 'Mi horario']] as Array<[Tab, string]>) : []), ...(staffView ? ([['section', 'Por sección'], ['teacher', 'Por docente'], ['load', 'Carga docente'], ['blocks', 'Horas del día']] as Array<[Tab, string]>) : [])];
+  const tabs: Array<[Tab, string]> = [...(hasMine ? ([['mine', 'Mi horario']] as Array<[Tab, string]>) : []), ...(staffView ? ([['section', 'Por sección'], ['teacher', 'Por docente'], ['load', 'Carga docente'], ['blocks', 'Horas del día'], ['export', 'Publicar']] as Array<[Tab, string]>) : [])];
 
   return (
     <AcademicPage titleId="schedules-title" title="Horarios" description="La carga docente de cada sección y su horario semanal, sin docentes en dos lugares a la vez." context={ctx ? { ...ctx.context, canManage: ctx.context.canManage } : hasMine ? { canManage: false } : null}>
@@ -75,6 +76,8 @@ const PlannerViews = ({ slug, periodId, tab }: { slug: string; periodId: string;
       return <LoadView slug={slug} data={data} onChange={reload} />;
     case 'blocks':
       return <BlocksView slug={slug} data={data} onChange={reload} />;
+    case 'export':
+      return <ScheduleExport data={data} />;
     default:
       return <SectionView slug={slug} data={data} onChange={reload} />;
   }
