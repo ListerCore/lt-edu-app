@@ -19,8 +19,9 @@ import type { Enrollment, Guardian, PeopleContextData, StudentDetail } from '../
 import { EndDialog, EnrollDialog, MoveDialog } from './enrollment-dialogs';
 import { GuardianDialog } from './guardian-dialog';
 import { StudentForm } from './student-form';
+import { StudentAttendanceTab } from '@/features/protected/attendance/components/student-attendance-tab';
 
-type Tab = 'data' | 'family' | 'enrollment' | 'placements';
+type Tab = 'data' | 'family' | 'enrollment' | 'placements' | 'attendance';
 type Editing = { kind: 'guardian'; guardian: Guardian | null } | { kind: 'enroll' } | { kind: 'move'; enrollment: Enrollment } | { kind: 'end'; enrollment: Enrollment } | null;
 
 // One student: personal data, family (guardians and panel access), enrollment history and EBA placements
@@ -28,7 +29,7 @@ export const StudentDetailPage = ({ id, initialTab }: { id: string; initialTab?:
   const router = useRouter();
   const { data: ctx, slug } = usePeopleContext();
   const { data, error, isLoading, reload } = useAcademicData(`student:${slug}:${id}`, () => getStudentAction(slug, id), isPeopleEvent);
-  const [tab, setTab] = useState<Tab>((['data', 'family', 'enrollment', 'placements'] as Tab[]).includes(initialTab as Tab) ? (initialTab as Tab) : 'data');
+  const [tab, setTab] = useState<Tab>((['data', 'family', 'enrollment', 'placements', 'attendance'] as Tab[]).includes(initialTab as Tab) ? (initialTab as Tab) : 'data');
   const [editing, setEditing] = useState<Editing>(null);
   const [isPending, startTransition] = useTransition();
   const today = useToday();
@@ -45,6 +46,7 @@ export const StudentDetailPage = ({ id, initialTab }: { id: string; initialTab?:
     ['family', `Familia${data ? ` (${data.guardians.length})` : ''}`],
     ['enrollment', 'Matrícula'],
     ...(ctx?.context.usesAttentionModes ? ([['placements', 'Ubicación y convalidación']] as Array<[Tab, string]>) : []),
+    ['attendance', 'Asistencia'],
   ];
   const age = student ? ageOn(student.birthDate, today) : null;
 
@@ -132,6 +134,8 @@ export const StudentDetailPage = ({ id, initialTab }: { id: string; initialTab?:
               onDelete={(e): void => act(() => runAcademicAction(deleteEnrollmentAction(slug, e.id)))}
             />
           )}
+
+          {tab === 'attendance' && <StudentAttendanceTab slug={slug} studentId={student.id} />}
 
           {tab === 'placements' && (
             <div className="space-y-3">

@@ -22,6 +22,8 @@ export interface Cardholder {
   // Printed on the back: the guardian for students, a relative for staff
   emergencyName: string;
   emergencyPhone: string;
+  // The attendance QR issued by joseph-api (rows of 0/1); absent on demo cardholders, which print a decorative one
+  qr?: { size: number; modules: string } | null;
 }
 
 export interface CardFormatSpec {

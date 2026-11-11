@@ -147,6 +147,8 @@ export const SettingsDialog = ({ slug, context, onClose, onSaved }: SettingsDial
       attentionModes: settings?.attentionModes ?? [],
       shifts: settings?.shifts ?? ['morning'],
       weekDays: (settings?.weekDays ?? [1, 2, 3, 4, 5]).map(String),
+      lateAfterMinutes: String(settings?.lateAfterMinutes ?? 10),
+      absenceLimitPercent: String(settings?.absenceLimitPercent ?? 30),
     },
     save: (v) => updateSettingsAction(slug, v, scale),
     onSaved: () => {
@@ -186,6 +188,14 @@ export const SettingsDialog = ({ slug, context, onClose, onSaved }: SettingsDial
       <FormField id="settings-shifts" label="Turnos" required error={errors.shifts}>
         <ChoiceChips label="Turnos" options={items(shiftLabels, ALL_SHIFTS)} selected={values.shifts} onChange={(next): void => setField('shifts', next)} invalid={Boolean(errors.shifts)} />
       </FormField>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <FormField id="settings-late" label="Tolerancia de llegada (minutos)" required error={errors.lateAfterMinutes} hint="Después de la primera hora de clase más estos minutos, cuenta como tardanza.">
+          <Input id="settings-late" inputMode="numeric" value={values.lateAfterMinutes} onChange={(e): void => setField('lateAfterMinutes', e.target.value.replace(/\D/g, '').slice(0, 3))} aria-invalid={Boolean(errors.lateAfterMinutes)} className={`${controlClassName} max-w-32`} />
+        </FormField>
+        <FormField id="settings-limit" label="Límite de inasistencias (%)" required error={errors.absenceLimitPercent} hint="Desde este porcentaje de faltas sin justificar se alerta. En institutos suele ser 30 %.">
+          <Input id="settings-limit" inputMode="numeric" value={values.absenceLimitPercent} onChange={(e): void => setField('absenceLimitPercent', e.target.value.replace(/\D/g, '').slice(0, 3))} aria-invalid={Boolean(errors.absenceLimitPercent)} className={`${controlClassName} max-w-32`} />
+        </FormField>
+      </div>
       {context.usesAttentionModes && (
         <FormField id="settings-modes" label="Formas de atención que ofrece" required error={errors.attentionModes}>
           <ChoiceChips label="Formas de atención" options={Object.keys(attentionModeLabels).map((m) => ({ value: m, label: attentionModeLabels[m], hint: attentionModeHints[m] }))} selected={values.attentionModes} onChange={(next): void => setField('attentionModes', next)} invalid={Boolean(errors.attentionModes)} />

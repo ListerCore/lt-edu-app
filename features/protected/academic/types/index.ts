@@ -80,6 +80,8 @@ export interface SettingsFormValues {
   attentionModes: string[];
   shifts: string[];
   weekDays: string[];
+  lateAfterMinutes: string;
+  absenceLimitPercent: string;
 }
 
 // Remote data in a hook: loading, the data once it arrives, and a way to reload it

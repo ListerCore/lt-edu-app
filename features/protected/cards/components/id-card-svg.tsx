@@ -13,8 +13,35 @@ const nameLines = (name: string, max: number): string[] => {
   return cut > 0 ? [name.slice(0, cut), name.slice(cut + 1)] : [name];
 };
 
-// Attendance QR (decorative pattern until joseph-api issues real codes) drawn at (x, y) with the given side in mm
-const Qr = ({ seed, x, y, size }: { seed: string; x: number; y: number; size: number }): JSX.Element => {
+// The attendance QR the gate reads, from joseph-api's modules (with a one-module quiet zone of paper)
+const RealQr = ({ qr, x, y, size }: { qr: { size: number; modules: string }; x: number; y: number; size: number }): JSX.Element => {
+  const cell = size / (qr.size + 2);
+  const rows: string[] = [];
+  for (let r = 0; r < qr.size; r++) {
+    // One path per row: runs of dark modules as rectangles
+    let d = '';
+    let run = -1;
+    for (let c = 0; c <= qr.size; c++) {
+      const on = c < qr.size && qr.modules[r * qr.size + c] === '1';
+      if (on && run < 0) run = c;
+      if (!on && run >= 0) {
+        d += `M${run + 1} ${r + 1}h${c - run}v1h-${c - run}z`;
+        run = -1;
+      }
+    }
+    if (d) rows.push(d);
+  }
+  return (
+    <g transform={`translate(${x} ${y}) scale(${cell})`} shapeRendering="crispEdges">
+      <rect width={qr.size + 2} height={qr.size + 2} fill={color.paper} />
+      <path d={rows.join('')} fill={color.ink} />
+    </g>
+  );
+};
+
+// Decorative QR-like pattern for demo cardholders that have no card in joseph-api
+const Qr = ({ seed, x, y, size, qr }: { seed: string; x: number; y: number; size: number; qr?: { size: number; modules: string } | null }): JSX.Element => {
+  if (qr && qr.size > 0 && qr.modules.length === qr.size * qr.size) return <RealQr qr={qr} x={x} y={y} size={size} />;
   const cell = size / QR_SIZE;
   return (
     <g transform={`translate(${x} ${y}) scale(${cell})`} fill={color.ink} shapeRendering="crispEdges">
@@ -255,7 +282,7 @@ export const IdCardSvg = ({ cardholder, issuer, format, side = 'front', idPrefix
             <text x="47" y="38.6" fontSize="2.9" fontWeight="600" fontFamily={MONO} fill={color.ink}>
               {cardholder.documentNumber}
             </text>
-            <Qr seed={cardholder.code} x={w - 19.5} y={h - 25} size={15.5} />
+            <Qr seed={cardholder.code} qr={cardholder.qr} x={w - 19.5} y={h - 25} size={15.5} />
             <line x1="4" y1={h - 6.6} x2={w - 22} y2={h - 6.6} stroke={color.line} strokeWidth="0.25" />
             <text x="4" y={h - 3.2} fontSize="2" fill={color.muted}>
               Vigencia {issuer.validity} · Muestra el QR al ingresar
@@ -298,7 +325,7 @@ export const IdCardSvg = ({ cardholder, issuer, format, side = 'front', idPrefix
             <text x="4.5" y={h - 3.2} fontSize="2.3" fontFamily={MONO} fill={color.muted}>
               {cardholder.documentNumber}
             </text>
-            <Qr seed={cardholder.code} x={w - 15.5} y={h - 14.6} size={11.6} />
+            <Qr seed={cardholder.code} qr={cardholder.qr} x={w - 15.5} y={h - 14.6} size={11.6} />
             <rect y={h - 1.6} width={w} height="1.6" fill={color.brand} />
           </>
         )}

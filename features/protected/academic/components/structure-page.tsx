@@ -227,6 +227,7 @@ const ProfileStrip = ({ context, onEdit }: { context: AcademicContext; onEdit?: 
     { label: 'Calificación', value: `${gradingScaleLabels[s?.gradingScale ?? 'literal']}${s?.passingGrade ? ` · aprueba con ${s.passingGrade}` : ''}${s?.conductGrade ? ' · conducta 0–20' : ''}` },
     { label: 'Turnos', value: (s?.shifts ?? []).map((x) => shiftLabels[x]).join(', ') },
     { label: 'Días de clase', value: (s?.weekDays ?? []).map((d) => weekdayShort[String(d)]).join(', ') },
+    { label: 'Asistencia', value: `tolerancia ${s?.lateAfterMinutes ?? 10} min · alerta desde ${s?.absenceLimitPercent ?? 30} %` },
     ...(context.usesAttentionModes ? [{ label: 'Formas de atención', value: (s?.attentionModes ?? []).map((x) => attentionModeLabels[x]).join(', ') }] : []),
   ];
   return (

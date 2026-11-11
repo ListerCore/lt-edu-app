@@ -5,6 +5,7 @@ import { demoInstitutionSlugs } from '@/features/protected/academic/data/academi
 import type { InstitutionType, Role } from '@/features/protected/dashboard/types';
 import { placeLine } from '@/features/protected/people/data/people-data';
 import { peopleRpc } from '@/lib/api/grpc/people';
+import { attendanceRpc } from '@/lib/api/grpc/attendance';
 import { staffRpc } from '@/lib/api/grpc/teaching';
 import { paginate, type Pagination } from '@/lib/api/list';
 import { SESSION_COOKIE } from '@/lib/auth/cookies';
@@ -16,6 +17,15 @@ const simulate = async (ms = 350): Promise<void> => new Promise((resolve) => set
 
 // Accent-insensitive comparison, so "jose" finds "José"
 const fold = (value: string): string => value.normalize('NFD').replace(/\p{Diacritic}/gu, '').toLowerCase();
+
+// The real attendance QR of each card; a failure keeps the decorative pattern rather than breaking the list
+const withQr = async (slug: string, kind: 'student' | 'staff', token: string, data: Cardholder[]): Promise<Cardholder[]> => {
+  if (data.length === 0) return data;
+  const codes = await attendanceRpc.cardCodes({ institutionSlug: slug, kind, ids: data.map((c) => c.id) }, { token });
+  if (!codes.ok) return data;
+  const byId = new Map(codes.data.codes.map((c) => [c.id, { size: c.size, modules: c.modules }]));
+  return data.map((c) => ({ ...c, qr: byId.get(c.id) ?? null }));
+};
 
 // Students come from joseph-api (people.students with their enrollment in the running period and main guardian)
 const realStudents = async ({ institutionType, search, page, pageSize }: GetCardholdersParams): Promise<CardActionResult<CardholdersResponse>> => {
@@ -43,7 +53,7 @@ const realStudents = async ({ institutionType, search, page, pageSize }: GetCard
   }));
   const totalPages = Math.max(1, Math.ceil(result.data.total / pageSize));
   const pagination: Pagination = { has_prev_page: current > 1, has_next_page: current < totalPages, page_size: pageSize, current_page: current, total_items: result.data.total, total_pages: totalPages };
-  return { ok: true, message: 'ok', data: { data, meta: { search_query: query, filter: { group: 'students' }, pagination } } };
+  return { ok: true, message: 'ok', data: { data: await withQr(slug, 'student', token, data), meta: { search_query: query, filter: { group: 'students' }, pagination } } };
 };
 
 // Staff come from joseph-api too (people.staff), with their job as the card detail
@@ -67,7 +77,7 @@ const realStaff = async ({ institutionType, search, page, pageSize }: GetCardhol
   }));
   const totalPages = Math.max(1, Math.ceil(result.data.total / pageSize));
   const pagination: Pagination = { has_prev_page: current > 1, has_next_page: current < totalPages, page_size: pageSize, current_page: current, total_items: result.data.total, total_pages: totalPages };
-  return { ok: true, message: 'ok', data: { data, meta: { search_query: query, filter: { group: 'staff' }, pagination } } };
+  return { ok: true, message: 'ok', data: { data: await withQr(demoInstitutionSlugs[institutionType], 'staff', token, data), meta: { search_query: query, filter: { group: 'staff' }, pagination } } };
 };
 
 // GET /cardholders?group=&search=&page=&page_size= : one page plus meta { search_query, filter, pagination }
