@@ -1,0 +1,323 @@
+syntax = "proto3";
+
+// Fees and payments (phase 10 of docs/plan-academico.md). Same metadata and institution scoping as
+// joseph.academic.v1. Every amount travels in céntimos of sol (int64)
+package joseph.finance.v1;
+
+import "joseph/academic/v1/academic.proto";
+
+option go_package = "api/internal/adapter/inbound/grpc/gen/financev1;financev1";
+
+// Tesorería and dirección charge and collect; secretaría and coordinación consult; families see their own account
+service FinanceService {
+  rpc GetSummary(GetSummaryRequest) returns (GetSummaryResponse);
+  rpc ListPlans(ListPlansRequest) returns (ListPlansResponse);
+  rpc SavePlan(SavePlanRequest) returns (SavePlanResponse);
+  rpc DeletePlan(DeletePlanRequest) returns (DeletePlanResponse);
+  // Gives the enrolled students the charges of the plan they still lack
+  rpc GenerateCharges(GenerateChargesRequest) returns (GenerateChargesResponse);
+  rpc GetStatement(GetStatementRequest) returns (GetStatementResponse);
+  rpc MyStatements(MyStatementsRequest) returns (MyStatementsResponse);
+  // Settles the chosen charges, or the oldest pending ones
+  rpc RegisterPayment(RegisterPaymentRequest) returns (RegisterPaymentResponse);
+  rpc AnnulPayment(AnnulPaymentRequest) returns (AnnulPaymentResponse);
+  rpc GetPayment(GetPaymentRequest) returns (GetPaymentResponse);
+  rpc GetCash(GetCashRequest) returns (GetCashResponse);
+  rpc SaveDiscount(SaveDiscountRequest) returns (SaveDiscountResponse);
+  rpc DeleteDiscount(DeleteDiscountRequest) returns (DeleteDiscountResponse);
+  rpc VoidCharge(VoidChargeRequest) returns (VoidChargeResponse);
+  rpc AddCharge(AddChargeRequest) returns (AddChargeResponse);
+  rpc SendReminders(SendRemindersRequest) returns (SendRemindersResponse);
+}
+
+message FeeItem {
+  string id = 1;
+  // enrollment | tuition | other
+  string concept = 2;
+  string name = 3;
+  int64 amount = 4;
+  string due_on = 5;
+}
+
+message FeePlan {
+  string id = 1;
+  string period_id = 2;
+  string period_name = 3;
+  // Empty: every level of the period
+  string level_id = 4;
+  string level_name = 5;
+  string name = 6;
+  repeated FeeItem items = 7;
+  int32 students = 8;
+}
+
+message Account {
+  string student_id = 1;
+  string code = 2;
+  string name = 3;
+  string placement = 4;
+  string level_id = 5;
+  int64 charged = 6;
+  int64 discounts = 7;
+  int64 paid = 8;
+  int64 overdue = 9;
+  int32 overdue_count = 10;
+  string oldest_due = 11;
+  string last_reminder = 12;
+}
+
+message MonthTotal {
+  string month = 1;
+  int64 expected = 2;
+  int64 collected = 3;
+}
+
+message GetSummaryRequest {
+  string institution_slug = 1;
+  string period_id = 2;
+}
+
+message GetSummaryResponse {
+  repeated joseph.academic.v1.Period periods = 1;
+  joseph.academic.v1.Period period = 2;
+  int64 expected = 3;
+  int64 discounts = 4;
+  int64 collected = 5;
+  int64 pending = 6;
+  int64 overdue = 7;
+  int32 debtors = 8;
+  int32 students = 9;
+  repeated MonthTotal months = 10;
+  repeated Account accounts = 11;
+  bool can_manage = 12;
+  string today = 13;
+}
+
+message ListPlansRequest {
+  string institution_slug = 1;
+  string period_id = 2;
+}
+
+message ListPlansResponse {
+  repeated FeePlan plans = 1;
+  bool can_manage = 2;
+}
+
+message SavePlanRequest {
+  string institution_slug = 1;
+  FeePlan plan = 2;
+}
+
+message SavePlanResponse {
+  FeePlan plan = 1;
+}
+
+message DeletePlanRequest {
+  string institution_slug = 1;
+  string id = 2;
+}
+
+message DeletePlanResponse {}
+
+message GenerateChargesRequest {
+  string institution_slug = 1;
+  string id = 2;
+}
+
+message GenerateChargesResponse {
+  int32 created = 1;
+}
+
+message Charge {
+  string id = 1;
+  string period_id = 2;
+  string period_name = 3;
+  string concept = 4;
+  string name = 5;
+  int64 amount = 6;
+  int64 discount = 7;
+  int64 paid = 8;
+  int64 balance = 9;
+  string due_on = 10;
+  // pending | void
+  string status = 11;
+  string void_reason = 12;
+}
+
+message Allocation {
+  string charge_id = 1;
+  string charge_name = 2;
+  int64 amount = 3;
+}
+
+message Payment {
+  string id = 1;
+  string student_id = 2;
+  string student_name = 3;
+  string student_code = 4;
+  string receipt = 5;
+  string paid_on = 6;
+  int64 amount = 7;
+  // cash | transfer | yape | plin | card | deposit
+  string method = 8;
+  string reference = 9;
+  string payer = 10;
+  string notes = 11;
+  // valid | annulled
+  string status = 12;
+  string annul_reason = 13;
+  string received_name = 14;
+  repeated Allocation allocations = 15;
+}
+
+message Discount {
+  string student_id = 1;
+  string student_name = 2;
+  string period_id = 3;
+  double percent = 4;
+  bool tuition_only = 5;
+  string reason = 6;
+}
+
+message Reminder {
+  string id = 1;
+  string message = 2;
+  int64 overdue = 3;
+  string sent_name = 4;
+  string sent_at = 5;
+}
+
+message Statement {
+  string student_id = 1;
+  string student_name = 2;
+  string student_code = 3;
+  repeated Charge charges = 4;
+  repeated Payment payments = 5;
+  repeated Discount discounts = 6;
+  repeated Reminder reminders = 7;
+  int64 balance = 8;
+  int64 overdue = 9;
+  bool can_manage = 10;
+  string today = 11;
+}
+
+message GetStatementRequest {
+  string institution_slug = 1;
+  string student_id = 2;
+}
+
+message GetStatementResponse {
+  Statement statement = 1;
+}
+
+message MyStatementsRequest {
+  string institution_slug = 1;
+}
+
+message MyStatementsResponse {
+  repeated Statement statements = 1;
+}
+
+message RegisterPaymentRequest {
+  string institution_slug = 1;
+  string student_id = 2;
+  string paid_on = 3;
+  int64 amount = 4;
+  string method = 5;
+  string reference = 6;
+  string payer = 7;
+  string notes = 8;
+  // Empty: the oldest pending charges
+  repeated string charge_ids = 9;
+}
+
+message RegisterPaymentResponse {
+  Payment payment = 1;
+}
+
+message AnnulPaymentRequest {
+  string institution_slug = 1;
+  string id = 2;
+  string reason = 3;
+}
+
+message AnnulPaymentResponse {}
+
+message GetPaymentRequest {
+  string institution_slug = 1;
+  string id = 2;
+}
+
+message GetPaymentResponse {
+  Payment payment = 1;
+  string institution = 2;
+}
+
+message GetCashRequest {
+  string institution_slug = 1;
+  string from = 2;
+  string to = 3;
+  string method = 4;
+}
+
+message GetCashResponse {
+  string from = 1;
+  string to = 2;
+  repeated Payment payments = 3;
+  map<string, int64> by_method = 4;
+  int64 total = 5;
+  int32 annulled = 6;
+}
+
+message SaveDiscountRequest {
+  string institution_slug = 1;
+  Discount discount = 2;
+}
+
+message SaveDiscountResponse {
+  Statement statement = 1;
+}
+
+message DeleteDiscountRequest {
+  string institution_slug = 1;
+  string student_id = 2;
+  string period_id = 3;
+}
+
+message DeleteDiscountResponse {
+  Statement statement = 1;
+}
+
+message VoidChargeRequest {
+  string institution_slug = 1;
+  string id = 2;
+  string reason = 3;
+}
+
+message VoidChargeResponse {
+  Statement statement = 1;
+}
+
+message AddChargeRequest {
+  string institution_slug = 1;
+  string student_id = 2;
+  string period_id = 3;
+  string name = 4;
+  int64 amount = 5;
+  string due_on = 6;
+}
+
+message AddChargeResponse {
+  Statement statement = 1;
+}
+
+message SendRemindersRequest {
+  string institution_slug = 1;
+  string period_id = 2;
+  // Empty: every family with overdue charges
+  repeated string student_ids = 3;
+}
+
+message SendRemindersResponse {
+  int32 sent = 1;
+}
