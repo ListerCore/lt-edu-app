@@ -1,0 +1,608 @@
+syntax = "proto3";
+
+// Wellbeing (phase 11 of docs/plan-academico.md): tutoring, psychology (confidential), school discipline
+// (DS 021-2026-MINEDU) and, in special education, the individual plan (POI) and therapies. Same metadata and
+// institution scoping as joseph.academic.v1. Dates are "YYYY-MM-DD"
+package joseph.wellbeing.v1;
+
+option go_package = "api/internal/adapter/inbound/grpc/gen/wellbeingv1;wellbeingv1";
+
+service WellbeingService {
+  rpc ListStudents(ListStudentsRequest) returns (ListStudentsResponse);
+  rpc GetStudentFile(GetStudentFileRequest) returns (GetStudentFileResponse);
+  rpc GetAlerts(GetAlertsRequest) returns (GetAlertsResponse);
+
+  // Tutoring: the tutor of the section (or dirección) runs it; families read the agreements and commitments
+  rpc GetTutoring(GetTutoringRequest) returns (GetTutoringResponse);
+  rpc SaveInterview(SaveInterviewRequest) returns (SaveInterviewResponse);
+  rpc DeleteInterview(DeleteInterviewRequest) returns (DeleteInterviewResponse);
+  rpc SaveCommitment(SaveCommitmentRequest) returns (SaveCommitmentResponse);
+  rpc CheckCommitment(CheckCommitmentRequest) returns (CheckCommitmentResponse);
+  rpc DeleteCommitment(DeleteCommitmentRequest) returns (DeleteCommitmentResponse);
+
+  // Psychology: anyone who sees the student refers; only psychologists read cases and sessions
+  rpc Refer(ReferRequest) returns (ReferResponse);
+  rpc GetPsychology(GetPsychologyRequest) returns (GetPsychologyResponse);
+  rpc GetCase(GetCaseRequest) returns (GetCaseResponse);
+  rpc UpdateCase(UpdateCaseRequest) returns (UpdateCaseResponse);
+  rpc AddSession(AddSessionRequest) returns (AddSessionResponse);
+  rpc DeleteSession(DeleteSessionRequest) returns (DeleteSessionResponse);
+
+  // Discipline: staff report faults; serious measures, suspensions, conditional enrollment and expulsion are the
+  // director's; families may ask for reconsideration within three school days
+  rpc GetDiscipline(GetDisciplineRequest) returns (GetDisciplineResponse);
+  rpc SaveIncident(SaveIncidentRequest) returns (SaveIncidentResponse);
+  rpc DeleteIncident(DeleteIncidentRequest) returns (DeleteIncidentResponse);
+  rpc SetIncidentStatus(SetIncidentStatusRequest) returns (SetIncidentStatusResponse);
+  rpc GetMeasureContext(GetMeasureContextRequest) returns (GetMeasureContextResponse);
+  rpc AddMeasure(AddMeasureRequest) returns (AddMeasureResponse);
+  rpc NotifyMeasure(NotifyMeasureRequest) returns (NotifyMeasureResponse);
+  rpc RequestReconsideration(RequestReconsiderationRequest) returns (RequestReconsiderationResponse);
+  rpc ResolveReconsideration(ResolveReconsiderationRequest) returns (ResolveReconsiderationResponse);
+  rpc DeleteMeasure(DeleteMeasureRequest) returns (DeleteMeasureResponse);
+
+  // Special education
+  rpc ListPlans(ListPlansRequest) returns (ListPlansResponse);
+  rpc GetPlan(GetPlanRequest) returns (GetPlanResponse);
+  rpc SavePlan(SavePlanRequest) returns (SavePlanResponse);
+  rpc SetPlanStatus(SetPlanStatusRequest) returns (SetPlanStatusResponse);
+  rpc DeletePlan(DeletePlanRequest) returns (DeletePlanResponse);
+  rpc ListTherapies(ListTherapiesRequest) returns (ListTherapiesResponse);
+  rpc SaveTherapy(SaveTherapyRequest) returns (SaveTherapyResponse);
+  rpc DeleteTherapy(DeleteTherapyRequest) returns (DeleteTherapyResponse);
+}
+
+message WellStudent {
+  string id = 1;
+  string code = 2;
+  string name = 3;
+  string placement = 4;
+  string section_id = 5;
+  bool special_needs = 6;
+  int32 pending_commitments = 7;
+  int32 open_incidents = 8;
+  bool active_case = 9;
+  bool has_plan = 10;
+  string last_interview = 11;
+}
+
+message Interview {
+  string id = 1;
+  string student_id = 2;
+  string student_name = 3;
+  // student | family
+  string kind = 4;
+  string held_on = 5;
+  string topic = 6;
+  // Empty for families
+  string notes = 7;
+  string agreements = 8;
+  string author_name = 9;
+}
+
+message Commitment {
+  string id = 1;
+  string student_id = 2;
+  string student_name = 3;
+  string placement = 4;
+  string interview_id = 5;
+  // student | family | school
+  string party = 6;
+  string description = 7;
+  string due_on = 8;
+  // pending | met | unmet
+  string status = 9;
+  string checked_on = 10;
+  string author_name = 11;
+}
+
+message PsychCase {
+  string id = 1;
+  string student_id = 2;
+  string student_name = 3;
+  string placement = 4;
+  // tutor | teacher | family | direction | self | psychologist
+  string origin = 5;
+  string referred_name = 6;
+  string reason = 7;
+  // normal | urgent
+  string priority = 8;
+  // referred | open | follow_up | closed
+  string status = 9;
+  string opened_on = 10;
+  string closed_on = 11;
+  string psychologist_name = 12;
+  string shared_note = 13;
+  int32 sessions = 14;
+  string last_session = 15;
+}
+
+message PsychSession {
+  string id = 1;
+  string case_id = 2;
+  string held_on = 3;
+  // individual | family | evaluation | coordination
+  string kind = 4;
+  string notes = 5;
+  string next_steps = 6;
+  string author_name = 7;
+}
+
+message Measure {
+  string id = 1;
+  string student_id = 2;
+  string incident_id = 3;
+  // corrective | suspension | conditional | expulsion
+  string kind = 4;
+  string ground = 5;
+  string detail = 6;
+  string starts_on = 7;
+  int32 days = 8;
+  string decided_name = 9;
+  string notified_on = 10;
+  string reconsideration_on = 11;
+  string reconsideration_reason = 12;
+  string reconsideration_by = 13;
+  string resolved_on = 14;
+  // upheld | revoked
+  string outcome = 15;
+  string resolution = 16;
+  // Last day to ask for reconsideration (three school days after notified_on) and to resolve it (five after the
+  // request)
+  string reconsider_until = 17;
+  string resolve_until = 18;
+  // Filled in the register of measures
+  string student_name = 19;
+  string placement = 20;
+}
+
+message Incident {
+  string id = 1;
+  string student_id = 2;
+  string student_name = 3;
+  string placement = 4;
+  string occurred_on = 5;
+  // minor | serious | very_serious
+  string severity = 6;
+  string category = 7;
+  string description = 8;
+  string reported_name = 9;
+  string family_notified_on = 10;
+  // open | closed
+  string status = 11;
+  repeated Measure measures = 12;
+  bool mine = 13;
+}
+
+message IncidentCategory {
+  string code = 1;
+  string label = 2;
+  string severity = 3;
+  bool crime = 4;
+  bool violence = 5;
+}
+
+message TermConduct {
+  string term_name = 1;
+  int32 score = 2;
+  string note = 3;
+}
+
+message IndividualPlan {
+  string id = 1;
+  string student_id = 2;
+  string student_name = 3;
+  string placement = 4;
+  string period_id = 5;
+  string period_name = 6;
+  string specialist_id = 7;
+  string specialist_name = 8;
+  string needs = 9;
+  string strengths = 10;
+  string educational_response = 11;
+  string curricular_adaptations = 12;
+  string access_adaptations = 13;
+  string evaluation_criteria = 14;
+  string actors = 15;
+  string family_commitments = 16;
+  // draft | approved
+  string status = 17;
+  string approved_name = 18;
+  string approved_on = 19;
+  string updated_at = 20;
+  int32 therapies = 21;
+}
+
+message TherapySession {
+  string id = 1;
+  string student_id = 2;
+  string student_name = 3;
+  string therapist_name = 4;
+  // language | physical | occupational | psychomotor | behavioral | learning
+  string kind = 5;
+  string held_on = 6;
+  int32 minutes = 7;
+  bool attended = 8;
+  string goal = 9;
+  // Empty for families
+  string notes = 10;
+  string home_tasks = 11;
+  bool mine = 12;
+}
+
+message WellAlert {
+  // attendance | conduct | discipline | reconsideration | commitment | psychology | plan
+  string kind = 1;
+  // high | medium
+  string level = 2;
+  string student_id = 3;
+  string student_name = 4;
+  string placement = 5;
+  string title = 6;
+  string detail = 7;
+  string since = 8;
+}
+
+message StaffRef {
+  string id = 1;
+  string name = 2;
+  string position = 3;
+}
+
+message ListStudentsRequest {
+  string institution_slug = 1;
+  string query = 2;
+  bool special_needs = 3;
+}
+
+message ListStudentsResponse {
+  repeated WellStudent students = 1;
+  bool can_tutor = 2;
+  bool can_report = 3;
+  bool can_decide = 4;
+  bool can_plan = 5;
+  bool family = 6;
+  bool ebe = 7;
+}
+
+message GetStudentFileRequest {
+  string institution_slug = 1;
+  string student_id = 2;
+}
+
+message GetStudentFileResponse {
+  WellStudent student = 1;
+  repeated Interview interviews = 2;
+  repeated Commitment commitments = 3;
+  repeated Incident incidents = 4;
+  // Every measure of the school year (conditional enrollment and expulsion may have no incident)
+  repeated Measure measures = 5;
+  repeated TermConduct conduct = 6;
+  repeated PsychCase cases = 7;
+  repeated IndividualPlan plans = 8;
+  repeated TherapySession therapies = 9;
+  bool can_tutor = 10;
+  bool can_refer = 11;
+  bool can_report = 12;
+  bool can_decide = 13;
+  bool can_plan = 14;
+  bool family = 15;
+  string today = 16;
+  repeated IncidentCategory catalog = 17;
+}
+
+message GetAlertsRequest {
+  string institution_slug = 1;
+}
+
+message GetAlertsResponse {
+  repeated WellAlert alerts = 1;
+  map<string, int32> counts = 2;
+  string today = 3;
+}
+
+message GetTutoringRequest {
+  string institution_slug = 1;
+}
+
+message GetTutoringResponse {
+  repeated WellStudent students = 1;
+  repeated Commitment due = 2;
+  repeated Interview interviews = 3;
+  bool can_tutor = 4;
+  bool family = 5;
+  string today = 6;
+}
+
+message SaveInterviewRequest {
+  string institution_slug = 1;
+  Interview interview = 2;
+}
+
+message SaveInterviewResponse {
+  Interview interview = 1;
+}
+
+message DeleteInterviewRequest {
+  string institution_slug = 1;
+  string id = 2;
+}
+
+message DeleteInterviewResponse {}
+
+message SaveCommitmentRequest {
+  string institution_slug = 1;
+  Commitment commitment = 2;
+}
+
+message SaveCommitmentResponse {
+  Commitment commitment = 1;
+}
+
+message CheckCommitmentRequest {
+  string institution_slug = 1;
+  string id = 2;
+  // pending | met | unmet
+  string status = 3;
+}
+
+message CheckCommitmentResponse {}
+
+message DeleteCommitmentRequest {
+  string institution_slug = 1;
+  string id = 2;
+}
+
+message DeleteCommitmentResponse {}
+
+message ReferRequest {
+  string institution_slug = 1;
+  string student_id = 2;
+  string reason = 3;
+  string priority = 4;
+}
+
+message ReferResponse {
+  PsychCase case = 1;
+}
+
+message GetPsychologyRequest {
+  string institution_slug = 1;
+  // Empty: every case; "active": not closed
+  string status = 2;
+}
+
+message GetPsychologyResponse {
+  repeated PsychCase cases = 1;
+  map<string, int32> by_status = 2;
+  int32 urgent = 3;
+  // True: only counts and the person's own referrals
+  bool confidential = 4;
+  bool can_manage = 5;
+}
+
+message GetCaseRequest {
+  string institution_slug = 1;
+  string id = 2;
+}
+
+message GetCaseResponse {
+  PsychCase case = 1;
+  repeated PsychSession sessions = 2;
+}
+
+message UpdateCaseRequest {
+  string institution_slug = 1;
+  string id = 2;
+  string status = 3;
+  string priority = 4;
+  string reason = 5;
+  string shared_note = 6;
+}
+
+message UpdateCaseResponse {
+  PsychCase case = 1;
+}
+
+message AddSessionRequest {
+  string institution_slug = 1;
+  PsychSession session = 2;
+}
+
+message AddSessionResponse {
+  PsychSession session = 1;
+}
+
+message DeleteSessionRequest {
+  string institution_slug = 1;
+  string case_id = 2;
+  string id = 3;
+}
+
+message DeleteSessionResponse {}
+
+message GetDisciplineRequest {
+  string institution_slug = 1;
+  string from = 2;
+  string to = 3;
+  string severity = 4;
+  string status = 5;
+}
+
+message GetDisciplineResponse {
+  repeated Incident incidents = 1;
+  repeated IncidentCategory catalog = 2;
+  int32 pending = 3;
+  bool can_report = 4;
+  bool can_decide = 5;
+  bool family = 6;
+  string today = 7;
+  // Suspensions, conditional enrollments and expulsions of the school year (pending reconsiderations first)
+  repeated Measure measures = 8;
+}
+
+message SaveIncidentRequest {
+  string institution_slug = 1;
+  Incident incident = 2;
+}
+
+message SaveIncidentResponse {
+  Incident incident = 1;
+}
+
+message DeleteIncidentRequest {
+  string institution_slug = 1;
+  string id = 2;
+}
+
+message DeleteIncidentResponse {}
+
+message SetIncidentStatusRequest {
+  string institution_slug = 1;
+  string id = 2;
+  string status = 3;
+}
+
+message SetIncidentStatusResponse {}
+
+message GetMeasureContextRequest {
+  string institution_slug = 1;
+  string student_id = 2;
+  string incident_id = 3;
+}
+
+message GetMeasureContextResponse {
+  int32 minor_in_term = 1;
+  int32 minor_in_year = 2;
+  int32 suspensions = 3;
+  bool conditional = 4;
+  bool expelled = 5;
+  // -1 when there is no conduct grade yet
+  double conduct_average = 6;
+  bool very_serious_fault = 7;
+}
+
+message AddMeasureRequest {
+  string institution_slug = 1;
+  Measure measure = 2;
+}
+
+message AddMeasureResponse {
+  Measure measure = 1;
+}
+
+message NotifyMeasureRequest {
+  string institution_slug = 1;
+  string id = 2;
+  string notified_on = 3;
+}
+
+message NotifyMeasureResponse {}
+
+message RequestReconsiderationRequest {
+  string institution_slug = 1;
+  string id = 2;
+  string reason = 3;
+}
+
+message RequestReconsiderationResponse {}
+
+message ResolveReconsiderationRequest {
+  string institution_slug = 1;
+  string id = 2;
+  // upheld | revoked
+  string outcome = 3;
+  string resolution = 4;
+}
+
+message ResolveReconsiderationResponse {}
+
+message DeleteMeasureRequest {
+  string institution_slug = 1;
+  string id = 2;
+}
+
+message DeleteMeasureResponse {}
+
+message ListPlansRequest {
+  string institution_slug = 1;
+  string period_id = 2;
+}
+
+message ListPlansResponse {
+  repeated IndividualPlan plans = 1;
+  // For coordinación: students and specialists to open a plan
+  repeated WellStudent students = 2;
+  repeated StaffRef specialists = 3;
+  string period_id = 4;
+  string period_name = 5;
+  bool can_manage = 6;
+  bool can_write = 7;
+}
+
+message GetPlanRequest {
+  string institution_slug = 1;
+  string id = 2;
+}
+
+message GetPlanResponse {
+  IndividualPlan plan = 1;
+  string institution = 2;
+}
+
+message SavePlanRequest {
+  string institution_slug = 1;
+  IndividualPlan plan = 2;
+}
+
+message SavePlanResponse {
+  IndividualPlan plan = 1;
+}
+
+message SetPlanStatusRequest {
+  string institution_slug = 1;
+  string id = 2;
+  // approved | draft
+  string status = 3;
+}
+
+message SetPlanStatusResponse {
+  IndividualPlan plan = 1;
+}
+
+message DeletePlanRequest {
+  string institution_slug = 1;
+  string id = 2;
+}
+
+message DeletePlanResponse {}
+
+message ListTherapiesRequest {
+  string institution_slug = 1;
+  string from = 2;
+  string to = 3;
+  string student_id = 4;
+}
+
+message ListTherapiesResponse {
+  repeated TherapySession sessions = 1;
+  repeated WellStudent students = 2;
+  bool can_write = 3;
+  bool family = 4;
+}
+
+message SaveTherapyRequest {
+  string institution_slug = 1;
+  TherapySession session = 2;
+}
+
+message SaveTherapyResponse {
+  TherapySession session = 1;
+}
+
+message DeleteTherapyRequest {
+  string institution_slug = 1;
+  string id = 2;
+}
+
+message DeleteTherapyResponse {}

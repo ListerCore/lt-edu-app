@@ -3,7 +3,7 @@
 import { useEffect, useRef, useSyncExternalStore } from 'react';
 
 // What joseph-api publishes on the live stream (internal/core/service/live_service.go); ids only, never personal data
-export type LiveEventType = 'system.ping' | 'announcement.published' | 'announcement.updated' | 'announcement.deleted' | 'academic.changed' | 'people.changed' | 'attendance.changed' | 'assessment.changed' | 'exams.changed' | 'programs.changed' | 'finance.changed';
+export type LiveEventType = 'system.ping' | 'announcement.published' | 'announcement.updated' | 'announcement.deleted' | 'academic.changed' | 'people.changed' | 'attendance.changed' | 'assessment.changed' | 'exams.changed' | 'programs.changed' | 'finance.changed' | 'wellbeing.changed';
 
 // Any change to announcements (published, edited or deleted)
 export const isAnnouncementEvent = (type: LiveEvent['type']): boolean => type.startsWith('announcement.');
@@ -28,6 +28,9 @@ export const isProgramsEvent = (type: LiveEvent['type']): boolean => type === 'p
 
 // Fees: plans, payments, discounts or reminders changed (data.student)
 export const isFinanceEvent = (type: LiveEvent['type']): boolean => type === 'finance.changed';
+
+// Wellbeing: tutoring, psychology, discipline, POIs or therapies changed (data.area, data.student; psychology carries no student)
+export const isWellbeingEvent = (type: LiveEvent['type']): boolean => type === 'wellbeing.changed';
 
 // "resync" is local: the socket came back after a drop, so whatever happened meanwhile must be refetched
 export interface LiveEvent {
