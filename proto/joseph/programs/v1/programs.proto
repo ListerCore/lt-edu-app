@@ -1,0 +1,351 @@
+syntax = "proto3";
+
+// Institutes (phase 9 of docs/plan-academico.md): study programs by module, work placements (EFSRT), modular
+// certificates and the degree. Same metadata and institution scoping as joseph.academic.v1
+package joseph.programs.v1;
+
+import "joseph/teaching/v1/teaching.proto";
+
+option go_package = "api/internal/adapter/inbound/grpc/gen/programsv1;programsv1";
+
+// Dirección, coordinación and each program's coordinator manage; secretaría académica issues the certificates and
+// checks the degree requirements; students and families read their record
+service ProgramsService {
+  rpc GetPrograms(GetProgramsRequest) returns (GetProgramsResponse);
+  rpc SetCoordinator(SetCoordinatorRequest) returns (SetCoordinatorResponse);
+  rpc ListStudents(ListStudentsRequest) returns (ListStudentsResponse);
+  rpc GetRecord(GetRecordRequest) returns (GetRecordResponse);
+  rpc MyRecords(MyRecordsRequest) returns (MyRecordsResponse);
+  rpc ListInternships(ListInternshipsRequest) returns (ListInternshipsResponse);
+  rpc GetInternship(GetInternshipRequest) returns (GetInternshipResponse);
+  rpc SaveInternship(SaveInternshipRequest) returns (SaveInternshipResponse);
+  rpc DeleteInternship(DeleteInternshipRequest) returns (DeleteInternshipResponse);
+  rpc AddLog(AddLogRequest) returns (AddLogResponse);
+  rpc DeleteLog(DeleteLogRequest) returns (DeleteLogResponse);
+  rpc EvaluateInternship(EvaluateInternshipRequest) returns (EvaluateInternshipResponse);
+  rpc IssueModular(IssueModularRequest) returns (IssueModularResponse);
+  rpc IssueDegree(IssueDegreeRequest) returns (IssueDegreeResponse);
+  rpc SetRequirement(SetRequirementRequest) returns (SetRequirementResponse);
+  rpc ListCertificates(ListCertificatesRequest) returns (ListCertificatesResponse);
+  rpc GetCertificate(GetCertificateRequest) returns (GetCertificateResponse);
+  rpc AnnulCertificate(AnnulCertificateRequest) returns (AnnulCertificateResponse);
+}
+
+message Program {
+  string level_id = 1;
+  string code = 2;
+  string name = 3;
+  string coordinator_id = 4;
+  string coordinator_name = 5;
+  int32 students = 6;
+  int32 ongoing = 7;
+  int32 to_evaluate = 8;
+  int32 modulars = 9;
+  int32 degrees = 10;
+  bool can_manage = 11;
+  int32 modules = 12;
+  int32 total_credits = 13;
+}
+
+message GetProgramsRequest {
+  string institution_slug = 1;
+}
+
+message GetProgramsResponse {
+  repeated Program programs = 1;
+  bool can_assign = 2;
+  repeated joseph.teaching.v1.Staff staff = 3;
+}
+
+message SetCoordinatorRequest {
+  string institution_slug = 1;
+  string level_id = 2;
+  // Empty: no coordinator
+  string staff_id = 3;
+}
+
+message SetCoordinatorResponse {}
+
+message StudentProgress {
+  string id = 1;
+  string code = 2;
+  string name = 3;
+  string document = 4;
+  string status = 5;
+  string semester = 6;
+  int32 approved_credits = 7;
+  int32 total_credits = 8;
+  int32 modules = 9;
+  int32 certified = 10;
+  bool degree = 11;
+  int32 efsrt_done = 12;
+  int32 efsrt_total = 13;
+}
+
+message ListStudentsRequest {
+  string institution_slug = 1;
+  string level_id = 2;
+  string query = 3;
+}
+
+message ListStudentsResponse {
+  repeated StudentProgress students = 1;
+}
+
+message Standing {
+  // approved | failed | ongoing
+  string status = 1;
+  optional int32 grade = 2;
+  string period_name = 3;
+  // closing | history | validation | enrolled | efsrt
+  string source = 4;
+}
+
+message Internship {
+  string id = 1;
+  string student_id = 2;
+  string student_name = 3;
+  string student_code = 4;
+  string subject_id = 5;
+  string subject_name = 6;
+  string module_name = 7;
+  string level_id = 8;
+  string program_name = 9;
+  string company = 10;
+  string company_ruc = 11;
+  string area = 12;
+  string supervisor = 13;
+  string supervisor_contact = 14;
+  string starts_on = 15;
+  string ends_on = 16;
+  int32 required_hours = 17;
+  double logged_hours = 18;
+  // ongoing | approved | failed
+  string status = 19;
+  optional int32 score = 20;
+  string evaluation = 21;
+  string evaluated_name = 22;
+  string evaluated_at = 23;
+}
+
+message RecordUnit {
+  string subject_id = 1;
+  string kind = 2;
+  string name = 3;
+  int32 credits = 4;
+  string semester = 5;
+  // Not set: not taken yet
+  Standing standing = 6;
+  repeated Internship internships = 7;
+  int32 hours = 8;
+}
+
+message Certificate {
+  string id = 1;
+  string student_id = 2;
+  string student_name = 3;
+  string student_code = 4;
+  string level_id = 5;
+  string program_name = 6;
+  // modular | degree
+  string kind = 7;
+  string module_id = 8;
+  string module_name = 9;
+  string code = 10;
+  // issued | annulled
+  string status = 11;
+  string issued_on = 12;
+  string issued_name = 13;
+  string annul_reason = 14;
+}
+
+message RecordModule {
+  string id = 1;
+  string name = 2;
+  repeated RecordUnit units = 3;
+  bool complete = 4;
+  Certificate certificate = 5;
+  int32 credits = 6;
+  int32 approved = 7;
+}
+
+message Requirement {
+  string code = 1;
+  string name = 2;
+  bool auto = 3;
+  bool done = 4;
+  string note = 5;
+  string checked_name = 6;
+  string checked_at = 7;
+}
+
+message StudentRecord {
+  StudentProgress student = 1;
+  string program_name = 2;
+  string level_id = 3;
+  repeated RecordModule modules = 4;
+  repeated Requirement requirements = 5;
+  Certificate degree = 6;
+  bool eligible = 7;
+  int32 approved = 8;
+  int32 total = 9;
+  bool can_manage = 10;
+  bool can_issue = 11;
+  int32 passing_grade = 12;
+  repeated Certificate certificates = 13;
+}
+
+message GetRecordRequest {
+  string institution_slug = 1;
+  string student_id = 2;
+}
+
+message GetRecordResponse {
+  StudentRecord record = 1;
+}
+
+message MyRecordsRequest {
+  string institution_slug = 1;
+}
+
+message MyRecordsResponse {
+  repeated StudentRecord records = 1;
+}
+
+message ListInternshipsRequest {
+  string institution_slug = 1;
+  string level_id = 2;
+  string status = 3;
+}
+
+message ListInternshipsResponse {
+  repeated Internship internships = 1;
+  bool can_manage = 2;
+}
+
+message InternshipLog {
+  string id = 1;
+  string day = 2;
+  double hours = 3;
+  string activity = 4;
+}
+
+message GetInternshipRequest {
+  string institution_slug = 1;
+  string id = 2;
+}
+
+message GetInternshipResponse {
+  Internship internship = 1;
+  repeated InternshipLog logs = 2;
+  bool can_edit = 3;
+  int32 passing_grade = 4;
+}
+
+message SaveInternshipRequest {
+  string institution_slug = 1;
+  Internship internship = 2;
+}
+
+message SaveInternshipResponse {
+  Internship internship = 1;
+}
+
+message DeleteInternshipRequest {
+  string institution_slug = 1;
+  string id = 2;
+}
+
+message DeleteInternshipResponse {}
+
+message AddLogRequest {
+  string institution_slug = 1;
+  string id = 2;
+  InternshipLog log = 3;
+}
+
+message AddLogResponse {
+  GetInternshipResponse internship = 1;
+}
+
+message DeleteLogRequest {
+  string institution_slug = 1;
+  string id = 2;
+  string log_id = 3;
+}
+
+message DeleteLogResponse {
+  GetInternshipResponse internship = 1;
+}
+
+message EvaluateInternshipRequest {
+  string institution_slug = 1;
+  string id = 2;
+  int32 score = 3;
+  string evaluation = 4;
+}
+
+message EvaluateInternshipResponse {
+  GetInternshipResponse internship = 1;
+}
+
+message IssueModularRequest {
+  string institution_slug = 1;
+  string student_id = 2;
+  string module_id = 3;
+}
+
+message IssueModularResponse {
+  Certificate certificate = 1;
+}
+
+message IssueDegreeRequest {
+  string institution_slug = 1;
+  string student_id = 2;
+}
+
+message IssueDegreeResponse {
+  Certificate certificate = 1;
+}
+
+message SetRequirementRequest {
+  string institution_slug = 1;
+  string student_id = 2;
+  string code = 3;
+  bool done = 4;
+  string note = 5;
+}
+
+message SetRequirementResponse {
+  StudentRecord record = 1;
+}
+
+message ListCertificatesRequest {
+  string institution_slug = 1;
+  string level_id = 2;
+  string kind = 3;
+}
+
+message ListCertificatesResponse {
+  repeated Certificate certificates = 1;
+  bool can_annul = 2;
+}
+
+message GetCertificateRequest {
+  string institution_slug = 1;
+  string id = 2;
+}
+
+message GetCertificateResponse {
+  Certificate certificate = 1;
+  // The frozen document as JSON
+  string content = 2;
+}
+
+message AnnulCertificateRequest {
+  string institution_slug = 1;
+  string id = 2;
+  string reason = 3;
+}
+
+message AnnulCertificateResponse {}
