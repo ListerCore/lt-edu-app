@@ -48,6 +48,9 @@ export interface Settings {
   shifts: string[];
   /** Teaching days, 1 = Monday … 7 = Sunday */
   weekDays: number[];
+  /** Attendance: minutes of tolerance after the first class, and the absence share (%) that raises an alert */
+  lateAfterMinutes: number;
+  absenceLimitPercent: number;
 }
 
 export interface AcademicContext {
@@ -530,6 +533,8 @@ function createBaseSettings(): Settings {
     attentionModes: [],
     shifts: [],
     weekDays: [],
+    lateAfterMinutes: 0,
+    absenceLimitPercent: 0,
   };
 }
 
@@ -559,6 +564,12 @@ export const Settings: MessageFns<Settings> = {
         writer.int32(v);
       }
       writer.join();
+    }
+    if (message.lateAfterMinutes !== 0) {
+      writer.uint32(64).int32(message.lateAfterMinutes);
+    }
+    if (message.absenceLimitPercent !== 0) {
+      writer.uint32(72).int32(message.absenceLimitPercent);
     }
     return writer;
   },
@@ -641,6 +652,22 @@ export const Settings: MessageFns<Settings> = {
             }
 
             break;
+          }
+          case 8: {
+            if (tag !== 64) {
+              break;
+            }
+
+            message.lateAfterMinutes = reader.int32();
+            continue;
+          }
+          case 9: {
+            if (tag !== 72) {
+              break;
+            }
+
+            message.absenceLimitPercent = reader.int32();
+            continue;
           }
         }
         if ((tag & 7) === 4 || tag === 0) {
