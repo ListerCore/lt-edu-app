@@ -1,0 +1,445 @@
+syntax = "proto3";
+
+// Students, guardians and enrollment (phase 3 of docs/plan-academico.md). Same metadata and institution scoping as
+// joseph.academic.v1: every request carries institution_slug. Secretaría, dirección and coordinación change; the
+// rest of the staff reads. Dates travel as YYYY-MM-DD
+package joseph.people.v1;
+
+import "joseph/academic/v1/academic.proto";
+import "joseph/academic/v1/curriculum.proto";
+
+option go_package = "api/internal/adapter/inbound/grpc/gen/peoplev1;peoplev1";
+
+service PeopleService {
+  // Names and rules of the institution, its structure and periods
+  rpc GetPeopleContext(GetPeopleContextRequest) returns (GetPeopleContextResponse);
+
+  rpc ListStudents(ListStudentsRequest) returns (ListStudentsResponse);
+  rpc GetStudent(GetStudentRequest) returns (GetStudentResponse);
+  rpc CreateStudent(CreateStudentRequest) returns (CreateStudentResponse);
+  rpc UpdateStudent(UpdateStudentRequest) returns (UpdateStudentResponse);
+  // Only students without enrollments; the others change status
+  rpc DeleteStudent(DeleteStudentRequest) returns (DeleteStudentResponse);
+
+  // A guardian of the institution by document, to link a sibling's guardian
+  rpc FindGuardian(FindGuardianRequest) returns (FindGuardianResponse);
+  rpc AddGuardian(AddGuardianRequest) returns (AddGuardianResponse);
+  rpc UpdateGuardian(UpdateGuardianRequest) returns (UpdateGuardianResponse);
+  rpc RemoveGuardian(RemoveGuardianRequest) returns (RemoveGuardianResponse);
+  // Panel access with the registered email: the role at once when the account exists, an invitation otherwise
+  rpc GrantAccess(GrantAccessRequest) returns (GrantAccessResponse);
+
+  // A period's sections with their occupancy and its enrollments
+  rpc GetEnrollmentBoard(GetEnrollmentBoardRequest) returns (GetEnrollmentBoardResponse);
+  rpc Enroll(EnrollRequest) returns (EnrollResponse);
+  rpc UpdateEnrollment(UpdateEnrollmentRequest) returns (UpdateEnrollmentResponse);
+  // Withdrawal or transfer out; status active brings it back
+  rpc EndEnrollment(EndEnrollmentRequest) returns (EndEnrollmentResponse);
+  rpc DeleteEnrollment(DeleteEnrollmentRequest) returns (DeleteEnrollmentResponse);
+  // Continuing students of a period into the next grade of another one
+  rpc RatifyEnrollments(RatifyEnrollmentsRequest) returns (RatifyEnrollmentsResponse);
+
+  // EBA placement tests and validations
+  rpc ListPlacements(ListPlacementsRequest) returns (ListPlacementsResponse);
+  rpc CreatePlacement(CreatePlacementRequest) returns (CreatePlacementResponse);
+  rpc DeletePlacement(DeletePlacementRequest) returns (DeletePlacementResponse);
+}
+
+message EnrollmentSummary {
+  string id = 1;
+  string period_id = 2;
+  string period_name = 3;
+  string level_id = 4;
+  string level_name = 5;
+  string grade_id = 6;
+  string grade_name = 7;
+  string grade_short = 8;
+  string section_id = 9;
+  string section_name = 10;
+  string shift = 11;
+  string status = 12;
+}
+
+message Student {
+  string id = 1;
+  string code = 2;
+  // dni | ce | passport | other
+  string document_type = 3;
+  string document_number = 4;
+  string given_names = 5;
+  string paternal_surname = 6;
+  string maternal_surname = 7;
+  string birth_date = 8;
+  // f | m | empty
+  string sex = 9;
+  string email = 10;
+  string phone = 11;
+  string address = 12;
+  bool special_needs = 13;
+  string notes = 14;
+  // active | inactive | graduated | withdrawn
+  string status = 15;
+  // none | invited | account
+  string access = 16;
+  EnrollmentSummary enrollment = 17;
+  string primary_guardian_name = 18;
+  string primary_guardian_phone = 19;
+  int32 guardian_count = 20;
+}
+
+message Guardian {
+  string id = 1;
+  string document_type = 2;
+  string document_number = 3;
+  string given_names = 4;
+  string surnames = 5;
+  string email = 6;
+  string phone = 7;
+  string occupation = 8;
+  string access = 9;
+  // mother | father | legal_guardian | grandparent | sibling | other
+  string relationship = 10;
+  bool is_primary = 11;
+  bool can_pick_up = 12;
+  bool lives_with = 13;
+  int32 student_count = 14;
+}
+
+message Enrollment {
+  string id = 1;
+  string student_id = 2;
+  string student_name = 3;
+  string student_code = 4;
+  string student_document = 5;
+  string period_id = 6;
+  string period_name = 7;
+  string level_id = 8;
+  string level_name = 9;
+  string grade_id = 10;
+  string grade_name = 11;
+  string grade_short = 12;
+  string section_id = 13;
+  string section_name = 14;
+  string shift = 15;
+  string attention_mode = 16;
+  // new | continuing | transfer_in | re_entry
+  string kind = 17;
+  // active | withdrawn | transferred | completed
+  string status = 18;
+  string enrolled_on = 19;
+  string ended_on = 20;
+  string origin = 21;
+  string destination = 22;
+  string notes = 23;
+  repeated string unit_ids = 24;
+  int32 credits = 25;
+}
+
+message Placement {
+  string id = 1;
+  string student_id = 2;
+  string student_name = 3;
+  // placement_test | validation
+  string kind = 4;
+  string level_id = 5;
+  string level_name = 6;
+  string grade_id = 7;
+  string grade_name = 8;
+  string decided_on = 9;
+  string reference = 10;
+  string notes = 11;
+}
+
+message SectionOccupancy {
+  string section_id = 1;
+  int32 active = 2;
+  int32 capacity = 3;
+}
+
+message StudentInput {
+  string code = 1;
+  string document_type = 2;
+  string document_number = 3;
+  string given_names = 4;
+  string paternal_surname = 5;
+  string maternal_surname = 6;
+  string birth_date = 7;
+  string sex = 8;
+  string email = 9;
+  string phone = 10;
+  string address = 11;
+  bool special_needs = 12;
+  string notes = 13;
+  string status = 14;
+}
+
+message GuardianInput {
+  string document_type = 1;
+  string document_number = 2;
+  string given_names = 3;
+  string surnames = 4;
+  string email = 5;
+  string phone = 6;
+  string occupation = 7;
+}
+
+message GuardianLink {
+  string relationship = 1;
+  bool is_primary = 2;
+  bool can_pick_up = 3;
+  bool lives_with = 4;
+}
+
+message StudentDetail {
+  Student student = 1;
+  repeated Guardian guardians = 2;
+  repeated Enrollment enrollments = 3;
+  repeated Placement placements = 4;
+  bool can_manage = 5;
+}
+
+message GetPeopleContextRequest {
+  string institution_slug = 1;
+}
+
+message GetPeopleContextResponse {
+  joseph.academic.v1.AcademicContext context = 1;
+  bool can_manage = 2;
+  repeated joseph.academic.v1.Level levels = 3;
+  repeated joseph.academic.v1.Period periods = 4;
+}
+
+message ListStudentsRequest {
+  string institution_slug = 1;
+  string query = 2;
+  string status = 3;
+  // Filters by enrollment in this period (and shows it); empty shows the latest enrollment
+  string period_id = 4;
+  string level_id = 5;
+  string grade_id = 6;
+  string section_id = 7;
+  // Only students not enrolled in period_id
+  bool not_enrolled = 8;
+  int32 limit = 9;
+  int32 offset = 10;
+}
+
+message ListStudentsResponse {
+  repeated Student students = 1;
+  int32 total = 2;
+}
+
+message GetStudentRequest {
+  string institution_slug = 1;
+  string id = 2;
+}
+
+message GetStudentResponse {
+  StudentDetail detail = 1;
+}
+
+message CreateStudentRequest {
+  string institution_slug = 1;
+  StudentInput student = 2;
+}
+
+message CreateStudentResponse {
+  Student student = 1;
+}
+
+message UpdateStudentRequest {
+  string institution_slug = 1;
+  string id = 2;
+  StudentInput student = 3;
+}
+
+message UpdateStudentResponse {
+  Student student = 1;
+}
+
+message DeleteStudentRequest {
+  string institution_slug = 1;
+  string id = 2;
+}
+
+message DeleteStudentResponse {}
+
+message FindGuardianRequest {
+  string institution_slug = 1;
+  string document_type = 2;
+  string document_number = 3;
+}
+
+message FindGuardianResponse {
+  Guardian guardian = 1;
+}
+
+message AddGuardianRequest {
+  string institution_slug = 1;
+  string student_id = 2;
+  // Link an existing guardian; empty creates one from guardian (or links the one with that document)
+  string guardian_id = 3;
+  GuardianInput guardian = 4;
+  GuardianLink link = 5;
+}
+
+message AddGuardianResponse {
+  StudentDetail detail = 1;
+}
+
+message UpdateGuardianRequest {
+  string institution_slug = 1;
+  string student_id = 2;
+  string guardian_id = 3;
+  GuardianInput guardian = 4;
+  GuardianLink link = 5;
+}
+
+message UpdateGuardianResponse {
+  StudentDetail detail = 1;
+}
+
+message RemoveGuardianRequest {
+  string institution_slug = 1;
+  string student_id = 2;
+  string guardian_id = 3;
+}
+
+message RemoveGuardianResponse {
+  StudentDetail detail = 1;
+}
+
+message GrantAccessRequest {
+  string institution_slug = 1;
+  string student_id = 2;
+  // Empty: the student's own access
+  string guardian_id = 3;
+}
+
+message GrantAccessResponse {
+  StudentDetail detail = 1;
+}
+
+message GetEnrollmentBoardRequest {
+  string institution_slug = 1;
+  string period_id = 2;
+  string level_id = 3;
+  string grade_id = 4;
+  string section_id = 5;
+  string status = 6;
+  string query = 7;
+  int32 limit = 8;
+  int32 offset = 9;
+}
+
+message GetEnrollmentBoardResponse {
+  joseph.academic.v1.Period period = 1;
+  repeated joseph.academic.v1.Section sections = 2;
+  repeated SectionOccupancy occupancy = 3;
+  repeated Enrollment enrollments = 4;
+  int32 total = 5;
+  // Institutes: units of the plans in force; subject.curriculum_id is not set, grade_ids give the semester
+  repeated joseph.academic.v1.Subject units = 6;
+  // Program (level) of each unit, same order as units
+  repeated string unit_level_ids = 7;
+}
+
+message EnrollRequest {
+  string institution_slug = 1;
+  string student_id = 2;
+  string period_id = 3;
+  string level_id = 4;
+  string grade_id = 5;
+  string section_id = 6;
+  string kind = 7;
+  string enrolled_on = 8;
+  string origin = 9;
+  string notes = 10;
+  // Institutes; empty enrolls every unit of the semester
+  repeated string unit_ids = 11;
+}
+
+message EnrollResponse {
+  Enrollment enrollment = 1;
+}
+
+message UpdateEnrollmentRequest {
+  string institution_slug = 1;
+  string id = 2;
+  string grade_id = 3;
+  string section_id = 4;
+  string notes = 5;
+  // Institutes: when set_units, the units replace the current ones
+  bool set_units = 6;
+  repeated string unit_ids = 7;
+}
+
+message UpdateEnrollmentResponse {
+  Enrollment enrollment = 1;
+}
+
+message EndEnrollmentRequest {
+  string institution_slug = 1;
+  string id = 2;
+  // withdrawn | transferred | active
+  string status = 3;
+  string ended_on = 4;
+  string destination = 5;
+}
+
+message EndEnrollmentResponse {
+  Enrollment enrollment = 1;
+}
+
+message DeleteEnrollmentRequest {
+  string institution_slug = 1;
+  string id = 2;
+}
+
+message DeleteEnrollmentResponse {}
+
+message RatifyEnrollmentsRequest {
+  string institution_slug = 1;
+  string from_period_id = 2;
+  string to_period_id = 3;
+  // Count only, change nothing
+  bool preview = 4;
+}
+
+message RatifyEnrollmentsResponse {
+  int32 enrolled = 1;
+  int32 without_section = 2;
+  int32 already = 3;
+  int32 finishing = 4;
+  int32 inactive = 5;
+}
+
+message ListPlacementsRequest {
+  string institution_slug = 1;
+}
+
+message ListPlacementsResponse {
+  repeated Placement placements = 1;
+}
+
+message CreatePlacementRequest {
+  string institution_slug = 1;
+  string student_id = 2;
+  string kind = 3;
+  string level_id = 4;
+  string grade_id = 5;
+  string decided_on = 6;
+  string reference = 7;
+  string notes = 8;
+}
+
+message CreatePlacementResponse {
+  Placement placement = 1;
+}
+
+message DeletePlacementRequest {
+  string institution_slug = 1;
+  string id = 2;
+}
+
+message DeletePlacementResponse {}

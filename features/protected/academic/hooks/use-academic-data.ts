@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import { isAcademicEvent, useLiveRefresh } from '@/hooks/use-live';
+import { isAcademicEvent, useLiveRefresh, type LiveEvent } from '@/hooks/use-live';
 import type { AcademicResult, RemoteState } from '../types';
 
 interface LoadState<T> {
@@ -12,7 +12,7 @@ interface LoadState<T> {
 
 // Loads academic data for a key (institution, period…) through a server action and reloads it whenever someone
 // changes the structure, periods or sections of the institution (live event) or the caller asks
-export const useAcademicData = <T>(key: string, load: () => Promise<AcademicResult<T>>): RemoteState<T> => {
+export const useAcademicData = <T>(key: string, load: () => Promise<AcademicResult<T>>, refreshOn: (type: LiveEvent['type']) => boolean = isAcademicEvent): RemoteState<T> => {
   const [state, setState] = useState<LoadState<T>>({ key: '', data: null, error: null });
   const [version, setVersion] = useState(0);
 
@@ -30,7 +30,7 @@ export const useAcademicData = <T>(key: string, load: () => Promise<AcademicResu
   }, [key, version]);
 
   const reload = useCallback((): void => setVersion((current) => current + 1), []);
-  useLiveRefresh((event) => isAcademicEvent(event.type), reload);
+  useLiveRefresh((event) => refreshOn(event.type), reload);
 
   // Data of another key (the workspace switched institution) is not shown while the new one loads
   const current = state.key === key;

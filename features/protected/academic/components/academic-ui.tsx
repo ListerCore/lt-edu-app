@@ -74,7 +74,7 @@ interface SelectFieldProps {
 }
 
 export const SelectField = ({ id, value, options, onChange, invalid, disabled, placeholder }: SelectFieldProps): JSX.Element => (
-  <Select items={options} value={value || null} onValueChange={(next): void => onChange(String(next ?? ''))} disabled={disabled}>
+  <Select items={options} value={options.some((option) => option.value === value) ? value : null} onValueChange={(next): void => onChange(String(next ?? ''))} disabled={disabled}>
     <SelectTrigger id={id} aria-invalid={invalid} className={controlClassName}>
       <SelectValue placeholder={placeholder} />
     </SelectTrigger>
@@ -141,7 +141,7 @@ export const ConfirmDelete = ({ title, description, onConfirm, isPending, disabl
           disabled={disabled || isPending}
           title={disabled ? disabledReason : label}
           aria-label={compact ? `${label}: ${title}` : undefined}
-          className={cn(compact ? 'flex size-8 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-muted-foreground' : 'btn-alt text-destructive')}
+          className={cn(compact ? 'inline-flex size-8 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-muted-foreground' : 'btn-alt text-destructive')}
         />
       }
     >
