@@ -15,7 +15,8 @@ interface AcademicPageProps {
   titleId: string;
   title: string;
   description: string;
-  context: AcademicContext | null;
+  // Only canManage is required: pages outside the academic structure pass just that
+  context: (Partial<AcademicContext> & { canManage: boolean }) | null;
   actions?: ReactNode;
   back?: ReactNode;
   children: ReactNode;
@@ -27,7 +28,7 @@ export const AcademicPage = ({ titleId, title, description, context, actions, ba
     {back}
     <header className="flex flex-wrap items-end justify-between gap-4">
       <div className="min-w-0">
-        {context && <p className="text-sm font-medium text-brand">{context.institutionName}</p>}
+        {context?.institutionName && <p className="text-sm font-medium text-brand">{context.institutionName}</p>}
         <h1 id={titleId} className="mt-1 text-2xl font-semibold tracking-tight text-balance text-foreground md:text-3xl">
           {title}
         </h1>

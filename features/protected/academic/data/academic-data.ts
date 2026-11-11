@@ -156,3 +156,9 @@ export const subjectNoun: Record<string, { one: string; many: string }> = {
 };
 
 export const creditsOf = (subject: { theoryCredits?: number; practiceCredits?: number }): number => (subject.theoryCredits ?? 0) + (subject.practiceCredits ?? 0);
+
+// ---------- week ----------
+
+export const weekdayLabels: Record<string, string> = { '1': 'Lunes', '2': 'Martes', '3': 'Miércoles', '4': 'Jueves', '5': 'Viernes', '6': 'Sábado', '7': 'Domingo' };
+export const weekdayShort: Record<string, string> = { '1': 'Lun', '2': 'Mar', '3': 'Mié', '4': 'Jue', '5': 'Vie', '6': 'Sáb', '7': 'Dom' };
+export const SCHEDULES_PATH = `${DASHBOARD_PATH}/academic/schedules`;

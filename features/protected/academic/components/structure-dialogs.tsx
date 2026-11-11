@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { saveGradeAction, saveLevelAction, updateSettingsAction } from '../actions/academic-actions';
-import { ALL_SHIFTS, attentionModeHints, attentionModeLabels, formativeLevelLabels, gradingScaleLabels, items, lower, shiftLabels, termSchemeHints, termSchemeLabels } from '../data/academic-data';
+import { ALL_SHIFTS, weekdayShort, attentionModeHints, attentionModeLabels, formativeLevelLabels, gradingScaleLabels, items, lower, shiftLabels, termSchemeHints, termSchemeLabels } from '../data/academic-data';
 import { useAcademicForm } from '../hooks/use-academic-form';
 import type { AcademicContext, Grade, GradeFormValues, Level, LevelFormValues, SettingsFormValues } from '../types';
 import { ChoiceChips, controlClassName, SelectField } from './academic-ui';
@@ -146,6 +146,7 @@ export const SettingsDialog = ({ slug, context, onClose, onSaved }: SettingsDial
       conductGrade: settings?.conductGrade ?? false,
       attentionModes: settings?.attentionModes ?? [],
       shifts: settings?.shifts ?? ['morning'],
+      weekDays: (settings?.weekDays ?? [1, 2, 3, 4, 5]).map(String),
     },
     save: (v) => updateSettingsAction(slug, v, scale),
     onSaved: () => {
@@ -179,6 +180,9 @@ export const SettingsDialog = ({ slug, context, onClose, onSaved }: SettingsDial
           <Switch checked={values.conductGrade} onCheckedChange={(next): void => setField('conductGrade', next)} />
         </label>
       )}
+      <FormField id="settings-days" label="Días de clase" required error={errors.weekDays}>
+        <ChoiceChips label="Días de clase" options={items(weekdayShort, ['1', '2', '3', '4', '5', '6', '7'])} selected={values.weekDays} onChange={(next): void => setField('weekDays', next.sort())} invalid={Boolean(errors.weekDays)} />
+      </FormField>
       <FormField id="settings-shifts" label="Turnos" required error={errors.shifts}>
         <ChoiceChips label="Turnos" options={items(shiftLabels, ALL_SHIFTS)} selected={values.shifts} onChange={(next): void => setField('shifts', next)} invalid={Boolean(errors.shifts)} />
       </FormField>

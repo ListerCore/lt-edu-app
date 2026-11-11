@@ -6,7 +6,7 @@ import { ArrowDown, ArrowUp, CalendarRange, LayoutTemplate, Pencil, Plus, Settin
 import { MorphIcon } from '@/components/ui/morph-icon';
 import { cn } from '@/lib/utils';
 import { applyTemplateAction, deleteGradeAction, deleteLevelAction, getStructureAction, reorderGradesAction, reorderLevelsAction } from '../actions/academic-actions';
-import { attentionModeLabels, formativeLevelLabels, gradingScaleLabels, lower, PERIODS_PATH, shiftLabels, termSchemeLabels } from '../data/academic-data';
+import { weekdayShort, attentionModeLabels, formativeLevelLabels, gradingScaleLabels, lower, PERIODS_PATH, shiftLabels, termSchemeLabels } from '../data/academic-data';
 import { runAcademicAction } from '../hooks/use-academic-form';
 import { useAcademicData } from '../hooks/use-academic-data';
 import { useInstitutionSlug } from '../hooks/use-institution-slug';
@@ -226,6 +226,7 @@ const ProfileStrip = ({ context, onEdit }: { context: AcademicContext; onEdit?: 
     { label: 'Periodos', value: `${context.vocabulary?.periods ?? ''}${s && s.termScheme !== 'none' ? ` en ${lower(termSchemeLabels[s.termScheme])}` : ''}` },
     { label: 'Calificación', value: `${gradingScaleLabels[s?.gradingScale ?? 'literal']}${s?.passingGrade ? ` · aprueba con ${s.passingGrade}` : ''}${s?.conductGrade ? ' · conducta 0–20' : ''}` },
     { label: 'Turnos', value: (s?.shifts ?? []).map((x) => shiftLabels[x]).join(', ') },
+    { label: 'Días de clase', value: (s?.weekDays ?? []).map((d) => weekdayShort[String(d)]).join(', ') },
     ...(context.usesAttentionModes ? [{ label: 'Formas de atención', value: (s?.attentionModes ?? []).map((x) => attentionModeLabels[x]).join(', ') }] : []),
   ];
   return (

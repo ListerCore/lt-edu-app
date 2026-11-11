@@ -79,6 +79,7 @@ export interface SettingsFormValues {
   conductGrade: boolean;
   attentionModes: string[];
   shifts: string[];
+  weekDays: string[];
 }
 
 // Remote data in a hook: loading, the data once it arrives, and a way to reload it

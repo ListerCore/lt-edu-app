@@ -14,11 +14,13 @@ interface FormDialogProps {
   onSubmit: () => void;
   onClose: () => void;
   wide?: boolean;
+  // Submit unavailable without being busy (nothing chosen yet)
+  disabled?: boolean;
   children: ReactNode;
 }
 
 // A dialog that is mounted only while open, so every opening starts from fresh values
-export const FormDialog = ({ title, description, submitLabel, isPending, onSubmit, onClose, wide, children }: FormDialogProps): JSX.Element => {
+export const FormDialog = ({ title, description, submitLabel, isPending, onSubmit, onClose, wide, disabled, children }: FormDialogProps): JSX.Element => {
   const handleSubmit = (event: FormEvent<HTMLFormElement>): void => {
     event.preventDefault();
     onSubmit();
@@ -37,7 +39,7 @@ export const FormDialog = ({ title, description, submitLabel, isPending, onSubmi
             <button type="button" onClick={onClose} disabled={isPending} className="btn-alt">
               Cancelar
             </button>
-            <button type="submit" disabled={isPending} className="btn-brand">
+            <button type="submit" disabled={isPending || disabled} className="btn-brand">
               {isPending && <MorphIcon icon={LoaderCircle} size={16} className="animate-spin" />}
               {submitLabel}
             </button>

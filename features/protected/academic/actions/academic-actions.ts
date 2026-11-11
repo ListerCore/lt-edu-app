@@ -21,7 +21,7 @@ export const updateSettingsAction = async (slug: string, values: SettingsFormVal
       academicRpc.updateSettings(
         {
           institutionSlug: slug,
-          settings: { termScheme: values.termScheme, gradingScale, passingGrade: toInt(values.passingGrade), conductGrade: values.conductGrade, attentionModes: values.attentionModes, shifts: values.shifts },
+          settings: { termScheme: values.termScheme, gradingScale, passingGrade: toInt(values.passingGrade), conductGrade: values.conductGrade, attentionModes: values.attentionModes, shifts: values.shifts, weekDays: values.weekDays.map(Number).filter((d) => d >= 1 && d <= 7) },
         },
         { token },
       ),
