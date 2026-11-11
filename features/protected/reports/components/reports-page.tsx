@@ -64,7 +64,7 @@ export const ReportsPage = (): JSX.Element => {
     setRange('90');
   };
   return (
-    <AcademicPage
+    <AcademicPage wide
       titleId="reports-title"
       title="Reportes"
       // Read only: nothing to manage, and no "read only" banner either

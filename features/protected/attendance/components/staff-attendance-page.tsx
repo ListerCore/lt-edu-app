@@ -83,7 +83,7 @@ export const StaffAttendancePage = (): JSX.Element => {
     });
 
   return (
-    <AcademicPage titleId="staff-att-title" title="Asistencia del personal" description="Docentes y personal registran su llegada con su carnet en la puerta; aquí se corrige y se cierra el día." context={null}>
+    <AcademicPage wide titleId="staff-att-title" title="Asistencia del personal" description="Docentes y personal registran su llegada con su carnet en la puerta; aquí se corrige y se cierra el día." context={null}>
       <div className="space-y-6">
         <DayPicker day={data?.day ?? current} today={today} onChange={changeDay} />
         {error ? (

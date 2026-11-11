@@ -34,7 +34,7 @@ export const StudentAttendancePage = (): JSX.Element => {
 
   if (family && mine.data) return <FamilyAttendance slug={slug} today={today} students={mine.data} reload={mine.reload} />;
   return (
-    <AcademicPage titleId="attendance-title" title="Asistencia" description="La llegada de cada estudiante por la puerta, el registro de cada sección, la asistencia por clase y las justificaciones de las familias." context={null}>
+    <AcademicPage wide titleId="attendance-title" title="Asistencia" description="La llegada de cada estudiante por la puerta, el registro de cada sección, la asistencia por clase y las justificaciones de las familias." context={null}>
       {overview.error && !overview.data ? (
         mine.data && mine.data.length === 0 && overview.error.includes('rol') ? (
           <Empty>No hay estudiantes vinculados a tu cuenta.</Empty>
@@ -102,7 +102,7 @@ const FamilyAttendance = ({ slug, today, students, reload }: FamilyProps): JSX.E
   const pick = students.map((s) => ({ id: s.student?.id ?? '', name: s.student?.name ?? '' }));
 
   return (
-    <AcademicPage titleId="attendance-title" title="Asistencia" description="Cuándo llegó, las faltas y tardanzas del periodo y las justificaciones que enviaste." context={null}>
+    <AcademicPage wide titleId="attendance-title" title="Asistencia" description="Cuándo llegó, las faltas y tardanzas del periodo y las justificaciones que enviaste." context={null}>
       <div className="space-y-6">
         {students.length > 1 && (
           <div role="tablist" aria-label="Estudiantes" className="flex flex-wrap gap-2">

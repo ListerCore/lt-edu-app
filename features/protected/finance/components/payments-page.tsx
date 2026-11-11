@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, useState, useTransition, type JSX } from 'react';
-import { ArrowLeft, BellRing, Ban, Plus, Printer, Trash2 } from 'lucide';
+import { ArrowLeft, BellRing, Ban, Download, Plus, Printer, Trash2 } from 'lucide';
 import { sileo } from 'sileo';
 import { FormField } from '@/components/ui/form-field';
 import { Input } from '@/components/ui/input';
@@ -19,6 +19,8 @@ import { annulPaymentAction, deletePlanAction, generateAction, getCashAction, ge
 import { conceptLabels, methodLabels, monthLabel, soles, toCents } from '../data/finance-data';
 import type { FeePlan, PlanItemDraft, Summary } from '../types';
 import { StatementView } from './statement-view';
+import { receiptPdfAction } from '@/features/protected/documents/actions/document-actions';
+import { usePdf } from '@/features/protected/documents/lib/use-pdf';
 
 type Tab = 'summary' | 'accounts' | 'cash' | 'plans';
 type Open = { kind: 'student'; id: string } | { kind: 'receipt'; id: string } | null;
@@ -43,13 +45,13 @@ export const PaymentsPage = (): JSX.Element => {
 
   if (mine.data && mine.data.length > 0)
     return (
-      <AcademicPage titleId="pay-title" title="Pensiones y pagos" description="Tu cronograma de pagos, lo pagado con sus recibos y lo que está por vencer." context={null}>
+      <AcademicPage wide titleId="pay-title" title="Pensiones y pagos" description="Tu cronograma de pagos, lo pagado con sus recibos y lo que está por vencer." context={null}>
         {open?.kind === 'receipt' ? <ReceiptView slug={slug} id={open.id} onBack={(): void => setOpen(null)} /> : <FamilyView slug={slug} items={mine.data} onReceipt={(id): void => setOpen({ kind: 'receipt', id })} reload={mine.reload} />}
       </AcademicPage>
     );
 
   return (
-    <AcademicPage titleId="pay-title" title="Pensiones y pagos" description="El cronograma de cada estudiante, los pagos con su recibo, la morosidad y la caja del día. Sin moras: la ley no permite cobrar más que el interés legal ni retener libretas por deuda." context={null}>
+    <AcademicPage wide titleId="pay-title" title="Pensiones y pagos" description="El cronograma de cada estudiante, los pagos con su recibo, la morosidad y la caja del día. Sin moras: la ley no permite cobrar más que el interés legal ni retener libretas por deuda." context={null}>
       {summary.error ? (
         <LoadError message={summary.error} onRetry={summary.reload} />
       ) : !summary.data ? (
@@ -387,6 +389,7 @@ const AnnulDialog = ({ slug, id, onClose, onDone }: { slug: string; id: string; 
 // The internal receipt (not a SUNAT electronic invoice)
 const ReceiptView = ({ slug, id, onBack }: { slug: string; id: string; onBack: () => void }): JSX.Element => {
   const { data, error, reload } = useAcademicData(`receipt:${slug}:${id}`, () => getPaymentAction(slug, id), () => false);
+  const [isPending, pdf] = usePdf();
   if (error) return <LoadError message={error} onRetry={reload} />;
   if (!data) return <PageSkeleton />;
   const p = data.payment;
@@ -397,9 +400,9 @@ const ReceiptView = ({ slug, id, onBack }: { slug: string; id: string; onBack: (
           <MorphIcon icon={ArrowLeft} size={16} />
           Volver
         </button>
-        <button type="button" className="btn-brand" onClick={(): void => window.print()}>
-          <MorphIcon icon={Printer} size={16} />
-          Imprimir o guardar PDF
+        <button type="button" className="btn-brand" disabled={isPending} onClick={(): void => pdf(() => receiptPdfAction(slug, id))}>
+          <MorphIcon icon={Download} size={16} />
+          {isPending ? 'Generando PDF…' : 'Descargar PDF'}
         </button>
       </div>
       <div data-print-cards>
