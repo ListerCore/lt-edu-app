@@ -1,0 +1,308 @@
+syntax = "proto3";
+
+// Staff, teaching load and timetables (phase 4 of docs/plan-academico.md). Same metadata and institution scoping
+// as joseph.academic.v1. Times travel as HH:MM and dates as YYYY-MM-DD; weekdays are 1 = Monday … 7 = Sunday
+package joseph.teaching.v1;
+
+import "joseph/academic/v1/academic.proto";
+
+option go_package = "api/internal/adapter/inbound/grpc/gen/teachingv1;teachingv1";
+
+// Dirección and coordinación change; the rest of the staff reads the directory
+service StaffService {
+  rpc ListStaff(ListStaffRequest) returns (ListStaffResponse);
+  rpc GetStaff(GetStaffRequest) returns (GetStaffResponse);
+  rpc CreateStaff(CreateStaffRequest) returns (CreateStaffResponse);
+  rpc UpdateStaff(UpdateStaffRequest) returns (UpdateStaffResponse);
+  // Only people without teaching load or tutorship; the others become inactive
+  rpc DeleteStaff(DeleteStaffRequest) returns (DeleteStaffResponse);
+  // A panel role in the institution with their email (dirección only)
+  rpc GrantRole(GrantRoleRequest) returns (GrantRoleResponse);
+}
+
+// Coordinación builds the load and the timetable; the rest of the staff reads them. MySchedule is for everyone
+service TeachingService {
+  rpc GetPlanner(GetPlannerRequest) returns (GetPlannerResponse);
+  // One assignment per subject of the plan in force in every section of the period (missing ones only)
+  rpc PrepareLoad(PrepareLoadRequest) returns (PrepareLoadResponse);
+  rpc UpdateAssignment(UpdateAssignmentRequest) returns (UpdateAssignmentResponse);
+  rpc DeleteAssignment(DeleteAssignmentRequest) returns (DeleteAssignmentResponse);
+  rpc SetTutor(SetTutorRequest) returns (SetTutorResponse);
+  rpc SetTimeBlocks(SetTimeBlocksRequest) returns (SetTimeBlocksResponse);
+  rpc PlaceClass(PlaceClassRequest) returns (PlaceClassResponse);
+  rpc RemoveClass(RemoveClassRequest) returns (RemoveClassResponse);
+  rpc ClearSection(ClearSectionRequest) returns (ClearSectionResponse);
+  // Fills the missing hours of a section (or of every section) without putting a teacher in two places at once
+  rpc AutoFill(AutoFillRequest) returns (AutoFillResponse);
+  rpc MySchedule(MyScheduleRequest) returns (MyScheduleResponse);
+}
+
+message Staff {
+  string id = 1;
+  string code = 2;
+  string document_type = 3;
+  string document_number = 4;
+  string given_names = 5;
+  string surnames = 6;
+  string email = 7;
+  string phone = 8;
+  string position = 9;
+  bool is_teacher = 10;
+  string specialty = 11;
+  optional int32 max_weekly_hours = 12;
+  string hired_on = 13;
+  // active | inactive
+  string status = 14;
+  string notes = 15;
+  repeated string roles = 16;
+  repeated string invited = 17;
+  int32 assigned_hours = 18;
+  repeated string tutor_of = 19;
+}
+
+message StaffInput {
+  string code = 1;
+  string document_type = 2;
+  string document_number = 3;
+  string given_names = 4;
+  string surnames = 5;
+  string email = 6;
+  string phone = 7;
+  string position = 8;
+  bool is_teacher = 9;
+  string specialty = 10;
+  optional int32 max_weekly_hours = 11;
+  string hired_on = 12;
+  string status = 13;
+  string notes = 14;
+}
+
+message TimeBlock {
+  string id = 1;
+  // morning | afternoon | evening
+  string shift = 2;
+  int32 position = 3;
+  string starts_at = 4;
+  string ends_at = 5;
+  // class | break
+  string kind = 6;
+}
+
+message Assignment {
+  string id = 1;
+  string period_id = 2;
+  string section_id = 3;
+  string subject_id = 4;
+  string subject_name = 5;
+  string subject_kind = 6;
+  string subject_code = 7;
+  string staff_id = 8;
+  string staff_name = 9;
+  int32 weekly_hours = 10;
+  int32 scheduled = 11;
+  string section_label = 12;
+  string period_name = 13;
+}
+
+message ScheduleEntry {
+  string id = 1;
+  string period_id = 2;
+  string section_id = 3;
+  string section_label = 4;
+  string shift = 5;
+  string assignment_id = 6;
+  string subject_name = 7;
+  string staff_id = 8;
+  string staff_name = 9;
+  int32 weekday = 10;
+  string block_id = 11;
+  string starts_at = 12;
+  string ends_at = 13;
+  string room = 14;
+}
+
+message ListStaffRequest {
+  string institution_slug = 1;
+  string query = 2;
+  string status = 3;
+  bool teachers_only = 4;
+  int32 limit = 5;
+  int32 offset = 6;
+}
+
+message ListStaffResponse {
+  repeated Staff staff = 1;
+  int32 total = 2;
+  bool can_manage = 3;
+  bool can_grant = 4;
+}
+
+message GetStaffRequest {
+  string institution_slug = 1;
+  string id = 2;
+}
+
+message GetStaffResponse {
+  Staff staff = 1;
+  // Teaching load in open periods
+  repeated Assignment assignments = 2;
+  bool can_manage = 3;
+  bool can_grant = 4;
+}
+
+message CreateStaffRequest {
+  string institution_slug = 1;
+  StaffInput staff = 2;
+}
+
+message CreateStaffResponse {
+  Staff staff = 1;
+}
+
+message UpdateStaffRequest {
+  string institution_slug = 1;
+  string id = 2;
+  StaffInput staff = 3;
+}
+
+message UpdateStaffResponse {
+  Staff staff = 1;
+}
+
+message DeleteStaffRequest {
+  string institution_slug = 1;
+  string id = 2;
+}
+
+message DeleteStaffResponse {}
+
+message GrantRoleRequest {
+  string institution_slug = 1;
+  string id = 2;
+  string role = 3;
+}
+
+message GrantRoleResponse {
+  Staff staff = 1;
+}
+
+message GetPlannerRequest {
+  string institution_slug = 1;
+  string period_id = 2;
+}
+
+message GetPlannerResponse {
+  joseph.academic.v1.AcademicContext context = 1;
+  joseph.academic.v1.Period period = 2;
+  repeated joseph.academic.v1.Section sections = 3;
+  repeated TimeBlock blocks = 4;
+  repeated Assignment assignments = 5;
+  repeated ScheduleEntry entries = 6;
+  repeated Staff teachers = 7;
+  // Classes of other periods running at the same time
+  repeated ScheduleEntry elsewhere = 8;
+}
+
+message PrepareLoadRequest {
+  string institution_slug = 1;
+  string period_id = 2;
+}
+
+message PrepareLoadResponse {
+  int32 added = 1;
+}
+
+message UpdateAssignmentRequest {
+  string institution_slug = 1;
+  string id = 2;
+  // Empty: unassigned
+  string staff_id = 3;
+  int32 weekly_hours = 4;
+}
+
+message UpdateAssignmentResponse {
+  Assignment assignment = 1;
+}
+
+message DeleteAssignmentRequest {
+  string institution_slug = 1;
+  string id = 2;
+}
+
+message DeleteAssignmentResponse {}
+
+message SetTutorRequest {
+  string institution_slug = 1;
+  string section_id = 2;
+  // Empty: no tutor
+  string staff_id = 3;
+}
+
+message SetTutorResponse {}
+
+message SetTimeBlocksRequest {
+  string institution_slug = 1;
+  string shift = 2;
+  repeated TimeBlock blocks = 3;
+}
+
+message SetTimeBlocksResponse {
+  repeated TimeBlock blocks = 1;
+}
+
+message PlaceClassRequest {
+  string institution_slug = 1;
+  string section_id = 2;
+  string assignment_id = 3;
+  int32 weekday = 4;
+  string block_id = 5;
+  string room = 6;
+}
+
+message PlaceClassResponse {
+  ScheduleEntry entry = 1;
+}
+
+message RemoveClassRequest {
+  string institution_slug = 1;
+  string id = 2;
+}
+
+message RemoveClassResponse {}
+
+message ClearSectionRequest {
+  string institution_slug = 1;
+  string section_id = 2;
+}
+
+message ClearSectionResponse {}
+
+message AutoFillRequest {
+  string institution_slug = 1;
+  string period_id = 2;
+  // Empty: every section of the period
+  string section_id = 3;
+}
+
+message AutoFillResponse {
+  int32 placed = 1;
+  int32 pending = 2;
+}
+
+message MyScheduleRequest {
+  string institution_slug = 1;
+}
+
+message ScheduleGroup {
+  string title = 1;
+  string detail = 2;
+  repeated ScheduleEntry entries = 3;
+}
+
+message MyScheduleResponse {
+  // teacher | student | none
+  string kind = 1;
+  repeated int32 week_days = 2;
+  repeated TimeBlock blocks = 3;
+  repeated ScheduleGroup groups = 4;
+}

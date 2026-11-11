@@ -46,6 +46,8 @@ export interface Settings {
   attentionModes: string[];
   /** morning | afternoon | evening */
   shifts: string[];
+  /** Teaching days, 1 = Monday … 7 = Sunday */
+  weekDays: number[];
 }
 
 export interface AcademicContext {
@@ -132,6 +134,9 @@ export interface Section {
   attentionMode: string;
   capacity: number;
   room: string;
+  /** Tutor of the section (staff), empty when none */
+  tutorId: string;
+  tutorName: string;
 }
 
 export interface LevelInput {
@@ -524,6 +529,7 @@ function createBaseSettings(): Settings {
     conductGrade: false,
     attentionModes: [],
     shifts: [],
+    weekDays: [],
   };
 }
 
@@ -546,6 +552,13 @@ export const Settings: MessageFns<Settings> = {
     }
     for (const v of message.shifts) {
       writer.uint32(50).string(v!);
+    }
+    if (message.weekDays.length !== 0) {
+      writer.uint32(58).fork();
+      for (const v of message.weekDays) {
+        writer.int32(v);
+      }
+      writer.join();
     }
     return writer;
   },
@@ -610,6 +623,24 @@ export const Settings: MessageFns<Settings> = {
 
             message.shifts.push(reader.string());
             continue;
+          }
+          case 7: {
+            if (tag === 56) {
+              message.weekDays.push(reader.int32());
+
+              continue;
+            }
+
+            if (tag === 58) {
+              const end2 = reader.uint32() + reader.pos;
+              while (reader.pos < end2) {
+                message.weekDays.push(reader.int32());
+              }
+
+              continue;
+            }
+
+            break;
           }
         }
         if ((tag & 7) === 4 || tag === 0) {
@@ -1379,6 +1410,8 @@ function createBaseSection(): Section {
     attentionMode: "",
     capacity: 0,
     room: "",
+    tutorId: "",
+    tutorName: "",
   };
 }
 
@@ -1419,6 +1452,12 @@ export const Section: MessageFns<Section> = {
     }
     if (message.room !== "") {
       writer.uint32(98).string(message.room);
+    }
+    if (message.tutorId !== "") {
+      writer.uint32(106).string(message.tutorId);
+    }
+    if (message.tutorName !== "") {
+      writer.uint32(114).string(message.tutorName);
     }
     return writer;
   },
@@ -1530,6 +1569,22 @@ export const Section: MessageFns<Section> = {
             }
 
             message.room = reader.string();
+            continue;
+          }
+          case 13: {
+            if (tag !== 106) {
+              break;
+            }
+
+            message.tutorId = reader.string();
+            continue;
+          }
+          case 14: {
+            if (tag !== 114) {
+              break;
+            }
+
+            message.tutorName = reader.string();
             continue;
           }
         }

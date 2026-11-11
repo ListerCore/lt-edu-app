@@ -71,6 +71,8 @@ message Settings {
   repeated string attention_modes = 5;
   // morning | afternoon | evening
   repeated string shifts = 6;
+  // Teaching days, 1 = Monday … 7 = Sunday
+  repeated int32 week_days = 7;
 }
 
 message AcademicContext {
@@ -155,6 +157,9 @@ message Section {
   string attention_mode = 10;
   int32 capacity = 11;
   string room = 12;
+  // Tutor of the section (staff), empty when none
+  string tutor_id = 13;
+  string tutor_name = 14;
 }
 
 message LevelInput {
