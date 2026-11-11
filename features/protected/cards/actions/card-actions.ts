@@ -5,6 +5,7 @@ import { demoInstitutionSlugs } from '@/features/protected/academic/data/academi
 import type { InstitutionType, Role } from '@/features/protected/dashboard/types';
 import { placeLine } from '@/features/protected/people/data/people-data';
 import { peopleRpc } from '@/lib/api/grpc/people';
+import { staffRpc } from '@/lib/api/grpc/teaching';
 import { paginate, type Pagination } from '@/lib/api/list';
 import { SESSION_COOKIE } from '@/lib/auth/cookies';
 import { demoCardholders, ownCardholderFor } from '../data/cardholders-roster';
@@ -45,10 +46,35 @@ const realStudents = async ({ institutionType, search, page, pageSize }: GetCard
   return { ok: true, message: 'ok', data: { data, meta: { search_query: query, filter: { group: 'students' }, pagination } } };
 };
 
+// Staff come from joseph-api too (people.staff), with their job as the card detail
+const realStaff = async ({ institutionType, search, page, pageSize }: GetCardholdersParams): Promise<CardActionResult<CardholdersResponse>> => {
+  const token = (await cookies()).get(SESSION_COOKIE)?.value;
+  if (!token) return { ok: false, message: 'Tu sesión venció. Ingresa de nuevo.' };
+  const query = search.trim().slice(0, 80);
+  const current = Math.max(1, page);
+  const result = await staffRpc.list({ institutionSlug: demoInstitutionSlugs[institutionType], query, status: 'active', teachersOnly: false, limit: pageSize, offset: (current - 1) * pageSize }, { token });
+  if (!result.ok) return { ok: false, message: result.error.message };
+  const data: Cardholder[] = result.data.staff.map((s) => ({
+    id: s.id,
+    group: 'staff',
+    name: `${s.givenNames} ${s.surnames}`,
+    detail: s.isTeacher && s.specialty ? `${s.position} · ${s.specialty}` : s.position,
+    code: s.code,
+    documentNumber: s.documentNumber,
+    photoUrl: null,
+    emergencyName: 'Secretaría de la institución',
+    emergencyPhone: s.phone || '—',
+  }));
+  const totalPages = Math.max(1, Math.ceil(result.data.total / pageSize));
+  const pagination: Pagination = { has_prev_page: current > 1, has_next_page: current < totalPages, page_size: pageSize, current_page: current, total_items: result.data.total, total_pages: totalPages };
+  return { ok: true, message: 'ok', data: { data, meta: { search_query: query, filter: { group: 'staff' }, pagination } } };
+};
+
 // GET /cardholders?group=&search=&page=&page_size= : one page plus meta { search_query, filter, pagination }
 export const getCardholdersAction = async (params: GetCardholdersParams): Promise<CardActionResult<CardholdersResponse>> => {
   const { institutionType, group, search, page, pageSize } = params;
   if (group === 'students') return realStudents(params);
+  if (group === 'staff') return realStaff(params);
   await simulate();
   const query = search.trim();
   const needle = fold(query);

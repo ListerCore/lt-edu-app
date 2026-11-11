@@ -391,7 +391,7 @@ export const RatifyDialog = ({ slug, ctx, toPeriodId, onClose, onDone }: RatifyD
   );
 
   return (
-    <FormDialog title="Ratificar continuadores" description={`Matricula en ${target?.name ?? 'este periodo'} a quienes estuvieron en otro, en el ${lower(v?.grade || 'grado')} siguiente y en la ${lower(v?.section ?? 'sección')} del mismo nombre.`} submitLabel={isPending ? 'Ratificando…' : `Matricular a ${preview?.enrolled ?? 0}`} isPending={isPending || !preview || preview.enrolled === 0} onSubmit={confirm} onClose={onClose}>
+    <FormDialog title="Ratificar continuadores" description={`Matricula en ${target?.name ?? 'este periodo'} a quienes estuvieron en otro, en el ${lower(v?.grade || 'grado')} siguiente y en la ${lower(v?.section ?? 'sección')} del mismo nombre.`} submitLabel={isPending ? 'Ratificando…' : `Matricular a ${preview?.enrolled ?? 0}`} isPending={isPending} disabled={!preview || preview.enrolled === 0} onSubmit={confirm} onClose={onClose}>
       {sources.length === 0 ? (
         <p className="text-sm text-muted-foreground">No hay otro periodo con estudiantes de donde ratificar.</p>
       ) : (
