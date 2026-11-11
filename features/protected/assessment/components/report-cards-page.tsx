@@ -127,7 +127,7 @@ const StaffCards = ({ slug, book, onPeriod, onTerm }: { slug: string; book: Grad
             ))}
           </ol>
           <div data-print-cards className="min-w-0 space-y-6">
-            {printAll ? data.map((c) => <ReportCardView key={c.student?.id} card={c} />) : card && <ReportCardView card={card} />}
+            {printAll ? data.map((c) => <ReportCardView key={c.student?.id} card={c} logo={data[0]?.logo} />) : card && <ReportCardView card={card} logo={data[0]?.logo} />}
           </div>
         </div>
       )}

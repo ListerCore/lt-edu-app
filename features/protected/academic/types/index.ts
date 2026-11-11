@@ -82,6 +82,11 @@ export interface SettingsFormValues {
   weekDays: string[];
   lateAfterMinutes: string;
   absenceLimitPercent: string;
+  // Official data printed on the report card; logo is an image data URL ("" removes it)
+  dre: string;
+  ugel: string;
+  modularCode: string;
+  logo: string;
 }
 
 // Remote data in a hook: loading, the data once it arrives, and a way to reload it

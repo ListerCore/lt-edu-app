@@ -1,6 +1,6 @@
 'use client';
 
-import type { JSX } from 'react';
+import { useState, type JSX } from 'react';
 import { FormField } from '@/components/ui/form-field';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
@@ -128,6 +128,43 @@ export const GradeDialog = ({ slug, context, level, grade, onClose, onSaved }: G
   );
 };
 
+// Largest logo file accepted (the API also checks it)
+const MAX_LOGO_BYTES = 100 * 1024;
+const LOGO_TYPES = ['image/png', 'image/jpeg', 'image/webp', 'image/svg+xml'];
+
+// The institution's logo for the report card: a small image kept as a data URL, with its preview
+const LogoField = ({ value, error, onChange }: { value: string; error?: string; onChange: (v: string) => void }): JSX.Element => {
+  const [problem, setProblem] = useState('');
+  const pick = (file: File | undefined): void => {
+    if (!file) return;
+    if (!LOGO_TYPES.includes(file.type)) return setProblem('Sube el logo en PNG, JPG, WebP o SVG.');
+    if (file.size > MAX_LOGO_BYTES) return setProblem('El logo debe pesar menos de 100 KB.');
+    setProblem('');
+    const reader = new FileReader();
+    reader.onload = (): void => onChange(String(reader.result));
+    reader.readAsDataURL(file);
+  };
+  return (
+    <FormField id="settings-logo" label="Logo de la institución" error={problem || error} hint="PNG, JPG, WebP o SVG de hasta 100 KB. Mejor con fondo transparente.">
+      <div className="flex items-center gap-4">
+        <span className="grid size-16 shrink-0 place-items-center overflow-hidden rounded-lg bg-background">
+          {/* eslint-disable-next-line @next/next/no-img-element -- a data URL the person just picked */}
+          {value ? <img src={value} alt="Logo actual" className="size-full object-contain p-1" /> : <span className="text-[11px] text-muted-foreground">Sin logo</span>}
+        </span>
+        <label className="btn-alt h-9 cursor-pointer px-3 text-sm">
+          {value ? 'Cambiar logo' : 'Subir logo'}
+          <input id="settings-logo" type="file" accept={LOGO_TYPES.join(',')} className="sr-only" onChange={(e): void => pick(e.target.files?.[0])} />
+        </label>
+        {value && (
+          <button type="button" className="text-sm text-muted-foreground hover:text-destructive" onClick={(): void => onChange('')}>
+            Quitar
+          </button>
+        )}
+      </div>
+    </FormField>
+  );
+};
+
 interface SettingsDialogProps {
   slug: string;
   context: AcademicContext;
@@ -149,6 +186,10 @@ export const SettingsDialog = ({ slug, context, onClose, onSaved }: SettingsDial
       weekDays: (settings?.weekDays ?? [1, 2, 3, 4, 5]).map(String),
       lateAfterMinutes: String(settings?.lateAfterMinutes ?? 10),
       absenceLimitPercent: String(settings?.absenceLimitPercent ?? 30),
+      dre: settings?.dre ?? '',
+      ugel: settings?.ugel ?? '',
+      modularCode: settings?.modularCode ?? '',
+      logo: settings?.logo ?? '',
     },
     save: (v) => updateSettingsAction(slug, v, scale),
     onSaved: () => {
@@ -201,6 +242,23 @@ export const SettingsDialog = ({ slug, context, onClose, onSaved }: SettingsDial
           <ChoiceChips label="Formas de atención" options={Object.keys(attentionModeLabels).map((m) => ({ value: m, label: attentionModeLabels[m], hint: attentionModeHints[m] }))} selected={values.attentionModes} onChange={(next): void => setField('attentionModes', next)} invalid={Boolean(errors.attentionModes)} />
         </FormField>
       )}
+      <fieldset className="space-y-4 rounded-lg bg-secondary/60 px-4 py-4">
+        <legend className="sr-only">Datos oficiales de la boleta</legend>
+        <p className="text-sm font-medium text-foreground">Datos oficiales de la boleta</p>
+        <p className="-mt-3 text-xs text-muted-foreground">Van en el encabezado del informe de progreso, junto al escudo nacional.</p>
+        <div className="grid gap-4 sm:grid-cols-3">
+          <FormField id="settings-dre" label="DRE o GRE" error={errors.dre}>
+            <Input placeholder="Ej.: DRE Ayacucho" id="settings-dre" value={values.dre} maxLength={120} onChange={(e): void => setField('dre', e.target.value)} aria-invalid={Boolean(errors.dre)} className={controlClassName} />
+          </FormField>
+          <FormField id="settings-ugel" label="UGEL" error={errors.ugel}>
+            <Input placeholder="Ej.: UGEL Huamanga" id="settings-ugel" value={values.ugel} maxLength={120} onChange={(e): void => setField('ugel', e.target.value)} aria-invalid={Boolean(errors.ugel)} className={controlClassName} />
+          </FormField>
+          <FormField id="settings-modular" label="Código modular" error={errors.modularCode}>
+            <Input placeholder="7 dígitos" id="settings-modular" inputMode="numeric" value={values.modularCode} onChange={(e): void => setField('modularCode', e.target.value.replace(/\D/g, '').slice(0, 7))} aria-invalid={Boolean(errors.modularCode)} className={controlClassName} />
+          </FormField>
+        </div>
+        <LogoField value={values.logo} error={errors.logo} onChange={(v): void => setField('logo', v)} />
+      </fieldset>
     </FormDialog>
   );
 };
