@@ -1,0 +1,418 @@
+syntax = "proto3";
+
+// Academies (phase 8 of docs/plan-academico.md): question bank, mock admission exams, answer sheets, rankings and
+// admissions. Same metadata and institution scoping as joseph.academic.v1. Courses are identified by the code they
+// share across the areas' plans. Answers: one character per question, A–E or '-' blank
+package joseph.exams.v1;
+
+import "joseph/academic/v1/academic.proto";
+
+option go_package = "api/internal/adapter/inbound/grpc/gen/examsv1;examsv1";
+
+// Coordinación builds and publishes the mock exams; teachers write the bank; secretaría loads the answer sheets;
+// students and families see their published results
+service ExamsService {
+  rpc GetOverview(GetOverviewRequest) returns (GetOverviewResponse);
+  rpc ListQuestions(ListQuestionsRequest) returns (ListQuestionsResponse);
+  rpc SaveQuestion(SaveQuestionRequest) returns (SaveQuestionResponse);
+  rpc DeleteQuestion(DeleteQuestionRequest) returns (DeleteQuestionResponse);
+  rpc GetMock(GetMockRequest) returns (GetMockResponse);
+  rpc SaveMock(SaveMockRequest) returns (SaveMockResponse);
+  rpc DeleteMock(DeleteMockRequest) returns (DeleteMockResponse);
+  // Courses, questions and weights suggested from each area's weekly hours
+  rpc SuggestStructure(SuggestStructureRequest) returns (SuggestStructureResponse);
+  rpc SetStructure(SetStructureRequest) returns (SetStructureResponse);
+  rpc FillFromBank(FillFromBankRequest) returns (FillFromBankResponse);
+  rpc SaveKey(SaveKeyRequest) returns (SaveKeyResponse);
+  rpc PublishMock(PublishMockRequest) returns (PublishMockResponse);
+  rpc GetBooklet(GetBookletRequest) returns (GetBookletResponse);
+  rpc LoadSheets(LoadSheetsRequest) returns (LoadSheetsResponse);
+  // The CSV of an optical reader: code or DNI, then the answers
+  rpc LoadReaderFile(LoadReaderFileRequest) returns (LoadReaderFileResponse);
+  rpc DeleteSheet(DeleteSheetRequest) returns (DeleteSheetResponse);
+  rpc GetResults(GetResultsRequest) returns (GetResultsResponse);
+  rpc GetStudentExams(GetStudentExamsRequest) returns (GetStudentExamsResponse);
+  rpc MyExams(MyExamsRequest) returns (MyExamsResponse);
+  rpc ListAdmissions(ListAdmissionsRequest) returns (ListAdmissionsResponse);
+  rpc SaveAdmission(SaveAdmissionRequest) returns (SaveAdmissionResponse);
+  rpc DeleteAdmission(DeleteAdmissionRequest) returns (DeleteAdmissionResponse);
+}
+
+message Course {
+  string code = 1;
+  string name = 2;
+  repeated string topics = 3;
+  // level id → weekly hours
+  map<string, int32> hours = 4;
+  int32 bank = 5;
+}
+
+message Level {
+  string id = 1;
+  string code = 2;
+  string name = 3;
+}
+
+message Question {
+  string id = 1;
+  string course_code = 2;
+  string topic = 3;
+  string stem = 4;
+  repeated string options = 5;
+  string answer = 6;
+  // easy | medium | hard
+  string difficulty = 7;
+  string explanation = 8;
+  string author_name = 9;
+  bool mine = 10;
+  int32 uses = 11;
+}
+
+message MockCourse {
+  string code = 1;
+  string name = 2;
+  int32 questions = 3;
+}
+
+message MockWeight {
+  string level_id = 1;
+  string course_code = 2;
+  double weight = 3;
+}
+
+message KeyItem {
+  int32 number = 1;
+  string course_code = 2;
+  string question_id = 3;
+  string answer = 4;
+}
+
+message MockExam {
+  string id = 1;
+  string period_id = 2;
+  string period_name = 3;
+  string name = 4;
+  string held_on = 5;
+  int32 duration_minutes = 6;
+  double points_right = 7;
+  double points_wrong = 8;
+  // draft | published
+  string status = 9;
+  string notes = 10;
+  repeated MockCourse courses = 11;
+  repeated MockWeight weights = 12;
+  int32 questions = 13;
+  int32 keyed = 14;
+  int32 sheets = 15;
+}
+
+message GetOverviewRequest {
+  string institution_slug = 1;
+  string period_id = 2;
+}
+
+message GetOverviewResponse {
+  repeated joseph.academic.v1.Period periods = 1;
+  joseph.academic.v1.Period period = 2;
+  repeated Level levels = 3;
+  repeated Course courses = 4;
+  repeated MockExam mocks = 5;
+  bool can_manage = 6;
+  bool can_write_bank = 7;
+  bool can_load = 8;
+}
+
+message ListQuestionsRequest {
+  string institution_slug = 1;
+  string course_code = 2;
+  string topic = 3;
+  string difficulty = 4;
+  string query = 5;
+  int32 limit = 6;
+  int32 offset = 7;
+}
+
+message ListQuestionsResponse {
+  repeated Question questions = 1;
+  int32 total = 2;
+}
+
+message SaveQuestionRequest {
+  string institution_slug = 1;
+  Question question = 2;
+}
+
+message SaveQuestionResponse {
+  Question question = 1;
+}
+
+message DeleteQuestionRequest {
+  string institution_slug = 1;
+  string id = 2;
+}
+
+message DeleteQuestionResponse {}
+
+message GetMockRequest {
+  string institution_slug = 1;
+  string id = 2;
+}
+
+message GetMockResponse {
+  MockExam mock = 1;
+  repeated KeyItem key = 2;
+  bool can_edit = 3;
+  // Students of the cycle in the areas that take it
+  int32 students = 4;
+}
+
+message SaveMockRequest {
+  string institution_slug = 1;
+  MockExam mock = 2;
+}
+
+message SaveMockResponse {
+  MockExam mock = 1;
+}
+
+message DeleteMockRequest {
+  string institution_slug = 1;
+  string id = 2;
+}
+
+message DeleteMockResponse {}
+
+message SuggestStructureRequest {
+  string institution_slug = 1;
+  repeated string level_ids = 2;
+  int32 total_questions = 3;
+}
+
+message SuggestStructureResponse {
+  repeated MockCourse courses = 1;
+  repeated MockWeight weights = 2;
+}
+
+message SetStructureRequest {
+  string institution_slug = 1;
+  string id = 2;
+  repeated MockCourse courses = 3;
+  repeated MockWeight weights = 4;
+}
+
+message SetStructureResponse {
+  GetMockResponse mock = 1;
+}
+
+message FillFromBankRequest {
+  string institution_slug = 1;
+  string id = 2;
+}
+
+message FillFromBankResponse {
+  GetMockResponse mock = 1;
+  int32 filled = 2;
+}
+
+message SaveKeyRequest {
+  string institution_slug = 1;
+  string id = 2;
+  repeated KeyItem items = 3;
+}
+
+message SaveKeyResponse {
+  GetMockResponse mock = 1;
+}
+
+message PublishMockRequest {
+  string institution_slug = 1;
+  string id = 2;
+  bool published = 3;
+}
+
+message PublishMockResponse {
+  GetMockResponse mock = 1;
+}
+
+message GetBookletRequest {
+  string institution_slug = 1;
+  string id = 2;
+}
+
+message BookletItem {
+  int32 number = 1;
+  string course = 2;
+  // Not set: a question typed only in the key
+  Question question = 3;
+  string answer = 4;
+}
+
+message GetBookletResponse {
+  MockExam mock = 1;
+  repeated BookletItem items = 2;
+}
+
+message SheetEntry {
+  string student_id = 1;
+  string code = 2;
+  string answers = 3;
+}
+
+message LoadReport {
+  int32 saved = 1;
+  repeated string unknown = 2;
+  repeated string other_area = 3;
+}
+
+message LoadSheetsRequest {
+  string institution_slug = 1;
+  string id = 2;
+  repeated SheetEntry entries = 3;
+}
+
+message LoadSheetsResponse {
+  LoadReport report = 1;
+}
+
+message LoadReaderFileRequest {
+  string institution_slug = 1;
+  string id = 2;
+  string text = 3;
+}
+
+message LoadReaderFileResponse {
+  LoadReport report = 1;
+}
+
+message DeleteSheetRequest {
+  string institution_slug = 1;
+  string id = 2;
+  string student_id = 3;
+}
+
+message DeleteSheetResponse {}
+
+message CourseScore {
+  int32 right = 1;
+  int32 wrong = 2;
+  int32 blank = 3;
+  double score = 4;
+}
+
+message AnswerSheet {
+  string student_id = 1;
+  string student_code = 2;
+  string student_name = 3;
+  string section_id = 4;
+  string section_label = 5;
+  string level_id = 6;
+  string level_name = 7;
+  string answers = 8;
+  string source = 9;
+  double score = 10;
+  int32 right = 11;
+  int32 wrong = 12;
+  int32 blank = 13;
+  map<string, CourseScore> by_course = 14;
+  int32 rank_section = 15;
+  int32 rank_level = 16;
+  int32 rank_all = 17;
+}
+
+message CourseStat {
+  string code = 1;
+  string name = 2;
+  double average = 3;
+  double right = 4;
+}
+
+message ExamStudent {
+  string id = 1;
+  string code = 2;
+  string name = 3;
+  string section_label = 4;
+  string level_name = 5;
+}
+
+message GetResultsRequest {
+  string institution_slug = 1;
+  string id = 2;
+}
+
+message GetResultsResponse {
+  MockExam mock = 1;
+  repeated AnswerSheet sheets = 2;
+  repeated CourseStat courses = 3;
+  repeated ExamStudent missing = 4;
+  double average = 5;
+  double best = 6;
+}
+
+message StudentMock {
+  MockExam mock = 1;
+  AnswerSheet sheet = 2;
+  int32 takers = 3;
+  int32 in_level = 4;
+}
+
+message Admission {
+  string id = 1;
+  string student_id = 2;
+  string student_name = 3;
+  string student_code = 4;
+  string university = 5;
+  string career = 6;
+  string exam = 7;
+  string admitted_on = 8;
+  optional int32 place = 9;
+  optional double score = 10;
+}
+
+message StudentExams {
+  string student_id = 1;
+  string student_name = 2;
+  repeated StudentMock mocks = 3;
+  repeated Admission admissions = 4;
+}
+
+message GetStudentExamsRequest {
+  string institution_slug = 1;
+  string student_id = 2;
+}
+
+message GetStudentExamsResponse {
+  StudentExams exams = 1;
+}
+
+message MyExamsRequest {
+  string institution_slug = 1;
+}
+
+message MyExamsResponse {
+  repeated StudentExams students = 1;
+}
+
+message ListAdmissionsRequest {
+  string institution_slug = 1;
+}
+
+message ListAdmissionsResponse {
+  repeated Admission admissions = 1;
+  bool can_manage = 2;
+}
+
+message SaveAdmissionRequest {
+  string institution_slug = 1;
+  Admission admission = 2;
+}
+
+message SaveAdmissionResponse {
+  Admission admission = 1;
+}
+
+message DeleteAdmissionRequest {
+  string institution_slug = 1;
+  string id = 2;
+}
+
+message DeleteAdmissionResponse {}

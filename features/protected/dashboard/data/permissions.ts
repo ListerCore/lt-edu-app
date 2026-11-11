@@ -154,6 +154,8 @@ export const rolePermissions: Record<Role, RolePermissions> = {
     'student-attendance': VIEW,
     'report-cards': VIEW,
     closing: VIEW,
+    'mock-exams': ['view', 'create'],
+    rankings: VIEW,
     cards: ALL,
     announcements: VIEW,
     reports: ['view', 'export'],
