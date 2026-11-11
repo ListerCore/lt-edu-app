@@ -258,9 +258,16 @@ export interface CardCompetency {
   /** term id → level */
   levels: { [key: string]: string };
   conclusion: string;
+  /** term id → conclusion, for every term shown */
+  conclusions: { [key: string]: string };
 }
 
 export interface CardCompetency_LevelsEntry {
+  key: string;
+  value: string;
+}
+
+export interface CardCompetency_ConclusionsEntry {
   key: string;
   value: string;
 }
@@ -299,7 +306,11 @@ export interface CardTerm {
   name: string;
   status: string;
   attendance?: AttendanceTally | undefined;
-  conduct?: number | undefined;
+  conduct?:
+    | number
+    | undefined;
+  /** The tutor's descriptive conclusion of the term */
+  comment: string;
 }
 
 export interface PeriodRef {
@@ -325,6 +336,18 @@ export interface ReportCard {
   tutorComment: string;
   provisional: boolean;
   periods: PeriodRef[];
+  /** Official header (SIAGIE format): regional office, UGEL, modular code and the institution's logo (data URL) */
+  dre: string;
+  ugel: string;
+  modularCode: string;
+  logo: string;
+  gradeName: string;
+  sectionName: string;
+  /** The selected term is the last of the period: the annual levels and the final conclusions apply */
+  final: boolean;
+  issuedOn: string;
+  /** Terms of the whole period (the card shows a column for each, filled up to the selected one) */
+  termCount: number;
 }
 
 export interface GetReportCardRequest {
@@ -2927,7 +2950,7 @@ export const SubmitResponse: MessageFns<SubmitResponse> = {
 };
 
 function createBaseCardCompetency(): CardCompetency {
-  return { id: "", name: "", levels: {}, conclusion: "" };
+  return { id: "", name: "", levels: {}, conclusion: "", conclusions: {} };
 }
 
 export const CardCompetency: MessageFns<CardCompetency> = {
@@ -2944,6 +2967,9 @@ export const CardCompetency: MessageFns<CardCompetency> = {
     if (message.conclusion !== "") {
       writer.uint32(34).string(message.conclusion);
     }
+    globalThis.Object.entries(message.conclusions).forEach(([key, value]: [string, string]) => {
+      CardCompetency_ConclusionsEntry.encode({ key: key as any, value }, writer.uint32(42).fork()).join();
+    });
     return writer;
   },
 
@@ -2995,6 +3021,17 @@ export const CardCompetency: MessageFns<CardCompetency> = {
             message.conclusion = reader.string();
             continue;
           }
+          case 5: {
+            if (tag !== 42) {
+              break;
+            }
+
+            const entry5 = CardCompetency_ConclusionsEntry.decode(reader, reader.uint32());
+            if (entry5.value !== undefined) {
+              message.conclusions[entry5.key] = entry5.value;
+            }
+            continue;
+          }
         }
         if ((tag & 7) === 4 || tag === 0) {
           break;
@@ -3033,6 +3070,63 @@ export const CardCompetency_LevelsEntry: MessageFns<CardCompetency_LevelsEntry> 
     try {
       const end = length === undefined ? reader.len : reader.pos + length;
       const message = createBaseCardCompetency_LevelsEntry();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.key = reader.string();
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.value = reader.string();
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+};
+
+function createBaseCardCompetency_ConclusionsEntry(): CardCompetency_ConclusionsEntry {
+  return { key: "", value: "" };
+}
+
+export const CardCompetency_ConclusionsEntry: MessageFns<CardCompetency_ConclusionsEntry> = {
+  encode(message: CardCompetency_ConclusionsEntry, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.key !== "") {
+      writer.uint32(10).string(message.key);
+    }
+    if (message.value !== "") {
+      writer.uint32(18).string(message.value);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): CardCompetency_ConclusionsEntry {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseCardCompetency_ConclusionsEntry();
       while (reader.pos < end) {
         const tag = reader.uint32();
         switch (tag >>> 3) {
@@ -3385,7 +3479,7 @@ export const AttendanceTally: MessageFns<AttendanceTally> = {
 };
 
 function createBaseCardTerm(): CardTerm {
-  return { id: "", name: "", status: "", attendance: undefined, conduct: undefined };
+  return { id: "", name: "", status: "", attendance: undefined, conduct: undefined, comment: "" };
 }
 
 export const CardTerm: MessageFns<CardTerm> = {
@@ -3404,6 +3498,9 @@ export const CardTerm: MessageFns<CardTerm> = {
     }
     if (message.conduct !== undefined) {
       writer.uint32(40).int32(message.conduct);
+    }
+    if (message.comment !== "") {
+      writer.uint32(50).string(message.comment);
     }
     return writer;
   },
@@ -3459,6 +3556,14 @@ export const CardTerm: MessageFns<CardTerm> = {
             }
 
             message.conduct = reader.int32();
+            continue;
+          }
+          case 6: {
+            if (tag !== 50) {
+              break;
+            }
+
+            message.comment = reader.string();
             continue;
           }
         }
@@ -3550,6 +3655,15 @@ function createBaseReportCard(): ReportCard {
     tutorComment: "",
     provisional: false,
     periods: [],
+    dre: "",
+    ugel: "",
+    modularCode: "",
+    logo: "",
+    gradeName: "",
+    sectionName: "",
+    final: false,
+    issuedOn: "",
+    termCount: 0,
   };
 }
 
@@ -3605,6 +3719,33 @@ export const ReportCard: MessageFns<ReportCard> = {
     }
     for (const v of message.periods) {
       PeriodRef.encode(v!, writer.uint32(138).fork()).join();
+    }
+    if (message.dre !== "") {
+      writer.uint32(146).string(message.dre);
+    }
+    if (message.ugel !== "") {
+      writer.uint32(154).string(message.ugel);
+    }
+    if (message.modularCode !== "") {
+      writer.uint32(162).string(message.modularCode);
+    }
+    if (message.logo !== "") {
+      writer.uint32(170).string(message.logo);
+    }
+    if (message.gradeName !== "") {
+      writer.uint32(178).string(message.gradeName);
+    }
+    if (message.sectionName !== "") {
+      writer.uint32(186).string(message.sectionName);
+    }
+    if (message.final !== false) {
+      writer.uint32(192).bool(message.final);
+    }
+    if (message.issuedOn !== "") {
+      writer.uint32(202).string(message.issuedOn);
+    }
+    if (message.termCount !== 0) {
+      writer.uint32(208).int32(message.termCount);
     }
     return writer;
   },
@@ -3756,6 +3897,78 @@ export const ReportCard: MessageFns<ReportCard> = {
             }
 
             message.periods.push(PeriodRef.decode(reader, reader.uint32()));
+            continue;
+          }
+          case 18: {
+            if (tag !== 146) {
+              break;
+            }
+
+            message.dre = reader.string();
+            continue;
+          }
+          case 19: {
+            if (tag !== 154) {
+              break;
+            }
+
+            message.ugel = reader.string();
+            continue;
+          }
+          case 20: {
+            if (tag !== 162) {
+              break;
+            }
+
+            message.modularCode = reader.string();
+            continue;
+          }
+          case 21: {
+            if (tag !== 170) {
+              break;
+            }
+
+            message.logo = reader.string();
+            continue;
+          }
+          case 22: {
+            if (tag !== 178) {
+              break;
+            }
+
+            message.gradeName = reader.string();
+            continue;
+          }
+          case 23: {
+            if (tag !== 186) {
+              break;
+            }
+
+            message.sectionName = reader.string();
+            continue;
+          }
+          case 24: {
+            if (tag !== 192) {
+              break;
+            }
+
+            message.final = reader.bool();
+            continue;
+          }
+          case 25: {
+            if (tag !== 202) {
+              break;
+            }
+
+            message.issuedOn = reader.string();
+            continue;
+          }
+          case 26: {
+            if (tag !== 208) {
+              break;
+            }
+
+            message.termCount = reader.int32();
             continue;
           }
         }

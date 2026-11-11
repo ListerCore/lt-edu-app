@@ -51,6 +51,14 @@ export interface Settings {
   /** Attendance: minutes of tolerance after the first class, and the absence share (%) that raises an alert */
   lateAfterMinutes: number;
   absenceLimitPercent: number;
+  /**
+   * Official data for the report card; unset on an update keeps what is stored. Logo: image data URL (PNG, JPG,
+   * WebP or SVG, under 100 KB), "" removes it
+   */
+  dre?: string | undefined;
+  ugel?: string | undefined;
+  modularCode?: string | undefined;
+  logo?: string | undefined;
 }
 
 export interface AcademicContext {
@@ -535,6 +543,10 @@ function createBaseSettings(): Settings {
     weekDays: [],
     lateAfterMinutes: 0,
     absenceLimitPercent: 0,
+    dre: undefined,
+    ugel: undefined,
+    modularCode: undefined,
+    logo: undefined,
   };
 }
 
@@ -570,6 +582,18 @@ export const Settings: MessageFns<Settings> = {
     }
     if (message.absenceLimitPercent !== 0) {
       writer.uint32(72).int32(message.absenceLimitPercent);
+    }
+    if (message.dre !== undefined) {
+      writer.uint32(82).string(message.dre);
+    }
+    if (message.ugel !== undefined) {
+      writer.uint32(90).string(message.ugel);
+    }
+    if (message.modularCode !== undefined) {
+      writer.uint32(98).string(message.modularCode);
+    }
+    if (message.logo !== undefined) {
+      writer.uint32(106).string(message.logo);
     }
     return writer;
   },
@@ -667,6 +691,38 @@ export const Settings: MessageFns<Settings> = {
             }
 
             message.absenceLimitPercent = reader.int32();
+            continue;
+          }
+          case 10: {
+            if (tag !== 82) {
+              break;
+            }
+
+            message.dre = reader.string();
+            continue;
+          }
+          case 11: {
+            if (tag !== 90) {
+              break;
+            }
+
+            message.ugel = reader.string();
+            continue;
+          }
+          case 12: {
+            if (tag !== 98) {
+              break;
+            }
+
+            message.modularCode = reader.string();
+            continue;
+          }
+          case 13: {
+            if (tag !== 106) {
+              break;
+            }
+
+            message.logo = reader.string();
             continue;
           }
         }

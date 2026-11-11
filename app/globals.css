@@ -372,6 +372,20 @@
   page: acta;
 }
 
+/* SIAGIE report card (A4 landscape, front and back side by side; the @page rule is rendered with the card): sizes
+   inside are in em of this base */
+.siagie {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 11px;
+  line-height: 1.25;
+}
+
+@media print {
+  .siagie {
+    font-size: 6.6pt;
+  }
+}
+
 /* Report cards: only the cards print, one per page, with their colors (page size: the A4 rule below) */
 @media print {
   body:has([data-print-card]) * {

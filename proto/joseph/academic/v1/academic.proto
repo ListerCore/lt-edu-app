@@ -76,6 +76,12 @@ message Settings {
   // Attendance: minutes of tolerance after the first class, and the absence share (%) that raises an alert
   int32 late_after_minutes = 8;
   int32 absence_limit_percent = 9;
+  // Official data for the report card; unset on an update keeps what is stored. Logo: image data URL (PNG, JPG,
+  // WebP or SVG, under 100 KB), "" removes it
+  optional string dre = 10;
+  optional string ugel = 11;
+  optional string modular_code = 12;
+  optional string logo = 13;
 }
 
 message AcademicContext {

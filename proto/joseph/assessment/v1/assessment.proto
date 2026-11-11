@@ -260,6 +260,8 @@ message CardCompetency {
   // term id → level
   map<string, string> levels = 3;
   string conclusion = 4;
+  // term id → conclusion, for every term shown
+  map<string, string> conclusions = 5;
 }
 
 message CardEvaluation {
@@ -292,6 +294,8 @@ message CardTerm {
   string status = 3;
   AttendanceTally attendance = 4;
   optional int32 conduct = 5;
+  // The tutor's descriptive conclusion of the term
+  string comment = 6;
 }
 
 message PeriodRef {
@@ -317,6 +321,18 @@ message ReportCard {
   string tutor_comment = 15;
   bool provisional = 16;
   repeated PeriodRef periods = 17;
+  // Official header (SIAGIE format): regional office, UGEL, modular code and the institution's logo (data URL)
+  string dre = 18;
+  string ugel = 19;
+  string modular_code = 20;
+  string logo = 21;
+  string grade_name = 22;
+  string section_name = 23;
+  // The selected term is the last of the period: the annual levels and the final conclusions apply
+  bool final = 24;
+  string issued_on = 25;
+  // Terms of the whole period (the card shows a column for each, filled up to the selected one)
+  int32 term_count = 26;
 }
 
 message GetReportCardRequest {
