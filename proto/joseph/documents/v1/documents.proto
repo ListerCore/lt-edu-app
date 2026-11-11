@@ -1,0 +1,236 @@
+syntax = "proto3";
+
+// Printable documents generated on the server as PDF: report cards, published timetables, issued actas and payment
+// receipts. Each one checks the same permissions as the screen it comes from. Same metadata and institution
+// scoping as joseph.academic.v1.
+//
+// Timetables are published as versioned documents: dirección or coordinación generate a version (frozen content,
+// verification code, the signatures it needs), the signers sign it and with the last signature it is published.
+// Every sheet carries a QR to the public tracking page (TrackDocument, no session needed)
+package joseph.documents.v1;
+
+option go_package = "api/internal/adapter/inbound/grpc/gen/documentsv1;documentsv1";
+
+service DocumentsService {
+  rpc ReportCardsPdf(ReportCardsPdfRequest) returns (ReportCardsPdfResponse);
+  rpc SchedulesPdf(SchedulesPdfRequest) returns (SchedulesPdfResponse);
+  rpc RecordPdf(RecordPdfRequest) returns (RecordPdfResponse);
+  rpc ReceiptPdf(ReceiptPdfRequest) returns (ReceiptPdfResponse);
+
+  // Every class of a period as an Excel workbook (list, week of each section and teacher, legend)
+  rpc SchedulesXlsx(SchedulesXlsxRequest) returns (SchedulesXlsxResponse);
+  // Who signs the timetables; managers also get the staff to pick from
+  rpc GetScheduleSigners(GetScheduleSignersRequest) returns (GetScheduleSignersResponse);
+  rpc SetScheduleSigners(SetScheduleSignersRequest) returns (SetScheduleSignersResponse);
+  // The timetable publications of a period with their versions and history
+  rpc ListScheduleIssues(ListScheduleIssuesRequest) returns (ListScheduleIssuesResponse);
+  // Freezes a mode and target as a new version waiting for signatures (created false: nothing changed)
+  rpc GenerateSchedules(GenerateSchedulesRequest) returns (GenerateSchedulesResponse);
+  // The viewer signs a pending version as the staff member of their email
+  rpc SignVersion(SignVersionRequest) returns (SignVersionResponse);
+  rpc VersionPdf(VersionPdfRequest) returns (VersionPdfResponse);
+  // Public: a document by its tracking code, pointing at the version of a verification code
+  rpc TrackDocument(TrackDocumentRequest) returns (TrackDocumentResponse);
+  // Public: the PDF of a published (current or superseded) version
+  rpc TrackPdf(TrackPdfRequest) returns (TrackPdfResponse);
+}
+
+message PdfFile {
+  string file_name = 1;
+  bytes content = 2;
+}
+
+// One student's card (student_id, families included) or every card of a section (section_id, staff)
+message ReportCardsPdfRequest {
+  string institution_slug = 1;
+  string section_id = 2;
+  string student_id = 3;
+  string period_id = 4;
+  string term_id = 5;
+}
+
+// The preview of the timetables as they are now (crossed VISTA PREVIA, without codes)
+message SchedulesPdfRequest {
+  string institution_slug = 1;
+  string period_id = 2;
+  // section | grade | teacher | general
+  string mode = 3;
+  // A section, grade or staff id; empty: all of them
+  string target_id = 4;
+}
+
+message RecordPdfRequest {
+  string institution_slug = 1;
+  string id = 2;
+}
+
+message ReceiptPdfRequest {
+  string institution_slug = 1;
+  string id = 2;
+}
+
+message ReportCardsPdfResponse {
+  PdfFile file = 1;
+}
+
+message SchedulesPdfResponse {
+  PdfFile file = 1;
+}
+
+message RecordPdfResponse {
+  PdfFile file = 1;
+}
+
+message ReceiptPdfResponse {
+  PdfFile file = 1;
+}
+
+message SchedulesXlsxRequest {
+  string institution_slug = 1;
+  string period_id = 2;
+}
+
+message SchedulesXlsxResponse {
+  PdfFile file = 1;
+}
+
+message Signer {
+  string staff_id = 1;
+  string name = 2;
+  // Printed under the name: "Director(a)", "Responsable de la Oficina de Tecnologías de la Información"
+  string position = 3;
+}
+
+message GetScheduleSignersRequest {
+  string institution_slug = 1;
+}
+
+message GetScheduleSignersResponse {
+  repeated Signer signers = 1;
+  // Active staff (position: their job title)
+  repeated Signer candidates = 2;
+  bool can_manage = 3;
+}
+
+message SetScheduleSignersRequest {
+  string institution_slug = 1;
+  // In signing order; name is ignored
+  repeated Signer signers = 2;
+}
+
+message SetScheduleSignersResponse {
+  repeated Signer signers = 1;
+}
+
+message Signature {
+  int32 sort = 1;
+  string staff_id = 2;
+  string name = 3;
+  string position = 4;
+  // RFC 3339; empty while waiting
+  string signed_at = 5;
+  string code = 6;
+}
+
+message DocumentVersion {
+  string id = 1;
+  int32 number = 2;
+  string verification_code = 3;
+  // pending | published | superseded | cancelled
+  string status = 4;
+  string note = 5;
+  string created_name = 6;
+  string created_at = 7;
+  string published_at = 8;
+  repeated Signature signatures = 9;
+  string content_hash = 10;
+}
+
+message DocumentEvent {
+  int32 version = 1;
+  // generated | signed | published | superseded | cancelled
+  string action = 2;
+  string actor = 3;
+  string note = 4;
+  string at = 5;
+}
+
+message IssuedDocument {
+  string id = 1;
+  string title = 2;
+  string tracking_code = 3;
+  string tracking_url = 4;
+  // section | grade | teacher | general, and the target (empty: all)
+  string mode = 5;
+  string target_id = 6;
+  repeated DocumentVersion versions = 7;
+  repeated DocumentEvent events = 8;
+  string institution_name = 9;
+}
+
+message ListScheduleIssuesRequest {
+  string institution_slug = 1;
+  string period_id = 2;
+}
+
+message ListScheduleIssuesResponse {
+  repeated IssuedDocument documents = 1;
+  repeated Signer signers = 2;
+  bool can_manage = 3;
+  string my_staff_id = 4;
+}
+
+message GenerateSchedulesRequest {
+  string institution_slug = 1;
+  string period_id = 2;
+  string mode = 3;
+  string target_id = 4;
+  // What changed, for the history
+  string note = 5;
+}
+
+message GenerateSchedulesResponse {
+  IssuedDocument document = 1;
+  DocumentVersion version = 2;
+  bool created = 3;
+}
+
+message SignVersionRequest {
+  string institution_slug = 1;
+  string version_id = 2;
+}
+
+message SignVersionResponse {
+  DocumentVersion version = 1;
+  bool published = 2;
+}
+
+message VersionPdfRequest {
+  string institution_slug = 1;
+  string version_id = 2;
+}
+
+message VersionPdfResponse {
+  PdfFile file = 1;
+}
+
+message TrackDocumentRequest {
+  string tracking_code = 1;
+  // A version's or a signature's verification code (optional)
+  string code = 2;
+}
+
+message TrackDocumentResponse {
+  IssuedDocument document = 1;
+  // Number of the version the code belongs to; 0 when none was given or it is unknown
+  int32 matched = 2;
+}
+
+message TrackPdfRequest {
+  string tracking_code = 1;
+  int32 number = 2;
+}
+
+message TrackPdfResponse {
+  PdfFile file = 1;
+}

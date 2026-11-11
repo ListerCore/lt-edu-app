@@ -433,42 +433,6 @@
   }
 }
 
-/* Published timetables: only the sheets print, one per page, with their course colours */
-@media print {
-  body:has([data-print-schedule]) * {
-    visibility: hidden;
-  }
-  body:has([data-print-schedule]) [data-print-schedule],
-  body:has([data-print-schedule]) [data-print-schedule] * {
-    visibility: visible;
-  }
-  body:has([data-print-schedule]) [data-print-schedule] {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    print-color-adjust: exact;
-    -webkit-print-color-adjust: exact;
-  }
-}
-
-@media print {
-  body:has([data-print-receipt]) * {
-    visibility: hidden;
-  }
-  body:has([data-print-receipt]) [data-print-receipt],
-  body:has([data-print-receipt]) [data-print-receipt] * {
-    visibility: visible;
-  }
-  body:has([data-print-receipt]) [data-print-receipt] {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    border-color: #c4520a;
-  }
-}
-
 /* Panel 404 illustration: chalk strokes draw in once, the rest loops gently */
 @keyframes nf-draw {
   to {
