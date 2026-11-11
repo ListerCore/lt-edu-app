@@ -1,11 +1,13 @@
 'use client';
 
 import { useMemo, useState, type JSX } from 'react';
-import { Printer } from 'lucide';
+import { Download } from 'lucide';
 import { MorphIcon } from '@/components/ui/morph-icon';
 import { AcademicPage, LoadError, PageSkeleton, SelectField } from '@/features/protected/academic/components/academic-ui';
 import { useAcademicData } from '@/features/protected/academic/hooks/use-academic-data';
 import { useInstitutionSlug } from '@/features/protected/academic/hooks/use-institution-slug';
+import { reportCardsPdfAction } from '@/features/protected/documents/actions/document-actions';
+import { usePdf } from '@/features/protected/documents/lib/use-pdf';
 import { isAssessmentEvent } from '@/hooks/use-live';
 import { cn } from '@/lib/utils';
 import { getGradebookAction, getMyCardsAction, getReportCardAction, getSectionCardsAction } from '../actions/assessment-actions';
@@ -23,7 +25,7 @@ export const ReportCardsPage = (): JSX.Element => {
   const literal = (book.data?.scale ?? mine.data?.[0]?.card?.scale ?? 'literal') === 'literal';
 
   return (
-    <AcademicPage
+    <AcademicPage wide
       titleId="cards-title"
       title={literal ? 'Libretas' : 'Boletas de notas'}
       description={literal ? 'El informe de progreso de cada estudiante: niveles por competencia, conclusiones, asistencia y el comentario del tutor.' : 'El promedio de cada unidad o curso con sus evaluaciones y la asistencia.'}
@@ -61,18 +63,12 @@ const StaffCards = ({ slug, book, onPeriod, onTerm }: { slug: string; book: Grad
   const section = sections.find((s) => s.value === sectionId)?.value ?? sections[0]?.value ?? '';
   const { data, error, reload } = useAcademicData(`section-cards:${slug}:${section}:${book.termId}`, () => getSectionCardsAction(slug, section, book.termId), () => false);
   const [studentId, setStudentId] = useState('');
-  const [printAll, setPrintAll] = useState(false);
   const card = data?.find((c) => c.student?.id === studentId) ?? data?.[0];
   const terms = book.period?.terms ?? [];
-
-  const print = (all: boolean): void => {
-    setPrintAll(all);
-    // The cards to print render first, then the dialog opens
-    setTimeout(() => {
-      window.print();
-      setPrintAll(false);
-    }, 50);
-  };
+  const [isPending, pdf] = usePdf();
+  // The API builds the PDF: this student's card, or every card of the section in one file
+  const download = (all: boolean): void =>
+    pdf(() => reportCardsPdfAction(slug, { sectionId: all ? section : '', studentId: all ? '' : (card?.student?.id ?? ''), periodId: book.period?.id ?? '', termId: book.termId }));
 
   if (sections.length === 0) return <p className="rounded-2xl border border-dashed border-border px-6 py-10 text-center text-sm text-muted-foreground">No tienes secciones a cargo en este periodo.</p>;
 
@@ -93,13 +89,13 @@ const StaffCards = ({ slug, book, onPeriod, onTerm }: { slug: string; book: Grad
           </div>
         )}
         <div className="ml-auto flex gap-2">
-          <button type="button" className="btn-alt" disabled={!card} onClick={(): void => print(false)}>
-            <MorphIcon icon={Printer} size={16} />
-            Imprimir esta
+          <button type="button" className="btn-alt" disabled={!card || isPending} onClick={(): void => download(false)}>
+            <MorphIcon icon={Download} size={16} />
+            PDF de este estudiante
           </button>
-          <button type="button" className="btn-brand" disabled={!data?.length} onClick={(): void => print(true)}>
-            <MorphIcon icon={Printer} size={16} />
-            Imprimir la sección ({data?.length ?? 0})
+          <button type="button" className="btn-brand" disabled={!data?.length || isPending} onClick={(): void => download(true)}>
+            <MorphIcon icon={Download} size={16} />
+            {isPending ? 'Generando PDF…' : `PDF de la sección (${data?.length ?? 0})`}
           </button>
         </div>
       </div>
@@ -126,9 +122,7 @@ const StaffCards = ({ slug, book, onPeriod, onTerm }: { slug: string; book: Grad
               </li>
             ))}
           </ol>
-          <div data-print-cards className="min-w-0 space-y-6">
-            {printAll ? data.map((c) => <ReportCardView key={c.student?.id} card={c} logo={data[0]?.logo} />) : card && <ReportCardView card={card} logo={data[0]?.logo} />}
-          </div>
+          <div className="min-w-0 space-y-6">{card && <ReportCardView card={card} logo={data[0]?.logo} />}</div>
         </div>
       )}
     </div>
@@ -167,6 +161,7 @@ const FamilyCardView = ({ slug, initial }: { slug: string; initial: ReportCard }
   const studentId = initial.student?.id ?? '';
   const { data } = useAcademicData(`family-card:${slug}:${studentId}:${termId}`, async () => (termId === initial.termId ? { ok: true as const, data: initial } : getReportCardAction(slug, studentId, initial.periodId, termId)), () => false);
   const card = data ?? initial;
+  const [isPending, pdf] = usePdf();
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
@@ -177,14 +172,12 @@ const FamilyCardView = ({ slug, initial }: { slug: string; initial: ReportCard }
         ) : (
           <span />
         )}
-        <button type="button" className="btn-alt" onClick={(): void => window.print()}>
-          <MorphIcon icon={Printer} size={16} />
-          Imprimir o guardar PDF
+        <button type="button" className="btn-alt" disabled={isPending} onClick={(): void => pdf(() => reportCardsPdfAction(slug, { sectionId: '', studentId, periodId: initial.periodId, termId }))}>
+          <MorphIcon icon={Download} size={16} />
+          {isPending ? 'Generando PDF…' : 'Descargar PDF'}
         </button>
       </div>
-      <div data-print-cards>
-        <ReportCardView card={card} />
-      </div>
+      <ReportCardView card={card} />
     </div>
   );
 };

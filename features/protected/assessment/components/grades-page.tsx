@@ -24,7 +24,7 @@ export const GradesPage = (): JSX.Element => {
   const numeric = data ? data.scale !== 'literal' : false;
 
   return (
-    <AcademicPage
+    <AcademicPage wide
       titleId="grades-title"
       title={numeric ? 'Notas' : 'Notas por competencias'}
       description={

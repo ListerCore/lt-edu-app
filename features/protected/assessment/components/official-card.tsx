@@ -185,8 +185,6 @@ export const OfficialCard = ({ card, logo }: { card: ReportCard; logo: string })
 
   return (
     <article data-print-card className="report-card siagie grid gap-6 print:grid-cols-2 print:gap-[8mm]">
-      {/* The report card prints on A4 landscape; the rule lives here so it only applies while a card is on screen */}
-      <style>{'@page { size: A4 landscape; margin: 8mm; }'}</style>
       <Sheet label="Cara frontal">
         <h2 className="text-center text-[1.45em] font-bold tracking-wide">INFORME DE PROGRESO DEL ESTUDIANTE – {year}</h2>
         {card.provisional && <p className="-mt-[0.6em] text-center text-[0.9em] italic">Documento provisional: el periodo de evaluación aún está en curso.</p>}
