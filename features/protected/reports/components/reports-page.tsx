@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, type JSX } from 'react';
+import { Award, CalendarCheck, Hourglass, Percent, UsersRound, Wallet } from 'lucide';
 import { AcademicPage, LoadError, PageSkeleton } from '@/features/protected/academic/components/academic-ui';
 import { useAcademicData } from '@/features/protected/academic/hooks/use-academic-data';
 import { useInstitutionSlug } from '@/features/protected/academic/hooks/use-institution-slug';
@@ -144,9 +145,9 @@ const Kpis = ({ board }: { board: Board }): JSX.Element => {
   if (!board.academic) {
     return (
       <div className="grid gap-3 sm:grid-cols-3">
-        <Kpi label="Cobrado del periodo" value={soles(f?.collected)} hint={`de ${soles(due)} por cobrar en todo el periodo`} />
-        <Kpi label="Cobranza al día" value={pct(now?.collection)} hint={`de lo que ya venció, ${since}`} delta={change('collection')} />
-        <Kpi label="Vencido sin pagar" value={soles(f?.overdue)} hint={`${num(f?.debtors)} estudiantes con deuda vencida`} />
+        <Kpi icon={Wallet} label="Cobrado del periodo" value={soles(f?.collected)} hint={`de ${soles(due)} por cobrar en todo el periodo`} />
+        <Kpi icon={Percent} label="Cobranza al día" value={pct(now?.collection)} hint={`de lo que ya venció, ${since}`} delta={change('collection')} />
+        <Kpi icon={Hourglass} label="Vencido sin pagar" value={soles(f?.overdue)} hint={`${num(f?.debtors)} estudiantes con deuda vencida`} />
       </div>
     );
   }
@@ -159,10 +160,10 @@ const Kpis = ({ board }: { board: Board }): JSX.Element => {
   const score = board.scale === 'score';
   return (
     <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-      <Kpi label="Estudiantes" value={num(enrolled)} hint={e?.capacity ? `${pct((enrolled * 100) / e.capacity, 0)} de las vacantes` : 'sin vacantes definidas'} />
-      <Kpi label="Asistencia del periodo" value={pct(now?.attendance)} hint={`${since} · rango elegido: ${pct(attendanceRate(range))}`} delta={change('attendance')} />
-      <Kpi label={score ? 'Puntaje promedio' : (achievementLabel[board.scale] ?? 'Logro')} value={score ? (now && now.achievement >= 0 ? num(now.achievement, 1) : '—') : pct(now?.achievement)} hint={since} delta={score ? undefined : change('achievement')} />
-      <Kpi label="Cobranza al día" value={pct(now?.collection)} hint={`${soles(f?.overdue)} vencido sin pagar`} delta={change('collection')} />
+      <Kpi icon={UsersRound} label="Estudiantes" value={num(enrolled)} hint={e?.capacity ? `${pct((enrolled * 100) / e.capacity, 0)} de las vacantes` : 'sin vacantes definidas'} />
+      <Kpi icon={CalendarCheck} label="Asistencia del periodo" value={pct(now?.attendance)} hint={`${since} · rango elegido: ${pct(attendanceRate(range))}`} delta={change('attendance')} />
+      <Kpi icon={Award} label={score ? 'Puntaje promedio' : (achievementLabel[board.scale] ?? 'Logro')} value={score ? (now && now.achievement >= 0 ? num(now.achievement, 1) : '—') : pct(now?.achievement)} hint={since} delta={score ? undefined : change('achievement')} />
+      <Kpi icon={Wallet} label="Cobranza al día" value={pct(now?.collection)} hint={`${soles(f?.overdue)} vencido sin pagar`} delta={change('collection')} />
     </div>
   );
 };

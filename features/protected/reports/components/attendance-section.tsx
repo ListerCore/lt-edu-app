@@ -1,6 +1,7 @@
 'use client';
 
 import type { JSX } from 'react';
+import { CalendarDays, TrendingUp, UsersRound } from 'lucide';
 import { Area, AreaChart, Bar, BarChart, CartesianGrid, LabelList, Line, LineChart, XAxis, YAxis } from 'recharts';
 import { ChartContainer, ChartLegend, ChartLegendContent, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import { formatDay } from '@/features/protected/academic/data/academic-data';
@@ -29,6 +30,7 @@ export const AttendanceSection = ({ board, range, onRange, canExport }: { board:
   return (
     <div className="grid gap-4 lg:grid-cols-2">
       <ChartCard
+        icon={CalendarDays}
         className="lg:col-span-2"
         title="Faltas y tardanzas por día"
         description={`${formatDay(board.from, false)} al ${formatDay(board.to)} · estudiantes que no llegaron a tiempo cada día de clases`}
@@ -71,6 +73,7 @@ export const AttendanceSection = ({ board, range, onRange, canExport }: { board:
       </ChartCard>
 
       <ChartCard
+        icon={UsersRound}
         title={board.levelId ? 'Inasistencia por grado' : 'Inasistencia por nivel'}
         description="Porcentaje de los días marcados en el rango"
         file="inasistencia-por-grupo"
@@ -93,6 +96,7 @@ export const AttendanceSection = ({ board, range, onRange, canExport }: { board:
       </ChartCard>
 
       <ChartCard
+        icon={TrendingUp}
         title={board.period?.termScheme === 'none' ? 'Asistencia por mes' : 'Asistencia por periodo de evaluación'}
         description="Todo el periodo hasta hoy, para comparar los tramos del año"
         file="asistencia-por-tramo"

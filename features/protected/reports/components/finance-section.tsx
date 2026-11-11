@@ -1,6 +1,7 @@
 'use client';
 
 import type { JSX } from 'react';
+import { CreditCard, Hourglass, Landmark, Wallet } from 'lucide';
 import { Area, Bar, BarChart, CartesianGrid, Cell, ComposedChart, Label, LabelList, Line, Pie, PieChart, XAxis, YAxis } from 'recharts';
 import { ChartContainer, ChartLegend, ChartLegendContent, ChartTooltip, ChartTooltipContent, type ChartConfig } from '@/components/ui/chart';
 import { methodLabels, monthLabel, soles } from '@/features/protected/finance/data/finance-data';
@@ -24,6 +25,7 @@ export const FinanceSection = ({ board, canExport }: { board: Board; canExport: 
   return (
     <div className="grid gap-4 lg:grid-cols-3">
       <ChartCard
+        icon={Wallet}
         className="lg:col-span-3"
         title="Cobranza mes a mes"
         description="Lo que venció cada mes (neto de descuentos), cuánto de eso ya está pagado y lo que ingresó en caja ese mes"
@@ -57,6 +59,7 @@ export const FinanceSection = ({ board, canExport }: { board: Board; canExport: 
       </ChartCard>
 
       <ChartCard
+        icon={CreditCard}
         title="Medios de pago"
         description="Lo cobrado del periodo, por medio"
         file="medios-de-pago"
@@ -66,7 +69,7 @@ export const FinanceSection = ({ board, canExport }: { board: Board; canExport: 
         <ChartContainer config={methodConfig} className="mx-auto aspect-square max-h-72">
           <PieChart>
             <ChartTooltip content={<ChartTooltipContent nameKey="method" hideLabel formatter={(v, _n, item): string => `${methodLabels[(item.payload as { method: string }).method]}: ${soles(Number(v))} · ${pct((Number(v) * 100) / (received || 1))}`} />} />
-            <Pie data={methods} dataKey="amount" nameKey="method" innerRadius="58%" strokeWidth={2} stroke="var(--background)">
+            <Pie data={methods} dataKey="amount" nameKey="method" innerRadius="58%" strokeWidth={2} stroke="var(--card)">
               {methods.map((m) => (
                 <Cell key={m.method} fill={m.fill} />
               ))}
@@ -91,6 +94,7 @@ export const FinanceSection = ({ board, canExport }: { board: Board; canExport: 
       </ChartCard>
 
       <ChartCard
+        icon={Hourglass}
         title="Antigüedad de la deuda"
         description="Lo vencido sin pagar, por días desde que venció"
         file="antiguedad-deuda"
@@ -100,7 +104,7 @@ export const FinanceSection = ({ board, canExport }: { board: Board; canExport: 
         <ChartContainer config={{ amount: debtConfig.overdue }} className="aspect-auto h-64 w-full">
           <BarChart data={board.aging} margin={{ left: 8, right: 8, top: 24 }}>
             <CartesianGrid vertical={false} />
-            <XAxis dataKey="label" tickLine={false} axisLine={false} tickMargin={8} fontSize={10} interval={0} />
+            <XAxis dataKey="label" tickLine={false} axisLine={false} tickMargin={8} fontSize={11} interval={0} tickFormatter={(v: string): string => v.replace('Más de ', '+').replace(' a ', '–').replace(' días', ' d')} />
             <YAxis tickLine={false} axisLine={false} width={56} tickFormatter={solesShort} />
             <ChartTooltip cursor={{ fillOpacity: 0.4 }} content={<ChartTooltipContent formatter={(v, _n, item): string => `${soles(Number(v))} · ${num((item.payload as { students: number }).students)} estudiantes`} />} />
             <Bar dataKey="amount" fill="var(--color-amount)" radius={[4, 4, 0, 0]}>
@@ -111,6 +115,7 @@ export const FinanceSection = ({ board, canExport }: { board: Board; canExport: 
       </ChartCard>
 
       <ChartCard
+        icon={Landmark}
         title={board.levelId ? 'Cobranza por grado' : 'Cobranza por nivel'}
         description="Cobrado, vencido sin pagar y por vencer"
         file="cobranza-por-grupo"
@@ -123,9 +128,9 @@ export const FinanceSection = ({ board, canExport }: { board: Board; canExport: 
             <YAxis dataKey="label" type="category" tickLine={false} axisLine={false} width={80} />
             <XAxis type="number" tickLine={false} axisLine={false} tickFormatter={solesShort} />
             <ChartTooltip cursor={{ fillOpacity: 0.4 }} content={<ChartTooltipContent formatter={(v, n): string => `${debtConfig[n as keyof typeof debtConfig]?.label}: ${soles(Number(v))}`} />} />
-            <Bar dataKey="collected" stackId="d" fill="var(--color-collected)" stroke="var(--background)" strokeWidth={2} radius={[4, 0, 0, 4]} />
-            <Bar dataKey="overdue" stackId="d" fill="var(--color-overdue)" stroke="var(--background)" strokeWidth={2} />
-            <Bar dataKey="upcoming" stackId="d" fill="var(--color-upcoming)" stroke="var(--background)" strokeWidth={2} radius={[0, 4, 4, 0]} />
+            <Bar dataKey="collected" stackId="d" fill="var(--color-collected)" stroke="var(--card)" strokeWidth={2} radius={[4, 0, 0, 4]} />
+            <Bar dataKey="overdue" stackId="d" fill="var(--color-overdue)" stroke="var(--card)" strokeWidth={2} />
+            <Bar dataKey="upcoming" stackId="d" fill="var(--color-upcoming)" stroke="var(--card)" strokeWidth={2} radius={[0, 4, 4, 0]} />
             <ChartLegend content={<ChartLegendContent />} itemSorter={null} />
           </BarChart>
         </ChartContainer>

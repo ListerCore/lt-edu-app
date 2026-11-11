@@ -1,7 +1,7 @@
 'use client';
 
 import type { JSX } from 'react';
-import { ArrowLeft } from 'lucide';
+import { ArrowLeft, BookOpen, BookOpenCheck, ChartColumnStacked, ClipboardList, GraduationCap, Layers, Scale, Target } from 'lucide';
 import { Bar, BarChart, CartesianGrid, LabelList, Line, LineChart, ReferenceLine, XAxis, YAxis } from 'recharts';
 import { ChartContainer, ChartLegend, ChartLegendContent, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import { MorphIcon } from '@/components/ui/morph-icon';
@@ -41,7 +41,7 @@ const LevelBars = ({ list, onPick, labelWidth = 120 }: { list: ResultMix[]; onPi
           dataKey={k}
           stackId="l"
           fill={`var(--color-${k})`}
-          stroke="var(--background)"
+          stroke="var(--card)"
           strokeWidth={2}
           radius={i === 0 ? [4, 0, 0, 4] : i === 3 ? [0, 4, 4, 0] : 0}
           className={onPick ? 'cursor-pointer' : undefined}
@@ -63,6 +63,7 @@ export const PerformanceSection = ({ board, onSubject, canExport }: { board: Boa
   return (
     <div className="grid gap-4 lg:grid-cols-2">
       <ChartCard
+        icon={ChartColumnStacked}
         title="Niveles de logro por periodo"
         description="Todas las competencias calificadas en cada tramo del año"
         file="logro-por-periodo"
@@ -76,18 +77,20 @@ export const PerformanceSection = ({ board, onSubject, canExport }: { board: Boa
             <YAxis domain={[0, 100]} tickLine={false} axisLine={false} width={44} tickFormatter={(v: number): string => `${v} %`} />
             <ChartTooltip cursor={{ fillOpacity: 0.4 }} content={<ChartTooltipContent formatter={levelFormatter} />} />
             {[...levelKeys].reverse().map((k, i) => (
-              <Bar key={k} dataKey={k} stackId="l" fill={`var(--color-${k})`} stroke="var(--background)" strokeWidth={2} radius={i === 3 ? [4, 4, 0, 0] : i === 0 ? [0, 0, 4, 4] : 0} />
+              <Bar key={k} dataKey={k} stackId="l" fill={`var(--color-${k})`} stroke="var(--card)" strokeWidth={2} radius={i === 3 ? [4, 4, 0, 0] : i === 0 ? [0, 0, 4, 4] : 0} />
             ))}
             <ChartLegend content={<ChartLegendContent />} itemSorter={(p): number => levelKeys.indexOf(p.dataKey as (typeof levelKeys)[number])} />
           </BarChart>
         </ChartContainer>
       </ChartCard>
 
-      <ChartCard title={`Niveles de logro por ${group}`} description="Acumulado del año" file={`logro-por-${group}`} canExport={canExport} table={levelTable(group === 'nivel' ? 'Nivel' : 'Grado', board.resultGroups)}>
+      <ChartCard
+        icon={Layers} title={`Niveles de logro por ${group}`} description="Acumulado del año" file={`logro-por-${group}`} canExport={canExport} table={levelTable(group === 'nivel' ? 'Nivel' : 'Grado', board.resultGroups)}>
         <LevelBars list={board.resultGroups} labelWidth={96} />
       </ChartCard>
 
       <ChartCard
+        icon={BookOpen}
         className="lg:col-span-2"
         title={board.subject ? `Competencias de ${board.subject}` : 'Niveles de logro por área'}
         description={board.subject ? 'Acumulado del año en cada competencia del área' : 'Elige un área para verla por competencias'}
@@ -119,6 +122,7 @@ export const PerformanceSection = ({ board, onSubject, canExport }: { board: Boa
 
       {board.conductTerms.length > 0 && (
         <ChartCard
+        icon={Scale}
           className="lg:col-span-2"
           title="Nota de conducta"
           description="Promedio de cada periodo; por debajo de 11 desaprueba (DS 021-2026-MINEDU)"
@@ -154,6 +158,7 @@ const VigesimalView = ({ board, canExport }: { board: Board; canExport: boolean 
   return (
     <div className="grid gap-4 lg:grid-cols-5">
       <ChartCard
+        icon={BookOpenCheck}
         className="lg:col-span-3"
         title="Promedio por unidad didáctica"
         description={`Promedio ponderado de cada estudiante en la unidad; aprueba con ${board.passing}`}
@@ -175,6 +180,7 @@ const VigesimalView = ({ board, canExport }: { board: Board; canExport: boolean 
         </ChartContainer>
       </ChartCard>
       <ChartCard
+        icon={GraduationCap}
         className="lg:col-span-2"
         title={board.levelId ? 'Aprobados por semestre' : 'Aprobados por programa'}
         description="Unidades con promedio aprobatorio, por estudiante"
@@ -188,8 +194,8 @@ const VigesimalView = ({ board, canExport }: { board: Board; canExport: boolean 
             <YAxis dataKey="label" type="category" tickLine={false} axisLine={false} width={120} tickFormatter={(v: string): string => (v.length > 18 ? `${v.slice(0, 17)}…` : v)} />
             <XAxis type="number" domain={[0, 100]} tickLine={false} axisLine={false} tickFormatter={(v: number): string => `${v} %`} />
             <ChartTooltip cursor={{ fillOpacity: 0.4 }} content={<ChartTooltipContent formatter={(v, n): string => `${passConfig[n as keyof typeof passConfig]?.label}: ${pct(Number(v))}`} />} />
-            <Bar dataKey="collected" stackId="p" fill="var(--color-collected)" stroke="var(--background)" strokeWidth={2} radius={[4, 0, 0, 4]} />
-            <Bar dataKey="overdue" stackId="p" fill="var(--color-overdue)" stroke="var(--background)" strokeWidth={2} radius={[0, 4, 4, 0]} />
+            <Bar dataKey="collected" stackId="p" fill="var(--color-collected)" stroke="var(--card)" strokeWidth={2} radius={[4, 0, 0, 4]} />
+            <Bar dataKey="overdue" stackId="p" fill="var(--color-overdue)" stroke="var(--card)" strokeWidth={2} radius={[0, 4, 4, 0]} />
             <ChartLegend content={<ChartLegendContent />} itemSorter={null} />
           </BarChart>
         </ChartContainer>
@@ -204,6 +210,7 @@ const ScoreView = ({ board, canExport }: { board: Board; canExport: boolean }): 
   return (
     <div className="grid gap-4 lg:grid-cols-2">
       <ChartCard
+        icon={ClipboardList}
         title="Puntaje de los simulacros"
         description="Promedio y mejor puntaje de cada simulacro publicado"
         file="simulacros"
@@ -223,6 +230,7 @@ const ScoreView = ({ board, canExport }: { board: Board; canExport: boolean }): 
         </ChartContainer>
       </ChartCard>
       <ChartCard
+        icon={Target}
         title="Aciertos por curso"
         description="Porcentaje de respuestas correctas en todos los simulacros"
         file="aciertos-por-curso"

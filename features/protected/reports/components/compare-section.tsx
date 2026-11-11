@@ -1,6 +1,7 @@
 'use client';
 
 import type { JSX } from 'react';
+import { Gauge, GitCompareArrows, School, UserPlus } from 'lucide';
 import { Bar, BarChart, CartesianGrid, Cell, LabelList, Pie, PieChart, PolarAngleAxis, RadialBar, RadialBarChart, XAxis, YAxis } from 'recharts';
 import { ChartContainer, ChartLegend, ChartLegendContent, ChartTooltip, ChartTooltipContent, type ChartConfig } from '@/components/ui/chart';
 import { cn } from '@/lib/utils';
@@ -20,6 +21,7 @@ export const EnrollmentSection = ({ board, canExport }: { board: Board; canExpor
   return (
     <div className="grid items-start gap-4 lg:grid-cols-3">
       <ChartCard
+        icon={School}
         className="lg:col-span-2"
         title={board.levelId ? 'Matriculados y vacantes por grado' : 'Matriculados y vacantes por nivel'}
         description="Estudiantes que siguen matriculados (o terminaron) frente a la capacidad de las secciones"
@@ -43,11 +45,12 @@ export const EnrollmentSection = ({ board, canExport }: { board: Board; canExpor
       </ChartCard>
 
       <div className="grid gap-4">
-        <ChartCard title="Ocupación" description={`${num(enrolled)} de ${num(e?.capacity)} vacantes`} file="ocupacion" canExport={canExport} table={{ columns: ['Matriculados', 'Vacantes', 'Ocupación (%)'], rows: [[enrolled, e?.capacity ?? 0, Number(occupancy.toFixed(1))]] }}>
-          <ChartContainer config={{ value: slot(1, 'Ocupación') }} className="mx-auto aspect-square max-h-44">
+        <ChartCard
+        icon={Gauge} title="Ocupación" description={`${num(enrolled)} de ${num(e?.capacity)} vacantes`} file="ocupacion" canExport={canExport} table={{ columns: ['Matriculados', 'Vacantes', 'Ocupación (%)'], rows: [[enrolled, e?.capacity ?? 0, Number(occupancy.toFixed(1))]] }}>
+          <ChartContainer config={{ value: slot(1, 'Ocupación') }} className="mx-auto aspect-square max-h-44 [&_.recharts-radial-bar-background-sector]:fill-background">
             <RadialBarChart data={[{ value: occupancy, fill: 'var(--color-value)' }]} innerRadius="74%" outerRadius="100%" startAngle={90} endAngle={-270}>
               <PolarAngleAxis type="number" domain={[0, 100]} tick={false} />
-              <RadialBar dataKey="value" background cornerRadius={8} />
+              <RadialBar dataKey="value" background={{ fill: "var(--background)" }} cornerRadius={8} />
               <text x="50%" y="50%" textAnchor="middle" dominantBaseline="middle" className="fill-foreground text-2xl font-semibold">
                 {pct(occupancy, 0)}
               </text>
@@ -55,6 +58,7 @@ export const EnrollmentSection = ({ board, canExport }: { board: Board; canExpor
           </ChartContainer>
         </ChartCard>
         <ChartCard
+        icon={UserPlus}
           title="Cómo llegaron"
           description={`${num(e?.withdrawn)} retiros y ${num(e?.transferred)} traslados en el periodo`}
           file="tipo-de-matricula"
@@ -64,7 +68,7 @@ export const EnrollmentSection = ({ board, canExport }: { board: Board; canExpor
           <ChartContainer config={kindConfig} className="mx-auto aspect-square max-h-52">
             <PieChart>
               <ChartTooltip content={<ChartTooltipContent nameKey="kind" hideLabel />} />
-              <Pie data={kinds} dataKey="value" nameKey="kind" innerRadius="55%" strokeWidth={2} stroke="var(--background)">
+              <Pie data={kinds} dataKey="value" nameKey="kind" innerRadius="55%" strokeWidth={2} stroke="var(--card)">
                 {kinds.map((k) => (
                   <Cell key={k.kind} fill={k.fill} />
                 ))}
@@ -98,6 +102,7 @@ export const CompareSection = ({ board, canExport }: { board: Board; canExport: 
   return (
     <div className="grid gap-4">
       <ChartCard
+        icon={GitCompareArrows}
         title="Comparativo entre periodos"
         description="Asistencia (presentes y tardanzas), logro y la parte pagada de lo que ya venció, en cada periodo"
         file="comparativo-periodos"
@@ -122,10 +127,10 @@ export const CompareSection = ({ board, canExport }: { board: Board; canExport: 
           </BarChart>
         </ChartContainer>
       </ChartCard>
-      <div className="overflow-x-auto rounded-2xl border border-border">
+      <div className="overflow-x-auto rounded-2xl bg-card">
         <table className="w-full text-sm">
           <caption className="sr-only">Indicadores por periodo y cambio frente al anterior</caption>
-          <thead className="bg-secondary text-left text-xs text-muted-foreground">
+          <thead className="text-left text-xs text-muted-foreground">
             <tr>
               <th scope="col" className="px-4 py-2 font-medium">
                 Periodo

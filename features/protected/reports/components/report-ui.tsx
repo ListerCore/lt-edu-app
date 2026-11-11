@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, type JSX, type ReactNode } from 'react';
-import { ChartColumn, Download, Table2 } from 'lucide';
+import { ChartColumn, Download, Table2, type IconNode } from 'lucide';
 import { MorphIcon } from '@/components/ui/morph-icon';
 import { cn } from '@/lib/utils';
 import { downloadCsv } from '../data/reports-data';
@@ -11,6 +11,7 @@ export type ReportTable = { columns: string[]; rows: Array<Array<string | number
 // A chart with its table view: the table carries the exact values (the relief for colors under 3:1 and for screen
 // readers) and the CSV export of what the chart shows
 export const ChartCard = ({
+  icon,
   title,
   description,
   table,
@@ -20,6 +21,7 @@ export const ChartCard = ({
   className,
   children,
 }: {
+  icon: IconNode;
   title: string;
   description?: string;
   table: ReportTable;
@@ -32,11 +34,14 @@ export const ChartCard = ({
   const [asTable, setAsTable] = useState(false);
   const empty = table.rows.length === 0;
   return (
-    <section className={cn('flex min-w-0 flex-col rounded-2xl border border-border bg-background p-4 md:p-5', className)}>
+    <section className={cn('flex min-w-0 flex-col rounded-2xl bg-card p-4 md:p-5', className)}>
       <header className="flex flex-wrap items-start justify-between gap-3">
-        <div className="min-w-0">
-          <h2 className="text-base font-semibold text-foreground">{title}</h2>
-          {description && <p className="mt-0.5 text-sm text-muted-foreground">{description}</p>}
+        <div className="flex min-w-0 items-start gap-3">
+          <IconChip icon={icon} />
+          <div className="min-w-0">
+            <h2 className="text-base font-semibold text-foreground">{title}</h2>
+            {description && <p className="mt-0.5 text-sm text-muted-foreground">{description}</p>}
+          </div>
         </div>
         <div className="flex flex-wrap items-center gap-1.5">
           {action}
@@ -69,7 +74,7 @@ export const ChartCard = ({
 
 // The plain table behind a chart
 const DataTable = ({ table }: { table: ReportTable }): JSX.Element => (
-  <div className="max-h-96 overflow-auto rounded-xl border border-border">
+  <div className="max-h-96 overflow-auto rounded-xl bg-background">
     <table className="w-full text-sm">
       <thead className="sticky top-0 bg-secondary text-left text-xs text-muted-foreground">
         <tr>
@@ -95,13 +100,23 @@ const DataTable = ({ table }: { table: ReportTable }): JSX.Element => (
   </div>
 );
 
+// The icon of a card: a soft brand chip, so the card reads at a glance without borders
+const IconChip = ({ icon }: { icon: IconNode }): JSX.Element => (
+  <span aria-hidden="true" className="grid size-8 shrink-0 place-items-center rounded-lg bg-brand-soft text-brand">
+    <MorphIcon icon={icon} size={16} />
+  </span>
+);
+
 // One headline figure of the board, with its context line and, when there is a previous period, the change
-export const Kpi = ({ label, value, hint, delta, invert }: { label: string; value: string; hint: string; delta?: number; invert?: boolean }): JSX.Element => {
+export const Kpi = ({ icon, label, value, hint, delta, invert }: { icon: IconNode; label: string; value: string; hint: string; delta?: number; invert?: boolean }): JSX.Element => {
   const show = delta !== undefined && Number.isFinite(delta) && Math.abs(delta) >= 0.05;
   const good = show && (invert ? delta < 0 : delta > 0);
   return (
-    <div className="rounded-2xl border border-border bg-background px-4 py-3.5">
-      <p className="text-sm text-muted-foreground">{label}</p>
+    <div className="rounded-2xl bg-card px-4 py-3.5">
+      <div className="flex items-start justify-between gap-3">
+        <p className="text-sm text-muted-foreground">{label}</p>
+        <IconChip icon={icon} />
+      </div>
       <p className="mt-1 text-2xl font-semibold tracking-tight text-foreground tabular-nums">{value}</p>
       <p className="mt-0.5 text-xs text-muted-foreground">
         {show && (
@@ -117,7 +132,7 @@ export const Kpi = ({ label, value, hint, delta, invert }: { label: string; valu
 
 // A row of segmented options (the range of the attendance chart, the views of the performance)
 export const Segmented = <T extends string>({ label, value, options, onChange }: { label: string; value: T; options: Array<[T, string]>; onChange: (v: T) => void }): JSX.Element => (
-  <div role="radiogroup" aria-label={label} className="inline-flex rounded-lg bg-secondary p-0.5">
+  <div role="radiogroup" aria-label={label} className="inline-flex rounded-lg bg-background p-0.5">
     {options.map(([k, text]) => (
       <button
         key={k}
@@ -125,7 +140,7 @@ export const Segmented = <T extends string>({ label, value, options, onChange }:
         role="radio"
         aria-checked={value === k}
         onClick={(): void => onChange(k)}
-        className={cn('h-7 rounded-md px-2.5 text-xs font-medium', value === k ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground')}
+        className={cn('h-7 rounded-md px-2.5 text-xs font-medium', value === k ? 'bg-secondary text-foreground' : 'text-muted-foreground hover:text-foreground')}
       >
         {text}
       </button>
