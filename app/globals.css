@@ -362,6 +362,31 @@
 }
 
 /* Printing a page with an application receipt prints only the receipt (careers success and /tracking) */
+/* Report cards: only the cards print, one per page, with their colors (page size: the A4 rule below) */
+@media print {
+  body:has([data-print-card]) * {
+    visibility: hidden;
+  }
+  body:has([data-print-card]) [data-print-cards],
+  body:has([data-print-card]) [data-print-cards] * {
+    visibility: visible;
+  }
+  body:has([data-print-card]) [data-print-cards] {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+  }
+  [data-print-card] {
+    break-after: page;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+  [data-print-card]:last-child {
+    break-after: auto;
+  }
+}
+
 @media print {
   body:has([data-print-receipt]) * {
     visibility: hidden;

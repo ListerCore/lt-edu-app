@@ -1,0 +1,356 @@
+syntax = "proto3";
+
+// Assessment by term (phase 6 of docs/plan-academico.md). Same metadata and institution scoping as
+// joseph.academic.v1. term_id empty means the whole period (IEST semesters and CEPRE cycles have no terms).
+// Levels: AD | A | B | C. Scores: 0–20
+package joseph.assessment.v1;
+
+import "joseph/academic/v1/academic.proto";
+
+option go_package = "api/internal/adapter/inbound/grpc/gen/assessmentv1;assessmentv1";
+
+// Coordinación sees and edits every sheet; each teacher grades their own areas or units; tutors fill the tutor's
+// sheet of their section and read its report cards; secretaría reads; families see closed report cards
+service AssessmentService {
+  rpc GetGradebook(GetGradebookRequest) returns (GetGradebookResponse);
+  rpc GetSheet(GetSheetRequest) returns (GetSheetResponse);
+  rpc SaveLevels(SaveLevelsRequest) returns (SaveLevelsResponse);
+  rpc SaveEvaluation(SaveEvaluationRequest) returns (SaveEvaluationResponse);
+  rpc DeleteEvaluation(DeleteEvaluationRequest) returns (DeleteEvaluationResponse);
+  rpc SaveScores(SaveScoresRequest) returns (SaveScoresResponse);
+  rpc GetTutorSheet(GetTutorSheetRequest) returns (GetTutorSheetResponse);
+  rpc SaveTutorSheet(SaveTutorSheetRequest) returns (SaveTutorSheetResponse);
+  // The teacher sends the sheet to coordinación (or takes it back); assignment_id empty: the tutor's sheet
+  rpc Submit(SubmitRequest) returns (SubmitResponse);
+  rpc GetReportCard(GetReportCardRequest) returns (GetReportCardResponse);
+  rpc GetSectionCards(GetSectionCardsRequest) returns (GetSectionCardsResponse);
+  rpc MyReportCards(MyReportCardsRequest) returns (MyReportCardsResponse);
+}
+
+message Submission {
+  string submitted_name = 1;
+  string submitted_at = 2;
+}
+
+message SheetProgress {
+  string section_id = 1;
+  string section_label = 2;
+  string assignment_id = 3;
+  string subject_id = 4;
+  string subject_name = 5;
+  string staff_id = 6;
+  string staff_name = 7;
+  int32 students = 8;
+  int32 expected = 9;
+  int32 filled = 10;
+  int32 evaluations = 11;
+  // Not set: not sent yet
+  Submission submitted = 12;
+}
+
+message TutorProgress {
+  string section_id = 1;
+  string section_label = 2;
+  string tutor_name = 3;
+  int32 students = 4;
+  int32 expected = 5;
+  int32 filled = 6;
+  Submission submitted = 7;
+}
+
+message GetGradebookRequest {
+  string institution_slug = 1;
+  string period_id = 2;
+  string term_id = 3;
+}
+
+message GetGradebookResponse {
+  repeated joseph.academic.v1.Period periods = 1;
+  joseph.academic.v1.Period period = 2;
+  string term_id = 3;
+  bool locked = 4;
+  // literal | vigesimal | score
+  string scale = 5;
+  optional int32 passing_grade = 6;
+  bool conduct = 7;
+  repeated SheetProgress sheets = 8;
+  repeated TutorProgress tutor = 9;
+  bool can_manage = 10;
+  bool own_only = 11;
+}
+
+message StudentRef {
+  string id = 1;
+  string code = 2;
+  string name = 3;
+  string document = 4;
+}
+
+message Competency {
+  string id = 1;
+  string code = 2;
+  string name = 3;
+  bool transversal = 4;
+}
+
+message LevelMark {
+  string student_id = 1;
+  string competency_id = 2;
+  string level = 3;
+  string conclusion = 4;
+}
+
+message Evaluation {
+  string id = 1;
+  string name = 2;
+  int32 weight = 3;
+  string held_on = 4;
+}
+
+message ScoreMark {
+  string evaluation_id = 1;
+  string student_id = 2;
+  int32 score = 3;
+}
+
+message ConductMark {
+  string student_id = 1;
+  int32 score = 2;
+  string note = 3;
+}
+
+message TutorComment {
+  string student_id = 1;
+  string comment = 2;
+}
+
+message Sheet {
+  // literal | numeric | tutor
+  string kind = 1;
+  string section_id = 2;
+  string section_label = 3;
+  string level_name = 4;
+  string assignment_id = 5;
+  string subject_name = 6;
+  string staff_name = 7;
+  string term_id = 8;
+  string term_name = 9;
+  bool locked = 10;
+  bool can_edit = 11;
+  optional int32 passing_grade = 12;
+  bool conduct = 13;
+  repeated StudentRef students = 14;
+  repeated Competency competencies = 15;
+  repeated LevelMark marks = 16;
+  repeated Evaluation evaluations = 17;
+  repeated ScoreMark scores = 18;
+  repeated ConductMark conduct_marks = 19;
+  repeated TutorComment comments = 20;
+  Submission submitted = 21;
+  string tutor_name = 22;
+}
+
+message GetSheetRequest {
+  string institution_slug = 1;
+  string assignment_id = 2;
+  string term_id = 3;
+}
+
+message GetSheetResponse {
+  Sheet sheet = 1;
+}
+
+message SaveLevelsRequest {
+  string institution_slug = 1;
+  string assignment_id = 2;
+  string term_id = 3;
+  repeated LevelMark marks = 4;
+}
+
+message SaveLevelsResponse {
+  Sheet sheet = 1;
+}
+
+message SaveEvaluationRequest {
+  string institution_slug = 1;
+  string assignment_id = 2;
+  string term_id = 3;
+  // Empty: a new evaluation
+  string id = 4;
+  string name = 5;
+  int32 weight = 6;
+  string held_on = 7;
+}
+
+message SaveEvaluationResponse {
+  Sheet sheet = 1;
+}
+
+message DeleteEvaluationRequest {
+  string institution_slug = 1;
+  string assignment_id = 2;
+  string term_id = 3;
+  string id = 4;
+}
+
+message DeleteEvaluationResponse {
+  Sheet sheet = 1;
+}
+
+message ScoreInput {
+  string student_id = 1;
+  // Not set: clear the score
+  optional int32 score = 2;
+}
+
+message SaveScoresRequest {
+  string institution_slug = 1;
+  string assignment_id = 2;
+  string term_id = 3;
+  string evaluation_id = 4;
+  repeated ScoreInput scores = 5;
+}
+
+message SaveScoresResponse {
+  Sheet sheet = 1;
+}
+
+message GetTutorSheetRequest {
+  string institution_slug = 1;
+  string section_id = 2;
+  string term_id = 3;
+}
+
+message GetTutorSheetResponse {
+  Sheet sheet = 1;
+}
+
+message ConductInput {
+  string student_id = 1;
+  optional int32 score = 2;
+  string note = 3;
+}
+
+message SaveTutorSheetRequest {
+  string institution_slug = 1;
+  string section_id = 2;
+  string term_id = 3;
+  repeated LevelMark marks = 4;
+  repeated ConductInput conduct = 5;
+  repeated TutorComment comments = 6;
+}
+
+message SaveTutorSheetResponse {
+  Sheet sheet = 1;
+}
+
+message SubmitRequest {
+  string institution_slug = 1;
+  string section_id = 2;
+  string assignment_id = 3;
+  string term_id = 4;
+  bool sent = 5;
+}
+
+message SubmitResponse {}
+
+message CardCompetency {
+  string id = 1;
+  string name = 2;
+  // term id → level
+  map<string, string> levels = 3;
+  string conclusion = 4;
+}
+
+message CardEvaluation {
+  string name = 1;
+  int32 weight = 2;
+  optional int32 score = 3;
+}
+
+message CardSubject {
+  string id = 1;
+  string name = 2;
+  string kind = 3;
+  string teacher_name = 4;
+  repeated CardCompetency competencies = 5;
+  // term id ("" for the whole period) → average, missing when there are no scores
+  map<string, double> averages = 6;
+  repeated CardEvaluation evaluations = 7;
+}
+
+message AttendanceTally {
+  int32 present = 1;
+  int32 late = 2;
+  int32 absent = 3;
+  int32 justified = 4;
+}
+
+message CardTerm {
+  string id = 1;
+  string name = 2;
+  string status = 3;
+  AttendanceTally attendance = 4;
+  optional int32 conduct = 5;
+}
+
+message PeriodRef {
+  string id = 1;
+  string name = 2;
+}
+
+message ReportCard {
+  string institution = 1;
+  string kind = 2;
+  StudentRef student = 3;
+  string section_label = 4;
+  string level_name = 5;
+  string tutor_name = 6;
+  string period_id = 7;
+  string period_name = 8;
+  string scale = 9;
+  optional int32 passing_grade = 10;
+  repeated CardTerm terms = 11;
+  string term_id = 12;
+  repeated CardSubject subjects = 13;
+  repeated CardCompetency transversal = 14;
+  string tutor_comment = 15;
+  bool provisional = 16;
+  repeated PeriodRef periods = 17;
+}
+
+message GetReportCardRequest {
+  string institution_slug = 1;
+  string student_id = 2;
+  string period_id = 3;
+  string term_id = 4;
+}
+
+message GetReportCardResponse {
+  ReportCard card = 1;
+}
+
+message GetSectionCardsRequest {
+  string institution_slug = 1;
+  string section_id = 2;
+  string term_id = 3;
+}
+
+message GetSectionCardsResponse {
+  repeated ReportCard cards = 1;
+}
+
+message MyReportCardsRequest {
+  string institution_slug = 1;
+}
+
+message FamilyCard {
+  string student_id = 1;
+  string student_name = 2;
+  ReportCard card = 3;
+  string message = 4;
+}
+
+message MyReportCardsResponse {
+  repeated FamilyCard cards = 1;
+}
