@@ -19,12 +19,14 @@ interface AcademicPageProps {
   context: (Partial<AcademicContext> & { canManage: boolean }) | null;
   actions?: ReactNode;
   back?: ReactNode;
+  // Full width for modules with wide grids and tables (timetables, reports, grades, attendance, payments)
+  wide?: boolean;
   children: ReactNode;
 }
 
 // Shell of every academic page: title, which institution it is, the page actions and a notice for read-only roles
-export const AcademicPage = ({ titleId, title, description, context, actions, back, children }: AcademicPageProps): JSX.Element => (
-  <section aria-labelledby={titleId} className="mx-auto w-full max-w-6xl px-4 py-8 md:px-8 md:py-10">
+export const AcademicPage = ({ titleId, title, description, context, actions, back, wide, children }: AcademicPageProps): JSX.Element => (
+  <section aria-labelledby={titleId} className={cn('mx-auto w-full px-4 py-8 md:px-8 md:py-10', wide ? 'max-w-none' : 'max-w-6xl')}>
     {back}
     <header className="flex flex-wrap items-end justify-between gap-4">
       <div className="min-w-0">

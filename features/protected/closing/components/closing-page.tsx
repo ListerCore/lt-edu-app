@@ -2,12 +2,14 @@
 
 import Link from 'next/link';
 import { useState, type JSX } from 'react';
-import { ArrowLeft, Check, Lock, Printer } from 'lucide';
+import { ArrowLeft, Check, Download, Lock } from 'lucide';
 import { MorphIcon } from '@/components/ui/morph-icon';
 import { AcademicPage, LoadError, PageSkeleton, SelectField } from '@/features/protected/academic/components/academic-ui';
 import { useAcademicData } from '@/features/protected/academic/hooks/use-academic-data';
 import { useInstitutionSlug } from '@/features/protected/academic/hooks/use-institution-slug';
 import { DASHBOARD_PATH } from '@/features/protected/dashboard/data/dashboard-navigation';
+import { recordPdfAction } from '@/features/protected/documents/actions/document-actions';
+import { usePdf } from '@/features/protected/documents/lib/use-pdf';
 import { isAssessmentEvent } from '@/hooks/use-live';
 import { cn } from '@/lib/utils';
 import { getClosingAction, getRecordAction } from '../actions/closing-actions';
@@ -31,7 +33,7 @@ export const ClosingPage = (): JSX.Element => {
   const back = (): void => setOpen(null);
 
   return (
-    <AcademicPage
+    <AcademicPage wide
       titleId="closing-title"
       title={units ? 'Cierre del semestre y actas' : 'Cierre del año y actas'}
       description={
@@ -169,6 +171,7 @@ const Overview = ({ data, onPeriod, onOpen }: { data: ClosingOverview; onPeriod:
 
 const RecordScreen = ({ slug, id, onBack }: { slug: string; id: string; onBack: () => void }): JSX.Element => {
   const { data, error, reload } = useAcademicData(`record:${slug}:${id}`, () => getRecordAction(slug, id), () => false);
+  const [isPending, pdf] = usePdf();
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3 print:hidden">
@@ -176,12 +179,12 @@ const RecordScreen = ({ slug, id, onBack }: { slug: string; id: string; onBack: 
           <MorphIcon icon={ArrowLeft} size={16} />
           Volver
         </button>
-        <button type="button" className="btn-brand" disabled={!data} onClick={(): void => window.print()}>
-          <MorphIcon icon={Printer} size={16} />
-          Imprimir o guardar PDF
+        <button type="button" className="btn-brand" disabled={!data || isPending} onClick={(): void => pdf(() => recordPdfAction(slug, id))}>
+          <MorphIcon icon={Download} size={16} />
+          {isPending ? 'Generando PDF…' : 'Descargar PDF'}
         </button>
       </div>
-      {error ? <LoadError message={error} onRetry={reload} /> : !data ? <PageSkeleton /> : <div data-print-cards><RecordView data={data} /></div>}
+      {error ? <LoadError message={error} onRetry={reload} /> : !data ? <PageSkeleton /> : <RecordView data={data} />}
       {data && <p className="text-xs text-muted-foreground print:hidden">El contenido del acta quedó fijo al emitirla; si cambian los resultados, emite una nueva y esta quedará como reemplazada.</p>}
     </div>
   );

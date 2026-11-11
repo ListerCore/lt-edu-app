@@ -37,7 +37,7 @@ export const SchedulesPage = (): JSX.Element => {
   const tabs: Array<[Tab, string]> = [...(hasMine ? ([['mine', 'Mi horario']] as Array<[Tab, string]>) : []), ...(staffView ? ([['section', 'Por sección'], ['teacher', 'Por docente'], ['load', 'Carga docente'], ['blocks', 'Horas del día'], ['export', 'Publicar']] as Array<[Tab, string]>) : [])];
 
   return (
-    <AcademicPage titleId="schedules-title" title="Horarios" description="La carga docente de cada sección y su horario semanal, sin docentes en dos lugares a la vez." context={ctx ? { ...ctx.context, canManage: ctx.context.canManage } : hasMine ? { canManage: false } : null}>
+    <AcademicPage wide titleId="schedules-title" title="Horarios" description="La carga docente de cada sección y su horario semanal, sin docentes en dos lugares a la vez." context={ctx ? { ...ctx.context, canManage: ctx.context.canManage } : hasMine ? { canManage: false } : null}>
       {isLoading && !mine ? (
         <PageSkeleton />
       ) : !ctx && !hasMine ? (
@@ -77,7 +77,7 @@ const PlannerViews = ({ slug, periodId, tab }: { slug: string; periodId: string;
     case 'blocks':
       return <BlocksView slug={slug} data={data} onChange={reload} />;
     case 'export':
-      return <ScheduleExport data={data} />;
+      return <ScheduleExport slug={slug} data={data} />;
     default:
       return <SectionView slug={slug} data={data} onChange={reload} />;
   }
