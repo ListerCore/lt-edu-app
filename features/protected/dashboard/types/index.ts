@@ -25,6 +25,7 @@ export type ModuleKey =
   | 'mock-exams'
   | 'internships'
   | 'report-cards'
+  | 'closing'
   | 'certificates'
   | 'attention-modes'
   | 'placement'

@@ -49,15 +49,16 @@ const coreModules: ModuleKey[] = ['home', 'notifications', 'account', 'announcem
 // Each type adds the modules its academic flow needs (README §2 matrix)
 export const institutionModules: Record<InstitutionType, ModuleKey[]> = {
   // School: competency grades, report cards, official certificates and the parents' school
-  EBR: [...coreModules, 'grades', 'report-cards', 'certificates', 'psychology', 'parent-school'],
+  EBR: [...coreModules, 'grades', 'report-cards', 'closing', 'certificates', 'psychology', 'parent-school'],
   // CEBA: attention modes (in person, blended, distance), placement and validation tests, certificates
-  EBA: [...coreModules, 'attention-modes', 'placement', 'grades', 'report-cards', 'certificates', 'psychology'],
-  // CEBE: no grades; individual plans, qualitative progress reports, therapies and inclusion support (SAANEE)
-  EBE: [...coreModules, 'individual-plans', 'progress-reports', 'therapies', 'inclusion-support', 'psychology', 'parent-school'],
+  EBA: [...coreModules, 'attention-modes', 'placement', 'grades', 'report-cards', 'closing', 'certificates', 'psychology'],
+  // CEBE: levels per competency against the adaptations of each POI, individual plans, progress reports, therapies and
+  // inclusion support (SAANEE)
+  EBE: [...coreModules, 'grades', 'report-cards', 'closing', 'individual-plans', 'progress-reports', 'therapies', 'inclusion-support', 'psychology', 'parent-school'],
   // Pre-university academy: mock exams, rankings, question bank and study materials; no promotion or certificates
   CEPRE: [...coreModules, 'mock-exams', 'rankings', 'question-bank', 'study-materials'],
   // Institute: grades out of 20, internships (experiencias formativas), certificates and degrees
-  IEST: [...coreModules, 'grades', 'report-cards', 'study-materials', 'internships', 'certificates', 'degrees', 'psychology'],
+  IEST: [...coreModules, 'grades', 'report-cards', 'closing', 'study-materials', 'internships', 'certificates', 'degrees', 'psychology'],
 };
 
 const allModules: ModuleKey[] = [...new Set(Object.values(institutionModules).flat())];
@@ -115,6 +116,7 @@ export const rolePermissions: Record<Role, RolePermissions> = {
     'attention-modes': ALL,
     placement: ALL,
     'report-cards': ALL,
+    closing: ALL,
     'individual-plans': ALL,
     'inclusion-support': ALL,
     therapies: VIEW,
@@ -150,6 +152,8 @@ export const rolePermissions: Record<Role, RolePermissions> = {
     students: ALL,
     staff: VIEW,
     'student-attendance': VIEW,
+    'report-cards': VIEW,
+    closing: VIEW,
     cards: ALL,
     announcements: VIEW,
     reports: ['view', 'export'],

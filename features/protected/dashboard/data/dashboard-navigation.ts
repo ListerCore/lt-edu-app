@@ -16,6 +16,7 @@ import {
   ClipboardList,
   ClipboardPen,
   Clock,
+  FileCheck,
   FileSearch,
   FileText,
   FolderOpen,
@@ -87,6 +88,7 @@ export const dashboardNavigation: NavSection[] = [
         children: [
           { label: { default: 'Notas', EBR: 'Notas por competencias', EBA: 'Notas por competencias', IEST: 'Notas (0 a 20)' }, icon: ClipboardCheck, href: path('evaluation/grades'), module: 'grades' },
           { label: { default: 'Libretas', IEST: 'Boletas de notas' }, icon: NotebookText, href: path('evaluation/report-cards'), module: 'report-cards' },
+          { label: { default: 'Cierre del año y actas', IEST: 'Cierre del semestre y actas' }, icon: FileCheck, href: path('evaluation/closing'), module: 'closing' },
           { label: 'Informes de progreso', icon: FileText, href: path('evaluation/progress-reports'), module: 'progress-reports' },
           { label: 'Simulacros', icon: Award, href: path('evaluation/mock-exams'), module: 'mock-exams' },
           { label: 'Ranking', icon: Trophy, href: path('evaluation/rankings'), module: 'rankings' },

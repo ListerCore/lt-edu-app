@@ -362,6 +362,16 @@
 }
 
 /* Printing a page with an application receipt prints only the receipt (careers success and /tracking) */
+/* Actas are wide registers: their pages print in landscape */
+@page acta {
+  size: A4 landscape;
+  margin: 10mm;
+}
+
+.acta-sheet {
+  page: acta;
+}
+
 /* Report cards: only the cards print, one per page, with their colors (page size: the A4 rule below) */
 @media print {
   body:has([data-print-card]) * {
