@@ -1,0 +1,166 @@
+syntax = "proto3";
+
+// Reports (phase 12 of docs/plan-academico.md): the direction board with enrollment, attendance, performance by
+// competency or course, collection, and the comparison between terms and periods. Only aggregates. Same metadata
+// and institution scoping as joseph.academic.v1. Dates are "YYYY-MM-DD"; amounts are céntimos
+package joseph.reports.v1;
+
+import "joseph/academic/v1/academic.proto";
+
+option go_package = "api/internal/adapter/inbound/grpc/gen/reportsv1;reportsv1";
+
+service ReportsService {
+  rpc GetBoard(GetBoardRequest) returns (GetBoardResponse);
+}
+
+message GetBoardRequest {
+  string institution_slug = 1;
+  // Empty: the current period
+  string period_id = 2;
+  // Empty: every level
+  string level_id = 3;
+  // Literal scale: an area name, to break the performance down by its competencies
+  string subject = 4;
+  // Attendance range; empty: the last ninety days of the period
+  string from = 5;
+  string to = 6;
+}
+
+message Option {
+  string id = 1;
+  string name = 2;
+}
+
+message StatusCount {
+  int32 present = 1;
+  int32 late = 2;
+  int32 absent = 3;
+  int32 justified = 4;
+}
+
+message AttendanceDay {
+  string day = 1;
+  StatusCount counts = 2;
+}
+
+message GroupAttendance {
+  string label = 1;
+  StatusCount counts = 2;
+}
+
+// Literal: ad, a, b, c over count. Vigesimal: average, max, approved and failed over count (students by unit).
+// Score: average and max over count (answer sheets); for courses, average is the share of right answers
+message ResultMix {
+  string label = 1;
+  int32 ad = 2;
+  int32 a = 3;
+  int32 b = 4;
+  int32 c = 5;
+  double average = 6;
+  double max = 7;
+  int32 approved = 8;
+  int32 failed = 9;
+  int32 count = 10;
+}
+
+message GroupEnrollment {
+  string label = 1;
+  int32 active = 2;
+  int32 capacity = 3;
+}
+
+message Enrollment {
+  int32 active = 1;
+  int32 withdrawn = 2;
+  int32 transferred = 3;
+  int32 completed = 4;
+  int32 new = 5;
+  int32 continuing = 6;
+  int32 transfer_in = 7;
+  int32 re_entry = 8;
+  int32 capacity = 9;
+  repeated GroupEnrollment groups = 10;
+}
+
+message FinanceTotals {
+  int64 expected = 1;
+  int64 discounts = 2;
+  int64 collected = 3;
+  int64 overdue = 4;
+  int32 debtors = 5;
+  int32 students = 6;
+}
+
+// A month: what fell due (net of discounts) and how much of it is paid, and what came in that month
+message MoneyFlow {
+  string month = 1;
+  int64 expected = 2;
+  int64 collected = 3;
+  int64 received = 4;
+}
+
+message MethodTotal {
+  string method = 1;
+  int64 amount = 2;
+  int32 count = 3;
+}
+
+message AgingBucket {
+  string label = 1;
+  int64 amount = 2;
+  int32 students = 3;
+}
+
+message GroupDebt {
+  string label = 1;
+  int64 expected = 2;
+  int64 collected = 3;
+  int64 overdue = 4;
+  int32 debtors = 5;
+}
+
+// A period in the comparison; a rate is -1 when the period has no data for it. Achievement: literal, share of AD
+// and A; vigesimal, share of passing unit averages; score, the average mock exam score
+message PeriodKpi {
+  string period_id = 1;
+  string name = 2;
+  string status = 3;
+  int32 students = 4;
+  double attendance = 5;
+  double achievement = 6;
+  double collection = 7;
+}
+
+message GetBoardResponse {
+  repeated joseph.academic.v1.Period periods = 1;
+  joseph.academic.v1.Period period = 2;
+  repeated Option levels = 3;
+  string level_id = 4;
+  string subject = 5;
+  // literal | vigesimal | score
+  string scale = 6;
+  int32 passing = 7;
+  string from = 8;
+  string to = 9;
+  string today = 10;
+  // False for treasurers: only the collection
+  bool academic = 11;
+  Enrollment enrollment = 12;
+  repeated AttendanceDay attendance_days = 13;
+  // By level, or by grade when a level is chosen
+  repeated GroupAttendance attendance_groups = 14;
+  // By term, or by month when the period has no terms
+  repeated GroupAttendance attendance_timeline = 15;
+  // Literal: by term; score: by mock exam
+  repeated ResultMix result_terms = 16;
+  // Literal: by area (or competency); vigesimal: by unit; score: by course
+  repeated ResultMix result_subjects = 17;
+  repeated ResultMix result_groups = 18;
+  repeated ResultMix conduct_terms = 19;
+  FinanceTotals finance = 20;
+  repeated MoneyFlow months = 21;
+  repeated MethodTotal methods = 22;
+  repeated AgingBucket aging = 23;
+  repeated GroupDebt finance_groups = 24;
+  repeated PeriodKpi compare = 25;
+}
