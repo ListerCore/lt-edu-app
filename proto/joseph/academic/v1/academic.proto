@@ -1,0 +1,411 @@
+syntax = "proto3";
+
+// Academic structure of each institution (phase 1 of docs/plan-academico.md): its profile, levels / cycles / areas /
+// programs with their grades, periods (school year, promotional period, cycle, semester) with their terms, and the
+// sections of every period. Read and changed by joseph-app's server on behalf of the signed-in person
+package joseph.academic.v1;
+
+option go_package = "api/internal/adapter/inbound/grpc/gen/academicv1;academicv1";
+
+// Metadata:
+//   authorization: Bearer <session token>   (every method)
+//   x-forwarded-for, x-user-agent           (as every joseph-api service)
+//
+// Every request carries institution_slug: institution roles work on their own institution whatever it says; the
+// platform superadmin opens the one named. Staff roles read; director, academic coordinator and superadmin change.
+// Dates travel as YYYY-MM-DD. Failed calls return a gRPC status whose details hold one joseph.common.v1.ErrorDetail
+service AcademicService {
+  // Institution profile: names, rules of its kind and settings
+  rpc GetContext(GetContextRequest) returns (GetContextResponse);
+  rpc UpdateSettings(UpdateSettingsRequest) returns (UpdateSettingsResponse);
+
+  // Levels (cycles, areas, programs) with their grades
+  rpc GetStructure(GetStructureRequest) returns (GetStructureResponse);
+  rpc CreateLevel(CreateLevelRequest) returns (CreateLevelResponse);
+  rpc UpdateLevel(UpdateLevelRequest) returns (UpdateLevelResponse);
+  rpc DeleteLevel(DeleteLevelRequest) returns (DeleteLevelResponse);
+  rpc ReorderLevels(ReorderLevelsRequest) returns (ReorderLevelsResponse);
+  rpc CreateGrade(CreateGradeRequest) returns (CreateGradeResponse);
+  rpc UpdateGrade(UpdateGradeRequest) returns (UpdateGradeResponse);
+  rpc DeleteGrade(DeleteGradeRequest) returns (DeleteGradeResponse);
+  rpc ReorderGrades(ReorderGradesRequest) returns (ReorderGradesResponse);
+  // Loads the usual structure of the institution kind into an empty institution
+  rpc ApplyTemplate(ApplyTemplateRequest) returns (ApplyTemplateResponse);
+
+  // Periods with their terms
+  rpc ListPeriods(ListPeriodsRequest) returns (ListPeriodsResponse);
+  rpc GetPeriod(GetPeriodRequest) returns (GetPeriodResponse);
+  rpc CreatePeriod(CreatePeriodRequest) returns (CreatePeriodResponse);
+  rpc UpdatePeriod(UpdatePeriodRequest) returns (UpdatePeriodResponse);
+  rpc SetPeriodStatus(SetPeriodStatusRequest) returns (SetPeriodStatusResponse);
+  rpc DeletePeriod(DeletePeriodRequest) returns (DeletePeriodResponse);
+  rpc UpdateTerm(UpdateTermRequest) returns (UpdateTermResponse);
+
+  // Sections of a period
+  rpc CreateSections(CreateSectionsRequest) returns (CreateSectionsResponse);
+  rpc UpdateSection(UpdateSectionRequest) returns (UpdateSectionResponse);
+  rpc DeleteSection(DeleteSectionRequest) returns (DeleteSectionResponse);
+  rpc CopySections(CopySectionsRequest) returns (CopySectionsResponse);
+}
+
+message Vocabulary {
+  string level = 1;
+  string levels = 2;
+  // Empty when the kind has no grades (CEPRE)
+  string grade = 3;
+  string grades = 4;
+  string section = 5;
+  string sections = 6;
+  string period = 7;
+  string periods = 8;
+}
+
+message Settings {
+  // bimester | trimester | semester | none
+  string term_scheme = 1;
+  // literal | vigesimal | score (fixed by the institution kind)
+  string grading_scale = 2;
+  optional int32 passing_grade = 3;
+  bool conduct_grade = 4;
+  // in_person | blended | distance (EBA)
+  repeated string attention_modes = 5;
+  // morning | afternoon | evening
+  repeated string shifts = 6;
+}
+
+message AcademicContext {
+  string institution_slug = 1;
+  string institution_name = 2;
+  // ebr | eba | ebe | cepre | institute
+  string institution_kind = 3;
+  Vocabulary vocabulary = 4;
+  // school_year | promotional | cycle | semester
+  string period_kind = 5;
+  repeated string term_schemes = 6;
+  bool has_grades = 7;
+  bool uses_attention_modes = 8;
+  bool uses_seasons = 9;
+  bool uses_formative_levels = 10;
+  bool single_active_period = 11;
+  bool can_manage = 12;
+  Settings settings = 13;
+}
+
+message Grade {
+  string id = 1;
+  string level_id = 2;
+  string code = 3;
+  string name = 4;
+  string short_name = 5;
+  int32 position = 6;
+  int32 section_count = 7;
+}
+
+message Level {
+  string id = 1;
+  string code = 2;
+  string name = 3;
+  string description = 4;
+  int32 position = 5;
+  // technical | professional_technical | professional (IEST)
+  string formative_level = 6;
+  optional int32 credits = 7;
+  repeated string attention_modes = 8;
+  bool is_active = 9;
+  repeated Grade grades = 10;
+  int32 section_count = 11;
+}
+
+message Term {
+  string id = 1;
+  int32 number = 2;
+  string name = 3;
+  string starts_on = 4;
+  string ends_on = 5;
+  // open | closed
+  string status = 6;
+}
+
+message Period {
+  string id = 1;
+  string kind = 2;
+  string name = 3;
+  // CEPRE: summer | annual | semester | intensive | review | school | other
+  string season = 4;
+  string starts_on = 5;
+  string ends_on = 6;
+  string term_scheme = 7;
+  // planning | active | closed
+  string status = 8;
+  repeated Term terms = 9;
+  int32 section_count = 10;
+  int32 capacity_total = 11;
+}
+
+message Section {
+  string id = 1;
+  string period_id = 2;
+  string level_id = 3;
+  string level_name = 4;
+  string grade_id = 5;
+  string grade_name = 6;
+  string grade_short = 7;
+  string name = 8;
+  string shift = 9;
+  string attention_mode = 10;
+  int32 capacity = 11;
+  string room = 12;
+}
+
+message LevelInput {
+  string code = 1;
+  string name = 2;
+  string description = 3;
+  string formative_level = 4;
+  optional int32 credits = 5;
+  repeated string attention_modes = 6;
+  bool is_active = 7;
+}
+
+message GradeInput {
+  string code = 1;
+  string name = 2;
+  string short_name = 3;
+}
+
+message PeriodInput {
+  string name = 1;
+  string season = 2;
+  string starts_on = 3;
+  string ends_on = 4;
+  // Empty: the institution's default
+  string term_scheme = 5;
+}
+
+message SectionInput {
+  string name = 1;
+  string shift = 2;
+  string attention_mode = 3;
+  int32 capacity = 4;
+  string room = 5;
+}
+
+message GetContextRequest {
+  string institution_slug = 1;
+}
+
+message GetContextResponse {
+  AcademicContext context = 1;
+}
+
+message UpdateSettingsRequest {
+  string institution_slug = 1;
+  Settings settings = 2;
+}
+
+message UpdateSettingsResponse {
+  AcademicContext context = 1;
+}
+
+message GetStructureRequest {
+  string institution_slug = 1;
+}
+
+message GetStructureResponse {
+  AcademicContext context = 1;
+  repeated Level levels = 2;
+}
+
+message CreateLevelRequest {
+  string institution_slug = 1;
+  LevelInput level = 2;
+}
+
+message CreateLevelResponse {
+  Level level = 1;
+}
+
+message UpdateLevelRequest {
+  string institution_slug = 1;
+  string id = 2;
+  LevelInput level = 3;
+}
+
+message UpdateLevelResponse {
+  Level level = 1;
+}
+
+message DeleteLevelRequest {
+  string institution_slug = 1;
+  string id = 2;
+}
+
+message DeleteLevelResponse {}
+
+message ReorderLevelsRequest {
+  string institution_slug = 1;
+  repeated string ids = 2;
+}
+
+message ReorderLevelsResponse {}
+
+message CreateGradeRequest {
+  string institution_slug = 1;
+  string level_id = 2;
+  GradeInput grade = 3;
+}
+
+message CreateGradeResponse {
+  Grade grade = 1;
+}
+
+message UpdateGradeRequest {
+  string institution_slug = 1;
+  string id = 2;
+  GradeInput grade = 3;
+}
+
+message UpdateGradeResponse {
+  Grade grade = 1;
+}
+
+message DeleteGradeRequest {
+  string institution_slug = 1;
+  string id = 2;
+}
+
+message DeleteGradeResponse {}
+
+message ReorderGradesRequest {
+  string institution_slug = 1;
+  string level_id = 2;
+  repeated string ids = 3;
+}
+
+message ReorderGradesResponse {}
+
+message ApplyTemplateRequest {
+  string institution_slug = 1;
+}
+
+message ApplyTemplateResponse {
+  repeated Level levels = 1;
+}
+
+message ListPeriodsRequest {
+  string institution_slug = 1;
+}
+
+message ListPeriodsResponse {
+  AcademicContext context = 1;
+  repeated Period periods = 2;
+}
+
+message GetPeriodRequest {
+  string institution_slug = 1;
+  string id = 2;
+}
+
+message GetPeriodResponse {
+  AcademicContext context = 1;
+  Period period = 2;
+  repeated Section sections = 3;
+  repeated Level levels = 4;
+  // Other periods of the institution, to copy sections from
+  repeated Period other_periods = 5;
+}
+
+message CreatePeriodRequest {
+  string institution_slug = 1;
+  PeriodInput period = 2;
+}
+
+message CreatePeriodResponse {
+  Period period = 1;
+}
+
+message UpdatePeriodRequest {
+  string institution_slug = 1;
+  string id = 2;
+  PeriodInput period = 3;
+}
+
+message UpdatePeriodResponse {
+  Period period = 1;
+}
+
+message SetPeriodStatusRequest {
+  string institution_slug = 1;
+  string id = 2;
+  // planning | active | closed
+  string status = 3;
+}
+
+message SetPeriodStatusResponse {
+  Period period = 1;
+}
+
+message DeletePeriodRequest {
+  string institution_slug = 1;
+  string id = 2;
+}
+
+message DeletePeriodResponse {}
+
+message UpdateTermRequest {
+  string institution_slug = 1;
+  string period_id = 2;
+  string id = 3;
+  string name = 4;
+  string starts_on = 5;
+  string ends_on = 6;
+  string status = 7;
+}
+
+message UpdateTermResponse {
+  Term term = 1;
+}
+
+message CreateSectionsRequest {
+  string institution_slug = 1;
+  string period_id = 2;
+  string level_id = 3;
+  // One section per grade × name (CEPRE: no grades)
+  repeated string grade_ids = 4;
+  repeated string names = 5;
+  string shift = 6;
+  string attention_mode = 7;
+  int32 capacity = 8;
+  string room = 9;
+}
+
+message CreateSectionsResponse {
+  repeated Section sections = 1;
+}
+
+message UpdateSectionRequest {
+  string institution_slug = 1;
+  string id = 2;
+  SectionInput section = 3;
+}
+
+message UpdateSectionResponse {
+  Section section = 1;
+}
+
+message DeleteSectionRequest {
+  string institution_slug = 1;
+  string id = 2;
+}
+
+message DeleteSectionResponse {}
+
+message CopySectionsRequest {
+  string institution_slug = 1;
+  string period_id = 2;
+  string from_period_id = 3;
+}
+
+message CopySectionsResponse {
+  int32 added = 1;
+}

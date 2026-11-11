@@ -197,11 +197,11 @@ export const canAccess = (institutionType: InstitutionType, role: Role, module: 
 
 // Simulated names for the demo workspace
 export const demoInstitutionNames: Record<InstitutionType, string> = {
-  EBR: 'I.E. San Martín de Porres',
-  EBA: 'CEBA Joseph Lister',
-  EBE: 'CEBE Santa Rosa',
-  CEPRE: 'Academia Pre Ingenia',
-  IEST: 'IESTP Andrés Avelino Cáceres',
+  EBR: 'Joseph Colegio',
+  EBA: 'Joseph Escuela',
+  EBE: 'Joseph Especial',
+  CEPRE: 'Joseph Academia',
+  IEST: 'Joseph Instituto',
 };
 
 export const demoUserNames: Record<Role, string> = {
