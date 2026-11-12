@@ -1,7 +1,7 @@
 import type { IconInput } from 'morphicons/react';
-import type { Role } from '@/features/protected/dashboard/types';
+import type { Management, Role } from '@/features/protected/dashboard/types';
 
-export type NotificationKind = 'announcement' | 'grade' | 'attendance' | 'payment' | 'enrollment' | 'wellbeing' | 'card' | 'system';
+export type NotificationKind = 'announcement' | 'grade' | 'attendance' | 'payment' | 'enrollment' | 'wellbeing' | 'card' | 'apafa' | 'system';
 
 // Demo record: the age is relative so the timeline always looks current
 export interface NotificationSeed {
@@ -13,6 +13,8 @@ export interface NotificationSeed {
   href: string;
   // Roles that receive it; omitted means everyone
   roles?: Role[];
+  // Only institutions of this management type get it (tuition reminders are private-only); omitted means both
+  management?: Management;
 }
 
 export interface AppNotification {

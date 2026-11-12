@@ -1,4 +1,4 @@
-import { Bell, CalendarClock, ClipboardCheck, ClipboardList, HeartPulse, IdCard, Settings, Wallet } from 'lucide';
+import { Bell, CalendarClock, ClipboardCheck, ClipboardList, Handshake, HeartPulse, IdCard, Settings, Wallet } from 'lucide';
 import type { AppNotification, NotificationKind, NotificationKindMeta, NotificationSeed, TimelineGroup } from '../types';
 
 export const NOTIFICATIONS_PATH = '/dashboard/notifications';
@@ -11,6 +11,7 @@ export const notificationKindMeta: Record<NotificationKind, NotificationKindMeta
   enrollment: { label: 'Matrícula', icon: ClipboardList, className: 'bg-brand-soft text-brand' },
   wellbeing: { label: 'Bienestar', icon: HeartPulse, className: 'bg-destructive/10 text-destructive' },
   card: { label: 'Carnets', icon: IdCard, className: 'bg-accent text-foreground' },
+  apafa: { label: 'APAFA', icon: Handshake, className: 'bg-success/12 text-success' },
   system: { label: 'Sistema', icon: Settings, className: 'bg-accent text-muted-foreground' },
 };
 
@@ -24,9 +25,14 @@ export const notificationSeeds: NotificationSeed[] = [
   { id: 'nt03', kind: 'attendance', title: 'Tardanza registrada hoy a las 8:12 a. m.', body: 'Puedes justificarla dentro de las 48 horas desde el panel.', minutesAgo: 95, href: '/dashboard/attendance/students', roles: ['student', 'guardian'] },
   { id: 'nt04', kind: 'attendance', title: '3 estudiantes acumulan 3 faltas esta semana', body: 'Revisa la lista y coordina con los tutores de sección.', minutesAgo: 2 * HOUR + 10, href: '/dashboard/attendance/students', roles: ['director', 'coordinator', 'tutor', 'assistant'] },
   { id: 'nt05', kind: 'wellbeing', title: 'Nueva derivación a psicología', body: 'El tutor de 3.° B derivó a un estudiante para entrevista.', minutesAgo: 3 * HOUR, href: '/dashboard/psychology', roles: ['psychologist', 'tutor'] },
-  { id: 'nt06', kind: 'payment', title: '12 pensiones vencidas este mes', body: 'El reporte de deudas ya está listo para exportar.', minutesAgo: 5 * HOUR, href: '/dashboard/payments', roles: ['treasurer', 'director'] },
+  { id: 'nt06', kind: 'payment', title: '12 pensiones vencidas este mes', body: 'El reporte de deudas ya está listo para exportar.', minutesAgo: 5 * HOUR, href: '/dashboard/payments', roles: ['treasurer', 'director'], management: 'private' },
+  { id: 'nt06p', kind: 'payment', title: '12 cuotas de la APAFA vencidas este mes', body: 'El reporte de deudas ya está listo para exportar.', minutesAgo: 5 * HOUR, href: '/dashboard/payments', roles: ['treasurer', 'director'], management: 'public' },
   { id: 'nt07', kind: 'grade', title: 'El registro de notas cierra el viernes', body: 'Completa las notas pendientes de tus secciones antes del cierre.', minutesAgo: DAY + 2 * HOUR, href: '/dashboard/evaluation/grades', roles: ['teacher', 'tutor', 'coordinator'] },
-  { id: 'nt08', kind: 'payment', title: 'Vence la pensión de noviembre el día 30', body: 'Paga antes del vencimiento para evitar la mora.', minutesAgo: DAY + 4 * HOUR, href: '/dashboard/payments', roles: ['guardian'] },
+  { id: 'nt08', kind: 'payment', title: 'Vence la pensión de noviembre el día 30', body: 'Paga antes del vencimiento para evitar la mora.', minutesAgo: DAY + 4 * HOUR, href: '/dashboard/payments', roles: ['guardian'], management: 'private' },
+  { id: 'nt08p', kind: 'payment', title: 'Vence la cuota de la APAFA el día 30', body: 'Puedes pagarla en tesorería, por transferencia, Yape o Plin.', minutesAgo: DAY + 4 * HOUR, href: '/dashboard/payments', roles: ['guardian'], management: 'public' },
+  // APAFA meetings (public institutions only): the convocatoria for families, the pending acta for the office
+  { id: 'nt08a', kind: 'apafa', title: 'Convocatoria APAFA: reunión ordinaria de fin de año', body: 'Sábado a las 6:00 p. m. en el patio central. Revisa la agenda y los documentos.', minutesAgo: DAY + 5 * HOUR, href: '/dashboard/apafa', roles: ['guardian'], management: 'public' },
+  { id: 'nt08b', kind: 'apafa', title: 'Una reunión de la APAFA espera su acta', body: 'Marca la reunión como realizada y adjunta el acta firmada.', minutesAgo: DAY + 5 * HOUR, href: '/dashboard/apafa', roles: ['director', 'secretary'], management: 'public' },
   { id: 'nt09', kind: 'enrollment', title: '2 nuevas solicitudes de matrícula', body: 'Revisa los documentos y confirma las vacantes.', minutesAgo: DAY + 6 * HOUR, href: '/dashboard/enrollment', roles: ['secretary', 'director'] },
   { id: 'nt10', kind: 'card', title: 'Tu carnet está listo para descargar', body: 'Descárgalo en formato carnet, fotocheck o grande.', minutesAgo: 2 * DAY + 3 * HOUR, href: '/dashboard/cards', roles: ['student', 'teacher', 'tutor', 'secretary'] },
   { id: 'nt11', kind: 'system', title: 'Mantenimiento programado el sábado', body: 'De 22:00 a 23:00 no podrás ingresar a tu cuenta.', minutesAgo: 3 * DAY, href: '/dashboard/announcements' },

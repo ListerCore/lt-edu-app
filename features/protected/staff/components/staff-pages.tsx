@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useState, useTransition, type JSX } from 'react';
 import { ArrowLeft, KeyRound, Plus, UserRound } from 'lucide';
 import { MorphIcon } from '@/components/ui/morph-icon';
+import { AttachmentsPanel } from '@/features/protected/attachments/components/attachments-panel';
 import { AcademicPage, ConfirmDelete, LoadError, PageSkeleton, SelectField, StatusPill } from '@/features/protected/academic/components/academic-ui';
 import { useAcademicData } from '@/features/protected/academic/hooks/use-academic-data';
 import { useInstitutionSlug } from '@/features/protected/academic/hooks/use-institution-slug';
@@ -128,7 +129,7 @@ export const StaffListPage = (): JSX.Element => {
   );
 };
 
-// One person of the staff: record, teaching load in open periods and panel roles
+// One person of the staff: record, legajo (attached papers), teaching load in open periods and panel roles
 export const StaffDetailPage = ({ id }: { id: string }): JSX.Element => {
   const slug = useInstitutionSlug();
   const router = useRouter();
@@ -174,7 +175,17 @@ export const StaffDetailPage = ({ id }: { id: string }): JSX.Element => {
         <LoadError message={error ?? 'Sin datos.'} onRetry={reload} />
       ) : (
         <div className="grid gap-8 xl:grid-cols-[minmax(0,1fr)_22rem]">
-          <StaffForm key={`${s.id}${s.status}${s.email}`} slug={slug} staff={s} readOnly={!data.canManage} onSaved={reload} />
+          <div className="min-w-0 space-y-8">
+            <StaffForm key={`${s.id}${s.status}${s.email}`} slug={slug} staff={s} readOnly={!data.canManage} onSaved={reload} />
+            {/* Legajo: the papers of the person's file; only dirección, coordinación and secretaría see them */}
+            <AttachmentsPanel
+              ownerKind="staff"
+              ownerId={s.id}
+              title="Legajo"
+              description="DNI, currículum, título profesional, contrato o resolución de nombramiento, constancias, antecedentes y certificado de salud."
+              categories={['dni', 'cv', 'professional_title', 'contract', 'resolution', 'certificate', 'criminal_record', 'medical_report', 'other']}
+            />
+          </div>
           <aside className="space-y-4">
             <section className="rounded-2xl border border-border bg-background p-5">
               <h2 className="font-semibold text-foreground">Acceso al panel</h2>
