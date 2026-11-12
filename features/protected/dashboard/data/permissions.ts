@@ -1,4 +1,4 @@
-import type { InstitutionType, ModuleKey, PermissionAction, Role, RolePermissions } from '../types';
+import type { InstitutionType, Management, ModuleKey, PermissionAction, Role, RolePermissions } from '../types';
 
 const ALL: PermissionAction[] = ['view', 'create', 'update', 'delete', 'export'];
 const VIEW: PermissionAction[] = ['view'];
@@ -49,16 +49,46 @@ const coreModules: ModuleKey[] = ['home', 'notifications', 'account', 'announcem
 // Each type adds the modules its academic flow needs (README §2 matrix)
 export const institutionModules: Record<InstitutionType, ModuleKey[]> = {
   // School: competency grades, report cards, official certificates and the parents' school
-  EBR: [...coreModules, 'grades', 'report-cards', 'closing', 'certificates', 'psychology', 'discipline', 'parent-school'],
+  EBR: [...coreModules, 'grades', 'report-cards', 'closing', 'certificates', 'psychology', 'discipline', 'parent-school', 'apafa'],
   // CEBA: attention modes (in person, blended, distance), placement and validation tests, certificates
-  EBA: [...coreModules, 'attention-modes', 'placement', 'grades', 'report-cards', 'closing', 'certificates', 'psychology', 'discipline'],
+  EBA: [...coreModules, 'attention-modes', 'placement', 'grades', 'report-cards', 'closing', 'certificates', 'psychology', 'discipline', 'apafa'],
   // CEBE: levels per competency against the adaptations of each POI, individual plans, progress reports, therapies and
   // inclusion support (SAANEE)
-  EBE: [...coreModules, 'grades', 'report-cards', 'closing', 'individual-plans', 'progress-reports', 'therapies', 'inclusion-support', 'psychology', 'discipline', 'parent-school'],
+  EBE: [...coreModules, 'grades', 'report-cards', 'closing', 'individual-plans', 'progress-reports', 'therapies', 'inclusion-support', 'psychology', 'discipline', 'parent-school', 'apafa'],
   // Pre-university academy: mock exams, rankings, question bank and study materials; no promotion or certificates
   CEPRE: [...coreModules, 'mock-exams', 'rankings', 'question-bank', 'study-materials'],
   // Institute: grades out of 20, internships (experiencias formativas), certificates and degrees
   IEST: [...coreModules, 'grades', 'report-cards', 'closing', 'study-materials', 'internships', 'certificates', 'degrees', 'psychology'],
+};
+
+// Modules that exist only under one management type. A module listed here is hidden from the other type even when
+// the institution type has it; modules in neither list are shared.
+//
+// To add a public-only module (as done for 'apafa', the parents' association meetings):
+//   1. add its key to ModuleKey (dashboard/types) and to the institution types that can be public in
+//      institutionModules (EBR, EBA, EBE: academies and institutes in this platform are private);
+//   2. list it here under public: { public: ['apafa'], private: [] };
+//   3. grant it in rolePermissions (director gets it automatically) and add its entry to dashboard-navigation.ts;
+//   4. wrap its page in <ModuleGuard module="apafa"> as every module page does.
+// can('apafa') is then false in private institutions, and its nav entry disappears there
+export const managementModules: Record<Management, ModuleKey[]> = {
+  // APAFA (Ley N.° 28628): the parents' association of public schools, CEBA and CEBE
+  public: ['apafa'],
+  private: [],
+};
+
+const exclusiveModules = new Set<ModuleKey>(Object.values(managementModules).flat());
+
+// True when the module exists under that management type (shared modules always do)
+export const hasManagementModule = (management: Management, module: ModuleKey): boolean => !exclusiveModules.has(module) || managementModules[management].includes(module);
+
+// What the panel assumes before joseph-api answers: the Joseph demos of CEBA and CEBE are public, the rest private
+export const demoManagement: Record<InstitutionType, Management> = {
+  EBR: 'private',
+  EBA: 'public',
+  EBE: 'public',
+  CEPRE: 'private',
+  IEST: 'private',
 };
 
 const allModules: ModuleKey[] = [...new Set(Object.values(institutionModules).flat())];
@@ -147,6 +177,8 @@ export const rolePermissions: Record<Role, RolePermissions> = {
     discipline: VIEW,
     announcements: ALL,
     reports: ['view', 'export'],
+    // Reads the APAFA meetings and their actas; dirección and secretaría convene them
+    apafa: VIEW,
   },
   secretary: {
     home: VIEW,
@@ -167,6 +199,8 @@ export const rolePermissions: Record<Role, RolePermissions> = {
     cards: ALL,
     announcements: VIEW,
     reports: ['view', 'export'],
+    // Convenes the APAFA meetings, records the acta and keeps the board (with dirección)
+    apafa: ALL,
   },
   teacher: teacherPermissions,
   tutor: { ...teacherPermissions, tutoring: ALL, wellbeing: ['view', 'create'], discipline: EDIT, 'parent-school': EDIT },
@@ -206,11 +240,14 @@ export const rolePermissions: Record<Role, RolePermissions> = {
     announcements: VIEW,
   },
   student: studentPermissions,
-  guardian: { ...studentPermissions, payments: VIEW, 'progress-reports': VIEW, 'individual-plans': VIEW, therapies: VIEW, 'parent-school': VIEW },
+  // Families read the APAFA meetings of their institution once convened, with the agenda, the acta and the documents
+  guardian: { ...studentPermissions, payments: VIEW, 'progress-reports': VIEW, 'individual-plans': VIEW, therapies: VIEW, 'parent-school': VIEW, apafa: VIEW },
 };
 
-// A module is usable when the role exists in the institution type, the type has the module and the role is granted the action
-export const canAccess = (institutionType: InstitutionType, role: Role, module: ModuleKey, action: PermissionAction = 'view'): boolean => institutionRoles[institutionType].includes(role) && institutionModules[institutionType].includes(module) && (rolePermissions[role][module]?.includes(action) ?? false);
+// A module is usable when the role exists in the institution type, the type has the module, the management type has
+// it too (managementModules) and the role is granted the action
+export const canAccess = (institutionType: InstitutionType, role: Role, module: ModuleKey, action: PermissionAction = 'view', management: Management = 'private'): boolean =>
+  institutionRoles[institutionType].includes(role) && institutionModules[institutionType].includes(module) && hasManagementModule(management, module) && (rolePermissions[role][module]?.includes(action) ?? false);
 
 // ---------- tabs ----------
 

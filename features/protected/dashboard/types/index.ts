@@ -3,6 +3,9 @@ import type { IconInput } from 'morphicons/react';
 
 export type InstitutionType = 'EBR' | 'EBA' | 'EBE' | 'CEPRE' | 'IEST';
 
+// Tipo de gestión (academic settings): public institutions charge no tuition, only enrollment and the APAFA fee
+export type Management = 'public' | 'private';
+
 export type Role = 'director' | 'coordinator' | 'secretary' | 'teacher' | 'tutor' | 'assistant' | 'psychologist' | 'treasurer' | 'student' | 'guardian';
 
 // One key per platform module (README §2); permissions and institution types are expressed with these
@@ -46,14 +49,17 @@ export type ModuleKey =
   | 'payments'
   | 'reports'
   | 'users'
-  | 'audit';
+  | 'audit'
+  // APAFA (parents' association) meetings and board: public institutions of Educación Básica only
+  | 'apafa';
 
 export type PermissionAction = 'view' | 'create' | 'update' | 'delete' | 'export';
 
 export type RolePermissions = Partial<Record<ModuleKey, PermissionAction[]>>;
 
-// A label can change with the institution type (e.g. "Bimestres" in EBR, "Ciclos" in CEPRE)
-export type NavLabel = string | (Partial<Record<InstitutionType, string>> & { default: string });
+// A label can change with the institution type (e.g. "Bimestres" in EBR, "Ciclos" in CEPRE) and with the management
+// type ("Pensiones y pagos" in private, "Pagos" in public); the management wording wins over the type's
+export type NavLabel = string | (Partial<Record<InstitutionType | Management, string>> & { default: string });
 
 // Second level: always a link to one module
 export interface NavLeaf {
@@ -94,7 +100,20 @@ export interface WorkspaceProfile {
   availableRoles: Role[];
 }
 
+// Management type of the workspace institution, read from joseph-api (a per-type demo default until it arrives)
+export interface UseInstitutionManagementResult {
+  management: Management;
+  isPublic: boolean;
+  // False while the API answer is pending (management is the fallback meanwhile)
+  isLoaded: boolean;
+  // Asks the API again (after the profile is saved)
+  reload: () => void;
+}
+
 export interface UseWorkspaceResult extends Workspace, WorkspaceProfile {
+  management: Management;
+  isPublic: boolean;
+  reloadManagement: () => void;
   setInstitutionType: (type: InstitutionType) => void;
   setRole: (role: Role) => void;
   can: (module: ModuleKey, action?: PermissionAction) => boolean;

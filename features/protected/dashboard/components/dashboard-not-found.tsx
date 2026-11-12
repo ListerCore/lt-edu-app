@@ -24,7 +24,7 @@ export const DashboardNotFound = (): JSX.Element => {
       <h1 id="dashboard-not-found-title" className="mt-6 text-[clamp(1.75rem,3.5vw,2.5rem)] leading-tight font-bold tracking-tight text-balance text-foreground">
         Esta página <span className="text-gradient">faltó a clase.</span>
       </h1>
-      <p className="mt-3 max-w-md text-base leading-7 text-muted-foreground">La ruta no existe en el panel o el módulo todavía no está disponible para tu rol.</p>
+      <p className="mt-3 max-w-md text-base leading-7 text-muted-foreground">La ruta no existe en el panel. Revisa la dirección o vuelve al inicio.</p>
 
       <div className="mt-8 flex flex-wrap justify-center gap-3">
         <Link href={DASHBOARD_PATH} className="btn-brand">

@@ -22,6 +22,7 @@ import {
   FolderOpen,
   GraduationCap,
   HandHeart,
+  Handshake,
   HeartHandshake,
   Home,
   IdCard,
@@ -42,15 +43,15 @@ import {
   UsersRound,
   Wallet,
 } from 'lucide';
-import type { InstitutionType, NavLabel, NavSection } from '../types';
+import type { InstitutionType, Management, NavLabel, NavSection } from '../types';
 
 export const DASHBOARD_PATH = '/dashboard';
 export const ACCOUNT_PATH = `${DASHBOARD_PATH}/account`;
 
 const path = (segment: string): string => `${DASHBOARD_PATH}/${segment}`;
 
-// Picks the label for the institution type, falling back to the shared one
-export const resolveLabel = (label: NavLabel, institutionType: InstitutionType): string => (typeof label === 'string' ? label : (label[institutionType] ?? label.default));
+// Picks the label for the management type, then the institution type, falling back to the shared one
+export const resolveLabel = (label: NavLabel, institutionType: InstitutionType, management: Management = 'private'): string => (typeof label === 'string' ? label : (label[management] ?? label[institutionType] ?? label.default));
 
 // Sidebar tree: sections → first-level items → (optional) second-level leaves. Permissions filter it per role and type
 export const dashboardNavigation: NavSection[] = [
@@ -146,7 +147,10 @@ export const dashboardNavigation: NavSection[] = [
   {
     label: 'Gestión',
     items: [
-      { label: 'Pensiones y pagos', icon: Wallet, href: path('payments'), module: 'payments' },
+      // Public institutions charge no tuition (pensión): only enrollment and the APAFA fee
+      { label: { default: 'Pensiones y pagos', public: 'Pagos' }, icon: Wallet, href: path('payments'), module: 'payments' },
+      // Public institutions only (managementModules): meetings of the parents' association
+      { label: 'APAFA', icon: Handshake, href: path('apafa'), module: 'apafa' },
       { label: 'Reportes', icon: ChartColumn, href: path('reports'), module: 'reports' },
       {
         label: 'Configuración',

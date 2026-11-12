@@ -4,6 +4,7 @@ import { useCallback, useSyncExternalStore } from 'react';
 import { canAccess, canSeeTab, demoAvatarUrls, demoInstitutionNames, demoUserNames, institutionRoles, institutionTypeLabels, roleLabel } from '../data/permissions';
 import type { InstitutionType, ModuleKey, PermissionAction, Role, UseWorkspaceResult, Workspace } from '../types';
 import type { TabPage } from '../data/permissions';
+import { useInstitutionManagement } from './use-institution-management';
 
 const STORAGE_KEY = 'joseph-workspace';
 const DEFAULT_WORKSPACE: Workspace = { institutionType: 'EBR', role: 'director' };
@@ -44,9 +45,11 @@ const subscribe = (listener: () => void): (() => void) => {
   return () => listeners.delete(listener);
 };
 
-// Current institution type + role (simulated until joseph-api provides the session) and the permission check
+// Current institution type + role (simulated until joseph-api provides the session), the institution's management
+// type (from joseph-api) and the permission check, which hides modules the management type does not have
 export const useWorkspace = (): UseWorkspaceResult => {
   const workspace = useSyncExternalStore(subscribe, read, () => DEFAULT_WORKSPACE);
+  const { management, isPublic, reload: reloadManagement } = useInstitutionManagement(workspace.institutionType);
 
   // Changing the type keeps the role when that type has it; otherwise falls back to the type's first role
   const setInstitutionType = useCallback((institutionType: InstitutionType): void => {
@@ -60,12 +63,15 @@ export const useWorkspace = (): UseWorkspaceResult => {
     if (institutionRoles[current.institutionType].includes(role)) write({ ...current, role });
   }, []);
 
-  const can = useCallback((module: ModuleKey, action: PermissionAction = 'view'): boolean => canAccess(workspace.institutionType, workspace.role, module, action), [workspace]);
+  const can = useCallback((module: ModuleKey, action: PermissionAction = 'view'): boolean => canAccess(workspace.institutionType, workspace.role, module, action, management), [workspace, management]);
 
   const canTab = useCallback((page: TabPage, tab: string): boolean => canSeeTab(workspace.role, page, tab), [workspace]);
 
   return {
     ...workspace,
+    management,
+    isPublic,
+    reloadManagement,
     institutionName: demoInstitutionNames[workspace.institutionType],
     institutionTypeLabel: institutionTypeLabels[workspace.institutionType],
     userName: demoUserNames[workspace.role],
