@@ -18,6 +18,7 @@ const rpc =
 export const academicRpc = {
   getContext: rpc((c) => c.getContext),
   updateSettings: rpc((c) => c.updateSettings),
+  getManagement: rpc((c) => c.getManagement),
   getStructure: rpc((c) => c.getStructure),
   createLevel: rpc((c) => c.createLevel),
   updateLevel: rpc((c) => c.updateLevel),

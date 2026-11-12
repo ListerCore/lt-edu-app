@@ -18,6 +18,8 @@ service AcademicService {
   // Institution profile: names, rules of its kind and settings
   rpc GetContext(GetContextRequest) returns (GetContextResponse);
   rpc UpdateSettings(UpdateSettingsRequest) returns (UpdateSettingsResponse);
+  // Management type (public | private), readable by every role of the institution, families included
+  rpc GetManagement(GetManagementRequest) returns (GetManagementResponse);
 
   // Levels (cycles, areas, programs) with their grades
   rpc GetStructure(GetStructureRequest) returns (GetStructureResponse);
@@ -82,6 +84,9 @@ message Settings {
   optional string ugel = 11;
   optional string modular_code = 12;
   optional string logo = 13;
+  // Tipo de gestión: public (no tuition; families pay the enrollment and the APAFA fee) | private. Unset on an
+  // update keeps what is stored; turning public fails while open periods still have tuition in plans or owed
+  optional string management = 14;
 }
 
 message AcademicContext {
@@ -219,6 +224,17 @@ message UpdateSettingsRequest {
 
 message UpdateSettingsResponse {
   AcademicContext context = 1;
+}
+
+message GetManagementRequest {
+  string institution_slug = 1;
+}
+
+message GetManagementResponse {
+  // The institution the session works on (an institution role always gets its own)
+  string institution_slug = 1;
+  // public | private
+  string management = 2;
 }
 
 message GetStructureRequest {

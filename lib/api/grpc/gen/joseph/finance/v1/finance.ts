@@ -26,7 +26,7 @@ export const protobufFileName = "joseph/finance/v1/finance.proto";
 
 export interface FeeItem {
   id: string;
-  /** enrollment | tuition | other */
+  /** enrollment | tuition | apafa | other. Public institutions take no tuition (apafa: cuota APAFA) */
   concept: string;
   name: string;
   amount: number;
@@ -127,6 +127,7 @@ export interface Charge {
   id: string;
   periodId: string;
   periodName: string;
+  /** enrollment | tuition | apafa | other */
   concept: string;
   name: string;
   amount: number;

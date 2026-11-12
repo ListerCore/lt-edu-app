@@ -1,0 +1,181 @@
+syntax = "proto3";
+
+// APAFA (Asociación de Padres de Familia, Ley N.° 28628) of public institutions of Educación Básica: the meetings
+// it convenes, their acta and the board. Same metadata and institution scoping as joseph.academic.v1. Private
+// institutions get apafa_private on every call
+package joseph.apafa.v1;
+
+option go_package = "api/internal/adapter/inbound/grpc/gen/apafav1;apafav1";
+
+// Dirección and secretaría convene and record; coordinación reads; guardians read the meetings already convened.
+// Convening, rescheduling, cancelling and publishing the acta post a comms announcement for the families
+service ApafaService {
+  rpc GetApafa(GetApafaRequest) returns (GetApafaResponse);
+  rpc GetMeeting(GetMeetingRequest) returns (GetMeetingResponse);
+  rpc SaveMeeting(SaveMeetingRequest) returns (SaveMeetingResponse);
+  rpc ConveneMeeting(ConveneMeetingRequest) returns (ConveneMeetingResponse);
+  rpc RescheduleMeeting(RescheduleMeetingRequest) returns (RescheduleMeetingResponse);
+  rpc CancelMeeting(CancelMeetingRequest) returns (CancelMeetingResponse);
+  rpc RecordMinutes(RecordMinutesRequest) returns (RecordMinutesResponse);
+  rpc DeleteMeeting(DeleteMeetingRequest) returns (DeleteMeetingResponse);
+  rpc SaveBoardMember(SaveBoardMemberRequest) returns (SaveBoardMemberResponse);
+  rpc DeleteBoardMember(DeleteBoardMemberRequest) returns (DeleteBoardMemberResponse);
+}
+
+message Meeting {
+  string id = 1;
+  string title = 2;
+  // ordinary | extraordinary | assembly | board
+  string kind = 3;
+  // RFC 3339
+  string scheduled_at = 4;
+  // in_person | virtual | hybrid
+  string modality = 5;
+  string place = 6;
+  string meeting_url = 7;
+  string agenda = 8;
+  // guardians | community
+  string audience = 9;
+  // scheduled | rescheduled | held | cancelled
+  string status = 10;
+  string previous_at = 11;
+  string reschedule_reason = 12;
+  string cancel_reason = 13;
+  string minutes = 14;
+  string agreements = 15;
+  optional int32 attendees = 16;
+  // When the acta was published to the families (empty: not yet)
+  string minutes_published_at = 17;
+  // Last notice sent (comms announcement) and when it was first convened (empty: a draft)
+  string announcement_id = 18;
+  string notified_at = 19;
+  string created_name = 20;
+  string created_at = 21;
+  string updated_at = 22;
+  int32 files = 23;
+}
+
+message BoardMember {
+  string id = 1;
+  string full_name = 2;
+  // president | vice_president | secretary | treasurer | spokesperson
+  string position = 3;
+  string phone = 4;
+  // YYYY-MM-DD
+  string starts_on = 5;
+  string ends_on = 6;
+}
+
+// APAFA fee (finance concept apafa) of the periods not closed yet, in cents
+message Fees {
+  int64 expected = 1;
+  int64 collected = 2;
+  int64 pending = 3;
+  int32 charged = 4;
+  int32 settled = 5;
+}
+
+message GetApafaRequest {
+  string institution_slug = 1;
+}
+
+message GetApafaResponse {
+  repeated Meeting meetings = 1;
+  repeated BoardMember board = 2;
+  // Not set for guardians
+  Fees fees = 3;
+  bool can_manage = 4;
+}
+
+message GetMeetingRequest {
+  string institution_slug = 1;
+  string id = 2;
+}
+
+message GetMeetingResponse {
+  Meeting meeting = 1;
+  bool can_manage = 2;
+}
+
+message SaveMeetingRequest {
+  string institution_slug = 1;
+  // Empty id: a new meeting. Only title, kind, scheduled_at, modality, place, meeting_url, agenda and audience are read
+  Meeting meeting = 2;
+  // Convene it (a draft) or tell the families what changed (already convened)
+  bool notify = 3;
+}
+
+message SaveMeetingResponse {
+  Meeting meeting = 1;
+}
+
+message ConveneMeetingRequest {
+  string institution_slug = 1;
+  string id = 2;
+}
+
+message ConveneMeetingResponse {
+  Meeting meeting = 1;
+}
+
+message RescheduleMeetingRequest {
+  string institution_slug = 1;
+  string id = 2;
+  // RFC 3339
+  string scheduled_at = 3;
+  string reason = 4;
+  bool notify = 5;
+}
+
+message RescheduleMeetingResponse {
+  Meeting meeting = 1;
+}
+
+message CancelMeetingRequest {
+  string institution_slug = 1;
+  string id = 2;
+  string reason = 3;
+  bool notify = 4;
+}
+
+message CancelMeetingResponse {
+  Meeting meeting = 1;
+}
+
+message RecordMinutesRequest {
+  string institution_slug = 1;
+  string id = 2;
+  string minutes = 3;
+  string agreements = 4;
+  optional int32 attendees = 5;
+  // Publish the acta to the families
+  bool publish = 6;
+}
+
+message RecordMinutesResponse {
+  Meeting meeting = 1;
+}
+
+message DeleteMeetingRequest {
+  string institution_slug = 1;
+  string id = 2;
+}
+
+message DeleteMeetingResponse {}
+
+message SaveBoardMemberRequest {
+  string institution_slug = 1;
+  // Empty id: a new office
+  BoardMember member = 2;
+}
+
+message SaveBoardMemberResponse {
+  BoardMember member = 1;
+}
+
+message DeleteBoardMemberRequest {
+  string institution_slug = 1;
+  string id = 2;
+}
+
+message DeleteBoardMemberResponse {}

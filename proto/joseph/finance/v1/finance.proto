@@ -32,7 +32,7 @@ service FinanceService {
 
 message FeeItem {
   string id = 1;
-  // enrollment | tuition | other
+  // enrollment | tuition | apafa | other. Public institutions take no tuition (apafa: cuota APAFA)
   string concept = 2;
   string name = 3;
   int64 amount = 4;
@@ -132,6 +132,7 @@ message Charge {
   string id = 1;
   string period_id = 2;
   string period_name = 3;
+  // enrollment | tuition | apafa | other
   string concept = 4;
   string name = 5;
   int64 amount = 6;

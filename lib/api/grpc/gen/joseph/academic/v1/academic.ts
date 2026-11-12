@@ -58,7 +58,14 @@ export interface Settings {
   dre?: string | undefined;
   ugel?: string | undefined;
   modularCode?: string | undefined;
-  logo?: string | undefined;
+  logo?:
+    | string
+    | undefined;
+  /**
+   * Tipo de gestión: public (no tuition; families pay the enrollment and the APAFA fee) | private. Unset on an
+   * update keeps what is stored; turning public fails while open periods still have tuition in plans or owed
+   */
+  management?: string | undefined;
 }
 
 export interface AcademicContext {
@@ -198,6 +205,17 @@ export interface UpdateSettingsRequest {
 
 export interface UpdateSettingsResponse {
   context?: AcademicContext | undefined;
+}
+
+export interface GetManagementRequest {
+  institutionSlug: string;
+}
+
+export interface GetManagementResponse {
+  /** The institution the session works on (an institution role always gets its own) */
+  institutionSlug: string;
+  /** public | private */
+  management: string;
 }
 
 export interface GetStructureRequest {
@@ -547,6 +565,7 @@ function createBaseSettings(): Settings {
     ugel: undefined,
     modularCode: undefined,
     logo: undefined,
+    management: undefined,
   };
 }
 
@@ -594,6 +613,9 @@ export const Settings: MessageFns<Settings> = {
     }
     if (message.logo !== undefined) {
       writer.uint32(106).string(message.logo);
+    }
+    if (message.management !== undefined) {
+      writer.uint32(114).string(message.management);
     }
     return writer;
   },
@@ -723,6 +745,14 @@ export const Settings: MessageFns<Settings> = {
             }
 
             message.logo = reader.string();
+            continue;
+          }
+          case 14: {
+            if (tag !== 114) {
+              break;
+            }
+
+            message.management = reader.string();
             continue;
           }
         }
@@ -2231,6 +2261,109 @@ export const UpdateSettingsResponse: MessageFns<UpdateSettingsResponse> = {
             }
 
             message.context = AcademicContext.decode(reader, reader.uint32());
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+};
+
+function createBaseGetManagementRequest(): GetManagementRequest {
+  return { institutionSlug: "" };
+}
+
+export const GetManagementRequest: MessageFns<GetManagementRequest> = {
+  encode(message: GetManagementRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.institutionSlug !== "") {
+      writer.uint32(10).string(message.institutionSlug);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): GetManagementRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseGetManagementRequest();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.institutionSlug = reader.string();
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+};
+
+function createBaseGetManagementResponse(): GetManagementResponse {
+  return { institutionSlug: "", management: "" };
+}
+
+export const GetManagementResponse: MessageFns<GetManagementResponse> = {
+  encode(message: GetManagementResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.institutionSlug !== "") {
+      writer.uint32(10).string(message.institutionSlug);
+    }
+    if (message.management !== "") {
+      writer.uint32(18).string(message.management);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): GetManagementResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseGetManagementResponse();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.institutionSlug = reader.string();
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.management = reader.string();
             continue;
           }
         }
@@ -4638,6 +4771,17 @@ export const AcademicServiceService = {
       Buffer.from(UpdateSettingsResponse.encode(value).finish()),
     responseDeserialize: (value: Buffer): UpdateSettingsResponse => UpdateSettingsResponse.decode(value),
   },
+  /** Management type (public | private), readable by every role of the institution, families included */
+  getManagement: {
+    path: "/joseph.academic.v1.AcademicService/GetManagement" as const,
+    requestStream: false as const,
+    responseStream: false as const,
+    requestSerialize: (value: GetManagementRequest): Buffer => Buffer.from(GetManagementRequest.encode(value).finish()),
+    requestDeserialize: (value: Buffer): GetManagementRequest => GetManagementRequest.decode(value),
+    responseSerialize: (value: GetManagementResponse): Buffer =>
+      Buffer.from(GetManagementResponse.encode(value).finish()),
+    responseDeserialize: (value: Buffer): GetManagementResponse => GetManagementResponse.decode(value),
+  },
   /** Levels (cycles, areas, programs) with their grades */
   getStructure: {
     path: "/joseph.academic.v1.AcademicService/GetStructure" as const,
@@ -4851,6 +4995,8 @@ export interface AcademicServiceServer extends UntypedServiceImplementation {
   /** Institution profile: names, rules of its kind and settings */
   getContext: handleUnaryCall<GetContextRequest, GetContextResponse>;
   updateSettings: handleUnaryCall<UpdateSettingsRequest, UpdateSettingsResponse>;
+  /** Management type (public | private), readable by every role of the institution, families included */
+  getManagement: handleUnaryCall<GetManagementRequest, GetManagementResponse>;
   /** Levels (cycles, areas, programs) with their grades */
   getStructure: handleUnaryCall<GetStructureRequest, GetStructureResponse>;
   createLevel: handleUnaryCall<CreateLevelRequest, CreateLevelResponse>;
@@ -4909,6 +5055,22 @@ export interface AcademicServiceClient extends Client {
     metadata: Metadata,
     options: Partial<CallOptions>,
     callback: (error: ServiceError | null, response: UpdateSettingsResponse) => void,
+  ): ClientUnaryCall;
+  /** Management type (public | private), readable by every role of the institution, families included */
+  getManagement(
+    request: GetManagementRequest,
+    callback: (error: ServiceError | null, response: GetManagementResponse) => void,
+  ): ClientUnaryCall;
+  getManagement(
+    request: GetManagementRequest,
+    metadata: Metadata,
+    callback: (error: ServiceError | null, response: GetManagementResponse) => void,
+  ): ClientUnaryCall;
+  getManagement(
+    request: GetManagementRequest,
+    metadata: Metadata,
+    options: Partial<CallOptions>,
+    callback: (error: ServiceError | null, response: GetManagementResponse) => void,
   ): ClientUnaryCall;
   /** Levels (cycles, areas, programs) with their grades */
   getStructure(
