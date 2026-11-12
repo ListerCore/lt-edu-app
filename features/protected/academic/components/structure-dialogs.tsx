@@ -6,7 +6,8 @@ import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { saveGradeAction, saveLevelAction, updateSettingsAction } from '../actions/academic-actions';
-import { ALL_SHIFTS, weekdayShort, attentionModeHints, attentionModeLabels, formativeLevelLabels, gradingScaleLabels, items, lower, shiftLabels, termSchemeHints, termSchemeLabels } from '../data/academic-data';
+import { useWorkspace } from '@/features/protected/dashboard/hooks/use-workspace';
+import { ALL_SHIFTS, weekdayShort, attentionModeHints, attentionModeLabels, formativeLevelLabels, gradingScaleLabels, items, lower, managementHints, managementLabels, shiftLabels, termSchemeHints, termSchemeLabels } from '../data/academic-data';
 import { useAcademicForm } from '../hooks/use-academic-form';
 import type { AcademicContext, Grade, GradeFormValues, Level, LevelFormValues, SettingsFormValues } from '../types';
 import { ChoiceChips, controlClassName, SelectField } from './academic-ui';
@@ -172,9 +173,12 @@ interface SettingsDialogProps {
   onSaved: () => void;
 }
 
-// Academic profile: how periods split, the passing mark, conduct mark, shifts and EBA forms of attention
+// Academic profile: management type, how periods split, the passing mark, conduct mark, shifts and EBA forms of
+// attention
 export const SettingsDialog = ({ slug, context, onClose, onSaved }: SettingsDialogProps): JSX.Element => {
   const settings = context.settings;
+  // The whole panel (payments, modules) follows the management type: ask for it again once saved
+  const { reloadManagement } = useWorkspace();
   const scale = settings?.gradingScale ?? 'literal';
   const { values, errors, isPending, setField, submit } = useAcademicForm<SettingsFormValues, AcademicContext>({
     initial: {
@@ -190,9 +194,11 @@ export const SettingsDialog = ({ slug, context, onClose, onSaved }: SettingsDial
       ugel: settings?.ugel ?? '',
       modularCode: settings?.modularCode ?? '',
       logo: settings?.logo ?? '',
+      management: settings?.management === 'public' ? 'public' : 'private',
     },
     save: (v) => updateSettingsAction(slug, v, scale),
     onSaved: () => {
+      reloadManagement();
       onSaved();
       onClose();
     },
@@ -200,6 +206,9 @@ export const SettingsDialog = ({ slug, context, onClose, onSaved }: SettingsDial
 
   return (
     <FormDialog title="Perfil académico" description={`Reglas de ${context.institutionName}. Se aplican a los periodos que crees desde ahora.`} submitLabel="Guardar" isPending={isPending} onSubmit={submit} onClose={onClose} wide>
+      <FormField id="settings-management" label="Tipo de gestión" required error={errors.management} hint={managementHints[values.management]}>
+        <SelectField id="settings-management" value={values.management} options={items(managementLabels, ['private', 'public'])} onChange={(v): void => setField('management', v)} invalid={Boolean(errors.management)} />
+      </FormField>
       {context.termSchemes.length > 1 && (
         <FormField id="settings-scheme" label={`División de cada ${lower(context.vocabulary?.period ?? 'periodo')}`} error={errors.termScheme} hint={termSchemeHints[values.termScheme]}>
           <SelectField id="settings-scheme" value={values.termScheme} options={items(termSchemeLabels, context.termSchemes)} onChange={(v): void => setField('termScheme', v)} />

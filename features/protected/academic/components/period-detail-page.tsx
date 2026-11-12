@@ -6,6 +6,7 @@ import { useState, useTransition, type JSX } from 'react';
 import { ArrowLeft, Copy, Lock, LockOpen, Pencil, Play, Plus, Undo2 } from 'lucide';
 import { sileo } from 'sileo';
 import { MorphIcon } from '@/components/ui/morph-icon';
+import { AttachmentsPanel } from '@/features/protected/attachments/components/attachments-panel';
 import { cn } from '@/lib/utils';
 import { copySectionsAction, deletePeriodAction, deleteSectionAction, getPeriodAction, setPeriodStatusAction } from '../actions/academic-actions';
 import { attentionModeLabels, daysBetween, formatDay, formatRange, lower, PERIODS_PATH, periodStatusClass, periodStatusLabels, seasonLabels, shiftLabels, termStatusLabels } from '../data/academic-data';
@@ -20,7 +21,8 @@ import { PeriodTimeline } from './period-timeline';
 
 type Editing = { kind: 'period' } | { kind: 'term'; term: Term } | { kind: 'sections'; levelId?: string } | { kind: 'section'; section: Section } | null;
 
-// One period: its dates and terms on a timeline, its status, and every section grouped by level and grade
+// One period: its dates and terms on a timeline, its status, every section grouped by level and grade, and its
+// resolutions and annexes
 export const PeriodDetailPage = ({ id }: { id: string }): JSX.Element => {
   const slug = useInstitutionSlug();
   const router = useRouter();
@@ -160,6 +162,15 @@ export const PeriodDetailPage = ({ id }: { id: string }): JSX.Element => {
             </div>
             <SectionsBoard context={context} levels={data.levels} sections={data.sections} editable={editable} isPending={isPending} onAdd={(levelId): void => setEditing({ kind: 'sections', levelId })} onEdit={(section): void => setEditing({ kind: 'section', section })} onDelete={(section): void => act(() => runAcademicAction(deleteSectionAction(slug, section.id)))} />
           </section>
+
+          {/* Stays open after closing the period: the closing resolution usually arrives later */}
+          <AttachmentsPanel
+            ownerKind="period"
+            ownerId={period.id}
+            title="Resoluciones y anexos"
+            description="La resolución directoral que aprueba el periodo, la calendarización, el plan anual de trabajo y sus anexos."
+            categories={['resolution', 'calendar', 'plan', 'annex', 'other']}
+          />
         </div>
       )}
 

@@ -87,6 +87,8 @@ export interface SettingsFormValues {
   ugel: string;
   modularCode: string;
   logo: string;
+  // Tipo de gestión: public | private
+  management: string;
 }
 
 // Remote data in a hook: loading, the data once it arrives, and a way to reload it

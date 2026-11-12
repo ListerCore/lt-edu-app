@@ -28,6 +28,8 @@ export const updateSettingsAction = async (slug: string, values: SettingsFormVal
             ugel: values.ugel.trim().slice(0, 120),
             modularCode: values.modularCode.trim(),
             logo: values.logo,
+            // Only the two known values travel; anything else is left unset so the API keeps what is stored
+            management: values.management === 'public' || values.management === 'private' ? values.management : undefined,
           },
         },
         { token },

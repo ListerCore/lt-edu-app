@@ -39,6 +39,12 @@ export const seasonLabels: Record<string, string> = {
   school: 'Escolar',
   other: 'Otro',
 };
+// Tipo de gestión of the institution and what each one means for payments
+export const managementLabels: Record<string, string> = { private: 'Privada', public: 'Pública' };
+export const managementHints: Record<string, string> = {
+  private: 'Cobra matrícula, pensiones y otros conceptos.',
+  public: 'No cobra pensiones: las familias solo pagan la matrícula y la cuota de la APAFA.',
+};
 export const termSchemeLabels: Record<string, string> = { bimester: 'Bimestres', trimester: 'Trimestres', semester: 'Semestres', none: 'Sin división' };
 export const termSchemeHints: Record<string, string> = {
   bimester: 'Cuatro bimestres, con informe de progreso al final de cada uno.',
