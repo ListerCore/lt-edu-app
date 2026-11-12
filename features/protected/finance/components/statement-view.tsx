@@ -11,6 +11,7 @@ import { formatDay } from '@/features/protected/academic/data/academic-data';
 import { cn } from '@/lib/utils';
 import { addChargeAction, deleteDiscountAction, payAction, saveDiscountAction, voidChargeAction } from '../actions/finance-actions';
 import { methodLabels, soles, toCents } from '../data/finance-data';
+import { usePaymentsCopy } from '../hooks/use-payments-copy';
 import type { Charge, Statement } from '../types';
 
 // Whole days between a due date and today (UTC dates, so no DST drift)
@@ -41,6 +42,7 @@ export const StatementView = ({ slug, st, onChanged, onReceipt }: Props): JSX.El
   const [discount, setDiscount] = useState(false);
   const [adding, setAdding] = useState(false);
   const [isPending, startTransition] = useTransition();
+  const { copy } = usePaymentsCopy();
   const periods = [...new Map(st.charges.map((c) => [c.periodId, c.periodName])).entries()];
   const periodId = periods[0]?.[0] ?? '';
 
@@ -89,7 +91,7 @@ export const StatementView = ({ slug, st, onChanged, onReceipt }: Props): JSX.El
       {st.discounts.map((d) => (
         <p key={d.periodId} className="flex flex-wrap items-center justify-between gap-3 rounded-xl bg-brand/8 px-4 py-2.5 text-sm text-foreground">
           <span>
-            <strong>{d.percent} %</strong> de descuento en las pensiones · {d.reason}
+            <strong>{d.percent} %</strong> {d.tuitionOnly ? 'de descuento en las pensiones' : 'de descuento en todas las cuotas'} · {d.reason}
           </span>
           {st.canManage && (
             <button type="button" className="text-xs text-brand hover:underline" disabled={isPending} onClick={(): void => act(() => deleteDiscountAction(slug, st.studentId, d.periodId))}>
@@ -204,11 +206,11 @@ export const StatementView = ({ slug, st, onChanged, onReceipt }: Props): JSX.El
       {paying && <PayDialog slug={slug} st={st} onClose={(): void => setPaying(false)} onPaid={(id): void => { setPaying(false); onChanged(); onReceipt(id); }} />}
       {discount && periodId && (
         <SimpleDialog
-          title="Descuento en las pensiones"
-          description="Se aplica a las pensiones que aún no tienen pagos."
+          title={copy.discountTitle}
+          description={copy.discountDescription}
           fields={[
             { id: 'percent', label: 'Porcentaje', placeholder: '15' },
-            { id: 'reason', label: 'Motivo', placeholder: 'Beca, hermanos, convenio…' },
+            { id: 'reason', label: 'Motivo', placeholder: copy.discountPlaceholder },
           ]}
           isPending={isPending}
           onClose={(): void => setDiscount(false)}

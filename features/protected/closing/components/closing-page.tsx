@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useState, type JSX } from 'react';
 import { ArrowLeft, Check, Download, Lock } from 'lucide';
 import { MorphIcon } from '@/components/ui/morph-icon';
+import { AttachmentsPanel } from '@/features/protected/attachments/components/attachments-panel';
 import { AcademicPage, LoadError, PageSkeleton, SelectField } from '@/features/protected/academic/components/academic-ui';
 import { useAcademicData } from '@/features/protected/academic/hooks/use-academic-data';
 import { useInstitutionSlug } from '@/features/protected/academic/hooks/use-institution-slug';
@@ -186,6 +187,16 @@ const RecordScreen = ({ slug, id, onBack }: { slug: string; id: string; onBack: 
       </div>
       {error ? <LoadError message={error} onRetry={reload} /> : !data ? <PageSkeleton /> : <RecordView data={data} />}
       {data && <p className="text-xs text-muted-foreground print:hidden">El contenido del acta quedó fijo al emitirla; si cambian los resultados, emite una nueva y esta quedará como reemplazada.</p>}
+      {data && (
+        <AttachmentsPanel
+          ownerKind="closing"
+          ownerId={data.record.id}
+          title="Acta firmada y anexos"
+          description="El acta impresa con las firmas, escaneada; la resolución que la aprueba, las constancias de recuperación y otros anexos."
+          categories={['minutes', 'resolution', 'annex', 'report', 'other']}
+          className="print:hidden"
+        />
+      )}
     </div>
   );
 };

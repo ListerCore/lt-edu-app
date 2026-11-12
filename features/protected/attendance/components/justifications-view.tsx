@@ -6,6 +6,8 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { LoadError, PageSkeleton, SelectField, StatusPill } from '@/features/protected/academic/components/academic-ui';
 import { FormDialog } from '@/features/protected/academic/components/form-dialog';
+import { AttachmentsButton } from '@/features/protected/attachments/components/attachments-button';
+import { AttachmentsPanel } from '@/features/protected/attachments/components/attachments-panel';
 import { formatDay, formatRange } from '@/features/protected/academic/data/academic-data';
 import { useAcademicData } from '@/features/protected/academic/hooks/use-academic-data';
 import { useAcademicForm } from '@/features/protected/academic/hooks/use-academic-form';
@@ -49,13 +51,22 @@ export const JustificationCard = ({ j, onReview, showStudent = true }: { j: Just
         <span className="font-medium">{j.reviewedName || 'La institución'}:</span> {j.reviewNote || (j.status === 'approved' ? 'Aceptada.' : '')}
       </p>
     )}
-    {onReview && j.status === 'pending' && (
-      <div className="mt-4 flex justify-end">
+    <div className="mt-4 flex flex-wrap items-center justify-end gap-2">
+      {/* The medical certificate or proof: the family attaches it, the reviewer reads it */}
+      <AttachmentsButton
+        ownerKind="attendance_justification"
+        ownerId={j.id}
+        label="Constancias"
+        title={`Constancias de la justificación${showStudent ? ` · ${j.studentName}` : ''}`}
+        description="El certificado o la constancia médica, la cita, o cualquier documento que respalde la inasistencia."
+        categories={['medical_report', 'certificate', 'evidence', 'other']}
+      />
+      {onReview && j.status === 'pending' && (
         <button type="button" className="btn-brand" onClick={(): void => onReview(j)}>
           Revisar
         </button>
-      </div>
-    )}
+      )}
+    </div>
   </article>
 );
 
@@ -111,6 +122,8 @@ const ReviewDialog = ({ slug, j, onClose, onDone }: { slug: string; j: Justifica
   return (
     <FormDialog title={`Justificación de ${j.studentName}`} description={`${j.fromDay === j.toDay ? formatDay(j.fromDay) : formatRange(j.fromDay, j.toDay)} · ${reasonLabels[j.reason] ?? j.reason}`} submitLabel={values.approve === 'yes' ? 'Aceptar' : 'Observar'} isPending={form.isPending} onSubmit={form.submit} onClose={onClose}>
       <p className="rounded-lg bg-secondary px-3 py-2 text-sm leading-6 text-foreground">{j.description}</p>
+      {/* What the family attached, to decide with it in view */}
+      <AttachmentsPanel ownerKind="attendance_justification" ownerId={j.id} variant="compact" readOnly title="Constancias adjuntas" />
       <FormField id="review-decision" label="Decisión" required>
         <SelectField
           id="review-decision"
@@ -173,7 +186,7 @@ export const SubmitJustificationDialog = ({ slug, students, today, defaultDay, o
       <FormField id="just-reason" label="Motivo" required error={errors.reason}>
         <SelectField id="just-reason" value={values.reason} options={Object.entries(reasonLabels).map(([value, label]) => ({ value, label }))} onChange={(v): void => setField('reason', v)} />
       </FormField>
-      <FormField id="just-desc" label="¿Qué pasó?" required error={errors.description} hint="Si tienes una constancia médica, llévala a secretaría.">
+      <FormField id="just-desc" label="¿Qué pasó?" required error={errors.description} hint="Si tienes una constancia médica, adjúntala desde la justificación una vez enviada, o llévala a secretaría.">
         <Textarea placeholder="Ej.: cita médica en el centro de salud, adjunto la constancia" id="just-desc" value={values.description} maxLength={1000} rows={4} onChange={(e): void => setField('description', e.target.value)} aria-invalid={Boolean(errors.description)} />
       </FormField>
     </FormDialog>

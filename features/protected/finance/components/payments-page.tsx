@@ -16,7 +16,8 @@ import { SearchBox } from '@/features/protected/people/components/people-ui';
 import { isFinanceEvent } from '@/hooks/use-live';
 import { cn } from '@/lib/utils';
 import { annulPaymentAction, deletePlanAction, generateAction, getCashAction, getMyStatementsAction, getPaymentAction, getStatementAction, getSummaryAction, listPlansAction, remindAction, savePlanAction } from '../actions/finance-actions';
-import { conceptLabels, methodLabels, monthLabel, soles, toCents } from '../data/finance-data';
+import { methodLabels, monthLabel, soles, toCents } from '../data/finance-data';
+import { usePaymentsCopy } from '../hooks/use-payments-copy';
 import type { FeePlan, PlanItemDraft, Summary } from '../types';
 import { StatementView } from './statement-view';
 import { receiptPdfAction } from '@/features/protected/documents/actions/document-actions';
@@ -32,10 +33,11 @@ const fold = (v: string): string =>
     .replace(/\p{Diacritic}/gu, '')
     .toLowerCase();
 
-// Pensiones y pagos: what each period charges, who paid and who owes, the cash of each day and the fee plans.
-// Families see their own account here
+// Pensiones y pagos ("Pagos" in public institutions, which charge no tuition): what each period charges, who paid
+// and who owes, the cash of each day and the fee plans. Families see their own account here
 export const PaymentsPage = (): JSX.Element => {
   const slug = useInstitutionSlug();
+  const { copy } = usePaymentsCopy();
   const mine = useAcademicData(`my-statements:${slug}`, () => getMyStatementsAction(slug), isFinanceEvent);
   const [periodId, setPeriodId] = useState('');
   const summary = useAcademicData(`finance:${slug}:${periodId}`, () => getSummaryAction(slug, periodId), isFinanceEvent);
@@ -61,13 +63,13 @@ export const PaymentsPage = (): JSX.Element => {
 
   if (mine.data && mine.data.length > 0)
     return (
-      <AcademicPage wide titleId="pay-title" title="Pensiones y pagos" description="Tu cronograma de pagos, lo pagado con sus recibos y lo que está por vencer." context={null}>
+      <AcademicPage wide titleId="pay-title" title={copy.title} description={copy.familyDescription} context={null}>
         {open?.kind === 'receipt' ? <ReceiptView slug={slug} id={open.id} onBack={(): void => setOpen(null)} /> : <FamilyView slug={slug} items={mine.data} onReceipt={(id): void => setOpen({ kind: 'receipt', id })} reload={mine.reload} />}
       </AcademicPage>
     );
 
   return (
-    <AcademicPage wide titleId="pay-title" title="Pensiones y pagos" description="El cronograma de cada estudiante, los pagos con su recibo, la morosidad y la caja del día. Sin moras: la ley no permite cobrar más que el interés legal ni retener libretas por deuda." context={null}>
+    <AcademicPage wide titleId="pay-title" title={copy.title} description={copy.staffDescription} context={null}>
       {summary.error ? (
         <LoadError message={summary.error} onRetry={summary.reload} />
       ) : !summary.data ? (
@@ -92,7 +94,7 @@ export const PaymentsPage = (): JSX.Element => {
               </div>
             )}
           </div>
-          {!tab && <p className="rounded-xl bg-card p-6 text-sm text-muted-foreground">Tu rol no administra pensiones ni pagos.</p>}
+          {!tab && <p className="rounded-xl bg-card p-6 text-sm text-muted-foreground">{copy.noRole}</p>}
           {tab === 'summary' && (
             <SummaryView
               slug={slug}
@@ -125,6 +127,7 @@ const Figure = ({ label, value, detail, tone }: { label: string; value: string; 
 // Period KPIs, collection by due month and the families with overdue fees
 const SummaryView = ({ slug, data, onStudent, onAll }: { slug: string; data: Summary; onStudent: (id: string) => void; onAll: () => void }): JSX.Element => {
   const [isPending, startTransition] = useTransition();
+  const { copy, isPublic } = usePaymentsCopy();
   const net = (data.expected ?? 0) - (data.discounts ?? 0);
   const rate = net ? Math.round(((data.collected ?? 0) * 100) / net) : 0;
   const top = Math.max(1, ...data.months.map((m) => m.expected ?? 0));
@@ -133,12 +136,12 @@ const SummaryView = ({ slug, data, onStudent, onAll }: { slug: string; data: Sum
     startTransition(async () => {
       const r = await remindAction(slug, data.period?.id ?? '', []);
       if (!r.ok) sileo.error({ title: 'No se pudo enviar', description: r.message });
-      else sileo.success({ title: r.data === 1 ? 'Recordatorio enviado a 1 familia' : `Recordatorios enviados a ${r.data} familias`, description: 'Lo verán en su panel, en Pensiones y pagos.' });
+      else sileo.success({ title: r.data === 1 ? 'Recordatorio enviado a 1 familia' : `Recordatorios enviados a ${r.data} familias`, description: `Lo verán en su panel, en ${copy.title}.` });
     });
   return (
     <div className="space-y-6">
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <Figure label="A cobrar en el periodo" value={soles(net)} detail={(data.discounts ?? 0) > 0 ? `${soles(data.discounts)} en becas y descuentos` : undefined} />
+        <Figure label="A cobrar en el periodo" value={soles(net)} detail={(data.discounts ?? 0) > 0 ? `${soles(data.discounts)} en ${isPublic ? 'exoneraciones y descuentos' : 'becas y descuentos'}` : undefined} />
         <Figure label="Cobrado" value={soles(data.collected)} detail={`${rate} % de lo programado`} tone="text-success" />
         <Figure label="Vencido sin pagar" value={soles(data.overdue)} detail={`${data.debtors} de ${data.students} estudiantes`} tone={(data.overdue ?? 0) > 0 ? 'text-destructive' : undefined} />
         <Figure label="Por vencer" value={soles((data.pending ?? 0) - (data.overdue ?? 0))} />
@@ -623,7 +626,9 @@ const PlansView = ({ slug, periodId, periodStart }: { slug: string; periodId: st
 };
 
 // Plan editor: amounts typed in soles, sent in céntimos
+// Public institutions get the APAFA fee instead of tuition (the API rejects tuition there too)
 const PlanDialog = ({ slug, periodId, periodStart, plan, onClose, onSaved }: { slug: string; periodId: string; periodStart: string; plan: FeePlan | null; onClose: () => void; onSaved: () => void }): JSX.Element => {
+  const { copy, conceptOptions } = usePaymentsCopy();
   const [name, setName] = useState(plan?.name ?? '');
   const [items, setItems] = useState<PlanItemDraft[]>(plan?.items.map((i) => ({ id: i.id, concept: i.concept, name: i.name, amount: ((i.amount ?? 0) / 100).toFixed(2).replace('.', ','), dueOn: i.dueOn })) ?? [{ id: '', concept: 'enrollment', name: 'Matrícula', amount: '', dueOn: periodStart }]);
   const [isPending, startTransition] = useTransition();
@@ -632,7 +637,7 @@ const PlanDialog = ({ slug, periodId, periodStart, plan, onClose, onSaved }: { s
   return (
     <FormDialog
       title={plan ? 'Editar plan de pagos' : 'Nuevo plan de pagos'}
-      description={plan && plan.students > 0 ? 'Los cronogramas ya generados no cambian; las cuotas nuevas se dan al volver a generar.' : 'Matrícula, pensiones y otros conceptos con su vencimiento.'}
+      description={plan && plan.students > 0 ? 'Los cronogramas ya generados no cambian; las cuotas nuevas se dan al volver a generar.' : copy.planDescription}
       submitLabel="Guardar plan"
       isPending={isPending}
       disabled={bad}
@@ -656,19 +661,19 @@ const PlanDialog = ({ slug, periodId, periodStart, plan, onClose, onSaved }: { s
       onClose={onClose}
     >
       <FormField id="plan-name" label="Nombre" required>
-        <Input id="plan-name" value={name} maxLength={120} onChange={(e): void => setName(e.target.value)} placeholder="Pensiones 2027" />
+        <Input id="plan-name" value={name} maxLength={120} onChange={(e): void => setName(e.target.value)} placeholder={copy.planNamePlaceholder} />
       </FormField>
       <div className="space-y-2">
         {items.map((i, k) => (
           <div key={i.id || k} className="grid grid-cols-[8rem_minmax(0,1fr)_7rem_9rem_2rem] items-center gap-2">
             <select aria-label="Concepto" value={i.concept} onChange={(e): void => set(k, { concept: e.target.value })} className="h-9 rounded-md border border-border bg-background px-2 text-sm">
-              {Object.entries(conceptLabels).map(([v, l]) => (
-                <option key={v} value={v}>
-                  {l}
+              {conceptOptions(i.concept).map((o) => (
+                <option key={o.value} value={o.value} disabled={o.disabled}>
+                  {o.label}
                 </option>
               ))}
             </select>
-            <Input placeholder="Ej.: Pensión de marzo" aria-label="Nombre de la cuota" value={i.name} maxLength={120} onChange={(e): void => set(k, { name: e.target.value })} />
+            <Input placeholder={copy.itemPlaceholder} aria-label="Nombre de la cuota" value={i.name} maxLength={120} onChange={(e): void => set(k, { name: e.target.value })} />
             <Input aria-label="Monto" inputMode="decimal" value={i.amount} placeholder="0,00" onChange={(e): void => set(k, { amount: e.target.value.replace(/[^\d.,]/g, '') })} className="tabular-nums" />
             <Input aria-label="Vencimiento" type="date" value={i.dueOn} onChange={(e): void => set(k, { dueOn: e.target.value })} />
             <button type="button" aria-label="Quitar cuota" className="inline-flex size-8 items-center justify-center rounded-md text-muted-foreground hover:text-destructive" onClick={(): void => setItems((xs) => xs.filter((_, j) => j !== k))}>
@@ -676,7 +681,7 @@ const PlanDialog = ({ slug, periodId, periodStart, plan, onClose, onSaved }: { s
             </button>
           </div>
         ))}
-        <button type="button" className="btn-alt h-9 text-sm" onClick={(): void => setItems((xs) => [...xs, { id: '', concept: 'tuition', name: `Pensión ${xs.length}`, amount: xs[xs.length - 1]?.amount ?? '', dueOn: '' }])}>
+        <button type="button" className="btn-alt h-9 text-sm" onClick={(): void => setItems((xs) => [...xs, { id: '', concept: copy.newItem.concept, name: copy.newItem.name(xs.length), amount: xs[xs.length - 1]?.amount ?? '', dueOn: '' }])}>
           <MorphIcon icon={Plus} size={14} />
           Agregar cuota
         </button>
