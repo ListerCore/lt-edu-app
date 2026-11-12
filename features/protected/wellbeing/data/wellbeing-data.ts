@@ -1,3 +1,5 @@
+import type { AttachmentCategory } from '@/features/protected/attachments/types';
+
 // Spanish labels of the wellbeing codes (the API sends codes; the screens show these)
 
 export const interviewKindLabels: Record<string, string> = { student: 'Con el estudiante', family: 'Con la familia' };
@@ -89,3 +91,9 @@ export const alertKindLabels: Record<string, string> = {
 
 // Conduct below 11 fails (DS 021-2026-MINEDU)
 export const CONDUCT_PASS = 11;
+
+// Attachments of a POI and of a therapy session, shared by the plans and therapies pages and the student's file
+export const planFileCategories: AttachmentCategory[] = ['plan', 'evaluation', 'report', 'medical_report', 'other'];
+export const planFilesDescription = 'El POI firmado, la evaluación psicopedagógica, informes de especialistas y certificados médicos que lo sustentan.';
+export const therapyFileCategories: AttachmentCategory[] = ['report', 'evaluation', 'evidence', 'medical_report', 'other'];
+export const therapyFilesDescription = 'Informes del terapeuta, evaluaciones, fotos o videos de evidencia y certificados médicos.';

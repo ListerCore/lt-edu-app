@@ -9,6 +9,7 @@ import { MorphIcon } from '@/components/ui/morph-icon';
 import { Textarea } from '@/components/ui/textarea';
 import { AcademicPage, ConfirmDelete, LoadError, PageSkeleton, SelectField } from '@/features/protected/academic/components/academic-ui';
 import { FormDialog } from '@/features/protected/academic/components/form-dialog';
+import { AttachmentsPanel } from '@/features/protected/attachments/components/attachments-panel';
 import { formatDay } from '@/features/protected/academic/data/academic-data';
 import { useAcademicData } from '@/features/protected/academic/hooks/use-academic-data';
 import { useAcademicForm } from '@/features/protected/academic/hooks/use-academic-form';
@@ -257,6 +258,13 @@ const Detail = ({ slug, id, onBack }: { slug: string; id: string; onBack: () => 
           </ul>
         )}
       </section>
+      <AttachmentsPanel
+        ownerKind="internship"
+        ownerId={x.id}
+        title="Documentos de la experiencia"
+        description="El convenio o carta de presentación con la empresa, el plan de la experiencia, los informes, la ficha de evaluación del supervisor, la constancia de horas y evidencias."
+        categories={['agreement', 'plan', 'report', 'evaluation', 'certificate', 'evidence', 'other']}
+      />
       {editing && <EditDialog slug={slug} x={x} onClose={(): void => setEditing(false)} onSaved={(): void => { setEditing(false); reload(); }} />}
       {evaluating && <EvaluateDialog slug={slug} detail={data} onClose={(): void => setEvaluating(false)} onSaved={(): void => { setEvaluating(false); reload(); }} />}
     </div>

@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useState, useTransition, type JSX } from 'react';
 import { LogOut, MoveRight, Plus, Repeat, RotateCcw } from 'lucide';
 import { MorphIcon } from '@/components/ui/morph-icon';
+import { AttachmentsButton } from '@/features/protected/attachments/components/attachments-button';
 import { AcademicPage, ConfirmDelete, LoadError, PageSkeleton, SelectField, StatusPill } from '@/features/protected/academic/components/academic-ui';
 import { lower, periodStatusClass, periodStatusLabels, shiftLabels } from '@/features/protected/academic/data/academic-data';
 import { runAcademicAction } from '@/features/protected/academic/hooks/use-academic-form';
@@ -137,6 +138,15 @@ const Board = ({ slug, ctx }: { slug: string; ctx: PeopleContextData }): JSX.Ele
                       </td>
                       {editable && (
                         <td className="px-2 py-2 text-right whitespace-nowrap">
+                          <AttachmentsButton
+                            iconOnly
+                            ownerKind="enrollment"
+                            ownerId={e.id}
+                            label={`Expediente de ${e.studentName}`}
+                            title={`Expediente de matrícula · ${e.studentName}`}
+                            description="Documentos entregados para esta matrícula: ficha de matrícula, DNI, partida de nacimiento, certificado de estudios o constancia de traslado."
+                            categories={['enrollment_form', 'dni', 'birth_certificate', 'study_certificate', 'transfer_certificate', 'medical_report', 'disability_certificate', 'photo', 'other']}
+                          />
                           {e.status === 'active' ? (
                             <>
                               <button type="button" className="inline-flex size-8 items-center justify-center rounded-md text-muted-foreground hover:bg-secondary hover:text-foreground" onClick={(): void => setEditing({ kind: 'move', enrollment: e })} aria-label={`Cambiar de sección a ${e.studentName}`} title="Cambiar de sección">

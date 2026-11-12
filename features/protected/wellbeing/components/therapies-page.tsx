@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { MorphIcon } from '@/components/ui/morph-icon';
 import { AcademicPage, ConfirmDelete, LoadError, PageSkeleton, SelectField } from '@/features/protected/academic/components/academic-ui';
 import { FormDialog } from '@/features/protected/academic/components/form-dialog';
+import { AttachmentsButton } from '@/features/protected/attachments/components/attachments-button';
 import { formatDay } from '@/features/protected/academic/data/academic-data';
 import { useAcademicData } from '@/features/protected/academic/hooks/use-academic-data';
 import { useInstitutionSlug } from '@/features/protected/academic/hooks/use-institution-slug';
@@ -14,7 +15,7 @@ import { useToday } from '@/features/protected/academic/hooks/use-today';
 import { isWellbeingEvent } from '@/hooks/use-live';
 import { cn } from '@/lib/utils';
 import { deleteTherapyAction, listTherapiesAction, saveTherapyAction } from '../actions/wellbeing-actions';
-import { therapyKindLabels } from '../data/wellbeing-data';
+import { therapyFileCategories, therapyFilesDescription, therapyKindLabels } from '../data/wellbeing-data';
 import type { TherapyLog, TherapySession } from '../types';
 import { DateInput, Filter, OneOf, TextArea, useAct } from './wellbeing-ui';
 
@@ -94,14 +95,17 @@ export const TherapiesPage = (): JSX.Element => {
                       {t.minutes} min · {t.therapistName}
                     </span>
                   </span>
-                  {t.mine && (
-                    <span className="flex gap-1">
-                      <button type="button" className="btn-alt h-8 px-3 text-xs" onClick={(): void => setEditing(t)}>
-                        Editar
-                      </button>
-                      <ConfirmDelete compact title="Eliminar la sesión" description="No se puede deshacer." isPending={isPending} onConfirm={(): void => act(() => deleteTherapyAction(slug, t.id), reload)} />
-                    </span>
-                  )}
+                  <span className="flex gap-1">
+                    <AttachmentsButton ownerKind="therapy" ownerId={t.id} title={`Archivos de la sesión · ${t.studentName}`} description={`${therapyKindLabels[t.kind]} del ${formatDay(t.heldOn)}. ${therapyFilesDescription}`} categories={therapyFileCategories} />
+                    {t.mine && (
+                      <>
+                        <button type="button" className="btn-alt h-8 px-3 text-xs" onClick={(): void => setEditing(t)}>
+                          Editar
+                        </button>
+                        <ConfirmDelete compact title="Eliminar la sesión" description="No se puede deshacer." isPending={isPending} onConfirm={(): void => act(() => deleteTherapyAction(slug, t.id), reload)} />
+                      </>
+                    )}
+                  </span>
                 </li>
               ))}
             </ul>

@@ -4,6 +4,7 @@ import { useState, type JSX } from 'react';
 import { ArrowLeft, Check, MessageSquarePlus, Plus, ShieldAlert, Stethoscope, X } from 'lucide';
 import { MorphIcon } from '@/components/ui/morph-icon';
 import { ConfirmDelete, LoadError, PageSkeleton } from '@/features/protected/academic/components/academic-ui';
+import { AttachmentsButton } from '@/features/protected/attachments/components/attachments-button';
 import { formatDay } from '@/features/protected/academic/data/academic-data';
 import { useAcademicData } from '@/features/protected/academic/hooks/use-academic-data';
 import { isWellbeingEvent } from '@/hooks/use-live';
@@ -31,9 +32,13 @@ import {
   originLabels,
   outcomeLabels,
   partyLabels,
+  planFileCategories,
+  planFilesDescription,
   planStatusLabels,
   severityClass,
   severityLabels,
+  therapyFileCategories,
+  therapyFilesDescription,
   therapyKindLabels,
 } from '../data/wellbeing-data';
 import type { Incident, IncidentCategory, Measure, StudentFile } from '../types';
@@ -181,11 +186,17 @@ const TutoringTab = ({ slug, f, onChanged }: TabProps): JSX.Element => {
                     {x.agreements}
                   </p>
                 )}
-                {f.canTutor && (
-                  <div className="mt-2 flex justify-end">
-                    <ConfirmDelete compact title="Eliminar la entrevista" description="Solo quien la registró o la dirección pueden eliminarla." isPending={isPending} onConfirm={(): void => act(() => deleteInterviewAction(slug, x.id), onChanged)} />
-                  </div>
-                )}
+                <div className="mt-2 flex flex-wrap items-center justify-end gap-2">
+                  {/* Acta of the meeting, signed agreements, reports: the family reads them, the tutor uploads */}
+                  <AttachmentsButton
+                    ownerKind="tutoring"
+                    ownerId={x.id}
+                    title="Archivos de la entrevista"
+                    description={`${x.topic} · ${formatDay(x.heldOn)}. El acta firmada, los acuerdos o compromisos escritos y los informes que se revisaron.`}
+                    categories={['minutes', 'agreement', 'report', 'evidence', 'other']}
+                  />
+                  {f.canTutor && <ConfirmDelete compact title="Eliminar la entrevista" description="Solo quien la registró o la dirección pueden eliminarla." isPending={isPending} onConfirm={(): void => act(() => deleteInterviewAction(slug, x.id), onChanged)} />}
+                </div>
               </li>
             ))}
           </ul>
@@ -337,7 +348,17 @@ export const IncidentCard = ({
           ))}
         </ul>
       )}
-      {children && <div className="mt-3">{children}</div>}
+      <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
+        {/* Descargos, the incident report, actas with the family and the resolutions of its measures */}
+        <AttachmentsButton
+          ownerKind="discipline"
+          ownerId={x.id}
+          title="Archivos de la falta"
+          description={`${cat?.label ?? x.category} · ${formatDay(x.occurredOn)}. Descargos del estudiante, informe del incidente, actas con la familia y resoluciones de las medidas.`}
+          categories={['report', 'minutes', 'evidence', 'resolution', 'agreement', 'other']}
+        />
+        {children && <div className="ml-auto">{children}</div>}
+      </div>
     </li>
   );
 };
@@ -517,6 +538,9 @@ const SpecialTab = ({ f }: { f: StudentFile }): JSX.Element => (
                   {p.familyCommitments}
                 </p>
               )}
+              <div className="mt-2 flex justify-end">
+                <AttachmentsButton ownerKind="individual_plan" ownerId={p.id} title={`Archivos del plan · ${p.periodName}`} description={planFilesDescription} categories={planFileCategories} />
+              </div>
             </li>
           ))}
         </ul>
@@ -533,6 +557,7 @@ const SpecialTab = ({ f }: { f: StudentFile }): JSX.Element => (
                   {formatDay(t.heldOn)} · {t.minutes} min · {t.therapistName}
                 </span>
                 {!t.attended && <span className="pill bg-secondary text-muted-foreground">No asistió</span>}
+                <AttachmentsButton iconOnly className="ml-auto" ownerKind="therapy" ownerId={t.id} label="Archivos de la sesión" title={`Archivos de la sesión · ${therapyKindLabels[t.kind]}`} description={therapyFilesDescription} categories={therapyFileCategories} />
               </div>
               <p className="text-muted-foreground">{t.goal}</p>
               {t.homeTasks && <p className="text-xs text-foreground">Para casa: {t.homeTasks}</p>}

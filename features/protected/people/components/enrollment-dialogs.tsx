@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { MorphIcon } from '@/components/ui/morph-icon';
 import { Textarea } from '@/components/ui/textarea';
 import { controlClassName, SelectField } from '@/features/protected/academic/components/academic-ui';
+import { AttachmentsPanel } from '@/features/protected/attachments/components/attachments-panel';
 import { FormDialog } from '@/features/protected/academic/components/form-dialog';
 import { attentionModeLabels, items, lower, shiftLabels, todayISO } from '@/features/protected/academic/data/academic-data';
 import { useAcademicData } from '@/features/protected/academic/hooks/use-academic-data';
@@ -336,6 +337,8 @@ export const EndDialog = ({ slug, enrollment, onClose, onSaved }: { slug: string
           <Input placeholder="Ej.: I.E. San Ramón" id="end-destination" value={values.destination} maxLength={160} onChange={(e): void => setField('destination', e.target.value)} aria-invalid={Boolean(errors.destination)} className={controlClassName} />
         </FormField>
       )}
+      {/* The enrollment already exists: the constancia or the withdrawal request can go with it right here */}
+      <AttachmentsPanel ownerKind="enrollment" ownerId={enrollment.id} variant="compact" title="Constancia de traslado o solicitud de retiro" categories={['transfer_certificate', 'other']} />
     </FormDialog>
   );
 };

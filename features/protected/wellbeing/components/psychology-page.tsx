@@ -6,6 +6,7 @@ import { FormField } from '@/components/ui/form-field';
 import { MorphIcon } from '@/components/ui/morph-icon';
 import { AcademicPage, ConfirmDelete, LoadError, PageSkeleton, SelectField } from '@/features/protected/academic/components/academic-ui';
 import { FormDialog } from '@/features/protected/academic/components/form-dialog';
+import { AttachmentsPanel } from '@/features/protected/attachments/components/attachments-panel';
 import { formatDay } from '@/features/protected/academic/data/academic-data';
 import { useAcademicData } from '@/features/protected/academic/hooks/use-academic-data';
 import { useInstitutionSlug } from '@/features/protected/academic/hooks/use-institution-slug';
@@ -218,6 +219,14 @@ const CaseScreen = ({ slug, id, onBack }: { slug: string; id: string; onBack: ()
           </ol>
         )}
       </section>
+      {/* Confidential like the case itself: joseph-api opens these files only to psychology */}
+      <AttachmentsPanel
+        ownerKind="psychology"
+        ownerId={c.id}
+        title="Archivos del caso"
+        description="Confidencial: solo psicología los ve. Informes, pruebas y evaluaciones, consentimientos informados y derivaciones a servicios externos."
+        categories={['report', 'evaluation', 'consent', 'referral', 'other']}
+      />
       {dialog === 'session' && (
         <SessionDialog
           slug={slug}

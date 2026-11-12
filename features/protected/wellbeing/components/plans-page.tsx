@@ -6,6 +6,7 @@ import { FormField } from '@/components/ui/form-field';
 import { MorphIcon } from '@/components/ui/morph-icon';
 import { AcademicPage, ConfirmDelete, LoadError, PageSkeleton, SelectField } from '@/features/protected/academic/components/academic-ui';
 import { FormDialog } from '@/features/protected/academic/components/form-dialog';
+import { AttachmentsPanel } from '@/features/protected/attachments/components/attachments-panel';
 import { formatDay } from '@/features/protected/academic/data/academic-data';
 import { useAcademicData } from '@/features/protected/academic/hooks/use-academic-data';
 import { useInstitutionSlug } from '@/features/protected/academic/hooks/use-institution-slug';
@@ -13,7 +14,7 @@ import { SearchBox } from '@/features/protected/people/components/people-ui';
 import { isWellbeingEvent } from '@/hooks/use-live';
 import { cn } from '@/lib/utils';
 import { deletePlanAction, getPlanAction, listPlansAction, savePlanAction, setPlanStatusAction } from '../actions/wellbeing-actions';
-import { planStatusLabels } from '../data/wellbeing-data';
+import { planFileCategories, planFilesDescription, planStatusLabels } from '../data/wellbeing-data';
 import type { IndividualPlan, PlansBoard } from '../types';
 import { TextArea, useAct } from './wellbeing-ui';
 
@@ -165,7 +166,7 @@ const emptyPlan: IndividualPlan = {
   therapies: 0,
 };
 
-// One plan as a printable document, with its editor, approval and deletion
+// One plan as a printable document, with its editor, approval, deletion and attached files
 const PlanScreen = ({ slug, id, board, onBack }: { slug: string; id: string; board: PlansBoard; onBack: () => void }): JSX.Element => {
   const { data, error, reload } = useAcademicData(`wb-plan:${slug}:${id}`, () => getPlanAction(slug, id), isWellbeingEvent);
   const [isPending, act] = useAct();
@@ -220,6 +221,7 @@ const PlanScreen = ({ slug, id, board, onBack }: { slug: string; id: string; boa
           ))}
         </article>
       </div>
+      <AttachmentsPanel ownerKind="individual_plan" ownerId={p.id} title="Archivos del plan" description={planFilesDescription} categories={planFileCategories} className="mx-auto max-w-3xl print:hidden" />
       {editing && (
         <PlanEditor
           slug={slug}

@@ -7,6 +7,7 @@ import { FormField } from '@/components/ui/form-field';
 import { Input } from '@/components/ui/input';
 import { MorphIcon } from '@/components/ui/morph-icon';
 import { FormDialog } from '@/features/protected/academic/components/form-dialog';
+import { AttachmentsPanel } from '@/features/protected/attachments/components/attachments-panel';
 import { formatDay } from '@/features/protected/academic/data/academic-data';
 import { cn } from '@/lib/utils';
 import { issueDegreeAction, issueModularAction, setRequirementAction } from '../actions/programs-actions';
@@ -177,6 +178,18 @@ export const RecordView = ({ slug, record: r, onChanged, onCertificate }: Props)
             </li>
           ))}
         </ul>
+        {/* The titulación dossier hangs on the student: it fills up while the requirements are verified, before the
+            degree exists. Only dirección, coordinación and secretaría see it */}
+        {r.student?.id && (
+          <AttachmentsPanel
+            ownerKind="degree"
+            ownerId={r.student.id}
+            variant="compact"
+            title="Expediente de titulación"
+            categories={['thesis', 'minutes', 'resolution', 'certificate', 'dni', 'payment_receipt', 'other']}
+            className="mt-5 border-t border-border pt-4"
+          />
+        )}
       </section>
       {checking && (
         <RequirementDialog

@@ -20,16 +20,19 @@ import { EndDialog, EnrollDialog, MoveDialog } from './enrollment-dialogs';
 import { GuardianDialog } from './guardian-dialog';
 import { StudentForm } from './student-form';
 import { StudentAttendanceTab } from '@/features/protected/attendance/components/student-attendance-tab';
+import { AttachmentsButton } from '@/features/protected/attachments/components/attachments-button';
+import { AttachmentsPanel } from '@/features/protected/attachments/components/attachments-panel';
 
-type Tab = 'data' | 'family' | 'enrollment' | 'placements' | 'attendance';
+type Tab = 'data' | 'family' | 'enrollment' | 'placements' | 'attendance' | 'documents';
 type Editing = { kind: 'guardian'; guardian: Guardian | null } | { kind: 'enroll' } | { kind: 'move'; enrollment: Enrollment } | { kind: 'end'; enrollment: Enrollment } | null;
 
-// One student: personal data, family (guardians and panel access), enrollment history and EBA placements
+// One student: personal data, family (guardians and panel access), enrollment history, EBA placements, attendance
+// and the documents of the student's file
 export const StudentDetailPage = ({ id, initialTab }: { id: string; initialTab?: string }): JSX.Element => {
   const router = useRouter();
   const { data: ctx, slug } = usePeopleContext();
   const { data, error, isLoading, reload } = useAcademicData(`student:${slug}:${id}`, () => getStudentAction(slug, id), isPeopleEvent);
-  const [tab, setTab] = useState<Tab>((['data', 'family', 'enrollment', 'placements', 'attendance'] as Tab[]).includes(initialTab as Tab) ? (initialTab as Tab) : 'data');
+  const [tab, setTab] = useState<Tab>((['data', 'family', 'enrollment', 'placements', 'attendance', 'documents'] as Tab[]).includes(initialTab as Tab) ? (initialTab as Tab) : 'data');
   const [editing, setEditing] = useState<Editing>(null);
   const [isPending, startTransition] = useTransition();
   const today = useToday();
@@ -47,6 +50,7 @@ export const StudentDetailPage = ({ id, initialTab }: { id: string; initialTab?:
     ['enrollment', 'Matrícula'],
     ...(ctx?.context.usesAttentionModes ? ([['placements', 'Ubicación y convalidación']] as Array<[Tab, string]>) : []),
     ['attendance', 'Asistencia'],
+    ['documents', 'Documentos'],
   ];
   const age = student ? ageOn(student.birthDate, today) : null;
 
@@ -136,6 +140,16 @@ export const StudentDetailPage = ({ id, initialTab }: { id: string; initialTab?:
           )}
 
           {tab === 'attendance' && <StudentAttendanceTab slug={slug} studentId={student.id} />}
+
+          {tab === 'documents' && (
+            <AttachmentsPanel
+              ownerKind="student"
+              ownerId={student.id}
+              title="Documentos del estudiante"
+              description="Lo que acompaña a la ficha en todos los periodos: DNI, partida de nacimiento, certificados de estudios, informes médicos, certificado de discapacidad y carné de vacunación. Lo de cada matrícula va en su expediente, en la pestaña Matrícula."
+              categories={['dni', 'birth_certificate', 'study_certificate', 'medical_report', 'disability_certificate', 'vaccination_card', 'photo', 'other']}
+            />
+          )}
 
           {tab === 'placements' && (
             <div className="space-y-3">
@@ -322,8 +336,17 @@ const EnrollmentTab = ({ data, ctx, canManage, isPending, onEnroll, onMove, onEn
                     {e.destination && ` · pasa a ${e.destination}`}
                   </p>
                 </div>
+                <div className="flex flex-wrap items-center gap-2">
+                  <AttachmentsButton
+                    ownerKind="enrollment"
+                    ownerId={e.id}
+                    label="Expediente"
+                    title={`Expediente de matrícula · ${e.periodName}`}
+                    description="Documentos que se entregaron para esta matrícula: ficha de matrícula, DNI, partida, certificado de estudios o constancia de traslado."
+                    categories={['enrollment_form', 'dni', 'birth_certificate', 'study_certificate', 'transfer_certificate', 'medical_report', 'disability_certificate', 'photo', 'other']}
+                  />
                 {canManage && open(e) && (
-                  <div className="flex flex-wrap items-center gap-2">
+                  <>
                     {e.status === 'active' ? (
                       <>
                         <button type="button" className="btn-alt h-9 px-3" onClick={(): void => onMove(e)}>
@@ -344,8 +367,9 @@ const EnrollmentTab = ({ data, ctx, canManage, isPending, onEnroll, onMove, onEn
                       )
                     )}
                     <ConfirmDelete compact label="Anular" title={`¿Anular la matrícula en ${e.periodName}?`} description="Úsalo solo si se registró por error: la matrícula desaparece del historial." onConfirm={(): void => onDelete(e)} />
-                  </div>
+                  </>
                 )}
+                </div>
               </div>
             </li>
           ))}
