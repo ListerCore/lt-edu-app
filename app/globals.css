@@ -502,6 +502,23 @@
   animation-delay: var(--nf-delay, 0s);
 }
 
+/* Panel 403: the padlock hangs from the board's corner and sways */
+@keyframes nf-swing {
+  0%,
+  100% {
+    transform: rotate(-7deg);
+  }
+  50% {
+    transform: rotate(7deg);
+  }
+}
+
+.nf-swing {
+  transform-box: view-box;
+  transform-origin: 380px 62px;
+  animation: nf-swing 3.6s ease-in-out infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .nf-draw {
     animation: none;
@@ -511,6 +528,7 @@
   .nf-float,
   .nf-sweep,
   .nf-fly,
+  .nf-swing,
   .nf-twinkle {
     animation: none;
   }
