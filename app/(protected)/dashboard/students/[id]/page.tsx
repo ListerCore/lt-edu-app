@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import type { JSX } from 'react';
 import { UUID_PATTERN } from '@/features/protected/academic/data/academic-data';
 import { StudentDetailPage } from '@/features/protected/people/components/student-detail-page';
+import { ModuleGuard } from '@/features/protected/dashboard/components/module-guard';
 
 export const metadata: Metadata = { title: 'Estudiante' };
 
@@ -13,7 +14,11 @@ const Page = async ({ params, searchParams }: PageProps<'/dashboard/students/[id
   const { id } = await params;
   if (!UUID_PATTERN.test(id)) notFound();
   const { tab } = await searchParams;
-  return <StudentDetailPage id={id} initialTab={typeof tab === 'string' ? tab : undefined} />;
+  return (
+    <ModuleGuard module="students">
+      <StudentDetailPage id={id} initialTab={typeof tab === 'string' ? tab : undefined} />
+    </ModuleGuard>
+  );
 };
 
 export default Page;
