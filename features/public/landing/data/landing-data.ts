@@ -1,23 +1,14 @@
 import { BookOpen, ClipboardCheck, ClipboardList, FileLock2, GraduationCap, HeartHandshake, KeyRound, Megaphone, Radio, ScanLine, School, UserCog, Users, UsersRound, Wallet } from 'lucide';
-import type { CheckIn, IdCardSample, InstitutionVocabulary, PlatformModule, RoleAccess, SecurityPoint } from '../types';
+import type { HeroFact, InstitutionVocabulary, PlatformModule, RoleAccess, SecurityPoint } from '../types';
 
-export const heroCard: IdCardSample = { name: 'Valeria Ccori Mamani', detail: '3.° de secundaria · Sección B', code: '2026-0412', role: 'Estudiante' };
-
-// The hero log: the last entries read at the gate, newest last (they arrive one after another on load)
-export const heroCheckIns: CheckIn[] = [
-  { time: '07:41', name: 'Diego Quispe Rojas', section: '3.° B', status: 'on-time' },
-  { time: '07:42', name: 'Camila Flores Ayala', section: '1.° A', status: 'on-time' },
-  { time: '07:46', name: 'Mateo Huamán Ccama', section: '5.° C', status: 'late' },
-  { time: '07:47', name: 'Valeria Ccori Mamani', section: '3.° B', status: 'on-time' },
+// What every institution gets, told in three facts under the hero pitch
+export const heroFacts: HeroFact[] = [
+  { value: '5 tipos', label: 'de institución en una sola plataforma' },
+  { value: 'Tu marca', label: 'logo y colores en el panel y los documentos' },
+  { value: 'Cada día', label: 'backup cifrado y monitoreo continuo' },
 ];
 
-export const heroStats = [
-  { label: 'Presentes', value: '412', detail: 'de 438' },
-  { label: 'Tardanzas', value: '9', detail: 'hasta las 8:00' },
-  { label: 'Por justificar', value: '17', detail: 'avisadas a familias' },
-];
-
-export const supportedInstitutions = ['Colegios de EBR', 'CEBA', 'CEBE', 'Academias preuniversitarias', 'Institutos'];
+export const supportedInstitutions = ['Colegios', 'CEBA', 'CEBE', 'Academias', 'Institutos'];
 
 // Areas of the system in the order of the panel sidebar; each preview is what that screen shows first
 export const platformModules: PlatformModule[] = [

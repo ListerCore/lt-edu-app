@@ -1,24 +1,9 @@
 import type { IconInput } from 'morphicons/react';
 
-// What the hero ID card prints
-export interface IdCardSample {
-  name: string;
-  detail: string;
-  code: string;
-  role: string;
-}
-
-export interface IdCardProps {
-  card: IdCardSample;
-  className?: string;
-}
-
-// One check-in of the hero attendance log
-export interface CheckIn {
-  time: string;
-  name: string;
-  section: string;
-  status: 'on-time' | 'late';
+// One headline fact under the hero pitch
+export interface HeroFact {
+  value: string;
+  label: string;
 }
 
 // Preview rows of a module: a label, its value and an optional tone for the value
