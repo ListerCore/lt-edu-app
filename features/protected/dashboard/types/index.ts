@@ -36,6 +36,8 @@ export type ModuleKey =
   | 'roll'
   // EBA: permanence of the distance form, from the platform's activity
   | 'permanence'
+  // EBA: the virtual tutor's desk (students, sessions, messages, SAANEE) and the student's own tutoring
+  | 'virtual-tutoring'
   | 'individual-plans'
   | 'therapies'
   | 'inclusion-support'

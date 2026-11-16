@@ -18,6 +18,7 @@ import {
   type ServiceError,
   type UntypedServiceImplementation,
 } from "@grpc/grpc-js";
+import { SaaneeReferral, TutoringSession } from "./tutoring";
 
 export const protobufPackage = "joseph.wellbeing.v1";
 
@@ -214,6 +215,8 @@ export interface WellAlert {
   title: string;
   detail: string;
   since: string;
+  /** The precise signal: dropout inactive | overdue | low_permanence; commitment */
+  code: string;
 }
 
 export interface StaffRef {
@@ -262,6 +265,9 @@ export interface GetStudentFileResponse {
   family: boolean;
   today: string;
   catalog: IncidentCategory[];
+  /** Virtual tutoring (phase E6): sessions the student was called to and the SAANEE referrals */
+  sessions: TutoringSession[];
+  saanee: SaaneeReferral[];
 }
 
 export interface GetAlertsRequest {
@@ -2505,7 +2511,17 @@ export const TherapySession: MessageFns<TherapySession> = {
 };
 
 function createBaseWellAlert(): WellAlert {
-  return { kind: "", level: "", studentId: "", studentName: "", placement: "", title: "", detail: "", since: "" };
+  return {
+    kind: "",
+    level: "",
+    studentId: "",
+    studentName: "",
+    placement: "",
+    title: "",
+    detail: "",
+    since: "",
+    code: "",
+  };
 }
 
 export const WellAlert: MessageFns<WellAlert> = {
@@ -2533,6 +2549,9 @@ export const WellAlert: MessageFns<WellAlert> = {
     }
     if (message.since !== "") {
       writer.uint32(66).string(message.since);
+    }
+    if (message.code !== "") {
+      writer.uint32(74).string(message.code);
     }
     return writer;
   },
@@ -2612,6 +2631,14 @@ export const WellAlert: MessageFns<WellAlert> = {
             }
 
             message.since = reader.string();
+            continue;
+          }
+          case 9: {
+            if (tag !== 74) {
+              break;
+            }
+
+            message.code = reader.string();
             continue;
           }
         }
@@ -2959,6 +2986,8 @@ function createBaseGetStudentFileResponse(): GetStudentFileResponse {
     family: false,
     today: "",
     catalog: [],
+    sessions: [],
+    saanee: [],
   };
 }
 
@@ -3014,6 +3043,12 @@ export const GetStudentFileResponse: MessageFns<GetStudentFileResponse> = {
     }
     for (const v of message.catalog) {
       IncidentCategory.encode(v!, writer.uint32(138).fork()).join();
+    }
+    for (const v of message.sessions) {
+      TutoringSession.encode(v!, writer.uint32(146).fork()).join();
+    }
+    for (const v of message.saanee) {
+      SaaneeReferral.encode(v!, writer.uint32(154).fork()).join();
     }
     return writer;
   },
@@ -3165,6 +3200,22 @@ export const GetStudentFileResponse: MessageFns<GetStudentFileResponse> = {
             }
 
             message.catalog.push(IncidentCategory.decode(reader, reader.uint32()));
+            continue;
+          }
+          case 18: {
+            if (tag !== 146) {
+              break;
+            }
+
+            message.sessions.push(TutoringSession.decode(reader, reader.uint32()));
+            continue;
+          }
+          case 19: {
+            if (tag !== 154) {
+              break;
+            }
+
+            message.saanee.push(SaaneeReferral.decode(reader, reader.uint32()));
             continue;
           }
         }

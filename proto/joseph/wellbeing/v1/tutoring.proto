@@ -1,0 +1,345 @@
+syntax = "proto3";
+
+// Virtual tutoring (phase E6 of docs/ceba/PLAN.md). The tutor in force of a student is the one assigned to them,
+// or else their section's. Session kinds: individual | group; modes: virtual | in_person | phone; statuses:
+// scheduled | held | missed | cancelled. Message sides: staff | student. SAANEE statuses: sent | received |
+// attending | closed
+package joseph.wellbeing.v1;
+
+option go_package = "api/internal/adapter/inbound/grpc/gen/wellbeingv1;wellbeingv1";
+
+// Tutors run their board, sessions and messages; dirección and coordinación assign tutors and see any tutor's
+// board; a student account reads its tutoring and writes to its tutor
+service TutoringService {
+  // staff_id: dirección picks the tutor (empty: every student)
+  rpc GetTutorBoard(GetTutorBoardRequest) returns (GetTutorBoardResponse);
+  rpc GetTutorAssignments(GetTutorAssignmentsRequest) returns (GetTutorAssignmentsResponse);
+  // staff_id empty: back to the tutor of the section
+  rpc AssignTutor(AssignTutorRequest) returns (AssignTutorResponse);
+
+  rpc ListTutoringSessions(ListTutoringSessionsRequest) returns (ListTutoringSessionsResponse);
+  rpc SaveTutoringSession(SaveTutoringSessionRequest) returns (SaveTutoringSessionResponse);
+  // Who came, notes, agreements and an optional commitment; nobody present: missed
+  rpc HoldTutoringSession(HoldTutoringSessionRequest) returns (HoldTutoringSessionResponse);
+  rpc SetTutoringSessionStatus(SetTutoringSessionStatusRequest) returns (SetTutoringSessionStatusResponse);
+
+  rpc ListThreads(ListThreadsRequest) returns (ListThreadsResponse);
+  // With a student (staff) or, for a student account, with its tutor (student_id empty); created on first use
+  rpc OpenThread(OpenThreadRequest) returns (OpenThreadResponse);
+  rpc GetThread(GetThreadRequest) returns (GetThreadResponse);
+  rpc SendMessage(SendMessageRequest) returns (SendMessageResponse);
+
+  rpc GetMyTutoring(GetMyTutoringRequest) returns (GetMyTutoringResponse);
+
+  rpc ReferSaanee(ReferSaaneeRequest) returns (ReferSaaneeResponse);
+  rpc UpdateSaanee(UpdateSaaneeRequest) returns (UpdateSaaneeResponse);
+}
+
+message TutorStudent {
+  string student_id = 1;
+  string code = 2;
+  string name = 3;
+  string placement = 4;
+  string section_id = 5;
+  string attention_mode = 6;
+  string staff_id = 7;
+  string staff_name = 8;
+  bool individual = 9;
+  string last_at = 10;
+}
+
+message TutorLoad {
+  string staff_id = 1;
+  string name = 2;
+  repeated string sections = 3;
+  int32 by_section = 4;
+  int32 individual = 5;
+}
+
+message TutorCandidate {
+  string staff_id = 1;
+  string name = 2;
+  string position = 3;
+}
+
+message SessionAttendee {
+  string student_id = 1;
+  string student_name = 2;
+  string placement = 3;
+  // Unset until held
+  optional bool attended = 4;
+  string interview_id = 5;
+}
+
+message TutoringSession {
+  string id = 1;
+  string staff_id = 2;
+  string staff_name = 3;
+  string kind = 4;
+  string mode = 5;
+  string scheduled_at = 6;
+  int32 duration_min = 7;
+  string link = 8;
+  string reason = 9;
+  // inactive | overdue | low_permanence: the dropout alert it answers
+  string alert_kind = 10;
+  string status = 11;
+  // Staff only (empty for the student)
+  string notes = 12;
+  string agreements = 13;
+  string held_at = 14;
+  string created_name = 15;
+  repeated SessionAttendee attendees = 16;
+}
+
+message Thread {
+  string id = 1;
+  string student_id = 2;
+  string student_name = 3;
+  string placement = 4;
+  string staff_id = 5;
+  string staff_name = 6;
+  string last_message_at = 7;
+  string last_body = 8;
+  string last_side = 9;
+  // Messages of the other side the viewer has not read
+  int32 unread = 10;
+}
+
+message TutoringMessage {
+  string id = 1;
+  string thread_id = 2;
+  string side = 3;
+  string author_name = 4;
+  string body = 5;
+  string created_at = 6;
+}
+
+message SaaneeReferral {
+  string id = 1;
+  string student_id = 2;
+  string student_name = 3;
+  string placement = 4;
+  string reason = 5;
+  string status = 6;
+  string sent_on = 7;
+  string reference = 8;
+  string response = 9;
+  string referred_name = 10;
+  string updated_name = 11;
+  string updated_at = 12;
+}
+
+message PendingWork {
+  string student_id = 1;
+  string item_id = 2;
+  string room_id = 3;
+  string title = 4;
+  string subject = 5;
+  string closes_at = 6;
+  bool overdue = 7;
+}
+
+message TutorBoardRow {
+  TutorStudent student = 1;
+  // -1: never active
+  int32 idle_days = 2;
+  // inactive | overdue | low_permanence | commitment
+  repeated string alerts = 3;
+  int32 overdue = 4;
+  int32 due_soon = 5;
+  int32 unread = 6;
+  string next_session = 7;
+  // Status of an open SAANEE referral
+  string saanee = 8;
+}
+
+message TutorBoardAlert {
+  string kind = 1;
+  string code = 2;
+  string level = 3;
+  string student_id = 4;
+  string student_name = 5;
+  string placement = 6;
+  string title = 7;
+  string detail = 8;
+  string since = 9;
+}
+
+message GetTutorBoardRequest {
+  string institution_slug = 1;
+  string staff_id = 2;
+}
+
+message GetTutorBoardResponse {
+  string staff_id = 1;
+  string staff_name = 2;
+  repeated TutorLoad tutors = 3;
+  repeated TutorBoardRow rows = 4;
+  repeated TutorBoardAlert alerts = 5;
+  repeated PendingWork pending = 6;
+  repeated TutoringSession sessions = 7;
+  repeated Thread threads = 8;
+  bool can_assign = 9;
+  bool can_message = 10;
+  string today = 11;
+  // SAANEE referrals still open of these students
+  repeated SaaneeReferral saanee = 12;
+}
+
+message GetTutorAssignmentsRequest {
+  string institution_slug = 1;
+}
+
+message GetTutorAssignmentsResponse {
+  repeated TutorLoad loads = 1;
+  repeated TutorCandidate candidates = 2;
+  repeated TutorStudent students = 3;
+}
+
+message AssignTutorRequest {
+  string institution_slug = 1;
+  repeated string student_ids = 2;
+  string staff_id = 3;
+}
+
+message AssignTutorResponse {
+  GetTutorAssignmentsResponse assignments = 1;
+}
+
+message ListTutoringSessionsRequest {
+  string institution_slug = 1;
+  string staff_id = 2;
+  // YYYY-MM-DD, inclusive
+  string from = 3;
+  string to = 4;
+}
+
+message ListTutoringSessionsResponse {
+  repeated TutoringSession sessions = 1;
+}
+
+message SaveTutoringSessionRequest {
+  string institution_slug = 1;
+  // Empty: a new session
+  string id = 2;
+  // Dirección may schedule for another tutor
+  string staff_id = 3;
+  string kind = 4;
+  string mode = 5;
+  // RFC 3339
+  string scheduled_at = 6;
+  int32 duration_min = 7;
+  string link = 8;
+  string reason = 9;
+  string alert_kind = 10;
+  repeated string student_ids = 11;
+}
+
+message SaveTutoringSessionResponse {
+  TutoringSession session = 1;
+}
+
+message HoldTutoringSessionRequest {
+  string institution_slug = 1;
+  string id = 2;
+  repeated string attended = 3;
+  string notes = 4;
+  string agreements = 5;
+  string commitment = 6;
+  // YYYY-MM-DD
+  string commitment_due = 7;
+}
+
+message HoldTutoringSessionResponse {
+  TutoringSession session = 1;
+}
+
+message SetTutoringSessionStatusRequest {
+  string institution_slug = 1;
+  string id = 2;
+  string status = 3;
+}
+
+message SetTutoringSessionStatusResponse {
+  TutoringSession session = 1;
+}
+
+message ListThreadsRequest {
+  string institution_slug = 1;
+}
+
+message ListThreadsResponse {
+  repeated Thread threads = 1;
+}
+
+message OpenThreadRequest {
+  string institution_slug = 1;
+  string student_id = 2;
+}
+
+message ThreadView {
+  Thread thread = 1;
+  repeated TutoringMessage messages = 2;
+  // staff | student; empty: reads only
+  string side = 3;
+}
+
+message OpenThreadResponse {
+  ThreadView view = 1;
+}
+
+message GetThreadRequest {
+  string institution_slug = 1;
+  string thread_id = 2;
+}
+
+message GetThreadResponse {
+  ThreadView view = 1;
+}
+
+message SendMessageRequest {
+  string institution_slug = 1;
+  string thread_id = 2;
+  string body = 3;
+}
+
+message SendMessageResponse {
+  TutoringMessage message = 1;
+}
+
+message GetMyTutoringRequest {
+  string institution_slug = 1;
+}
+
+message GetMyTutoringResponse {
+  bool has_tutor = 1;
+  TutorStudent tutor = 2;
+  repeated TutoringSession sessions = 3;
+  ThreadView thread = 4;
+}
+
+message ReferSaaneeRequest {
+  string institution_slug = 1;
+  string student_id = 2;
+  string reason = 3;
+  string reference = 4;
+  // YYYY-MM-DD
+  string sent_on = 5;
+}
+
+message ReferSaaneeResponse {
+  SaaneeReferral referral = 1;
+}
+
+message UpdateSaaneeRequest {
+  string institution_slug = 1;
+  string id = 2;
+  string status = 3;
+  string reference = 4;
+  string response = 5;
+}
+
+message UpdateSaaneeResponse {
+  SaaneeReferral referral = 1;
+}

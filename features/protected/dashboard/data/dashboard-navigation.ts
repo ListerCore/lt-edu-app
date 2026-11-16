@@ -1,4 +1,4 @@
-import { Accessibility, Activity, Award, BadgeCheck, Bell, BellRing, BookOpen, Brain, Briefcase, CalendarDays, CalendarRange, ChartColumn, CircleUserRound, ClipboardCheck, ClipboardList, ClipboardPen, Clock, FileCheck, FileSearch, FileSpreadsheet, FileText, FolderOpen, GraduationCap, HandHeart, Handshake, HeartHandshake, Home, IdCard, Layers, LayoutDashboard, Library, LibraryBig, MonitorPlay, NotebookText, Scale, School, ScrollText, Settings, Shapes, ShieldAlert, Trophy, UserCheck, UserCog, Users, UsersRound, Wallet } from 'lucide';
+import { Accessibility, Activity, Award, BadgeCheck, Bell, BellRing, BookOpen, Brain, Briefcase, CalendarDays, CalendarRange, ChartColumn, CircleUserRound, ClipboardCheck, ClipboardList, ClipboardPen, Clock, FileCheck, FileSearch, FileSpreadsheet, FileText, FolderOpen, GraduationCap, HandHeart, Handshake, HeartHandshake, Home, IdCard, Layers, LayoutDashboard, Library, LibraryBig, MessagesSquare, MonitorPlay, NotebookText, Scale, School, ScrollText, Settings, Shapes, ShieldAlert, Trophy, UserCheck, UserCog, Users, UsersRound, Wallet } from 'lucide';
 import type { InstitutionType, Management, NavLabel, NavSection } from '../types';
 
 export const DASHBOARD_PATH = '/dashboard';
@@ -104,6 +104,7 @@ export const dashboardNavigation: NavSection[] = [
         ],
       },
       { label: 'Tutoría', icon: HeartHandshake, href: path('tutoring'), module: 'tutoring' },
+      { label: 'Tutoría virtual', icon: MessagesSquare, href: path('virtual-tutoring'), module: 'virtual-tutoring' },
       { label: 'Convivencia escolar', icon: Scale, href: path('discipline'), module: 'discipline' },
       { label: 'Psicología', icon: Brain, href: path('psychology'), module: 'psychology' },
       { label: 'Escuela de padres', icon: Home, href: path('parent-school'), module: 'parent-school' },

@@ -7,6 +7,7 @@ import { ConfirmDelete, LoadError, PageSkeleton } from '@/features/protected/aca
 import { AttachmentsButton } from '@/features/protected/attachments/components/attachments-button';
 import { formatDay } from '@/features/protected/academic/data/academic-data';
 import { useAcademicData } from '@/features/protected/academic/hooks/use-academic-data';
+import { formatWhen, saaneeStatusClass, saaneeStatusLabels, sessionKindLabels, sessionStatusClass, sessionStatusLabels } from '@/features/protected/tutoring/data/tutoring-data';
 import { isWellbeingEvent } from '@/hooks/use-live';
 import { cn } from '@/lib/utils';
 import {
@@ -202,6 +203,35 @@ const TutoringTab = ({ slug, f, onChanged }: TabProps): JSX.Element => {
           </ul>
         )}
       </Block>
+      {(f.sessions.length > 0 || f.saanee.length > 0) && (
+        <Block title="Tutoría virtual" empty="">
+          <ul className="space-y-2">
+            {f.sessions.map((x) => (
+              <li key={x.id} className="flex flex-wrap items-baseline justify-between gap-2 rounded-xl border border-border bg-background px-4 py-2.5 text-sm">
+                <span className="text-foreground">{x.reason}</span>
+                <span className="flex items-center gap-2 text-xs text-muted-foreground">
+                  {sessionKindLabels[x.kind]} · {formatWhen(x.scheduledAt)} · {x.staffName}
+                  <span className={cn('pill', sessionStatusClass[x.status])}>{sessionStatusLabels[x.status]}</span>
+                </span>
+              </li>
+            ))}
+            {f.saanee.map((x) => (
+              <li key={x.id} className="rounded-xl border border-border bg-background px-4 py-2.5 text-sm">
+                <span className="flex flex-wrap items-baseline justify-between gap-2">
+                  <span className="font-medium text-foreground">Derivación al SAANEE</span>
+                  <span className="flex items-center gap-2 text-xs text-muted-foreground">
+                    {formatDay(x.sentOn)} · {x.referredName}
+                    {x.reference && ` · ${x.reference}`}
+                    <span className={cn('pill', saaneeStatusClass[x.status])}>{saaneeStatusLabels[x.status]}</span>
+                  </span>
+                </span>
+                <span className="mt-1 block text-muted-foreground">{x.reason}</span>
+                {x.response && <span className="mt-1 block text-foreground">Respuesta: {x.response}</span>}
+              </li>
+            ))}
+          </ul>
+        </Block>
+      )}
       {dialog === 'interview' && <InterviewDialog slug={slug} studentId={studentId} onClose={(): void => setDialog(null)} onSaved={(): void => { setDialog(null); onChanged(); }} />}
       {dialog === 'commitment' && <CommitmentDialog slug={slug} studentId={studentId} interviewId={f.interviews[0]?.id ?? ''} onClose={(): void => setDialog(null)} onSaved={(): void => { setDialog(null); onChanged(); }} />}
     </div>

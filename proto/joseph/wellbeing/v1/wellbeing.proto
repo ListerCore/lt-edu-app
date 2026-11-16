@@ -5,6 +5,8 @@ syntax = "proto3";
 // institution scoping as joseph.academic.v1. Dates are "YYYY-MM-DD"
 package joseph.wellbeing.v1;
 
+import "joseph/wellbeing/v1/tutoring.proto";
+
 option go_package = "api/internal/adapter/inbound/grpc/gen/wellbeingv1;wellbeingv1";
 
 service WellbeingService {
@@ -241,6 +243,8 @@ message WellAlert {
   string title = 6;
   string detail = 7;
   string since = 8;
+  // The precise signal: dropout inactive | overdue | low_permanence; commitment
+  string code = 9;
 }
 
 message StaffRef {
@@ -289,6 +293,9 @@ message GetStudentFileResponse {
   bool family = 15;
   string today = 16;
   repeated IncidentCategory catalog = 17;
+  // Virtual tutoring (phase E6): sessions the student was called to and the SAANEE referrals
+  repeated TutoringSession sessions = 18;
+  repeated SaaneeReferral saanee = 19;
 }
 
 message GetAlertsRequest {

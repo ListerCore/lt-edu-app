@@ -52,7 +52,7 @@ export const institutionModules: Record<InstitutionType, ModuleKey[]> = {
   // School: competency grades, report cards, official certificates and the parents' school
   EBR: [...coreModules, 'grades', 'report-cards', 'closing', 'certificates', 'psychology', 'discipline', 'parent-school', 'apafa'],
   // CEBA: attention modes (in person, blended, distance), placement and validation tests, certificates
-  EBA: [...coreModules, 'attention-modes', 'placement', 'roll', 'permanence', 'classroom', 'classroom-library', 'grades', 'report-cards', 'closing', 'certificates', 'psychology', 'discipline', 'apafa'],
+  EBA: [...coreModules, 'attention-modes', 'placement', 'roll', 'permanence', 'virtual-tutoring', 'classroom', 'classroom-library', 'grades', 'report-cards', 'closing', 'certificates', 'psychology', 'discipline', 'apafa'],
   // CEBE: levels per competency against the adaptations of each POI, individual plans, progress reports, therapies and
   // inclusion support (SAANEE)
   EBE: [...coreModules, 'grades', 'report-cards', 'closing', 'individual-plans', 'progress-reports', 'therapies', 'inclusion-support', 'psychology', 'discipline', 'parent-school', 'apafa'],
@@ -106,6 +106,8 @@ const teacherPermissions: RolePermissions = {
   students: VIEW,
   'student-attendance': EDIT,
   permanence: VIEW,
+  // A teacher may be the tutor of some students (assigned one by one)
+  'virtual-tutoring': ['view', 'create'],
   grades: EDIT,
   'report-cards': VIEW,
   'progress-reports': EDIT,
@@ -128,6 +130,8 @@ const teacherPermissions: RolePermissions = {
 
 const studentPermissions: RolePermissions = {
   home: VIEW,
+  // EBA: their tutor, sessions and the conversation with the tutor
+  'virtual-tutoring': VIEW,
   notifications: ['view', 'update'],
   account: ['view', 'update'],
   courses: VIEW,
@@ -160,6 +164,7 @@ export const rolePermissions: Record<Role, RolePermissions> = {
     placement: ALL,
     roll: ALL,
     permanence: ALL,
+    'virtual-tutoring': ALL,
     'report-cards': ALL,
     closing: ALL,
     'individual-plans': ALL,
@@ -221,7 +226,7 @@ export const rolePermissions: Record<Role, RolePermissions> = {
   },
   teacher: teacherPermissions,
   // The tutor adjusts the permanence of their own distance section (the API checks it)
-  tutor: { ...teacherPermissions, permanence: EDIT, tutoring: ALL, wellbeing: ['view', 'create'], discipline: EDIT, 'parent-school': EDIT },
+  tutor: { ...teacherPermissions, permanence: EDIT, 'virtual-tutoring': ALL, tutoring: ALL, wellbeing: ['view', 'create'], discipline: EDIT, 'parent-school': EDIT },
   assistant: {
     home: VIEW,
     notifications: ['view', 'update'],
