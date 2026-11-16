@@ -75,6 +75,7 @@ export const UnitSection = ({ unit, index, count, room, canEdit, family, liveOf,
             <ItemRow
               key={item.id}
               item={item}
+              roomId={room.id}
               index={i}
               count={unit.items.length}
               canEdit={canEdit}

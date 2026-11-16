@@ -1,4 +1,4 @@
-import { CalendarClock, FileText, Link2, ListChecks, Paperclip, PlayCircle } from 'lucide';
+import { CalendarClock, ClipboardCheck, FilePen, FileText, Link2, ListChecks, Paperclip, PlayCircle } from 'lucide';
 import { DASHBOARD_PATH } from '@/features/protected/dashboard/data/dashboard-navigation';
 import type { ItemKindMeta } from '../types';
 
@@ -17,7 +17,18 @@ export const itemKinds: Record<string, ItemKindMeta> = {
   link: { label: 'Enlace web', icon: Link2, hint: 'Una página educativa en internet.' },
   live: { label: 'Sesión en vivo', icon: CalendarClock, hint: 'Videollamada con fecha y hora; la asistencia se registra al entrar desde aquí.' },
   activity: { label: 'Actividad', icon: ListChecks, hint: 'Indicaciones de un trabajo para la semana.' },
+  quiz: { label: 'Cuestionario', icon: ClipboardCheck, hint: 'Preguntas que el estudiante responde en línea; las cerradas se califican solas. Configúralo después de crearlo.' },
+  task: { label: 'Tarea', icon: FilePen, hint: 'Un trabajo que el estudiante entrega con archivos. Configura fechas y competencias después de crearlo.' },
 };
+
+export const assessmentPath = (roomId: string, itemId: string): string => `${CLASSROOM_PATH}/${roomId}/assessments/${itemId}`;
+
+export const questionKindLabels: Record<string, string> = { single: 'Una respuesta', multiple: 'Varias respuestas', short: 'Respuesta corta', open: 'Respuesta abierta' };
+export const submissionStatusLabels: Record<string, string> = { in_progress: 'Respondiendo', submitted: 'Por calificar', graded: 'Calificado' };
+export const submissionStatusClass: Record<string, string> = { in_progress: 'bg-secondary text-muted-foreground', submitted: 'bg-warning/12 text-warning', graded: 'bg-success/12 text-success' };
+export const LEVELS = ['AD', 'A', 'B', 'C'];
+export const levelClass: Record<string, string> = { AD: 'bg-success/15 text-success', A: 'bg-brand-soft text-brand', B: 'bg-warning/12 text-warning', C: 'bg-destructive/10 text-destructive' };
+export const submissionCategories = ['evidence', 'worksheet', 'material', 'other'] as const;
 
 // The library keeps reusable material only (no sessions or activities)
 export const libraryKinds = ['reading', 'file', 'video', 'link'];

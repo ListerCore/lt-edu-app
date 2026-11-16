@@ -1,8 +1,8 @@
 import type { IconInput } from 'morphicons/react';
-import type { Delivery, Item, LibraryItem, Period, Room, Unit } from '@/lib/api/grpc/gen/joseph/classroom/v1/classroom';
+import type { Answer, Assessment, Competency, Delivery, Item, LibraryItem, Period, Question, Room, RosterRow, Submission, Unit } from '@/lib/api/grpc/gen/joseph/classroom/v1/classroom';
 import type { AcademicResult, FormState, RemoteState } from '@/features/protected/academic/types';
 
-export type { AcademicResult, Delivery, FormState, Item, LibraryItem, Period, RemoteState, Room, Unit };
+export type { AcademicResult, Answer, Assessment, Competency, Delivery, FormState, Item, LibraryItem, Period, Question, RemoteState, Room, RosterRow, Submission, Unit };
 
 // manager: every room · teacher: their rooms · reader: reads all · family: a student's rooms
 export type ClassroomMode = 'manager' | 'teacher' | 'reader' | 'family';
@@ -230,6 +230,7 @@ export interface UnitSectionProps {
 
 export interface ItemRowProps {
   item: Item;
+  roomId: string;
   index: number;
   count: number;
   canEdit: boolean;
@@ -288,4 +289,147 @@ export interface LibraryDialogProps {
 export interface UnitPrintProps {
   roomId: string;
   unitId: string;
+}
+
+// ---------- online assessments ----------
+
+export interface AssessmentData {
+  assessment: Assessment;
+  canEdit: boolean;
+  family: boolean;
+  competencies: Competency[];
+  roster: RosterRow[];
+  questionsLocked: boolean;
+  attempts: Submission[];
+  extension: string;
+  openNow: boolean;
+  canStart: boolean;
+}
+
+export interface AssessmentSettingsValues {
+  // datetime-local values (Lima)
+  opensAt: string;
+  closesAt: string;
+  maxAttempts: string;
+  competencyIds: string[];
+  showAnswers: boolean;
+}
+
+// A question as the editor holds it; accepted answers are one per line
+export interface QuestionDraft {
+  key: string;
+  kind: string;
+  prompt: string;
+  options: string[];
+  correct: number[];
+  accepted: string;
+  points: string;
+}
+
+export interface AssessmentPayload {
+  itemId: string;
+  opensAt: string;
+  closesAt: string;
+  maxAttempts: number;
+  competencyIds: string[];
+  showAnswers: boolean;
+  replaceQuestions: boolean;
+  questions: Question[];
+}
+
+export interface UseAssessmentEditorResult extends FormState<AssessmentSettingsValues> {
+  questions: QuestionDraft[];
+  addQuestion: (kind: string) => void;
+  updateQuestion: (key: string, patch: Partial<QuestionDraft>) => void;
+  removeQuestion: (key: string) => void;
+  moveQuestion: (key: string, delta: -1 | 1) => void;
+  totalPoints: number;
+}
+
+export interface UseAttemptResult {
+  current: Submission | null;
+  answers: Record<string, Answer>;
+  setChoice: (questionId: string, index: number, multiple: boolean) => void;
+  setText: (questionId: string, text: string) => void;
+  start: () => void;
+  handIn: () => void;
+  isStarting: boolean;
+  isHandingIn: boolean;
+  saveState: 'idle' | 'saving' | 'saved' | 'error';
+}
+
+export interface GradeValues {
+  levels: Record<string, string>;
+  openPoints: Record<string, string>;
+  feedback: string;
+}
+
+export interface UseGradeParams {
+  submission: Submission;
+  onSaved: () => void;
+}
+
+export interface ExtensionValues {
+  closesAt: string;
+  reason: string;
+}
+
+export interface UseExtensionParams {
+  itemId: string;
+  row: RosterRow;
+  onSaved: () => void;
+}
+
+export interface UseRecordLevelsResult {
+  record: () => void;
+  isRecording: boolean;
+}
+
+export interface AssessmentPageProps {
+  roomId: string;
+  itemId: string;
+}
+
+export interface AssessmentStaffProps {
+  roomId: string;
+  data: AssessmentData;
+  onChanged: () => void;
+}
+
+export interface AssessmentStudentProps {
+  roomId: string;
+  data: AssessmentData;
+  onChanged: () => void;
+}
+
+export interface GradeDialogProps {
+  assessment: Assessment;
+  competencies: Competency[];
+  submission: Submission;
+  onClose: () => void;
+  onSaved: () => void;
+}
+
+export interface ExtensionDialogProps {
+  itemId: string;
+  row: RosterRow;
+  onClose: () => void;
+  onSaved: () => void;
+}
+
+export interface QuestionEditorProps {
+  question: QuestionDraft;
+  error?: string;
+  index: number;
+  count: number;
+  locked: boolean;
+  onChange: (patch: Partial<QuestionDraft>) => void;
+  onRemove: () => void;
+  onMove: (delta: -1 | 1) => void;
+}
+
+export interface SubmissionReviewProps {
+  assessment: Assessment;
+  competencies: Competency[];
+  submission: Submission;
 }

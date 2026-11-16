@@ -110,6 +110,7 @@ export const ownerKindModules: Partial<Record<AttachmentOwnerKind, ModuleKey>> =
   // Virtual classroom: material of a unit and the library
   classroom_item: 'classroom',
   library_item: 'classroom-library',
+  submission: 'classroom',
 };
 
 export const attachmentFileUrl = (id: string): string => `/api/files/attachments/${id}`;

@@ -26,7 +26,7 @@ export const ItemDialog = ({ unitId, item, onClose, onSaved }: ItemDialogProps):
   const fromLibrary = Boolean(item?.libraryItemId);
   const meta = itemKinds[values.kind];
   const kindOptions = Object.entries(itemKinds).map(([value, k]) => ({ value, label: k.label }));
-  const bodyLabel = values.kind === 'activity' ? 'Indicaciones' : values.kind === 'live' ? 'Qué se verá (opcional)' : 'Contenido';
+  const bodyLabel = values.kind === 'activity' ? 'Indicaciones' : values.kind === 'quiz' || values.kind === 'task' ? 'Indicaciones (opcional)' : values.kind === 'live' ? 'Qué se verá (opcional)' : 'Contenido';
 
   return (
     <FormDialog title={item ? 'Editar material' : 'Agregar material'} description={meta?.hint ?? ''} submitLabel={item ? 'Guardar' : 'Agregar'} isPending={isPending} onSubmit={submit} onClose={onClose} wide>
@@ -65,7 +65,7 @@ export const ItemDialog = ({ unitId, item, onClose, onSaved }: ItemDialogProps):
             </div>
           )}
           {values.kind !== 'file' && values.kind !== 'video' && values.kind !== 'link' && (
-            <FormField id="item-body" label={bodyLabel} required={values.kind !== 'live'} error={errors.body}>
+            <FormField id="item-body" label={bodyLabel} required={values.kind === 'reading' || values.kind === 'activity'} error={errors.body}>
               <Textarea id="item-body" rows={values.kind === 'reading' ? 10 : 5} value={values.body} maxLength={20000} onChange={(e): void => setField('body', e.target.value)} aria-invalid={Boolean(errors.body)} />
             </FormField>
           )}

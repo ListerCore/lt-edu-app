@@ -30,4 +30,12 @@ export const classroomRpc = {
   deleteLibraryItem: classroom((c) => c.deleteLibraryItem),
   deliveries: classroom((c) => c.listDeliveries),
   saveDelivery: classroom((c) => c.saveDelivery),
+  assessment: classroom((c) => c.getAssessment),
+  saveAssessment: classroom((c) => c.saveAssessment),
+  startAttempt: classroom((c) => c.startAttempt),
+  saveAnswers: classroom((c) => c.saveAnswers),
+  handIn: classroom((c) => c.handIn),
+  gradeSubmission: classroom((c) => c.gradeSubmission),
+  setExtension: classroom((c) => c.setExtension),
+  recordLevels: classroom((c) => c.recordLevels),
 };

@@ -1,18 +1,19 @@
 'use client';
 
+import Link from 'next/link';
 import { useState, type JSX } from 'react';
 import { ArrowDown, ArrowUp, CheckCircle2, ChevronDown, ExternalLink, Pencil, Video } from 'lucide';
 import { MorphIcon } from '@/components/ui/morph-icon';
 import { ConfirmDelete } from '@/features/protected/academic/components/academic-ui';
 import { AttachmentsPanel } from '@/features/protected/attachments/components/attachments-panel';
 import { cn } from '@/lib/utils';
-import { itemKinds, materialCategories } from '../data/classroom-data';
+import { assessmentPath, itemKinds, materialCategories } from '../data/classroom-data';
 import { useRecordView } from '../hooks/use-record-view';
 import type { ItemRowProps } from '../types';
 
 // One piece of material. Students open it (and that counts as viewed); staff also see how many opened it and, if
 // they edit the room, move, edit or delete it and attach its files
-export const ItemRow = ({ item, index, count, canEdit, family, live, isMoving, isDeleting, onMove, onEdit, onDelete }: ItemRowProps): JSX.Element => {
+export const ItemRow = ({ item, roomId, index, count, canEdit, family, live, isMoving, isDeleting, onMove, onEdit, onDelete }: ItemRowProps): JSX.Element => {
   const [open, setOpen] = useState(false);
   const recordView = useRecordView(family);
   const meta = itemKinds[item.kind];
@@ -98,7 +99,12 @@ export const ItemRow = ({ item, index, count, canEdit, family, live, isMoving, i
               {item.kind === 'video' ? 'Ver el video' : 'Abrir el enlace'}
             </a>
           )}
-          {(item.kind === 'file' || item.files > 0 || (canEdit && !item.libraryItemId)) && (
+          {(item.kind === 'quiz' || item.kind === 'task') && (
+            <Link href={assessmentPath(roomId, item.id)} onClick={(): void => recordView(item.id)} className="btn-brand inline-flex h-9 px-4 text-sm">
+              {family ? (item.kind === 'quiz' ? 'Ir al cuestionario' : 'Ir a la tarea') : canEdit ? 'Configurar y calificar' : 'Ver entregas'}
+            </Link>
+          )}
+          {item.kind !== 'quiz' && item.kind !== 'task' && (item.kind === 'file' || item.files > 0 || (canEdit && !item.libraryItemId)) && (
             <AttachmentsPanel
               ownerKind={ownerKind}
               ownerId={ownerId}
