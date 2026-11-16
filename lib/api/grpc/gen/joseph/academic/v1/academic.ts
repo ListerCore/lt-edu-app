@@ -158,6 +158,8 @@ export interface Section {
   /** EBA only: pebaja | literacy, and virtual | itinerant when attention_mode is distance */
   program: string;
   distanceVariant: string;
+  /** EBA only: gathers students of several grades of the cycle; grade_id is the lowest */
+  multigrade: boolean;
 }
 
 export interface LevelInput {
@@ -194,6 +196,7 @@ export interface SectionInput {
   /** EBA only; empty program means PEBAJA, empty variant of a distance section means virtual */
   program: string;
   distanceVariant: string;
+  multigrade: boolean;
 }
 
 export interface GetContextRequest {
@@ -401,6 +404,7 @@ export interface CreateSectionsRequest {
   room: string;
   program: string;
   distanceVariant: string;
+  multigrade: boolean;
 }
 
 export interface CreateSectionsResponse {
@@ -1535,6 +1539,7 @@ function createBaseSection(): Section {
     tutorName: "",
     program: "",
     distanceVariant: "",
+    multigrade: false,
   };
 }
 
@@ -1587,6 +1592,9 @@ export const Section: MessageFns<Section> = {
     }
     if (message.distanceVariant !== "") {
       writer.uint32(130).string(message.distanceVariant);
+    }
+    if (message.multigrade !== false) {
+      writer.uint32(136).bool(message.multigrade);
     }
     return writer;
   },
@@ -1730,6 +1738,14 @@ export const Section: MessageFns<Section> = {
             }
 
             message.distanceVariant = reader.string();
+            continue;
+          }
+          case 17: {
+            if (tag !== 136) {
+              break;
+            }
+
+            message.multigrade = reader.bool();
             continue;
           }
         }
@@ -2024,7 +2040,16 @@ export const PeriodInput: MessageFns<PeriodInput> = {
 };
 
 function createBaseSectionInput(): SectionInput {
-  return { name: "", shift: "", attentionMode: "", capacity: 0, room: "", program: "", distanceVariant: "" };
+  return {
+    name: "",
+    shift: "",
+    attentionMode: "",
+    capacity: 0,
+    room: "",
+    program: "",
+    distanceVariant: "",
+    multigrade: false,
+  };
 }
 
 export const SectionInput: MessageFns<SectionInput> = {
@@ -2049,6 +2074,9 @@ export const SectionInput: MessageFns<SectionInput> = {
     }
     if (message.distanceVariant !== "") {
       writer.uint32(58).string(message.distanceVariant);
+    }
+    if (message.multigrade !== false) {
+      writer.uint32(64).bool(message.multigrade);
     }
     return writer;
   },
@@ -2120,6 +2148,14 @@ export const SectionInput: MessageFns<SectionInput> = {
             }
 
             message.distanceVariant = reader.string();
+            continue;
+          }
+          case 8: {
+            if (tag !== 64) {
+              break;
+            }
+
+            message.multigrade = reader.bool();
             continue;
           }
         }
@@ -4296,6 +4332,7 @@ function createBaseCreateSectionsRequest(): CreateSectionsRequest {
     room: "",
     program: "",
     distanceVariant: "",
+    multigrade: false,
   };
 }
 
@@ -4333,6 +4370,9 @@ export const CreateSectionsRequest: MessageFns<CreateSectionsRequest> = {
     }
     if (message.distanceVariant !== "") {
       writer.uint32(90).string(message.distanceVariant);
+    }
+    if (message.multigrade !== false) {
+      writer.uint32(96).bool(message.multigrade);
     }
     return writer;
   },
@@ -4436,6 +4476,14 @@ export const CreateSectionsRequest: MessageFns<CreateSectionsRequest> = {
             }
 
             message.distanceVariant = reader.string();
+            continue;
+          }
+          case 12: {
+            if (tag !== 96) {
+              break;
+            }
+
+            message.multigrade = reader.bool();
             continue;
           }
         }

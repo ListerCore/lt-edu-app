@@ -76,6 +76,10 @@ export const categoryLabels: Record<AttachmentCategory, string> = {
   financial_statement: 'Estado de cuentas',
   attendance_list: 'Lista de asistencia',
   screenshot: 'Captura de pantalla',
+  material: 'Material de lectura',
+  guide: 'Guía',
+  worksheet: 'Ficha de trabajo',
+  presentation: 'Presentación',
   other: 'Otro',
 };
 
@@ -103,6 +107,15 @@ export const ownerKindModules: Partial<Record<AttachmentOwnerKind, ModuleKey>> =
   // Institution file: authorizing resolutions and the platform's hosting evidence
   authorization: 'institution',
   platform_sheet: 'institution',
+  // Virtual classroom: material of a unit and the library
+  classroom_item: 'classroom',
+  library_item: 'classroom-library',
+  submission: 'classroom',
+  // DRE compliance: photos and plans of the room, the devices, the captures of tests and of each report row
+  equipment_room: 'compliance',
+  equipment_device: 'compliance',
+  equipment_check: 'compliance',
+  compliance_item: 'compliance',
 };
 
 export const attachmentFileUrl = (id: string): string => `/api/files/attachments/${id}`;

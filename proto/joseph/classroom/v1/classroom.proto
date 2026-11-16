@@ -1,0 +1,588 @@
+syntax = "proto3";
+
+// Virtual classroom (sección de aula virtual, Anexo 2 of RSG N.° 613-2014-MINEDU): one room per subject × grade of
+// each period, its units and material, the institution's library and the itinerant deliveries. Same metadata and
+// institution scoping as joseph.academic.v1. Files go through the attachments API (owner_kind classroom_item and
+// library_item)
+package joseph.classroom.v1;
+
+option go_package = "api/internal/adapter/inbound/grpc/gen/classroomv1;classroomv1";
+
+// Dirección and coordinación manage every room; teachers edit the rooms of the subjects they teach; secretaría and
+// the Responsable técnico read; students and families see published rooms of the student's grade, open units and
+// published material
+service ClassroomService {
+  rpc ListRooms(ListRoomsRequest) returns (ListRoomsResponse);
+  rpc GenerateRooms(GenerateRoomsRequest) returns (GenerateRoomsResponse);
+  rpc GetRoom(GetRoomRequest) returns (GetRoomResponse);
+  rpc UpdateRoom(UpdateRoomRequest) returns (UpdateRoomResponse);
+  rpc CopyRoom(CopyRoomRequest) returns (CopyRoomResponse);
+
+  rpc SaveUnit(SaveUnitRequest) returns (SaveUnitResponse);
+  rpc DeleteUnit(DeleteUnitRequest) returns (DeleteUnitResponse);
+  rpc ReorderUnits(ReorderUnitsRequest) returns (ReorderUnitsResponse);
+
+  rpc SaveItem(SaveItemRequest) returns (SaveItemResponse);
+  rpc DeleteItem(DeleteItemRequest) returns (DeleteItemResponse);
+  rpc ReorderItems(ReorderItemsRequest) returns (ReorderItemsResponse);
+  // A student opened a piece of material or joined a live session; a no-op for anyone else
+  rpc RecordView(RecordViewRequest) returns (RecordViewResponse);
+
+  rpc ListLibrary(ListLibraryRequest) returns (ListLibraryResponse);
+  rpc SaveLibraryItem(SaveLibraryItemRequest) returns (SaveLibraryItemResponse);
+  rpc DeleteLibraryItem(DeleteLibraryItemRequest) returns (DeleteLibraryItemResponse);
+
+  rpc ListDeliveries(ListDeliveriesRequest) returns (ListDeliveriesResponse);
+  rpc SaveDelivery(SaveDeliveryRequest) returns (SaveDeliveryResponse);
+
+  // Online assessments (quiz and task items). Staff read the right answers and the roster; students their attempts
+  rpc GetAssessment(GetAssessmentRequest) returns (GetAssessmentResponse);
+  rpc SaveAssessment(SaveAssessmentRequest) returns (SaveAssessmentResponse);
+  rpc StartAttempt(StartAttemptRequest) returns (StartAttemptResponse);
+  rpc SaveAnswers(SaveAnswersRequest) returns (SaveAnswersResponse);
+  rpc HandIn(HandInRequest) returns (HandInResponse);
+  rpc GradeSubmission(GradeSubmissionRequest) returns (GradeSubmissionResponse);
+  rpc SetExtension(SetExtensionRequest) returns (SetExtensionResponse);
+  // Takes the levels of the latest graded attempts to the official record of the open term
+  rpc RecordLevels(RecordLevelsRequest) returns (RecordLevelsResponse);
+
+  // Forums (forum items). Opening a forum marks it read for the person
+  rpc GetForum(GetForumRequest) returns (GetForumResponse);
+  rpc SaveForum(SaveForumRequest) returns (SaveForumResponse);
+  rpc CreatePost(CreatePostRequest) returns (CreatePostResponse);
+  rpc EditPost(EditPostRequest) returns (EditPostResponse);
+  rpc DeletePost(DeletePostRequest) returns (DeletePostResponse);
+  rpc ModeratePost(ModeratePostRequest) returns (ModeratePostResponse);
+}
+
+message Period {
+  string id = 1;
+  string name = 2;
+  string status = 3;
+}
+
+message Room {
+  string id = 1;
+  string period_id = 2;
+  string period_name = 3;
+  string subject_id = 4;
+  string subject_name = 5;
+  string subject_code = 6;
+  string level_id = 7;
+  string level_name = 8;
+  string grade_id = 9;
+  string grade_name = 10;
+  string grade_short = 11;
+  string description = 12;
+  string staff_id = 13;
+  string staff_name = 14;
+  // draft | published
+  string status = 15;
+  int32 units = 16;
+  int32 items = 17;
+  int32 students = 18;
+  string updated_at = 19;
+}
+
+message Item {
+  string id = 1;
+  string unit_id = 2;
+  // reading | file | video | link | live | activity | quiz | task | forum
+  string kind = 3;
+  string title = 4;
+  string body = 5;
+  string url = 6;
+  bool complementary = 7;
+  // live only: RFC 3339 start and length
+  string starts_at = 8;
+  optional int32 duration_minutes = 9;
+  string recording_url = 10;
+  // Taken from the library: body, url and files come from there
+  string library_item_id = 11;
+  bool published = 12;
+  int32 files = 13;
+  // For a student: whether they opened it. For staff: how many students did
+  bool viewed = 14;
+  int32 views = 15;
+}
+
+message Unit {
+  string id = 1;
+  string title = 2;
+  string summary = 3;
+  // YYYY-MM-DD or empty (open as soon as published)
+  string opens_on = 4;
+  bool published = 5;
+  repeated Item items = 6;
+}
+
+message LibraryItem {
+  string id = 1;
+  // reading | file | video | link
+  string kind = 2;
+  string title = 3;
+  string description = 4;
+  string body = 5;
+  string url = 6;
+  string topic = 7;
+  string created_name = 8;
+  string updated_at = 9;
+  int32 files = 10;
+  int32 uses = 11;
+}
+
+message Delivery {
+  string unit_id = 1;
+  string student_id = 2;
+  string student_name = 3;
+  string student_code = 4;
+  // YYYY-MM-DD or empty
+  string delivered_on = 5;
+  string returned_on = 6;
+  string notes = 7;
+  string recorded_by_name = 8;
+}
+
+message ListRoomsRequest {
+  string institution_slug = 1;
+  // Empty: the period in course
+  string period_id = 2;
+}
+
+message ListRoomsResponse {
+  repeated Period periods = 1;
+  string period_id = 2;
+  repeated Room rooms = 3;
+  bool can_manage = 4;
+  // manager | teacher | reader | family
+  string mode = 5;
+}
+
+message GenerateRoomsRequest {
+  string institution_slug = 1;
+  string period_id = 2;
+}
+
+message GenerateRoomsResponse {
+  int32 created = 1;
+}
+
+message GetRoomRequest {
+  string institution_slug = 1;
+  string id = 2;
+}
+
+message GetRoomResponse {
+  Room room = 1;
+  repeated Unit units = 2;
+  bool can_edit = 3;
+  bool family = 4;
+}
+
+message UpdateRoomRequest {
+  string institution_slug = 1;
+  string id = 2;
+  string description = 3;
+  string status = 4;
+  // Only dirección and coordinación change it; empty leaves it without a teacher in charge
+  string staff_id = 5;
+}
+
+message UpdateRoomResponse {
+  Room room = 1;
+}
+
+message CopyRoomRequest {
+  string institution_slug = 1;
+  string id = 2;
+  string from_room_id = 3;
+}
+
+message CopyRoomResponse {
+  int32 units = 1;
+}
+
+message SaveUnitRequest {
+  string institution_slug = 1;
+  // Empty id creates it at the end of room_id
+  string id = 2;
+  string room_id = 3;
+  string title = 4;
+  string summary = 5;
+  string opens_on = 6;
+  bool published = 7;
+}
+
+message SaveUnitResponse {
+  Unit unit = 1;
+}
+
+message DeleteUnitRequest {
+  string institution_slug = 1;
+  string id = 2;
+}
+
+message DeleteUnitResponse {}
+
+message ReorderUnitsRequest {
+  string institution_slug = 1;
+  string room_id = 2;
+  repeated string ids = 3;
+}
+
+message ReorderUnitsResponse {}
+
+message SaveItemRequest {
+  string institution_slug = 1;
+  // Empty id creates it at the end of unit_id
+  Item item = 2;
+}
+
+message SaveItemResponse {
+  Item item = 1;
+}
+
+message DeleteItemRequest {
+  string institution_slug = 1;
+  string id = 2;
+}
+
+message DeleteItemResponse {}
+
+message ReorderItemsRequest {
+  string institution_slug = 1;
+  string unit_id = 2;
+  repeated string ids = 3;
+}
+
+message ReorderItemsResponse {}
+
+message RecordViewRequest {
+  string institution_slug = 1;
+  string item_id = 2;
+}
+
+message RecordViewResponse {}
+
+message ListLibraryRequest {
+  string institution_slug = 1;
+}
+
+message ListLibraryResponse {
+  repeated LibraryItem items = 1;
+  bool can_edit = 2;
+}
+
+message SaveLibraryItemRequest {
+  string institution_slug = 1;
+  LibraryItem item = 2;
+}
+
+message SaveLibraryItemResponse {
+  LibraryItem item = 1;
+}
+
+message DeleteLibraryItemRequest {
+  string institution_slug = 1;
+  string id = 2;
+}
+
+message DeleteLibraryItemResponse {}
+
+message ListDeliveriesRequest {
+  string institution_slug = 1;
+  string unit_id = 2;
+}
+
+message ListDeliveriesResponse {
+  repeated Delivery deliveries = 1;
+}
+
+message SaveDeliveryRequest {
+  string institution_slug = 1;
+  // Empty delivered_on removes the record
+  Delivery delivery = 2;
+}
+
+message SaveDeliveryResponse {}
+
+message Question {
+  string id = 1;
+  // single | multiple | short | open
+  string kind = 2;
+  string prompt = 3;
+  repeated string options = 4;
+  // Staff, or a student once graded when the answers are shown: right option indexes and accepted short answers
+  repeated int32 correct = 5;
+  repeated string accepted = 6;
+  int32 points = 7;
+}
+
+message Assessment {
+  string item_id = 1;
+  string room_id = 2;
+  string unit_id = 3;
+  // quiz | task
+  string kind = 4;
+  string title = 5;
+  string instructions = 6;
+  bool published = 7;
+  // RFC 3339 or empty
+  string opens_at = 8;
+  string closes_at = 9;
+  int32 max_attempts = 10;
+  repeated string competency_ids = 11;
+  bool show_answers = 12;
+  repeated Question questions = 13;
+}
+
+message Competency {
+  string id = 1;
+  string name = 2;
+}
+
+message Answer {
+  repeated int32 choices = 1;
+  string text = 2;
+}
+
+message Submission {
+  string id = 1;
+  string item_id = 2;
+  string student_id = 3;
+  string student_name = 4;
+  string student_code = 5;
+  int32 attempt = 6;
+  // in_progress | submitted | graded
+  string status = 7;
+  map<string, Answer> answers = 8;
+  int32 auto_points = 9;
+  int32 auto_total = 10;
+  map<string, int32> open_points = 11;
+  // competency id → AD | A | B | C
+  map<string, string> levels = 12;
+  string feedback = 13;
+  string started_at = 14;
+  string submitted_at = 15;
+  bool late = 16;
+  string graded_at = 17;
+  string graded_name = 18;
+  string recorded_at = 19;
+  int32 files = 20;
+  // Level the points suggest (AD from 90 %, A from 70 %, B from 50 %); the teacher confirms
+  string suggested_level = 21;
+}
+
+message RosterRow {
+  string student_id = 1;
+  string student_name = 2;
+  string student_code = 3;
+  Submission latest = 4;
+  int32 attempts = 5;
+  // RFC 3339 or empty
+  string extension = 6;
+}
+
+message GetAssessmentRequest {
+  string institution_slug = 1;
+  string item_id = 2;
+}
+
+message GetAssessmentResponse {
+  Assessment assessment = 1;
+  bool can_edit = 2;
+  bool family = 3;
+  repeated Competency competencies = 4;
+  repeated RosterRow roster = 5;
+  bool questions_locked = 6;
+  repeated Submission attempts = 7;
+  string extension = 8;
+  bool open_now = 9;
+  bool can_start = 10;
+}
+
+message SaveAssessmentRequest {
+  string institution_slug = 1;
+  string item_id = 2;
+  string opens_at = 3;
+  string closes_at = 4;
+  int32 max_attempts = 5;
+  repeated string competency_ids = 6;
+  bool show_answers = 7;
+  // Quizzes only: replace the questions (refused once someone handed it in)
+  bool replace_questions = 8;
+  repeated Question questions = 9;
+}
+
+message SaveAssessmentResponse {
+  Assessment assessment = 1;
+}
+
+message StartAttemptRequest {
+  string institution_slug = 1;
+  string item_id = 2;
+}
+
+message StartAttemptResponse {
+  Submission submission = 1;
+}
+
+message SaveAnswersRequest {
+  string institution_slug = 1;
+  string submission_id = 2;
+  map<string, Answer> answers = 3;
+}
+
+message SaveAnswersResponse {}
+
+message HandInRequest {
+  string institution_slug = 1;
+  string submission_id = 2;
+  // Last answers, saved before handing in (empty keeps the saved ones)
+  map<string, Answer> answers = 3;
+}
+
+message HandInResponse {
+  Submission submission = 1;
+}
+
+message GradeSubmissionRequest {
+  string institution_slug = 1;
+  string submission_id = 2;
+  map<string, string> levels = 3;
+  map<string, int32> open_points = 4;
+  string feedback = 5;
+}
+
+message GradeSubmissionResponse {
+  Submission submission = 1;
+}
+
+message SetExtensionRequest {
+  string institution_slug = 1;
+  string item_id = 2;
+  string student_id = 3;
+  // RFC 3339; empty removes the extension
+  string closes_at = 4;
+  string reason = 5;
+}
+
+message SetExtensionResponse {}
+
+message RecordLevelsRequest {
+  string institution_slug = 1;
+  string item_id = 2;
+}
+
+message RecordLevelsResponse {
+  int32 recorded = 1;
+  // Students left out: their section has no teacher for the area, or its sheet is closed or not yours
+  repeated string skipped_student_ids = 2;
+}
+
+message Forum {
+  string item_id = 1;
+  string room_id = 2;
+  string title = 3;
+  // The teacher's opening question or guidance
+  string prompt = 4;
+  // debate | questions | intro
+  string kind = 5;
+  bool closed = 6;
+  string closed_by_name = 7;
+}
+
+message Post {
+  string id = 1;
+  string parent_id = 2;
+  string author_user_id = 3;
+  string author_name = 4;
+  // Role code of the author (student, teacher, tutor…)
+  string author_role = 5;
+  // Empty for families when hidden
+  string body = 6;
+  bool pinned = 7;
+  bool hidden = 8;
+  string hidden_reason = 9;
+  string hidden_by_name = 10;
+  string created_at = 11;
+  string edited_at = 12;
+  // Posted after the person's previous visit, by someone else
+  bool is_new = 13;
+}
+
+message Thread {
+  Post post = 1;
+  repeated Post replies = 2;
+}
+
+message Participation {
+  string student_id = 1;
+  string student_name = 2;
+  string student_code = 3;
+  int32 threads = 4;
+  int32 replies = 5;
+  string last_at = 6;
+}
+
+message GetForumRequest {
+  string institution_slug = 1;
+  string item_id = 2;
+}
+
+message GetForumResponse {
+  Forum forum = 1;
+  repeated Thread threads = 2;
+  bool can_post = 3;
+  bool can_moderate = 4;
+  string my_user_id = 5;
+  int32 new_posts = 6;
+  // Staff only
+  repeated Participation participation = 7;
+}
+
+message SaveForumRequest {
+  string institution_slug = 1;
+  string item_id = 2;
+  string kind = 3;
+  bool closed = 4;
+}
+
+message SaveForumResponse {}
+
+message CreatePostRequest {
+  string institution_slug = 1;
+  string item_id = 2;
+  // Empty starts a thread
+  string parent_id = 3;
+  string body = 4;
+}
+
+message CreatePostResponse {
+  Post post = 1;
+}
+
+message EditPostRequest {
+  string institution_slug = 1;
+  string id = 2;
+  string body = 3;
+}
+
+message EditPostResponse {}
+
+message DeletePostRequest {
+  string institution_slug = 1;
+  string id = 2;
+}
+
+message DeletePostResponse {}
+
+message ModeratePostRequest {
+  string institution_slug = 1;
+  string id = 2;
+  bool pinned = 3;
+  bool hidden = 4;
+  string reason = 5;
+}
+
+message ModeratePostResponse {}

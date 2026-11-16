@@ -64,6 +64,8 @@ export interface SectionBatchValues {
   // EBA only: pebaja | literacy, and virtual | itinerant for the distance form
   program: string;
   distanceVariant: string;
+  // EBA only: one section gathers several grades of the cycle
+  multigrade: boolean;
   capacity: string;
   room: string;
 }
@@ -73,11 +75,14 @@ export interface EbaSectionValues {
   attentionMode: string;
   program: string;
   distanceVariant: string;
+  multigrade: boolean;
 }
 
 export interface EbaSectionFieldsProps<V extends EbaSectionValues> {
   idPrefix: string;
   levelModes: string[];
+  // How many grades the cycle has: multigrade needs two or more
+  gradeCount: number;
   values: V;
   errors: Partial<Record<string, string>>;
   setField: <K extends keyof V>(field: K, value: V[K]) => void;
@@ -89,6 +94,7 @@ export interface SectionFormValues {
   attentionMode: string;
   program: string;
   distanceVariant: string;
+  multigrade: boolean;
   capacity: string;
   room: string;
 }

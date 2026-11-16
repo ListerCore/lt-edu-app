@@ -37,6 +37,9 @@ export interface RecordInfo {
   status: string;
   issuedName: string;
   issuedAt: string;
+  /** Phase E7: the newest signed version of the acta (empty until generated) and its state */
+  actVersionId: string;
+  actStatus: string;
 }
 
 export interface SectionClosingSummary {
@@ -90,6 +93,7 @@ export interface ClosingArea {
   subjectId: string;
   name: string;
   competencies: Competency[];
+  subjectCode: string;
 }
 
 export interface ClosingRow {
@@ -105,6 +109,16 @@ export interface ClosingRow {
   targets: string[];
   recovery: { [key: string]: string };
   afterRecovery: string;
+  /**
+   * Phase E7: the student's own grade (multigrade sections), the Religion exemption (its cells read EXO) and the
+   * SIAGIE state of the grades: pending | exported | observed
+   */
+  enrollmentId: string;
+  gradeShort: string;
+  religionExempt: boolean;
+  siagieStatus: string;
+  siagieNote: string;
+  siagieAt: string;
 }
 
 export interface ClosingRow_FinalEntry {
@@ -280,6 +294,66 @@ export interface ExportResultsResponse {
   content: Buffer;
 }
 
+export interface PromotionRule {
+  levelId: string;
+  levelCode: string;
+  levelName: string;
+  automatic: boolean;
+  areas: number;
+  note: string;
+  /** false: the rule of the code (default_*) */
+  custom: boolean;
+  updatedName: string;
+  updatedAt: string;
+  defaultName: string;
+  defaultAreas: number;
+  defaultAutomatic: boolean;
+}
+
+export interface GetPromotionRulesRequest {
+  institutionSlug: string;
+}
+
+export interface GetPromotionRulesResponse {
+  rules: PromotionRule[];
+  canManage: boolean;
+}
+
+export interface SavePromotionRuleRequest {
+  institutionSlug: string;
+  levelId: string;
+  automatic: boolean;
+  areas: number;
+  note: string;
+}
+
+export interface SavePromotionRuleResponse {
+  rules: PromotionRule[];
+  canManage: boolean;
+}
+
+export interface ResetPromotionRuleRequest {
+  institutionSlug: string;
+  levelId: string;
+}
+
+export interface ResetPromotionRuleResponse {
+  rules: PromotionRule[];
+  canManage: boolean;
+}
+
+export interface SetSiagieGradesRequest {
+  institutionSlug: string;
+  sectionId: string;
+  studentIds: string[];
+  status: string;
+  note: string;
+}
+
+export interface SetSiagieGradesResponse {
+  section?: SectionClosing | undefined;
+}
+
 function createBaseRecordInfo(): RecordInfo {
   return {
     id: "",
@@ -292,6 +366,8 @@ function createBaseRecordInfo(): RecordInfo {
     status: "",
     issuedName: "",
     issuedAt: "",
+    actVersionId: "",
+    actStatus: "",
   };
 }
 
@@ -326,6 +402,12 @@ export const RecordInfo: MessageFns<RecordInfo> = {
     }
     if (message.issuedAt !== "") {
       writer.uint32(82).string(message.issuedAt);
+    }
+    if (message.actVersionId !== "") {
+      writer.uint32(90).string(message.actVersionId);
+    }
+    if (message.actStatus !== "") {
+      writer.uint32(98).string(message.actStatus);
     }
     return writer;
   },
@@ -421,6 +503,22 @@ export const RecordInfo: MessageFns<RecordInfo> = {
             }
 
             message.issuedAt = reader.string();
+            continue;
+          }
+          case 11: {
+            if (tag !== 90) {
+              break;
+            }
+
+            message.actVersionId = reader.string();
+            continue;
+          }
+          case 12: {
+            if (tag !== 98) {
+              break;
+            }
+
+            message.actStatus = reader.string();
             continue;
           }
         }
@@ -979,7 +1077,7 @@ export const GetClosingResponse: MessageFns<GetClosingResponse> = {
 };
 
 function createBaseClosingArea(): ClosingArea {
-  return { subjectId: "", name: "", competencies: [] };
+  return { subjectId: "", name: "", competencies: [], subjectCode: "" };
 }
 
 export const ClosingArea: MessageFns<ClosingArea> = {
@@ -992,6 +1090,9 @@ export const ClosingArea: MessageFns<ClosingArea> = {
     }
     for (const v of message.competencies) {
       Competency.encode(v!, writer.uint32(26).fork()).join();
+    }
+    if (message.subjectCode !== "") {
+      writer.uint32(34).string(message.subjectCode);
     }
     return writer;
   },
@@ -1033,6 +1134,14 @@ export const ClosingArea: MessageFns<ClosingArea> = {
             message.competencies.push(Competency.decode(reader, reader.uint32()));
             continue;
           }
+          case 4: {
+            if (tag !== 34) {
+              break;
+            }
+
+            message.subjectCode = reader.string();
+            continue;
+          }
         }
         if ((tag & 7) === 4 || tag === 0) {
           break;
@@ -1060,6 +1169,12 @@ function createBaseClosingRow(): ClosingRow {
     targets: [],
     recovery: {},
     afterRecovery: "",
+    enrollmentId: "",
+    gradeShort: "",
+    religionExempt: false,
+    siagieStatus: "",
+    siagieNote: "",
+    siagieAt: "",
   };
 }
 
@@ -1100,6 +1215,24 @@ export const ClosingRow: MessageFns<ClosingRow> = {
     });
     if (message.afterRecovery !== "") {
       writer.uint32(98).string(message.afterRecovery);
+    }
+    if (message.enrollmentId !== "") {
+      writer.uint32(106).string(message.enrollmentId);
+    }
+    if (message.gradeShort !== "") {
+      writer.uint32(114).string(message.gradeShort);
+    }
+    if (message.religionExempt !== false) {
+      writer.uint32(120).bool(message.religionExempt);
+    }
+    if (message.siagieStatus !== "") {
+      writer.uint32(130).string(message.siagieStatus);
+    }
+    if (message.siagieNote !== "") {
+      writer.uint32(138).string(message.siagieNote);
+    }
+    if (message.siagieAt !== "") {
+      writer.uint32(146).string(message.siagieAt);
     }
     return writer;
   },
@@ -1217,6 +1350,54 @@ export const ClosingRow: MessageFns<ClosingRow> = {
             }
 
             message.afterRecovery = reader.string();
+            continue;
+          }
+          case 13: {
+            if (tag !== 106) {
+              break;
+            }
+
+            message.enrollmentId = reader.string();
+            continue;
+          }
+          case 14: {
+            if (tag !== 114) {
+              break;
+            }
+
+            message.gradeShort = reader.string();
+            continue;
+          }
+          case 15: {
+            if (tag !== 120) {
+              break;
+            }
+
+            message.religionExempt = reader.bool();
+            continue;
+          }
+          case 16: {
+            if (tag !== 130) {
+              break;
+            }
+
+            message.siagieStatus = reader.string();
+            continue;
+          }
+          case 17: {
+            if (tag !== 138) {
+              break;
+            }
+
+            message.siagieNote = reader.string();
+            continue;
+          }
+          case 18: {
+            if (tag !== 146) {
+              break;
+            }
+
+            message.siagieAt = reader.string();
             continue;
           }
         }
@@ -3180,6 +3361,686 @@ export const ExportResultsResponse: MessageFns<ExportResultsResponse> = {
   },
 };
 
+function createBasePromotionRule(): PromotionRule {
+  return {
+    levelId: "",
+    levelCode: "",
+    levelName: "",
+    automatic: false,
+    areas: 0,
+    note: "",
+    custom: false,
+    updatedName: "",
+    updatedAt: "",
+    defaultName: "",
+    defaultAreas: 0,
+    defaultAutomatic: false,
+  };
+}
+
+export const PromotionRule: MessageFns<PromotionRule> = {
+  encode(message: PromotionRule, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.levelId !== "") {
+      writer.uint32(10).string(message.levelId);
+    }
+    if (message.levelCode !== "") {
+      writer.uint32(18).string(message.levelCode);
+    }
+    if (message.levelName !== "") {
+      writer.uint32(26).string(message.levelName);
+    }
+    if (message.automatic !== false) {
+      writer.uint32(32).bool(message.automatic);
+    }
+    if (message.areas !== 0) {
+      writer.uint32(40).int32(message.areas);
+    }
+    if (message.note !== "") {
+      writer.uint32(50).string(message.note);
+    }
+    if (message.custom !== false) {
+      writer.uint32(56).bool(message.custom);
+    }
+    if (message.updatedName !== "") {
+      writer.uint32(66).string(message.updatedName);
+    }
+    if (message.updatedAt !== "") {
+      writer.uint32(74).string(message.updatedAt);
+    }
+    if (message.defaultName !== "") {
+      writer.uint32(82).string(message.defaultName);
+    }
+    if (message.defaultAreas !== 0) {
+      writer.uint32(88).int32(message.defaultAreas);
+    }
+    if (message.defaultAutomatic !== false) {
+      writer.uint32(96).bool(message.defaultAutomatic);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): PromotionRule {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBasePromotionRule();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.levelId = reader.string();
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.levelCode = reader.string();
+            continue;
+          }
+          case 3: {
+            if (tag !== 26) {
+              break;
+            }
+
+            message.levelName = reader.string();
+            continue;
+          }
+          case 4: {
+            if (tag !== 32) {
+              break;
+            }
+
+            message.automatic = reader.bool();
+            continue;
+          }
+          case 5: {
+            if (tag !== 40) {
+              break;
+            }
+
+            message.areas = reader.int32();
+            continue;
+          }
+          case 6: {
+            if (tag !== 50) {
+              break;
+            }
+
+            message.note = reader.string();
+            continue;
+          }
+          case 7: {
+            if (tag !== 56) {
+              break;
+            }
+
+            message.custom = reader.bool();
+            continue;
+          }
+          case 8: {
+            if (tag !== 66) {
+              break;
+            }
+
+            message.updatedName = reader.string();
+            continue;
+          }
+          case 9: {
+            if (tag !== 74) {
+              break;
+            }
+
+            message.updatedAt = reader.string();
+            continue;
+          }
+          case 10: {
+            if (tag !== 82) {
+              break;
+            }
+
+            message.defaultName = reader.string();
+            continue;
+          }
+          case 11: {
+            if (tag !== 88) {
+              break;
+            }
+
+            message.defaultAreas = reader.int32();
+            continue;
+          }
+          case 12: {
+            if (tag !== 96) {
+              break;
+            }
+
+            message.defaultAutomatic = reader.bool();
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+};
+
+function createBaseGetPromotionRulesRequest(): GetPromotionRulesRequest {
+  return { institutionSlug: "" };
+}
+
+export const GetPromotionRulesRequest: MessageFns<GetPromotionRulesRequest> = {
+  encode(message: GetPromotionRulesRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.institutionSlug !== "") {
+      writer.uint32(10).string(message.institutionSlug);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): GetPromotionRulesRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseGetPromotionRulesRequest();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.institutionSlug = reader.string();
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+};
+
+function createBaseGetPromotionRulesResponse(): GetPromotionRulesResponse {
+  return { rules: [], canManage: false };
+}
+
+export const GetPromotionRulesResponse: MessageFns<GetPromotionRulesResponse> = {
+  encode(message: GetPromotionRulesResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    for (const v of message.rules) {
+      PromotionRule.encode(v!, writer.uint32(10).fork()).join();
+    }
+    if (message.canManage !== false) {
+      writer.uint32(16).bool(message.canManage);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): GetPromotionRulesResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseGetPromotionRulesResponse();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.rules.push(PromotionRule.decode(reader, reader.uint32()));
+            continue;
+          }
+          case 2: {
+            if (tag !== 16) {
+              break;
+            }
+
+            message.canManage = reader.bool();
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+};
+
+function createBaseSavePromotionRuleRequest(): SavePromotionRuleRequest {
+  return { institutionSlug: "", levelId: "", automatic: false, areas: 0, note: "" };
+}
+
+export const SavePromotionRuleRequest: MessageFns<SavePromotionRuleRequest> = {
+  encode(message: SavePromotionRuleRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.institutionSlug !== "") {
+      writer.uint32(10).string(message.institutionSlug);
+    }
+    if (message.levelId !== "") {
+      writer.uint32(18).string(message.levelId);
+    }
+    if (message.automatic !== false) {
+      writer.uint32(24).bool(message.automatic);
+    }
+    if (message.areas !== 0) {
+      writer.uint32(32).int32(message.areas);
+    }
+    if (message.note !== "") {
+      writer.uint32(42).string(message.note);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): SavePromotionRuleRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseSavePromotionRuleRequest();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.institutionSlug = reader.string();
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.levelId = reader.string();
+            continue;
+          }
+          case 3: {
+            if (tag !== 24) {
+              break;
+            }
+
+            message.automatic = reader.bool();
+            continue;
+          }
+          case 4: {
+            if (tag !== 32) {
+              break;
+            }
+
+            message.areas = reader.int32();
+            continue;
+          }
+          case 5: {
+            if (tag !== 42) {
+              break;
+            }
+
+            message.note = reader.string();
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+};
+
+function createBaseSavePromotionRuleResponse(): SavePromotionRuleResponse {
+  return { rules: [], canManage: false };
+}
+
+export const SavePromotionRuleResponse: MessageFns<SavePromotionRuleResponse> = {
+  encode(message: SavePromotionRuleResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    for (const v of message.rules) {
+      PromotionRule.encode(v!, writer.uint32(10).fork()).join();
+    }
+    if (message.canManage !== false) {
+      writer.uint32(16).bool(message.canManage);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): SavePromotionRuleResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseSavePromotionRuleResponse();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.rules.push(PromotionRule.decode(reader, reader.uint32()));
+            continue;
+          }
+          case 2: {
+            if (tag !== 16) {
+              break;
+            }
+
+            message.canManage = reader.bool();
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+};
+
+function createBaseResetPromotionRuleRequest(): ResetPromotionRuleRequest {
+  return { institutionSlug: "", levelId: "" };
+}
+
+export const ResetPromotionRuleRequest: MessageFns<ResetPromotionRuleRequest> = {
+  encode(message: ResetPromotionRuleRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.institutionSlug !== "") {
+      writer.uint32(10).string(message.institutionSlug);
+    }
+    if (message.levelId !== "") {
+      writer.uint32(18).string(message.levelId);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): ResetPromotionRuleRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseResetPromotionRuleRequest();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.institutionSlug = reader.string();
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.levelId = reader.string();
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+};
+
+function createBaseResetPromotionRuleResponse(): ResetPromotionRuleResponse {
+  return { rules: [], canManage: false };
+}
+
+export const ResetPromotionRuleResponse: MessageFns<ResetPromotionRuleResponse> = {
+  encode(message: ResetPromotionRuleResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    for (const v of message.rules) {
+      PromotionRule.encode(v!, writer.uint32(10).fork()).join();
+    }
+    if (message.canManage !== false) {
+      writer.uint32(16).bool(message.canManage);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): ResetPromotionRuleResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseResetPromotionRuleResponse();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.rules.push(PromotionRule.decode(reader, reader.uint32()));
+            continue;
+          }
+          case 2: {
+            if (tag !== 16) {
+              break;
+            }
+
+            message.canManage = reader.bool();
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+};
+
+function createBaseSetSiagieGradesRequest(): SetSiagieGradesRequest {
+  return { institutionSlug: "", sectionId: "", studentIds: [], status: "", note: "" };
+}
+
+export const SetSiagieGradesRequest: MessageFns<SetSiagieGradesRequest> = {
+  encode(message: SetSiagieGradesRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.institutionSlug !== "") {
+      writer.uint32(10).string(message.institutionSlug);
+    }
+    if (message.sectionId !== "") {
+      writer.uint32(18).string(message.sectionId);
+    }
+    for (const v of message.studentIds) {
+      writer.uint32(26).string(v!);
+    }
+    if (message.status !== "") {
+      writer.uint32(34).string(message.status);
+    }
+    if (message.note !== "") {
+      writer.uint32(42).string(message.note);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): SetSiagieGradesRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseSetSiagieGradesRequest();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.institutionSlug = reader.string();
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.sectionId = reader.string();
+            continue;
+          }
+          case 3: {
+            if (tag !== 26) {
+              break;
+            }
+
+            message.studentIds.push(reader.string());
+            continue;
+          }
+          case 4: {
+            if (tag !== 34) {
+              break;
+            }
+
+            message.status = reader.string();
+            continue;
+          }
+          case 5: {
+            if (tag !== 42) {
+              break;
+            }
+
+            message.note = reader.string();
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+};
+
+function createBaseSetSiagieGradesResponse(): SetSiagieGradesResponse {
+  return { section: undefined };
+}
+
+export const SetSiagieGradesResponse: MessageFns<SetSiagieGradesResponse> = {
+  encode(message: SetSiagieGradesResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.section !== undefined) {
+      SectionClosing.encode(message.section, writer.uint32(10).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): SetSiagieGradesResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseSetSiagieGradesResponse();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.section = SectionClosing.decode(reader, reader.uint32());
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+};
+
 /** Dirección and coordinación close; secretaría reads, prints the actas and exports */
 export type ClosingServiceService = typeof ClosingServiceService;
 export const ClosingServiceService = {
@@ -3297,6 +4158,55 @@ export const ClosingServiceService = {
       Buffer.from(ExportResultsResponse.encode(value).finish()),
     responseDeserialize: (value: Buffer): ExportResultsResponse => ExportResultsResponse.decode(value),
   },
+  /**
+   * EBA (phase E7): the promotion rule of each cycle, set by the CEBA (decision D4), and the SIAGIE loading state
+   * of the final grades of each student
+   */
+  getPromotionRules: {
+    path: "/joseph.assessment.v1.ClosingService/GetPromotionRules" as const,
+    requestStream: false as const,
+    responseStream: false as const,
+    requestSerialize: (value: GetPromotionRulesRequest): Buffer =>
+      Buffer.from(GetPromotionRulesRequest.encode(value).finish()),
+    requestDeserialize: (value: Buffer): GetPromotionRulesRequest => GetPromotionRulesRequest.decode(value),
+    responseSerialize: (value: GetPromotionRulesResponse): Buffer =>
+      Buffer.from(GetPromotionRulesResponse.encode(value).finish()),
+    responseDeserialize: (value: Buffer): GetPromotionRulesResponse => GetPromotionRulesResponse.decode(value),
+  },
+  savePromotionRule: {
+    path: "/joseph.assessment.v1.ClosingService/SavePromotionRule" as const,
+    requestStream: false as const,
+    responseStream: false as const,
+    requestSerialize: (value: SavePromotionRuleRequest): Buffer =>
+      Buffer.from(SavePromotionRuleRequest.encode(value).finish()),
+    requestDeserialize: (value: Buffer): SavePromotionRuleRequest => SavePromotionRuleRequest.decode(value),
+    responseSerialize: (value: SavePromotionRuleResponse): Buffer =>
+      Buffer.from(SavePromotionRuleResponse.encode(value).finish()),
+    responseDeserialize: (value: Buffer): SavePromotionRuleResponse => SavePromotionRuleResponse.decode(value),
+  },
+  resetPromotionRule: {
+    path: "/joseph.assessment.v1.ClosingService/ResetPromotionRule" as const,
+    requestStream: false as const,
+    responseStream: false as const,
+    requestSerialize: (value: ResetPromotionRuleRequest): Buffer =>
+      Buffer.from(ResetPromotionRuleRequest.encode(value).finish()),
+    requestDeserialize: (value: Buffer): ResetPromotionRuleRequest => ResetPromotionRuleRequest.decode(value),
+    responseSerialize: (value: ResetPromotionRuleResponse): Buffer =>
+      Buffer.from(ResetPromotionRuleResponse.encode(value).finish()),
+    responseDeserialize: (value: Buffer): ResetPromotionRuleResponse => ResetPromotionRuleResponse.decode(value),
+  },
+  /** Every student of the section when student_ids is empty; observed needs the note */
+  setSiagieGrades: {
+    path: "/joseph.assessment.v1.ClosingService/SetSiagieGrades" as const,
+    requestStream: false as const,
+    responseStream: false as const,
+    requestSerialize: (value: SetSiagieGradesRequest): Buffer =>
+      Buffer.from(SetSiagieGradesRequest.encode(value).finish()),
+    requestDeserialize: (value: Buffer): SetSiagieGradesRequest => SetSiagieGradesRequest.decode(value),
+    responseSerialize: (value: SetSiagieGradesResponse): Buffer =>
+      Buffer.from(SetSiagieGradesResponse.encode(value).finish()),
+    responseDeserialize: (value: Buffer): SetSiagieGradesResponse => SetSiagieGradesResponse.decode(value),
+  },
 } as const;
 
 export interface ClosingServiceServer extends UntypedServiceImplementation {
@@ -3314,6 +4224,15 @@ export interface ClosingServiceServer extends UntypedServiceImplementation {
   getRecord: handleUnaryCall<GetRecordRequest, GetRecordResponse>;
   /** CSV for SIAGIE (section) or the unit's results (assignment) */
   exportResults: handleUnaryCall<ExportResultsRequest, ExportResultsResponse>;
+  /**
+   * EBA (phase E7): the promotion rule of each cycle, set by the CEBA (decision D4), and the SIAGIE loading state
+   * of the final grades of each student
+   */
+  getPromotionRules: handleUnaryCall<GetPromotionRulesRequest, GetPromotionRulesResponse>;
+  savePromotionRule: handleUnaryCall<SavePromotionRuleRequest, SavePromotionRuleResponse>;
+  resetPromotionRule: handleUnaryCall<ResetPromotionRuleRequest, ResetPromotionRuleResponse>;
+  /** Every student of the section when student_ids is empty; observed needs the note */
+  setSiagieGrades: handleUnaryCall<SetSiagieGradesRequest, SetSiagieGradesResponse>;
 }
 
 export interface ClosingServiceClient extends Client {
@@ -3484,6 +4403,71 @@ export interface ClosingServiceClient extends Client {
     metadata: Metadata,
     options: Partial<CallOptions>,
     callback: (error: ServiceError | null, response: ExportResultsResponse) => void,
+  ): ClientUnaryCall;
+  /**
+   * EBA (phase E7): the promotion rule of each cycle, set by the CEBA (decision D4), and the SIAGIE loading state
+   * of the final grades of each student
+   */
+  getPromotionRules(
+    request: GetPromotionRulesRequest,
+    callback: (error: ServiceError | null, response: GetPromotionRulesResponse) => void,
+  ): ClientUnaryCall;
+  getPromotionRules(
+    request: GetPromotionRulesRequest,
+    metadata: Metadata,
+    callback: (error: ServiceError | null, response: GetPromotionRulesResponse) => void,
+  ): ClientUnaryCall;
+  getPromotionRules(
+    request: GetPromotionRulesRequest,
+    metadata: Metadata,
+    options: Partial<CallOptions>,
+    callback: (error: ServiceError | null, response: GetPromotionRulesResponse) => void,
+  ): ClientUnaryCall;
+  savePromotionRule(
+    request: SavePromotionRuleRequest,
+    callback: (error: ServiceError | null, response: SavePromotionRuleResponse) => void,
+  ): ClientUnaryCall;
+  savePromotionRule(
+    request: SavePromotionRuleRequest,
+    metadata: Metadata,
+    callback: (error: ServiceError | null, response: SavePromotionRuleResponse) => void,
+  ): ClientUnaryCall;
+  savePromotionRule(
+    request: SavePromotionRuleRequest,
+    metadata: Metadata,
+    options: Partial<CallOptions>,
+    callback: (error: ServiceError | null, response: SavePromotionRuleResponse) => void,
+  ): ClientUnaryCall;
+  resetPromotionRule(
+    request: ResetPromotionRuleRequest,
+    callback: (error: ServiceError | null, response: ResetPromotionRuleResponse) => void,
+  ): ClientUnaryCall;
+  resetPromotionRule(
+    request: ResetPromotionRuleRequest,
+    metadata: Metadata,
+    callback: (error: ServiceError | null, response: ResetPromotionRuleResponse) => void,
+  ): ClientUnaryCall;
+  resetPromotionRule(
+    request: ResetPromotionRuleRequest,
+    metadata: Metadata,
+    options: Partial<CallOptions>,
+    callback: (error: ServiceError | null, response: ResetPromotionRuleResponse) => void,
+  ): ClientUnaryCall;
+  /** Every student of the section when student_ids is empty; observed needs the note */
+  setSiagieGrades(
+    request: SetSiagieGradesRequest,
+    callback: (error: ServiceError | null, response: SetSiagieGradesResponse) => void,
+  ): ClientUnaryCall;
+  setSiagieGrades(
+    request: SetSiagieGradesRequest,
+    metadata: Metadata,
+    callback: (error: ServiceError | null, response: SetSiagieGradesResponse) => void,
+  ): ClientUnaryCall;
+  setSiagieGrades(
+    request: SetSiagieGradesRequest,
+    metadata: Metadata,
+    options: Partial<CallOptions>,
+    callback: (error: ServiceError | null, response: SetSiagieGradesResponse) => void,
   ): ClientUnaryCall;
 }
 

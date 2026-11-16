@@ -2,7 +2,7 @@ import type { IconInput } from 'morphicons/react';
 import type { ModuleKey } from '@/features/protected/dashboard/types';
 
 // Record a file hangs on (attachments.files.owner_kind in joseph-api)
-export type AttachmentOwnerKind = 'enrollment' | 'student' | 'staff' | 'tutoring' | 'discipline' | 'psychology' | 'individual_plan' | 'therapy' | 'progress_report' | 'inclusion_support' | 'period' | 'closing' | 'internship' | 'degree' | 'attendance_justification' | 'apafa_meeting' | 'authorization' | 'platform_sheet';
+export type AttachmentOwnerKind = 'enrollment' | 'student' | 'staff' | 'tutoring' | 'discipline' | 'psychology' | 'individual_plan' | 'therapy' | 'progress_report' | 'inclusion_support' | 'period' | 'closing' | 'internship' | 'degree' | 'attendance_justification' | 'apafa_meeting' | 'authorization' | 'platform_sheet' | 'classroom_item' | 'library_item' | 'submission' | 'equipment_room' | 'equipment_device' | 'equipment_check' | 'compliance_item';
 
 // What a file is (DNI, acta, resolución...); joseph-api keeps the list allowed per owner kind
 export type AttachmentCategory =
@@ -37,6 +37,10 @@ export type AttachmentCategory =
   | 'financial_statement'
   | 'attendance_list'
   | 'screenshot'
+  | 'material'
+  | 'guide'
+  | 'worksheet'
+  | 'presentation'
   | 'other';
 
 // Broad family of a file, for its icon and whether it opens in a tab

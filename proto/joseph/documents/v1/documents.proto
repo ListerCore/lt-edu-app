@@ -16,6 +16,25 @@ service DocumentsService {
   rpc SchedulesPdf(SchedulesPdfRequest) returns (SchedulesPdfResponse);
   rpc RecordPdf(RecordPdfRequest) returns (RecordPdfResponse);
   rpc ReceiptPdf(ReceiptPdfRequest) returns (ReceiptPdfResponse);
+  // EBA enrollment (phase E1): ficha única, nómina (PDF and spreadsheet) and the SIAGIE upload spreadsheet
+  rpc EnrollmentFormPdf(EnrollmentFormPdfRequest) returns (EnrollmentFormPdfResponse);
+  rpc RollPdf(RollPdfRequest) returns (RollPdfResponse);
+  rpc RollXlsx(RollXlsxRequest) returns (RollXlsxResponse);
+  rpc SiagieXlsx(SiagieXlsxRequest) returns (SiagieXlsxResponse);
+  // Acta de ubicación o convalidación: a version for its signers (sign with SignVersion), and its PDF
+  rpc GeneratePlacementAct(GeneratePlacementActRequest) returns (GeneratePlacementActResponse);
+  rpc PlacementActPdf(PlacementActPdfRequest) returns (PlacementActPdfResponse);
+  // Permanence of a distance section (phase E5): summary PDF and the spreadsheet with every week
+  rpc PermanencePdf(PermanencePdfRequest) returns (PermanencePdfResponse);
+  rpc PermanenceXlsx(PermanenceXlsxRequest) returns (PermanenceXlsxResponse);
+  // EBA closing (phase E7): the consolidated acta as a version for its signers and its PDF, the SIAGIE spreadsheet
+  // of the final grades of a section, and the certificates of enrollment, studies and conclusion of a cycle
+  rpc GenerateRecordAct(GenerateRecordActRequest) returns (GenerateRecordActResponse);
+  rpc RecordActPdf(RecordActPdfRequest) returns (RecordActPdfResponse);
+  rpc SiagieGradesXlsx(SiagieGradesXlsxRequest) returns (SiagieGradesXlsxResponse);
+  rpc GetStudentCertificates(GetStudentCertificatesRequest) returns (GetStudentCertificatesResponse);
+  rpc GenerateCertificate(GenerateCertificateRequest) returns (GenerateCertificateResponse);
+  rpc CertificatePdf(CertificatePdfRequest) returns (CertificatePdfResponse);
 
   // Every class of a period as an Excel workbook (list, week of each section and teacher, legend)
   rpc SchedulesXlsx(SchedulesXlsxRequest) returns (SchedulesXlsxResponse);
@@ -103,6 +122,8 @@ message Signer {
 
 message GetScheduleSignersRequest {
   string institution_slug = 1;
+  // schedules (default) | placement
+  string kind = 2;
 }
 
 message GetScheduleSignersResponse {
@@ -116,6 +137,8 @@ message SetScheduleSignersRequest {
   string institution_slug = 1;
   // In signing order; name is ignored
   repeated Signer signers = 2;
+  // schedules (default) | placement
+  string kind = 3;
 }
 
 message SetScheduleSignersResponse {
@@ -232,5 +255,205 @@ message TrackPdfRequest {
 }
 
 message TrackPdfResponse {
+  PdfFile file = 1;
+}
+
+message EnrollmentFormPdfRequest {
+  string institution_slug = 1;
+  string student_id = 2;
+  // Enrollment of this period (empty: the latest)
+  string period_id = 3;
+}
+
+message EnrollmentFormPdfResponse {
+  PdfFile file = 1;
+}
+
+// Same as joseph.people.v1.RollFilter
+message RollQuery {
+  string period_id = 1;
+  string level_id = 2;
+  string grade_id = 3;
+  string section_id = 4;
+  string siagie_status = 5;
+  bool all = 6;
+}
+
+message RollPdfRequest {
+  string institution_slug = 1;
+  RollQuery filter = 2;
+}
+
+message RollPdfResponse {
+  PdfFile file = 1;
+}
+
+message RollXlsxRequest {
+  string institution_slug = 1;
+  RollQuery filter = 2;
+}
+
+message RollXlsxResponse {
+  PdfFile file = 1;
+}
+
+message SiagieXlsxRequest {
+  string institution_slug = 1;
+  RollQuery filter = 2;
+  // Mark the enrollments of the file as exported
+  bool mark_exported = 3;
+}
+
+message SiagieXlsxResponse {
+  PdfFile file = 1;
+  int32 marked = 2;
+}
+
+message GeneratePlacementActRequest {
+  string institution_slug = 1;
+  string placement_id = 2;
+  string note = 3;
+}
+
+message GeneratePlacementActResponse {
+  DocumentVersion version = 1;
+  // "N.° 003-2026"
+  string act_code = 2;
+}
+
+message PlacementActPdfRequest {
+  string institution_slug = 1;
+  string placement_id = 2;
+}
+
+message PlacementActPdfResponse {
+  PdfFile file = 1;
+}
+
+message PermanencePdfRequest {
+  string institution_slug = 1;
+  string section_id = 2;
+}
+
+message PermanencePdfResponse {
+  PdfFile file = 1;
+}
+
+message PermanenceXlsxRequest {
+  string institution_slug = 1;
+  string section_id = 2;
+}
+
+message PermanenceXlsxResponse {
+  PdfFile file = 1;
+}
+
+message GenerateRecordActRequest {
+  string institution_slug = 1;
+  string record_id = 2;
+  string note = 3;
+}
+
+message GenerateRecordActResponse {
+  DocumentVersion version = 1;
+}
+
+message RecordActPdfRequest {
+  string institution_slug = 1;
+  string record_id = 2;
+}
+
+message RecordActPdfResponse {
+  PdfFile file = 1;
+}
+
+message SiagieGradesXlsxRequest {
+  string institution_slug = 1;
+  string section_id = 2;
+  // Mark the students of the file as exported
+  bool mark_exported = 3;
+}
+
+message SiagieGradesXlsxResponse {
+  PdfFile file = 1;
+  int32 marked = 2;
+}
+
+// kind: enrollment | studies | cycle
+message StudentCertificate {
+  string id = 1;
+  string student_id = 2;
+  string student_name = 3;
+  string kind = 4;
+  string period_id = 5;
+  string period_name = 6;
+  string level_id = 7;
+  string level_name = 8;
+  string purpose = 9;
+  int32 year = 10;
+  int32 number = 11;
+  // "N.° 004-2026"
+  string code = 12;
+  string version_id = 13;
+  // State of the newest version: pending | published | superseded | cancelled
+  string version_status = 14;
+  string created_name = 15;
+  string created_at = 16;
+}
+
+// One period the student studied with the final situation in force (after recovery)
+message StudyRecord {
+  string enrollment_id = 1;
+  string period_id = 2;
+  string period_name = 3;
+  int32 year = 4;
+  string level_id = 5;
+  string level_name = 6;
+  string grade_name = 7;
+  string grade_short = 8;
+  bool last_grade = 9;
+  string section_name = 10;
+  string attention_mode = 11;
+  string status = 12;
+  // PRO | PER | RR, empty while not confirmed
+  string situation = 13;
+  bool confirmed = 14;
+}
+
+message GetStudentCertificatesRequest {
+  string institution_slug = 1;
+  string student_id = 2;
+}
+
+message GetStudentCertificatesResponse {
+  repeated StudentCertificate certificates = 1;
+  repeated StudyRecord studies = 2;
+  // The cycles the student concluded: a conclusion certificate can be issued for them
+  repeated StudyRecord concluded = 3;
+  bool can_manage = 4;
+}
+
+message GenerateCertificateRequest {
+  string institution_slug = 1;
+  string student_id = 2;
+  string kind = 3;
+  // enrollment: the period; cycle: the level
+  string period_id = 4;
+  string level_id = 5;
+  string purpose = 6;
+  string note = 7;
+}
+
+message GenerateCertificateResponse {
+  StudentCertificate certificate = 1;
+  DocumentVersion version = 2;
+}
+
+message CertificatePdfRequest {
+  string institution_slug = 1;
+  string certificate_id = 2;
+}
+
+message CertificatePdfResponse {
   PdfFile file = 1;
 }

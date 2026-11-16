@@ -49,10 +49,11 @@ const coreModules: ModuleKey[] = ['home', 'notifications', 'account', 'announcem
 
 // Each type adds the modules its academic flow needs (README §2 matrix)
 export const institutionModules: Record<InstitutionType, ModuleKey[]> = {
-  // School: competency grades, report cards, official certificates and the parents' school
-  EBR: [...coreModules, 'grades', 'report-cards', 'closing', 'certificates', 'psychology', 'discipline', 'parent-school', 'apafa'],
-  // CEBA: attention modes (in person, blended, distance), placement and validation tests, certificates
-  EBA: [...coreModules, 'attention-modes', 'placement', 'grades', 'report-cards', 'closing', 'certificates', 'psychology', 'discipline', 'apafa'],
+  // School: competency grades, report cards and the parents' school (the certificates page is the institutes')
+  EBR: [...coreModules, 'grades', 'report-cards', 'closing', 'psychology', 'discipline', 'parent-school', 'apafa'],
+  // CEBA: attention modes (in person, blended, distance), placement and validation tests; its constancias are on
+  // each student (the certificates page is the institutes')
+  EBA: [...coreModules, 'attention-modes', 'placement', 'roll', 'permanence', 'virtual-tutoring', 'compliance', 'classroom', 'classroom-library', 'grades', 'report-cards', 'closing', 'psychology', 'discipline', 'apafa'],
   // CEBE: levels per competency against the adaptations of each POI, individual plans, progress reports, therapies and
   // inclusion support (SAANEE)
   EBE: [...coreModules, 'grades', 'report-cards', 'closing', 'individual-plans', 'progress-reports', 'therapies', 'inclusion-support', 'psychology', 'discipline', 'parent-school', 'apafa'],
@@ -105,6 +106,9 @@ const teacherPermissions: RolePermissions = {
   schedules: VIEW,
   students: VIEW,
   'student-attendance': EDIT,
+  permanence: VIEW,
+  // A teacher may be the tutor of some students (assigned one by one)
+  'virtual-tutoring': ['view', 'create'],
   grades: EDIT,
   'report-cards': VIEW,
   'progress-reports': EDIT,
@@ -114,6 +118,9 @@ const teacherPermissions: RolePermissions = {
   'question-bank': EDIT,
   'study-materials': EDIT,
   internships: EDIT,
+  // Teachers build the virtual classroom of the subjects they teach (the API checks which rooms)
+  classroom: EDIT,
+  'classroom-library': EDIT,
   cards: VIEW,
   announcements: ['view', 'create'],
   // Teachers report faults and refer students to psychology (they see the status of their referrals)
@@ -124,17 +131,19 @@ const teacherPermissions: RolePermissions = {
 
 const studentPermissions: RolePermissions = {
   home: VIEW,
+  // EBA: their tutor, sessions and the conversation with the tutor
+  'virtual-tutoring': VIEW,
   notifications: ['view', 'update'],
   account: ['view', 'update'],
-  courses: VIEW,
+  // Courses and the grade sheets are staff's (the API refuses families): students read their report card
   schedules: VIEW,
   'student-attendance': VIEW,
-  grades: VIEW,
   'report-cards': VIEW,
   'mock-exams': VIEW,
   rankings: VIEW,
   'study-materials': VIEW,
   internships: VIEW,
+  classroom: VIEW,
   certificates: VIEW,
   cards: VIEW,
   announcements: VIEW,
@@ -153,6 +162,10 @@ export const rolePermissions: Record<Role, RolePermissions> = {
     structure: ALL,
     'attention-modes': ALL,
     placement: ALL,
+    roll: ALL,
+    permanence: ALL,
+    'virtual-tutoring': ALL,
+    compliance: VIEW,
     'report-cards': ALL,
     closing: ALL,
     'individual-plans': ALL,
@@ -182,6 +195,8 @@ export const rolePermissions: Record<Role, RolePermissions> = {
     apafa: VIEW,
     // Reads the institution file (authorizations, platform sheet); dirección records it
     institution: VIEW,
+    classroom: ALL,
+    'classroom-library': ALL,
   },
   secretary: {
     home: VIEW,
@@ -189,7 +204,10 @@ export const rolePermissions: Record<Role, RolePermissions> = {
     account: ['view', 'update'],
     periods: VIEW,
     enrollment: ALL,
-    placement: VIEW,
+    // Secretaría runs the procedures and the SIAGIE upload; the acta is signed by its signers
+    placement: ALL,
+    roll: ALL,
+    permanence: VIEW,
     certificates: ALL,
     degrees: ALL,
     students: ALL,
@@ -205,9 +223,11 @@ export const rolePermissions: Record<Role, RolePermissions> = {
     // Convenes the APAFA meetings, records the acta and keeps the board (with dirección)
     apafa: ALL,
     institution: VIEW,
+    classroom: VIEW,
   },
   teacher: teacherPermissions,
-  tutor: { ...teacherPermissions, tutoring: ALL, wellbeing: ['view', 'create'], discipline: EDIT, 'parent-school': EDIT },
+  // The tutor adjusts the permanence of their own distance section (the API checks it)
+  tutor: { ...teacherPermissions, permanence: EDIT, 'virtual-tutoring': ALL, tutoring: ALL, wellbeing: ['view', 'create'], discipline: EDIT, 'parent-school': EDIT },
   assistant: {
     home: VIEW,
     notifications: ['view', 'update'],
@@ -254,6 +274,11 @@ export const rolePermissions: Record<Role, RolePermissions> = {
     'attention-modes': VIEW,
     periods: VIEW,
     announcements: VIEW,
+    // Keeps the equipment, the evidence and the two technical reports; the only one who verifies a row
+    compliance: ALL,
+    // Reads the virtual classroom: evidence of the Anexo 2 for the DRE reports
+    classroom: VIEW,
+    'classroom-library': VIEW,
   },
   student: studentPermissions,
   // Families read the APAFA meetings of their institution once convened, with the agenda, the acta and the documents

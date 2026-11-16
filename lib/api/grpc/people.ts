@@ -33,4 +33,11 @@ export const peopleRpc = {
   listPlacements: rpc((c) => c.listPlacements),
   createPlacement: rpc((c) => c.createPlacement),
   deletePlacement: rpc((c) => c.deletePlacement),
+  proposePlacement: rpc((c) => c.proposePlacement),
+  enrollmentFile: rpc((c) => c.getEnrollmentFile),
+  saveEnrollmentFile: rpc((c) => c.saveEnrollmentFile),
+  setReligionExemption: rpc((c) => c.setReligionExemption),
+  roll: rpc((c) => c.listRoll),
+  setSiagieStatus: rpc((c) => c.setSiagieStatus),
+  importRoll: rpc((c) => c.importRoll),
 };

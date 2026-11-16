@@ -32,6 +32,14 @@ export type ModuleKey =
   | 'certificates'
   | 'attention-modes'
   | 'placement'
+  // EBA: nómina de matrícula and the SIAGIE upload
+  | 'roll'
+  // EBA: permanence of the distance form, from the platform's activity
+  | 'permanence'
+  // EBA: the virtual tutor's desk (students, sessions, messages, SAANEE) and the student's own tutoring
+  | 'virtual-tutoring'
+  // EBA: DRE compliance (equipment of the virtual tutors, verification matrices and the two technical reports)
+  | 'compliance'
   | 'individual-plans'
   | 'therapies'
   | 'inclusion-support'
@@ -51,7 +59,10 @@ export type ModuleKey =
   | 'users'
   | 'audit'
   // APAFA (parents' association) meetings and board: public institutions of Educación Básica only
-  | 'apafa';
+  | 'apafa'
+  // Virtual classroom (CEBA, phase E2): rooms and material, and the institution's library
+  | 'classroom'
+  | 'classroom-library';
 
 export type PermissionAction = 'view' | 'create' | 'update' | 'delete' | 'export';
 

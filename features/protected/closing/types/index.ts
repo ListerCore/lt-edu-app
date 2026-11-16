@@ -1,6 +1,6 @@
-import type { ClosingArea, ClosingRow, GetClosingResponse, RecordInfo, SectionClosing, UnitClosing, UnitRow } from '@/lib/api/grpc/gen/joseph/assessment/v1/closing';
+import type { ClosingArea, ClosingRow, GetClosingResponse, GetPromotionRulesResponse, PromotionRule, RecordInfo, SectionClosing, UnitClosing, UnitRow } from '@/lib/api/grpc/gen/joseph/assessment/v1/closing';
 
-export type { ClosingArea, ClosingRow, GetClosingResponse as ClosingOverview, RecordInfo, SectionClosing, UnitClosing, UnitRow };
+export type { ClosingArea, ClosingRow, GetClosingResponse as ClosingOverview, GetPromotionRulesResponse as PromotionRules, PromotionRule, RecordInfo, SectionClosing, UnitClosing, UnitRow };
 
 // The frozen body of an acta (joseph-api service.RecordContent)
 export interface RecordContent {
@@ -14,7 +14,7 @@ export interface RecordContent {
   tutor?: string;
   rule?: string;
   groups: Array<{ name: string; columns: Array<{ code: string; name: string }> }>;
-  rows: Array<{ n: number; code: string; document: string; name: string; cells: string[]; situation: string; note?: string }>;
+  rows: Array<{ n: number; code: string; grade?: string; document: string; name: string; cells: string[]; situation: string; note?: string }>;
   summary: Array<{ label: string; count: number }> | null;
   legend: string[];
   signatures: string[];

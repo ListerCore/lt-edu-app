@@ -5,6 +5,7 @@ export const NEW_STUDENT_PATH = `${STUDENTS_PATH}/new`;
 export const studentPath = (id: string): string => `${STUDENTS_PATH}/${id}`;
 export const ENROLLMENT_PATH = `${DASHBOARD_PATH}/enrollment`;
 export const PLACEMENT_PATH = `${ENROLLMENT_PATH}/placement`;
+export const ROLL_PATH = `${ENROLLMENT_PATH}/roll`;
 
 export const PAGE_SIZE = 25;
 
@@ -32,7 +33,38 @@ export const enrollmentStatusClass: Record<string, string> = {
 export const accessLabels: Record<string, string> = { none: 'Sin acceso', invited: 'Invitado', account: 'Con cuenta' };
 export const accessClass: Record<string, string> = { none: 'bg-secondary text-muted-foreground', invited: 'bg-warning/12 text-warning', account: 'bg-success/12 text-success' };
 
-export const placementKindLabels: Record<string, string> = { placement_test: 'Prueba de ubicación', validation: 'Convalidación' };
+export const placementKindLabels: Record<string, string> = { placement_test: 'Prueba de ubicación', validation: 'Convalidación', revalidation: 'Revalidación', equivalence: 'Equivalencia' };
+export const placementKindHints: Record<string, string> = {
+  placement_test: 'Sin certificados: una evaluación define el ciclo y grado.',
+  validation: 'Grados aprobados en EBR u otra institución, con certificado.',
+  revalidation: 'Estudios del extranjero o de programas anteriores (EDA, PEBANA).',
+  equivalence: 'Competencias laborales o certificaciones que acreditan aprendizajes.',
+};
+// What the student brings, for the cuadro de equivalencias
+export const equivalenceOrigins: Record<string, string> = { ebr_primaria: 'Primaria (EBR)', ebr_secundaria: 'Secundaria (EBR)' };
+// State of the acta's newest version
+export const actStatusLabels: Record<string, string> = { pending: 'Pendiente de firma', published: 'Firmada', superseded: 'Reemplazada', cancelled: 'Anulada' };
+export const actStatusClass: Record<string, string> = { pending: 'bg-warning/12 text-warning', published: 'bg-success/12 text-success', superseded: 'bg-secondary text-muted-foreground', cancelled: 'bg-secondary text-muted-foreground' };
+// Constancias (phase E7)
+export const certificateKindLabels: Record<string, string> = { enrollment: 'Constancia de matrícula', studies: 'Constancia de estudios', cycle: 'Constancia de conclusión de ciclo' };
+export const studySituationLabels: Record<string, string> = { PRO: 'Promovido', PER: 'Permanece en el grado', RR: 'Recuperación pedagógica' };
+
+export const actCode = (year: number, number: number): string => `N.° ${String(number).padStart(3, '0')}-${year}`;
+
+// ---------- ficha única (EBA) ----------
+
+export const motherTongueLabels: Record<string, string> = { castellano: 'Castellano', quechua: 'Quechua', aimara: 'Aimara', ashaninka: 'Asháninka', other: 'Otra' };
+export const internetLabels: Record<string, string> = { mobile: 'Datos móviles', home: 'Internet en casa', public: 'Cabina o punto público', none: 'Sin internet', unknown: 'No indicó' };
+export const deviceLabels: Record<string, string> = { phone: 'Celular', computer: 'Computadora', tablet: 'Tableta', none: 'Ninguno', unknown: 'No indicó' };
+export const preferredModeLabels: Record<string, string> = { '': 'No indicó', in_person: 'Presencial', blended: 'Semipresencial', distance: 'A distancia' };
+export const fileDocumentLabels: Record<string, string> = { dni: 'DNI', study_certificate: 'Certificado de estudios', birth_certificate: 'Partida de nacimiento', placement_act: 'Acta de ubicación o convalidación', other: 'Otro' };
+
+// ---------- nómina and SIAGIE ----------
+
+export const siagieLabels: Record<string, string> = { pending: 'Pendiente', exported: 'Exportado', observed: 'Observado' };
+export const siagieClass: Record<string, string> = { pending: 'bg-secondary text-muted-foreground', exported: 'bg-success/12 text-success', observed: 'bg-warning/12 text-warning' };
+// How the SIAGIE names the way a student enters the period
+export const siagieSituationLabels: Record<string, string> = { new: 'Ingresante', continuing: 'Promovido', transfer_in: 'Trasladado', re_entry: 'Reentrante' };
 
 // "Ccori Mamani, Valeria"
 export const fullName = (s: { paternalSurname: string; maternalSurname: string; givenNames: string }): string => `${[s.paternalSurname, s.maternalSurname].filter(Boolean).join(' ')}, ${s.givenNames}`;

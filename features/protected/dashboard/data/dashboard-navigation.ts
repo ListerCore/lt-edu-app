@@ -1,48 +1,4 @@
-import {
-  Accessibility,
-  Activity,
-  Award,
-  BadgeCheck,
-  Bell,
-  BellRing,
-  BookOpen,
-  CircleUserRound,
-  Brain,
-  Briefcase,
-  CalendarDays,
-  CalendarRange,
-  ChartColumn,
-  ClipboardCheck,
-  ClipboardList,
-  ClipboardPen,
-  Clock,
-  FileCheck,
-  FileSearch,
-  FileText,
-  FolderOpen,
-  GraduationCap,
-  HandHeart,
-  Handshake,
-  HeartHandshake,
-  Home,
-  IdCard,
-  LayoutDashboard,
-  Layers,
-  Library,
-  NotebookText,
-  Scale,
-  School,
-  ScrollText,
-  Settings,
-  Shapes,
-  ShieldAlert,
-  Trophy,
-  UserCheck,
-  UserCog,
-  Users,
-  UsersRound,
-  Wallet,
-} from 'lucide';
+import { Accessibility, Activity, Award, BadgeCheck, Bell, BellRing, BookOpen, Brain, Briefcase, CalendarDays, CalendarRange, ChartColumn, CircleUserRound, ClipboardCheck, ClipboardList, ClipboardPen, Clock, FileCheck, FileSearch, FileSpreadsheet, FileText, FileUp, FolderOpen, GraduationCap, HandHeart, Handshake, HeartHandshake, Home, IdCard, Layers, LayoutDashboard, Library, LibraryBig, LifeBuoy, MessagesSquare, MonitorPlay, NotebookText, Scale, School, ScrollText, Settings, Shapes, ShieldAlert, ShieldCheck, Trophy, UserCheck, UserCog, Users, UsersRound, Wallet } from 'lucide';
 import type { InstitutionType, Management, NavLabel, NavSection } from '../types';
 
 export const DASHBOARD_PATH = '/dashboard';
@@ -82,6 +38,8 @@ export const dashboardNavigation: NavSection[] = [
         children: [
           { label: { default: 'Matrícula', CEPRE: 'Inscripción por ciclo' }, icon: ClipboardList, href: path('enrollment'), module: 'enrollment' },
           { label: 'Ubicación y convalidación', icon: FileSearch, href: path('enrollment/placement'), module: 'placement' },
+          { label: 'Nómina y SIAGIE', icon: FileSpreadsheet, href: path('enrollment/roll'), module: 'roll' },
+          { label: 'Importar nómina', icon: FileUp, href: path('enrollment/import'), module: 'enrollment' },
         ],
       },
       {
@@ -98,6 +56,14 @@ export const dashboardNavigation: NavSection[] = [
         ],
       },
       { label: 'Material de estudio', icon: FolderOpen, href: path('study-materials'), module: 'study-materials' },
+      {
+        label: 'Aula virtual',
+        icon: MonitorPlay,
+        children: [
+          { label: 'Aulas', icon: MonitorPlay, href: path('classroom'), module: 'classroom' },
+          { label: 'Biblioteca', icon: LibraryBig, href: path('classroom/library'), module: 'classroom-library' },
+        ],
+      },
       {
         label: 'Certificación',
         icon: BadgeCheck,
@@ -120,6 +86,7 @@ export const dashboardNavigation: NavSection[] = [
         children: [
           { label: { default: 'De estudiantes', CEPRE: 'De alumnos' }, icon: UsersRound, href: path('attendance/students'), module: 'student-attendance' },
           { label: 'De docentes', icon: CalendarDays, href: path('attendance/staff'), module: 'staff-attendance' },
+          { label: 'Permanencia a distancia', icon: Activity, href: path('attendance/permanence'), module: 'permanence' },
         ],
       },
       { label: 'Carnets', icon: IdCard, href: path('cards'), module: 'cards' },
@@ -138,6 +105,7 @@ export const dashboardNavigation: NavSection[] = [
         ],
       },
       { label: 'Tutoría', icon: HeartHandshake, href: path('tutoring'), module: 'tutoring' },
+      { label: 'Tutoría virtual', icon: MessagesSquare, href: path('virtual-tutoring'), module: 'virtual-tutoring' },
       { label: 'Convivencia escolar', icon: Scale, href: path('discipline'), module: 'discipline' },
       { label: 'Psicología', icon: Brain, href: path('psychology'), module: 'psychology' },
       { label: 'Escuela de padres', icon: Home, href: path('parent-school'), module: 'parent-school' },
@@ -152,6 +120,7 @@ export const dashboardNavigation: NavSection[] = [
       // Public institutions only (managementModules): meetings of the parents' association
       { label: 'APAFA', icon: Handshake, href: path('apafa'), module: 'apafa' },
       { label: 'Reportes', icon: ChartColumn, href: path('reports'), module: 'reports' },
+      { label: 'Cumplimiento DRE', icon: ShieldCheck, href: path('compliance'), module: 'compliance' },
       {
         label: 'Configuración',
         icon: Settings,
@@ -168,6 +137,7 @@ export const dashboardNavigation: NavSection[] = [
     items: [
       { label: 'Notificaciones', icon: BellRing, href: path('notifications'), module: 'notifications' },
       { label: 'Mi cuenta', icon: CircleUserRound, href: ACCOUNT_PATH, module: 'account' },
+      { label: 'Guía rápida', icon: LifeBuoy, href: path('help'), module: 'account' },
     ],
   },
 ];

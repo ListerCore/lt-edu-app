@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useTransition, type JSX } from 'react';
-import { ArrowLeft, CheckCheck, Download, FilePlus, Gavel, Info, RotateCcw } from 'lucide';
+import { ArrowLeft, CheckCheck, Download, FilePlus, FileSpreadsheet, Gavel, Info, RotateCcw } from 'lucide';
 import { sileo } from 'sileo';
 import { FormField } from '@/components/ui/form-field';
 import { MorphIcon } from '@/components/ui/morph-icon';
@@ -12,22 +12,30 @@ import { useAcademicData } from '@/features/protected/academic/hooks/use-academi
 import { levelClass, levels } from '@/features/protected/assessment/data/assessment-data';
 import { cn } from '@/lib/utils';
 import { confirmSectionAction, decideAction, exportResultsAction, getSectionClosingAction, issueRecordAction, saveRecoveryAction } from '../actions/closing-actions';
-import { downloadBase64, situationClass, situationLabels } from '../data/closing-data';
+import { siagieClass, siagieLabels } from '@/features/protected/people/data/people-data';
+import { usePdf } from '@/features/protected/documents/lib/use-pdf';
+import { setSiagieGradesAction } from '../actions/set-siagie-grades';
+import { siagieGradesXlsxAction } from '../actions/siagie-grades-xlsx';
+import { downloadBase64, EXEMPT, mixedGrades, situationClass, situationLabels } from '../data/closing-data';
 import type { ClosingRow, SectionClosing } from '../types';
 import { RecordList } from './record-list';
 
 interface Props {
   slug: string;
   sectionId: string;
+  // EBA: the SIAGIE state of the grades and its spreadsheet
+  eba: boolean;
   onBack: () => void;
   onRecord: (id: string) => void;
 }
 
-export const SectionClosingView = ({ slug, sectionId, onBack, onRecord }: Props): JSX.Element => {
+export const SectionClosingView = ({ slug, sectionId, eba, onBack, onRecord }: Props): JSX.Element => {
   const { data, error, reload } = useAcademicData(`closing-section:${slug}:${sectionId}`, () => getSectionClosingAction(slug, sectionId), () => false);
   const [deciding, setDeciding] = useState<ClosingRow | null>(null);
   const [recovering, setRecovering] = useState<ClosingRow | null>(null);
   const [showLevels, setShowLevels] = useState(false);
+  const [siagie, setSiagie] = useState<ClosingRow | 'export' | null>(null);
+  const [isExporting, download] = usePdf();
   const [isPending, startTransition] = useTransition();
 
   if (error) return <LoadError message={error} onRetry={reload} />;
@@ -38,7 +46,10 @@ export const SectionClosingView = ({ slug, sectionId, onBack, onRecord }: Props)
   const inRecovery = c.rows.filter((r) => r.situation === 'RR');
   const recoveredAll = inRecovery.length > 0 && inRecovery.every((r) => r.afterRecovery);
   const counts = c.rows.reduce<Record<string, number>>((acc, r) => ({ ...acc, [r.situation]: (acc[r.situation] ?? 0) + 1 }), {});
-  const columns = c.areas.flatMap((a, i) => a.competencies.map((comp, j) => ({ id: comp.id, code: `${i + 1}.${j + 1}`, name: comp.name, area: a.name })));
+  const columns = c.areas.flatMap((a, i) => a.competencies.map((comp, j) => ({ id: comp.id, code: `${i + 1}.${j + 1}`, name: comp.name, area: a.name, religion: a.subjectCode === 'educacion-religiosa' })));
+  const grades = mixedGrades(c.rows);
+  const siagieColumn = eba && confirmed;
+  const siagieCounts = c.rows.reduce<Record<string, number>>((acc, r) => ({ ...acc, [r.siagieStatus]: (acc[r.siagieStatus] ?? 0) + 1 }), {});
 
   const run = (work: () => Promise<{ ok: boolean; message?: string }>, done?: () => void): void =>
     startTransition(async () => {
@@ -86,10 +97,17 @@ export const SectionClosingView = ({ slug, sectionId, onBack, onRecord }: Props)
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
-          <button type="button" className="btn-alt" disabled={isPending} onClick={exportCsv}>
-            <MorphIcon icon={Download} size={16} />
-            Exportar para SIAGIE
-          </button>
+          {eba && confirmed ? (
+            <button type="button" className="btn-alt" disabled={isExporting} onClick={(): void => setSiagie('export')}>
+              <MorphIcon icon={FileSpreadsheet} size={16} />
+              {isExporting ? 'Generando…' : 'Excel para el SIAGIE'}
+            </button>
+          ) : (
+            <button type="button" className="btn-alt" disabled={isPending} onClick={exportCsv}>
+              <MorphIcon icon={Download} size={16} />
+              Exportar para SIAGIE
+            </button>
+          )}
           {c.canManage && !confirmed && (
             <button type="button" className="btn-brand" disabled={isPending || !c.lastTermClosed || pending > 0} title={!c.lastTermClosed ? 'Cierra antes el último periodo' : pending > 0 ? 'Hay niveles pendientes' : undefined} onClick={(): void => run(() => confirmSectionAction(slug, sectionId))}>
               <MorphIcon icon={CheckCheck} size={16} />
@@ -132,6 +150,14 @@ export const SectionClosingView = ({ slug, sectionId, onBack, onRecord }: Props)
             ) : null,
           )}
           {confirmed && <span className="pill bg-success/12 text-success">Resultados confirmados</span>}
+          {siagieColumn &&
+            ['exported', 'observed', 'pending'].map((k) =>
+              siagieCounts[k] ? (
+                <span key={k} className={cn('pill', siagieClass[k])}>
+                  SIAGIE: {siagieCounts[k]} {siagieLabels[k].toLowerCase()}
+                </span>
+              ) : null,
+            )}
         </p>
         <label className="flex items-center gap-2 text-sm text-muted-foreground">
           <input type="checkbox" checked={showLevels} onChange={(e): void => setShowLevels(e.target.checked)} className="size-4 accent-brand" />
@@ -145,6 +171,7 @@ export const SectionClosingView = ({ slug, sectionId, onBack, onRecord }: Props)
             <tr className="border-b border-border text-muted-foreground">
               <th scope="col" className="w-10 px-3 py-3 font-medium whitespace-nowrap">N.°</th>
               <th scope="col" className="min-w-56 px-3 py-3 font-medium">Estudiante</th>
+              {grades && <th scope="col" className="px-3 py-3 font-medium">Grado</th>}
               {showLevels &&
                 columns.map((col) => (
                   <th key={col.id} scope="col" title={`${col.area}: ${col.name}`} className="px-1 py-3 text-center text-xs font-medium tabular-nums">
@@ -153,6 +180,7 @@ export const SectionClosingView = ({ slug, sectionId, onBack, onRecord }: Props)
                 ))}
               <th scope="col" className="px-3 py-3 font-medium">Situación</th>
               <th scope="col" className="min-w-64 px-3 py-3 font-medium">Motivo</th>
+              {siagieColumn && <th scope="col" className="px-3 py-3 font-medium">SIAGIE</th>}
               {c.canManage && <th scope="col" className="px-3 py-3 font-medium"><span className="sr-only">Acciones</span></th>}
             </tr>
           </thead>
@@ -160,14 +188,18 @@ export const SectionClosingView = ({ slug, sectionId, onBack, onRecord }: Props)
             {c.rows.map((r, n) => (
               <tr key={r.student?.id} className="align-top">
                 <td className="px-3 py-2.5 text-muted-foreground tabular-nums">{n + 1}</td>
-                <td className="px-3 py-2.5 font-medium text-foreground">{r.student?.name}</td>
+                <td className="px-3 py-2.5 font-medium text-foreground">
+                  {r.student?.name}
+                  {r.religionExempt && <span className="pill ml-2 bg-secondary text-muted-foreground">Exonerado de Religión</span>}
+                </td>
+                {grades && <td className="px-3 py-2.5 text-muted-foreground">{r.gradeShort}</td>}
                 {showLevels &&
                   columns.map((col) => {
-                    const l = r.final[col.id] ?? '';
+                    const l = r.religionExempt && col.religion ? EXEMPT : (r.final[col.id] ?? '');
                     const rec = r.recovery[col.id];
                     return (
                       <td key={col.id} className="px-1 py-2.5 text-center">
-                        <span className={cn('inline-flex h-6 min-w-7 items-center justify-center rounded px-1 text-[11px] font-semibold', l ? levelClass[l] : 'text-muted-foreground')}>{l || '—'}</span>
+                        <span className={cn('inline-flex h-6 min-w-7 items-center justify-center rounded px-1 text-[11px] font-semibold', l === EXEMPT ? 'text-[9px] text-muted-foreground' : l ? levelClass[l] : 'text-muted-foreground')}>{l || '—'}</span>
                         {rec && <span className={cn('mt-0.5 block text-[10px] font-semibold', levelClass[rec], 'bg-transparent')}>→{rec}</span>}
                       </td>
                     );
@@ -190,6 +222,14 @@ export const SectionClosingView = ({ slug, sectionId, onBack, onRecord }: Props)
                     r.reason
                   )}
                 </td>
+                {siagieColumn && (
+                  <td className="px-3 py-2.5">
+                    <button type="button" onClick={(): void => setSiagie(r)} className={cn('pill hover:ring-2 hover:ring-brand/30', siagieClass[r.siagieStatus])} title={r.siagieNote || 'Cambiar el estado de carga'}>
+                      {siagieLabels[r.siagieStatus] ?? r.siagieStatus}
+                    </button>
+                    {r.siagieNote && <span className="mt-1 block max-w-48 text-xs text-muted-foreground">{r.siagieNote}</span>}
+                  </td>
+                )}
                 {c.canManage && (
                   <td className="px-3 py-2.5">
                     <span className="flex justify-end gap-1">
@@ -221,6 +261,22 @@ export const SectionClosingView = ({ slug, sectionId, onBack, onRecord }: Props)
         </section>
       )}
 
+      {siagie === 'export' && (
+        <SiagieExportDialog
+          pending={siagieCounts.pending ?? 0}
+          observed={siagieCounts.observed ?? 0}
+          isPending={isExporting}
+          onClose={(): void => setSiagie(null)}
+          onExport={(mark): void => {
+            download(() => siagieGradesXlsxAction(slug, sectionId, mark));
+            setSiagie(null);
+            if (mark) setTimeout(reload, 1500);
+          }}
+        />
+      )}
+      {siagie && siagie !== 'export' && (
+        <SiagieStateDialog row={siagie} isPending={isPending} onClose={(): void => setSiagie(null)} onSave={(status, note): void => run(() => setSiagieGradesAction(slug, sectionId, [siagie.student?.id ?? ''], status, note), () => setSiagie(null))} />
+      )}
       {deciding && <DecisionDialog row={deciding} onClose={(): void => setDeciding(null)} onSave={(situation, note): void => run(() => decideAction(slug, sectionId, deciding.student?.id ?? '', situation, note), () => setDeciding(null))} isPending={isPending} />}
       {recovering && (
         <RecoveryDialog
@@ -305,6 +361,42 @@ const RecoveryDialog = ({ closing, row, isPending, onClose, onSave }: { closing:
         })}
       </ul>
       <p className="text-xs text-muted-foreground">Con todas registradas, la situación definitiva se calcula sola: promueve si ahora cumple las condiciones; si no, permanece.</p>
+    </FormDialog>
+  );
+};
+
+// The SIAGIE spreadsheet of the final levels: download it and, when it goes to the SIAGIE, mark the students exported
+const SiagieExportDialog = ({ pending, observed, isPending, onClose, onExport }: { pending: number; observed: number; isPending: boolean; onClose: () => void; onExport: (mark: boolean) => void }): JSX.Element => {
+  const [mark, setMark] = useState(pending + observed > 0);
+  return (
+    <FormDialog title="Excel para el SIAGIE" description="Una fila por estudiante con el nivel final de cada competencia (el de la recuperación cuando la hubo) y su situación final. La hoja «Competencias» dice qué es cada columna." submitLabel="Descargar Excel" isPending={isPending} onSubmit={(): void => onExport(mark)} onClose={onClose}>
+      <label className="flex items-start gap-2 text-sm text-foreground">
+        <input type="checkbox" checked={mark} onChange={(e): void => setMark(e.target.checked)} className="mt-0.5 size-4 accent-brand" />
+        <span>
+          Marcar como exportados a los {pending + observed} {pending + observed === 1 ? 'estudiante' : 'estudiantes'} que faltan
+          <span className="block text-xs text-muted-foreground">Hazlo cuando vayas a cargar el archivo en el SIAGIE. Los observados vuelven a exportado.</span>
+        </span>
+      </label>
+      <p className="text-xs text-muted-foreground">Revisa el orden de las columnas con la plantilla vigente de la UGEL antes de cargarlo.</p>
+    </FormDialog>
+  );
+};
+
+// The loading state of one student's grades: what the SIAGIE answered (an observation needs its reason)
+const SiagieStateDialog = ({ row, isPending, onClose, onSave }: { row: ClosingRow; isPending: boolean; onClose: () => void; onSave: (status: string, note: string) => void }): JSX.Element => {
+  const [status, setStatus] = useState(row.siagieStatus || 'pending');
+  const [note, setNote] = useState(row.siagieNote);
+  const missing = status === 'observed' && !note.trim();
+  return (
+    <FormDialog title={`SIAGIE · ${row.student?.name}`} description="Estado de carga de sus notas finales en el SIAGIE." submitLabel="Guardar" isPending={isPending} disabled={missing} onSubmit={(): void => onSave(status, note.trim())} onClose={onClose}>
+      <FormField id="siagie-status" label="Estado">
+        <SelectField id="siagie-status" value={status} options={Object.entries(siagieLabels).map(([value, label]) => ({ value, label }))} onChange={setStatus} />
+      </FormField>
+      {status === 'observed' && (
+        <FormField id="siagie-note" label="Observación" required error={missing ? 'Escribe lo que observó el SIAGIE.' : undefined}>
+          <Textarea id="siagie-note" rows={3} maxLength={300} placeholder="Ej.: el DNI no coincide con el RENIEC" value={note} onChange={(e): void => setNote(e.target.value)} />
+        </FormField>
+      )}
     </FormDialog>
   );
 };

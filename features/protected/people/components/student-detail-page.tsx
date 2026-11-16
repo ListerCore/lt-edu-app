@@ -18,12 +18,14 @@ import { usePeopleContext } from '../hooks/use-people-context';
 import type { Enrollment, Guardian, PeopleContextData, StudentDetail } from '../types';
 import { EndDialog, EnrollDialog, MoveDialog } from './enrollment-dialogs';
 import { GuardianDialog } from './guardian-dialog';
+import { CertificatesTab } from './certificates-tab';
+import { EnrollmentFileCard } from './enrollment-file-card';
 import { StudentForm } from './student-form';
 import { StudentAttendanceTab } from '@/features/protected/attendance/components/student-attendance-tab';
 import { AttachmentsButton } from '@/features/protected/attachments/components/attachments-button';
 import { AttachmentsPanel } from '@/features/protected/attachments/components/attachments-panel';
 
-type Tab = 'data' | 'family' | 'enrollment' | 'placements' | 'attendance' | 'documents';
+type Tab = 'data' | 'file' | 'family' | 'enrollment' | 'placements' | 'certificates' | 'attendance' | 'documents';
 type Editing = { kind: 'guardian'; guardian: Guardian | null } | { kind: 'enroll' } | { kind: 'move'; enrollment: Enrollment } | { kind: 'end'; enrollment: Enrollment } | null;
 
 // One student: personal data, family (guardians and panel access), enrollment history, EBA placements, attendance
@@ -32,7 +34,7 @@ export const StudentDetailPage = ({ id, initialTab }: { id: string; initialTab?:
   const router = useRouter();
   const { data: ctx, slug } = usePeopleContext();
   const { data, error, isLoading, reload } = useAcademicData(`student:${slug}:${id}`, () => getStudentAction(slug, id), isPeopleEvent);
-  const [tab, setTab] = useState<Tab>((['data', 'family', 'enrollment', 'placements', 'attendance', 'documents'] as Tab[]).includes(initialTab as Tab) ? (initialTab as Tab) : 'data');
+  const [tab, setTab] = useState<Tab>((['data', 'file', 'family', 'enrollment', 'placements', 'certificates', 'attendance', 'documents'] as Tab[]).includes(initialTab as Tab) ? (initialTab as Tab) : 'data');
   const [editing, setEditing] = useState<Editing>(null);
   const [isPending, startTransition] = useTransition();
   const today = useToday();
@@ -46,9 +48,10 @@ export const StudentDetailPage = ({ id, initialTab }: { id: string; initialTab?:
 
   const tabs: Array<[Tab, string]> = [
     ['data', 'Datos'],
+    ...(ctx?.context.usesAttentionModes ? ([['file', 'Ficha única']] as Array<[Tab, string]>) : []),
     ['family', `Familia${data ? ` (${data.guardians.length})` : ''}`],
     ['enrollment', 'Matrícula'],
-    ...(ctx?.context.usesAttentionModes ? ([['placements', 'Ubicación y convalidación']] as Array<[Tab, string]>) : []),
+    ...(ctx?.context.usesAttentionModes ? ([['placements', 'Ubicación y convalidación'], ['certificates', 'Constancias']] as Array<[Tab, string]>) : []),
     ['attendance', 'Asistencia'],
     ['documents', 'Documentos'],
   ];
@@ -112,6 +115,10 @@ export const StudentDetailPage = ({ id, initialTab }: { id: string; initialTab?:
           </div>
 
           {tab === 'data' && <StudentForm key={student.id + student.status + student.email} slug={slug} student={student} readOnly={!canManage} onSaved={reload} />}
+
+          {tab === 'file' && <EnrollmentFileCard slug={slug} studentId={student.id} canManage={canManage} />}
+
+          {tab === 'certificates' && <CertificatesTab slug={slug} studentId={student.id} />}
 
           {tab === 'family' && (
             <FamilyTab

@@ -11,9 +11,15 @@ import { useInstitutionSlug } from '@/features/protected/academic/hooks/use-inst
 import { DASHBOARD_PATH } from '@/features/protected/dashboard/data/dashboard-navigation';
 import { recordPdfAction } from '@/features/protected/documents/actions/document-actions';
 import { usePdf } from '@/features/protected/documents/lib/use-pdf';
+import { PdfViewer } from '@/features/protected/documents/components/pdf-viewer';
+import { SignersDialog } from '@/features/protected/documents/components/signers-dialog';
 import { isAssessmentEvent } from '@/hooks/use-live';
 import { cn } from '@/lib/utils';
 import { getClosingAction, getRecordAction } from '../actions/closing-actions';
+import { usePromotionRules } from '../hooks/use-promotion-rules';
+import { useRecordAct } from '../hooks/use-record-act';
+import { PromotionRulesPanel } from './promotion-rules';
+import { RecordActBar } from './record-act-bar';
 import { situationBar, situationLabels, unitClass, unitLabels } from '../data/closing-data';
 import type { ClosingOverview } from '../types';
 import { RecordList } from './record-list';
@@ -30,6 +36,9 @@ export const ClosingPage = (): JSX.Element => {
   const [periodId, setPeriodId] = useState('');
   const [open, setOpen] = useState<Open>(null);
   const { data, error, reload } = useAcademicData(`closing:${slug}:${periodId}`, () => getClosingAction(slug, periodId), isAssessmentEvent);
+  const rules = usePromotionRules(slug);
+  // EBA: the promotion rules answer only there
+  const eba = rules.data !== null;
   const units = data?.mode === 'units';
   const back = (): void => setOpen(null);
 
@@ -51,13 +60,20 @@ export const ClosingPage = (): JSX.Element => {
       ) : !data.period ? (
         <p className="rounded-2xl border border-dashed border-border px-6 py-10 text-center text-sm text-muted-foreground">No hay un periodo para cerrar.</p>
       ) : open?.kind === 'section' ? (
-        <SectionClosingView key={open.id} slug={slug} sectionId={open.id} onBack={back} onRecord={(id): void => setOpen({ kind: 'record', id })} />
+        <SectionClosingView key={open.id} slug={slug} sectionId={open.id} eba={eba} onBack={back} onRecord={(id): void => setOpen({ kind: 'record', id })} />
       ) : open?.kind === 'unit' ? (
         <UnitClosingView key={open.id} slug={slug} assignmentId={open.id} onBack={back} onRecord={(id): void => setOpen({ kind: 'record', id })} />
       ) : open?.kind === 'record' ? (
-        <RecordScreen slug={slug} id={open.id} onBack={back} />
+        <RecordScreen slug={slug} id={open.id} eba={eba} canManage={data.canManage} onBack={back} />
       ) : (
-        <Overview data={data} onPeriod={setPeriodId} onOpen={setOpen} />
+        <>
+          <Overview data={data} onPeriod={setPeriodId} onOpen={setOpen} />
+          {rules.data && data.mode === 'basic' && (
+            <div className="mt-8">
+              <PromotionRulesPanel slug={slug} rules={rules.data} onChange={rules.reload} />
+            </div>
+          )}
+        </>
       )}
     </AcademicPage>
   );
@@ -170,9 +186,11 @@ const Overview = ({ data, onPeriod, onOpen }: { data: ClosingOverview; onPeriod:
   );
 };
 
-const RecordScreen = ({ slug, id, onBack }: { slug: string; id: string; onBack: () => void }): JSX.Element => {
-  const { data, error, reload } = useAcademicData(`record:${slug}:${id}`, () => getRecordAction(slug, id), () => false);
+const RecordScreen = ({ slug, id, eba, canManage, onBack }: { slug: string; id: string; eba: boolean; canManage: boolean; onBack: () => void }): JSX.Element => {
+  const { data, error, reload } = useAcademicData(`record:${slug}:${id}`, () => getRecordAction(slug, id), isAssessmentEvent);
   const [isPending, pdf] = usePdf();
+  const act = useRecordAct(slug, reload);
+  const [signers, setSigners] = useState(false);
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3 print:hidden">
@@ -185,7 +203,10 @@ const RecordScreen = ({ slug, id, onBack }: { slug: string; id: string; onBack: 
           {isPending ? 'Generando PDF…' : 'Descargar PDF'}
         </button>
       </div>
+      {eba && data && <RecordActBar record={data.record} canManage={canManage} act={act} onSigners={(): void => setSigners(true)} />}
       {error ? <LoadError message={error} onRetry={reload} /> : !data ? <PageSkeleton /> : <RecordView data={data} />}
+      {signers && <SignersDialog slug={slug} kind="evaluation_record" title="Firmantes de las actas de evaluación" onClose={(): void => setSigners(false)} onDone={reload} />}
+      {act.preview.file && <PdfViewer file={act.preview.file} onClose={act.preview.close} />}
       {data && <p className="text-xs text-muted-foreground print:hidden">El contenido del acta quedó fijo al emitirla; si cambian los resultados, emite una nueva y esta quedará como reemplazada.</p>}
       {data && (
         <AttachmentsPanel

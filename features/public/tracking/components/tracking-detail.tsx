@@ -135,10 +135,13 @@ export const TrackingDetail = async ({ params, searchParams }: { params: Promise
                 )}
               </div>
               <dl className="mt-2 grid gap-x-6 gap-y-1 text-sm sm:grid-cols-2">
-                <div>
-                  <dt className="inline text-muted-foreground">Código de verificación: </dt>
-                  <dd className="inline font-mono">{v.verificationCode}</dd>
-                </div>
+                {/* The API leaves the codes out: they prove a sheet, so only who holds it knows them */}
+                {v.verificationCode && (
+                  <div>
+                    <dt className="inline text-muted-foreground">Código de verificación: </dt>
+                    <dd className="inline font-mono">{v.verificationCode}</dd>
+                  </div>
+                )}
                 <div>
                   <dt className="inline text-muted-foreground">Generada: </dt>
                   <dd className="inline">{when(v.createdAt)}</dd>
@@ -160,7 +163,13 @@ export const TrackingDetail = async ({ params, searchParams }: { params: Promise
                         </p>
                         <p className="text-muted-foreground">{s.position}</p>
                         <p className="text-xs text-muted-foreground">
-                          Fecha: {when(s.signedAt)} · Código de verificación: <span className="font-mono text-foreground">{s.code}</span>
+                          Fecha: {when(s.signedAt)}
+                          {s.code && (
+                            <>
+                              {' '}
+                              · Código de verificación: <span className="font-mono text-foreground">{s.code}</span>
+                            </>
+                          )}
                         </p>
                         <p className="text-xs text-muted-foreground">Firma simulada: se reemplazará por la firma digital oficial.</p>
                       </>

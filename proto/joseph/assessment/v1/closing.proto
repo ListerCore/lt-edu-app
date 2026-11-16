@@ -25,6 +25,14 @@ service ClosingService {
   rpc GetRecord(GetRecordRequest) returns (GetRecordResponse);
   // CSV for SIAGIE (section) or the unit's results (assignment)
   rpc ExportResults(ExportResultsRequest) returns (ExportResultsResponse);
+
+  // EBA (phase E7): the promotion rule of each cycle, set by the CEBA (decision D4), and the SIAGIE loading state
+  // of the final grades of each student
+  rpc GetPromotionRules(GetPromotionRulesRequest) returns (GetPromotionRulesResponse);
+  rpc SavePromotionRule(SavePromotionRuleRequest) returns (SavePromotionRuleResponse);
+  rpc ResetPromotionRule(ResetPromotionRuleRequest) returns (ResetPromotionRuleResponse);
+  // Every student of the section when student_ids is empty; observed needs the note
+  rpc SetSiagieGrades(SetSiagieGradesRequest) returns (SetSiagieGradesResponse);
 }
 
 message RecordInfo {
@@ -39,6 +47,9 @@ message RecordInfo {
   string status = 8;
   string issued_name = 9;
   string issued_at = 10;
+  // Phase E7: the newest signed version of the acta (empty until generated) and its state
+  string act_version_id = 11;
+  string act_status = 12;
 }
 
 message SectionClosingSummary {
@@ -82,6 +93,7 @@ message ClosingArea {
   string subject_id = 1;
   string name = 2;
   repeated Competency competencies = 3;
+  string subject_code = 4;
 }
 
 message ClosingRow {
@@ -97,6 +109,14 @@ message ClosingRow {
   repeated string targets = 10;
   map<string, string> recovery = 11;
   string after_recovery = 12;
+  // Phase E7: the student's own grade (multigrade sections), the Religion exemption (its cells read EXO) and the
+  // SIAGIE state of the grades: pending | exported | observed
+  string enrollment_id = 13;
+  string grade_short = 14;
+  bool religion_exempt = 15;
+  string siagie_status = 16;
+  string siagie_note = 17;
+  string siagie_at = 18;
 }
 
 message SectionClosing {
@@ -248,4 +268,64 @@ message ExportResultsRequest {
 message ExportResultsResponse {
   string file_name = 1;
   bytes content = 2;
+}
+
+message PromotionRule {
+  string level_id = 1;
+  string level_code = 2;
+  string level_name = 3;
+  bool automatic = 4;
+  int32 areas = 5;
+  string note = 6;
+  // false: the rule of the code (default_*)
+  bool custom = 7;
+  string updated_name = 8;
+  string updated_at = 9;
+  string default_name = 10;
+  int32 default_areas = 11;
+  bool default_automatic = 12;
+}
+
+message GetPromotionRulesRequest {
+  string institution_slug = 1;
+}
+
+message GetPromotionRulesResponse {
+  repeated PromotionRule rules = 1;
+  bool can_manage = 2;
+}
+
+message SavePromotionRuleRequest {
+  string institution_slug = 1;
+  string level_id = 2;
+  bool automatic = 3;
+  int32 areas = 4;
+  string note = 5;
+}
+
+message SavePromotionRuleResponse {
+  repeated PromotionRule rules = 1;
+  bool can_manage = 2;
+}
+
+message ResetPromotionRuleRequest {
+  string institution_slug = 1;
+  string level_id = 2;
+}
+
+message ResetPromotionRuleResponse {
+  repeated PromotionRule rules = 1;
+  bool can_manage = 2;
+}
+
+message SetSiagieGradesRequest {
+  string institution_slug = 1;
+  string section_id = 2;
+  repeated string student_ids = 3;
+  string status = 4;
+  string note = 5;
+}
+
+message SetSiagieGradesResponse {
+  SectionClosing section = 1;
 }

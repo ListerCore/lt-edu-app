@@ -87,6 +87,8 @@ export const alertKindLabels: Record<string, string> = {
   commitment: 'Compromisos',
   psychology: 'Psicología',
   plan: 'POI',
+  // Distance form (EBA): no activity, overdue work or low permanence
+  dropout: 'Abandono',
 };
 
 // Conduct below 11 fails (DS 021-2026-MINEDU)

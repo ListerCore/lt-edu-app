@@ -1,0 +1,265 @@
+syntax = "proto3";
+
+// DRE compliance of a CEBA (phase E8 of docs/ceba/PLAN.md, RSG 613-2014-MINEDU 6.2.1, Anexo 2 and 6.3.2 c).
+// Device kinds: desktop | laptop | tablet | network | printer | other; purposes: virtual_tutoring | student_support
+// | administration | shared; statuses: operational | pending. Check kinds: connectivity | platform_access; links:
+// fiber | adsl | wireless | mobile | other. Reports: platform | equipment. Item sections: informative | classroom |
+// equipment; statuses: pending | verified | not_applicable. Dates "YYYY-MM-DD", instants RFC 3339
+package joseph.compliance.v1;
+
+import "joseph/documents/v1/documents.proto";
+
+option go_package = "api/internal/adapter/inbound/grpc/gen/compliancev1;compliancev1";
+
+// Dirección, coordinación and the technical lead read; dirección and the technical lead write; only the technical
+// lead marks a row verified (it needs an evidence uploaded)
+service ComplianceService {
+  rpc GetBoard(GetBoardRequest) returns (GetBoardResponse);
+  rpc SaveRoom(SaveRoomRequest) returns (SaveRoomResponse);
+  rpc DeleteRoom(DeleteRoomRequest) returns (DeleteRoomResponse);
+  rpc SaveDevice(SaveDeviceRequest) returns (SaveDeviceResponse);
+  rpc DeleteDevice(DeleteDeviceRequest) returns (DeleteDeviceResponse);
+  rpc AddCheck(AddCheckRequest) returns (AddCheckResponse);
+  rpc DeleteCheck(DeleteCheckRequest) returns (DeleteCheckResponse);
+  rpc SaveItem(SaveItemRequest) returns (SaveItemResponse);
+  rpc SetItemStatus(SetItemStatusRequest) returns (SetItemStatusResponse);
+  rpc SaveReport(SaveReportRequest) returns (SaveReportResponse);
+  // Probes the platform URL now (the monitor also does it on its own)
+  rpc CheckUptime(CheckUptimeRequest) returns (CheckUptimeResponse);
+  rpc PlatformReportPdf(PlatformReportPdfRequest) returns (PlatformReportPdfResponse);
+  rpc EquipmentReportPdf(EquipmentReportPdfRequest) returns (EquipmentReportPdfResponse);
+}
+
+message Room {
+  string id = 1;
+  string name = 2;
+  string location = 3;
+  optional double area_m2 = 4;
+  int32 workstations = 5;
+  string furniture = 6;
+  string power_supply = 7;
+  string notes = 8;
+  int32 devices = 9;
+  int32 files = 10;
+}
+
+message Device {
+  string id = 1;
+  string code = 2;
+  string kind = 3;
+  string brand = 4;
+  string model = 5;
+  string specs = 6;
+  string room_id = 7;
+  string room_name = 8;
+  string purpose = 9;
+  string staff_id = 10;
+  string staff_name = 11;
+  string assigned_to = 12;
+  string status = 13;
+  string notes = 14;
+  int32 files = 15;
+  // Latest passed access test from it
+  string last_access = 16;
+}
+
+message Check {
+  string id = 1;
+  string kind = 2;
+  string room_id = 3;
+  string room_name = 4;
+  string device_id = 5;
+  string device_code = 6;
+  string checked_on = 7;
+  string provider = 8;
+  string link_kind = 9;
+  optional double download_mbps = 10;
+  optional double upload_mbps = 11;
+  optional int32 latency_ms = 12;
+  string profile = 13;
+  bool passed = 14;
+  string result = 15;
+  string checked_by_name = 16;
+  int32 files = 17;
+}
+
+message Report {
+  string kind = 1;
+  string number = 2;
+  string file_number = 3;
+  string city = 4;
+  string location = 5;
+  string evaluated_on = 6;
+  string general_result = 7;
+  string limitations = 8;
+  string conclusion = 9;
+  string updated_by_name = 10;
+  string updated_at = 11;
+}
+
+message Item {
+  string id = 1;
+  string report = 2;
+  string section = 3;
+  string code = 4;
+  int32 position = 5;
+  string element = 6;
+  string module = 7;
+  string route = 8;
+  string annex = 9;
+  string folio = 10;
+  string status = 11;
+  string notes = 12;
+  string verified_by_name = 13;
+  string verified_at = 14;
+  int32 files = 15;
+}
+
+message UptimeCheck {
+  string url = 1;
+  string checked_at = 2;
+  optional int32 status_code = 3;
+  optional int32 response_ms = 4;
+  bool ok = 5;
+  string error = 6;
+}
+
+message Uptime {
+  string url = 1;
+  int32 checks = 2;
+  int32 up = 3;
+  double percent = 4;
+  int32 avg_ms = 5;
+  UptimeCheck last = 6;
+  repeated UptimeCheck recent = 7;
+}
+
+message PlatformInfo {
+  string platform_name = 1;
+  string url = 2;
+  string technical_lead = 3;
+  string provider = 4;
+  string instance = 5;
+  int32 files = 6;
+}
+
+message GetBoardRequest {
+  string institution_slug = 1;
+}
+
+message GetBoardResponse {
+  PlatformInfo platform = 1;
+  repeated Report reports = 2;
+  repeated Item items = 3;
+  repeated Room rooms = 4;
+  repeated Device devices = 5;
+  repeated Check checks = 6;
+  Uptime uptime = 7;
+  bool can_write = 8;
+  bool can_verify = 9;
+}
+
+message SaveRoomRequest {
+  string institution_slug = 1;
+  Room room = 2;
+}
+
+message SaveRoomResponse {
+  Room room = 1;
+}
+
+message DeleteRoomRequest {
+  string institution_slug = 1;
+  string id = 2;
+}
+
+message DeleteRoomResponse {}
+
+message SaveDeviceRequest {
+  string institution_slug = 1;
+  Device device = 2;
+}
+
+message SaveDeviceResponse {
+  Device device = 1;
+}
+
+message DeleteDeviceRequest {
+  string institution_slug = 1;
+  string id = 2;
+}
+
+message DeleteDeviceResponse {}
+
+message AddCheckRequest {
+  string institution_slug = 1;
+  Check check = 2;
+}
+
+message AddCheckResponse {
+  Check check = 1;
+}
+
+message DeleteCheckRequest {
+  string institution_slug = 1;
+  string id = 2;
+}
+
+message DeleteCheckResponse {}
+
+message SaveItemRequest {
+  string institution_slug = 1;
+  string id = 2;
+  string module = 3;
+  string route = 4;
+  string annex = 5;
+  string folio = 6;
+  string notes = 7;
+}
+
+message SaveItemResponse {
+  Item item = 1;
+}
+
+message SetItemStatusRequest {
+  string institution_slug = 1;
+  string id = 2;
+  string status = 3;
+}
+
+message SetItemStatusResponse {
+  Item item = 1;
+}
+
+message SaveReportRequest {
+  string institution_slug = 1;
+  Report report = 2;
+}
+
+message SaveReportResponse {
+  Report report = 1;
+}
+
+message CheckUptimeRequest {
+  string institution_slug = 1;
+}
+
+message CheckUptimeResponse {
+  UptimeCheck check = 1;
+}
+
+message PlatformReportPdfRequest {
+  string institution_slug = 1;
+}
+
+message PlatformReportPdfResponse {
+  joseph.documents.v1.PdfFile file = 1;
+}
+
+message EquipmentReportPdfRequest {
+  string institution_slug = 1;
+}
+
+message EquipmentReportPdfResponse {
+  joseph.documents.v1.PdfFile file = 1;
+}
