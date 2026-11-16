@@ -29,7 +29,7 @@ export const AccountRolesCard = ({ account, onSwitched }: AccountRolesCardProps)
               <li key={role.id} className="flex flex-wrap items-center justify-between gap-3 py-3 first:pt-0 last:pb-0">
                 <div className="min-w-0">
                   <p className="text-sm font-medium text-foreground">{role.name}</p>
-                  <p className="text-xs text-muted-foreground">{role.institution ? `${role.institution.name} · ${institutionKindLabels[role.institution.kind]}` : 'Plataforma Joseph'}</p>
+                  <p className="text-xs text-muted-foreground">{role.institution ? `${role.institution.name} · ${institutionKindLabels[role.institution.kind]}` : 'Plataforma ListerCore Edu'}</p>
                 </div>
                 {active ? (
                   <span className="pill inline-flex items-center gap-1 bg-success/12 text-success">

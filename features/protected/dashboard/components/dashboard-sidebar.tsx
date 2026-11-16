@@ -23,7 +23,7 @@ export const DashboardSidebar = (): JSX.Element => {
             <SidebarMenuButton size="lg" tooltip={siteConfig.name} className="gap-3 hover:bg-transparent active:bg-transparent" render={<Link href={DASHBOARD_PATH} />}>
               <BrandMark className="size-8 shrink-0" />
               <span className="grid flex-1 text-left leading-tight">
-                <span className="truncate text-base font-light tracking-tight text-foreground">{siteConfig.name.toLowerCase()}</span>
+                <span className="truncate text-base font-light tracking-tight text-foreground">{siteConfig.name}</span>
                 <span className="truncate text-[11px] text-muted-foreground">{institutionName}</span>
               </span>
             </SidebarMenuButton>

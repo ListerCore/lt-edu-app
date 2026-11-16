@@ -10,7 +10,7 @@ export const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0
 export const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
 export const SLUG_PATTERN = /^[a-z0-9]+(-[a-z0-9]+)*$/;
 
-// The Joseph demo institution of each type; the platform superadmin opens it from the workspace selector.
+// The ListerCore Edu demo institution of each type; the platform superadmin opens it from the workspace selector.
 // People with an institution role always see their own institution, whatever this says
 export const demoInstitutionSlugs: Record<InstitutionType, string> = {
   EBR: 'demo-ebr',

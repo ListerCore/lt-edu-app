@@ -32,7 +32,7 @@ export const formatDate = (iso: string): string => dateOnly.format(new Date(iso)
 // Plain-text sheet of recovery codes, for the .txt download and the clipboard
 export const recoveryCodesText = (codes: string[], email: string, issuedAt: Date): string =>
   [
-    'Joseph · Códigos de respaldo de la verificación en dos pasos',
+    'ListerCore Edu · Códigos de respaldo de la verificación en dos pasos',
     `Cuenta: ${email}`,
     `Generados: ${dateTime.format(issuedAt)}`,
     '',

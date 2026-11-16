@@ -82,7 +82,7 @@ const exclusiveModules = new Set<ModuleKey>(Object.values(managementModules).fla
 // True when the module exists under that management type (shared modules always do)
 export const hasManagementModule = (management: Management, module: ModuleKey): boolean => !exclusiveModules.has(module) || managementModules[management].includes(module);
 
-// What the panel assumes before joseph-api answers: the Joseph demos of CEBA and CEBE are public, the rest private
+// What the panel assumes before joseph-api answers: the ListerCore Edu demos of CEBA and CEBE are public, the rest private
 export const demoManagement: Record<InstitutionType, Management> = {
   EBR: 'private',
   EBA: 'public',
@@ -271,11 +271,11 @@ export const canSeeTab = <P extends TabPage>(role: Role, page: P, tab: string): 
 
 // Simulated names for the demo workspace
 export const demoInstitutionNames: Record<InstitutionType, string> = {
-  EBR: 'Joseph Colegio',
-  EBA: 'Joseph Escuela',
-  EBE: 'Joseph Especial',
-  CEPRE: 'Joseph Academia',
-  IEST: 'Joseph Instituto',
+  EBR: 'ListerCore Colegio',
+  EBA: 'ListerCore CEBA',
+  EBE: 'ListerCore CEBE',
+  CEPRE: 'ListerCore Academia',
+  IEST: 'ListerCore Instituto',
 };
 
 export const demoUserNames: Record<Role, string> = {
