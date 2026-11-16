@@ -43,6 +43,15 @@ service PeopleService {
   rpc ListPlacements(ListPlacementsRequest) returns (ListPlacementsResponse);
   rpc CreatePlacement(CreatePlacementRequest) returns (CreatePlacementResponse);
   rpc DeletePlacement(DeletePlacementRequest) returns (DeletePlacementResponse);
+  // Cycle and grade the cuadro de equivalencias (RVM 0018-2007-ED) proposes for EBR studies
+  rpc ProposePlacement(ProposePlacementRequest) returns (ProposePlacementResponse);
+
+  // EBA enrollment (phase E1): ficha única, exemption from Educación Religiosa, nómina and SIAGIE upload state
+  rpc GetEnrollmentFile(GetEnrollmentFileRequest) returns (GetEnrollmentFileResponse);
+  rpc SaveEnrollmentFile(SaveEnrollmentFileRequest) returns (SaveEnrollmentFileResponse);
+  rpc SetReligionExemption(SetReligionExemptionRequest) returns (SetReligionExemptionResponse);
+  rpc ListRoll(ListRollRequest) returns (ListRollResponse);
+  rpc SetSiagieStatus(SetSiagieStatusRequest) returns (SetSiagieStatusResponse);
 }
 
 message EnrollmentSummary {
@@ -139,7 +148,7 @@ message Placement {
   string id = 1;
   string student_id = 2;
   string student_name = 3;
-  // placement_test | validation
+  // placement_test | validation | revalidation | equivalence
   string kind = 4;
   string level_id = 5;
   string level_name = 6;
@@ -148,6 +157,16 @@ message Placement {
   string decided_on = 9;
   string reference = 10;
   string notes = 11;
+  // Where the student comes from and the studies they bring
+  string origin = 12;
+  string origin_studies = 13;
+  repeated string subject_ids = 14;
+  repeated string subject_names = 15;
+  // Acta: "N.° 003-2026" when generated, its newest version and state (pending | published | superseded | cancelled)
+  int32 act_year = 16;
+  int32 act_number = 17;
+  string act_version_id = 18;
+  string act_status = 19;
 }
 
 message SectionOccupancy {
@@ -431,6 +450,10 @@ message CreatePlacementRequest {
   string decided_on = 6;
   string reference = 7;
   string notes = 8;
+  string origin = 9;
+  string origin_studies = 10;
+  // Areas validated (validation, revalidation, equivalence)
+  repeated string subject_ids = 11;
 }
 
 message CreatePlacementResponse {
@@ -443,3 +466,133 @@ message DeletePlacementRequest {
 }
 
 message DeletePlacementResponse {}
+
+message ProposePlacementRequest {
+  string institution_slug = 1;
+  // ebr_primaria | ebr_secundaria
+  string origin = 2;
+  // Grades passed (0 to 6)
+  int32 passed = 3;
+}
+
+message ProposePlacementResponse {
+  string level_id = 1;
+  string level_name = 2;
+  string grade_id = 3;
+  string grade_name = 4;
+  // The studies already complete the EBA
+  bool done = 5;
+}
+
+message EnrollmentFile {
+  string student_id = 1;
+  // castellano | quechua | aimara | ashaninka | other
+  string mother_tongue = 2;
+  string mother_tongue_other = 3;
+  string occupation = 4;
+  string disability = 5;
+  // none | mobile | home | public | unknown
+  string internet = 6;
+  // none | phone | tablet | computer | unknown
+  string device = 7;
+  // in_person | blended | distance, empty when not said
+  string preferred_mode = 8;
+  string last_studies = 9;
+  // dni | study_certificate | birth_certificate | placement_act | other
+  repeated string documents = 10;
+  string updated_by_name = 11;
+  string updated_at = 12;
+}
+
+message GetEnrollmentFileRequest {
+  string institution_slug = 1;
+  string student_id = 2;
+}
+
+message GetEnrollmentFileResponse {
+  EnrollmentFile file = 1;
+}
+
+message SaveEnrollmentFileRequest {
+  string institution_slug = 1;
+  EnrollmentFile file = 2;
+}
+
+message SaveEnrollmentFileResponse {
+  EnrollmentFile file = 1;
+}
+
+message SetReligionExemptionRequest {
+  string institution_slug = 1;
+  string enrollment_id = 2;
+  bool exempt = 3;
+  string requested_on = 4;
+  // Directoral resolution
+  string reference = 5;
+}
+
+message SetReligionExemptionResponse {}
+
+message RollRow {
+  string enrollment_id = 1;
+  string student_id = 2;
+  string student_code = 3;
+  string document_type = 4;
+  string document_number = 5;
+  string student_name = 6;
+  string sex = 7;
+  string birth_date = 8;
+  string level_id = 9;
+  string level_name = 10;
+  string grade_id = 11;
+  string grade_name = 12;
+  string section_id = 13;
+  string section_name = 14;
+  string attention_mode = 15;
+  string kind = 16;
+  string status = 17;
+  string enrolled_on = 18;
+  bool religion_exempt = 19;
+  // pending | exported | observed
+  string siagie_status = 20;
+  string siagie_note = 21;
+  string siagie_exported_at = 22;
+  string placement = 23;
+}
+
+message RollFilter {
+  string period_id = 1;
+  string level_id = 2;
+  string grade_id = 3;
+  string section_id = 4;
+  // pending | exported | observed, empty for all
+  string siagie_status = 5;
+  // Also withdrawn and transferred
+  bool all = 6;
+}
+
+message ListRollRequest {
+  string institution_slug = 1;
+  RollFilter filter = 2;
+}
+
+message ListRollResponse {
+  repeated RollRow rows = 1;
+  int32 pending = 2;
+  int32 exported = 3;
+  int32 observed = 4;
+  int32 exempt = 5;
+  bool can_manage = 6;
+}
+
+message SetSiagieStatusRequest {
+  string institution_slug = 1;
+  repeated string enrollment_ids = 2;
+  string status = 3;
+  // Required when observed
+  string note = 4;
+}
+
+message SetSiagieStatusResponse {
+  int32 updated = 1;
+}

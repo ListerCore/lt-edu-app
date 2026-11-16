@@ -119,7 +119,7 @@ export interface Placement {
   id: string;
   studentId: string;
   studentName: string;
-  /** placement_test | validation */
+  /** placement_test | validation | revalidation | equivalence */
   kind: string;
   levelId: string;
   levelName: string;
@@ -128,6 +128,16 @@ export interface Placement {
   decidedOn: string;
   reference: string;
   notes: string;
+  /** Where the student comes from and the studies they bring */
+  origin: string;
+  originStudies: string;
+  subjectIds: string[];
+  subjectNames: string[];
+  /** Acta: "N.° 003-2026" when generated, its newest version and state (pending | published | superseded | cancelled) */
+  actYear: number;
+  actNumber: number;
+  actVersionId: string;
+  actStatus: string;
 }
 
 export interface SectionOccupancy {
@@ -413,6 +423,10 @@ export interface CreatePlacementRequest {
   decidedOn: string;
   reference: string;
   notes: string;
+  origin: string;
+  originStudies: string;
+  /** Areas validated (validation, revalidation, equivalence) */
+  subjectIds: string[];
 }
 
 export interface CreatePlacementResponse {
@@ -425,6 +439,137 @@ export interface DeletePlacementRequest {
 }
 
 export interface DeletePlacementResponse {
+}
+
+export interface ProposePlacementRequest {
+  institutionSlug: string;
+  /** ebr_primaria | ebr_secundaria */
+  origin: string;
+  /** Grades passed (0 to 6) */
+  passed: number;
+}
+
+export interface ProposePlacementResponse {
+  levelId: string;
+  levelName: string;
+  gradeId: string;
+  gradeName: string;
+  /** The studies already complete the EBA */
+  done: boolean;
+}
+
+export interface EnrollmentFile {
+  studentId: string;
+  /** castellano | quechua | aimara | ashaninka | other */
+  motherTongue: string;
+  motherTongueOther: string;
+  occupation: string;
+  disability: string;
+  /** none | mobile | home | public | unknown */
+  internet: string;
+  /** none | phone | tablet | computer | unknown */
+  device: string;
+  /** in_person | blended | distance, empty when not said */
+  preferredMode: string;
+  lastStudies: string;
+  /** dni | study_certificate | birth_certificate | placement_act | other */
+  documents: string[];
+  updatedByName: string;
+  updatedAt: string;
+}
+
+export interface GetEnrollmentFileRequest {
+  institutionSlug: string;
+  studentId: string;
+}
+
+export interface GetEnrollmentFileResponse {
+  file?: EnrollmentFile | undefined;
+}
+
+export interface SaveEnrollmentFileRequest {
+  institutionSlug: string;
+  file?: EnrollmentFile | undefined;
+}
+
+export interface SaveEnrollmentFileResponse {
+  file?: EnrollmentFile | undefined;
+}
+
+export interface SetReligionExemptionRequest {
+  institutionSlug: string;
+  enrollmentId: string;
+  exempt: boolean;
+  requestedOn: string;
+  /** Directoral resolution */
+  reference: string;
+}
+
+export interface SetReligionExemptionResponse {
+}
+
+export interface RollRow {
+  enrollmentId: string;
+  studentId: string;
+  studentCode: string;
+  documentType: string;
+  documentNumber: string;
+  studentName: string;
+  sex: string;
+  birthDate: string;
+  levelId: string;
+  levelName: string;
+  gradeId: string;
+  gradeName: string;
+  sectionId: string;
+  sectionName: string;
+  attentionMode: string;
+  kind: string;
+  status: string;
+  enrolledOn: string;
+  religionExempt: boolean;
+  /** pending | exported | observed */
+  siagieStatus: string;
+  siagieNote: string;
+  siagieExportedAt: string;
+  placement: string;
+}
+
+export interface RollFilter {
+  periodId: string;
+  levelId: string;
+  gradeId: string;
+  sectionId: string;
+  /** pending | exported | observed, empty for all */
+  siagieStatus: string;
+  /** Also withdrawn and transferred */
+  all: boolean;
+}
+
+export interface ListRollRequest {
+  institutionSlug: string;
+  filter?: RollFilter | undefined;
+}
+
+export interface ListRollResponse {
+  rows: RollRow[];
+  pending: number;
+  exported: number;
+  observed: number;
+  exempt: number;
+  canManage: boolean;
+}
+
+export interface SetSiagieStatusRequest {
+  institutionSlug: string;
+  enrollmentIds: string[];
+  status: string;
+  /** Required when observed */
+  note: string;
+}
+
+export interface SetSiagieStatusResponse {
+  updated: number;
 }
 
 function createBaseEnrollmentSummary(): EnrollmentSummary {
@@ -1436,6 +1581,14 @@ function createBasePlacement(): Placement {
     decidedOn: "",
     reference: "",
     notes: "",
+    origin: "",
+    originStudies: "",
+    subjectIds: [],
+    subjectNames: [],
+    actYear: 0,
+    actNumber: 0,
+    actVersionId: "",
+    actStatus: "",
   };
 }
 
@@ -1473,6 +1626,30 @@ export const Placement: MessageFns<Placement> = {
     }
     if (message.notes !== "") {
       writer.uint32(90).string(message.notes);
+    }
+    if (message.origin !== "") {
+      writer.uint32(98).string(message.origin);
+    }
+    if (message.originStudies !== "") {
+      writer.uint32(106).string(message.originStudies);
+    }
+    for (const v of message.subjectIds) {
+      writer.uint32(114).string(v!);
+    }
+    for (const v of message.subjectNames) {
+      writer.uint32(122).string(v!);
+    }
+    if (message.actYear !== 0) {
+      writer.uint32(128).int32(message.actYear);
+    }
+    if (message.actNumber !== 0) {
+      writer.uint32(136).int32(message.actNumber);
+    }
+    if (message.actVersionId !== "") {
+      writer.uint32(146).string(message.actVersionId);
+    }
+    if (message.actStatus !== "") {
+      writer.uint32(154).string(message.actStatus);
     }
     return writer;
   },
@@ -1576,6 +1753,70 @@ export const Placement: MessageFns<Placement> = {
             }
 
             message.notes = reader.string();
+            continue;
+          }
+          case 12: {
+            if (tag !== 98) {
+              break;
+            }
+
+            message.origin = reader.string();
+            continue;
+          }
+          case 13: {
+            if (tag !== 106) {
+              break;
+            }
+
+            message.originStudies = reader.string();
+            continue;
+          }
+          case 14: {
+            if (tag !== 114) {
+              break;
+            }
+
+            message.subjectIds.push(reader.string());
+            continue;
+          }
+          case 15: {
+            if (tag !== 122) {
+              break;
+            }
+
+            message.subjectNames.push(reader.string());
+            continue;
+          }
+          case 16: {
+            if (tag !== 128) {
+              break;
+            }
+
+            message.actYear = reader.int32();
+            continue;
+          }
+          case 17: {
+            if (tag !== 136) {
+              break;
+            }
+
+            message.actNumber = reader.int32();
+            continue;
+          }
+          case 18: {
+            if (tag !== 146) {
+              break;
+            }
+
+            message.actVersionId = reader.string();
+            continue;
+          }
+          case 19: {
+            if (tag !== 154) {
+              break;
+            }
+
+            message.actStatus = reader.string();
             continue;
           }
         }
@@ -4635,6 +4876,9 @@ function createBaseCreatePlacementRequest(): CreatePlacementRequest {
     decidedOn: "",
     reference: "",
     notes: "",
+    origin: "",
+    originStudies: "",
+    subjectIds: [],
   };
 }
 
@@ -4663,6 +4907,15 @@ export const CreatePlacementRequest: MessageFns<CreatePlacementRequest> = {
     }
     if (message.notes !== "") {
       writer.uint32(66).string(message.notes);
+    }
+    if (message.origin !== "") {
+      writer.uint32(74).string(message.origin);
+    }
+    if (message.originStudies !== "") {
+      writer.uint32(82).string(message.originStudies);
+    }
+    for (const v of message.subjectIds) {
+      writer.uint32(90).string(v!);
     }
     return writer;
   },
@@ -4742,6 +4995,30 @@ export const CreatePlacementRequest: MessageFns<CreatePlacementRequest> = {
             }
 
             message.notes = reader.string();
+            continue;
+          }
+          case 9: {
+            if (tag !== 74) {
+              break;
+            }
+
+            message.origin = reader.string();
+            continue;
+          }
+          case 10: {
+            if (tag !== 82) {
+              break;
+            }
+
+            message.originStudies = reader.string();
+            continue;
+          }
+          case 11: {
+            if (tag !== 90) {
+              break;
+            }
+
+            message.subjectIds.push(reader.string());
             continue;
           }
         }
@@ -4882,6 +5159,1371 @@ export const DeletePlacementResponse: MessageFns<DeletePlacementResponse> = {
       while (reader.pos < end) {
         const tag = reader.uint32();
         switch (tag >>> 3) {
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+};
+
+function createBaseProposePlacementRequest(): ProposePlacementRequest {
+  return { institutionSlug: "", origin: "", passed: 0 };
+}
+
+export const ProposePlacementRequest: MessageFns<ProposePlacementRequest> = {
+  encode(message: ProposePlacementRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.institutionSlug !== "") {
+      writer.uint32(10).string(message.institutionSlug);
+    }
+    if (message.origin !== "") {
+      writer.uint32(18).string(message.origin);
+    }
+    if (message.passed !== 0) {
+      writer.uint32(24).int32(message.passed);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): ProposePlacementRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseProposePlacementRequest();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.institutionSlug = reader.string();
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.origin = reader.string();
+            continue;
+          }
+          case 3: {
+            if (tag !== 24) {
+              break;
+            }
+
+            message.passed = reader.int32();
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+};
+
+function createBaseProposePlacementResponse(): ProposePlacementResponse {
+  return { levelId: "", levelName: "", gradeId: "", gradeName: "", done: false };
+}
+
+export const ProposePlacementResponse: MessageFns<ProposePlacementResponse> = {
+  encode(message: ProposePlacementResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.levelId !== "") {
+      writer.uint32(10).string(message.levelId);
+    }
+    if (message.levelName !== "") {
+      writer.uint32(18).string(message.levelName);
+    }
+    if (message.gradeId !== "") {
+      writer.uint32(26).string(message.gradeId);
+    }
+    if (message.gradeName !== "") {
+      writer.uint32(34).string(message.gradeName);
+    }
+    if (message.done !== false) {
+      writer.uint32(40).bool(message.done);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): ProposePlacementResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseProposePlacementResponse();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.levelId = reader.string();
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.levelName = reader.string();
+            continue;
+          }
+          case 3: {
+            if (tag !== 26) {
+              break;
+            }
+
+            message.gradeId = reader.string();
+            continue;
+          }
+          case 4: {
+            if (tag !== 34) {
+              break;
+            }
+
+            message.gradeName = reader.string();
+            continue;
+          }
+          case 5: {
+            if (tag !== 40) {
+              break;
+            }
+
+            message.done = reader.bool();
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+};
+
+function createBaseEnrollmentFile(): EnrollmentFile {
+  return {
+    studentId: "",
+    motherTongue: "",
+    motherTongueOther: "",
+    occupation: "",
+    disability: "",
+    internet: "",
+    device: "",
+    preferredMode: "",
+    lastStudies: "",
+    documents: [],
+    updatedByName: "",
+    updatedAt: "",
+  };
+}
+
+export const EnrollmentFile: MessageFns<EnrollmentFile> = {
+  encode(message: EnrollmentFile, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.studentId !== "") {
+      writer.uint32(10).string(message.studentId);
+    }
+    if (message.motherTongue !== "") {
+      writer.uint32(18).string(message.motherTongue);
+    }
+    if (message.motherTongueOther !== "") {
+      writer.uint32(26).string(message.motherTongueOther);
+    }
+    if (message.occupation !== "") {
+      writer.uint32(34).string(message.occupation);
+    }
+    if (message.disability !== "") {
+      writer.uint32(42).string(message.disability);
+    }
+    if (message.internet !== "") {
+      writer.uint32(50).string(message.internet);
+    }
+    if (message.device !== "") {
+      writer.uint32(58).string(message.device);
+    }
+    if (message.preferredMode !== "") {
+      writer.uint32(66).string(message.preferredMode);
+    }
+    if (message.lastStudies !== "") {
+      writer.uint32(74).string(message.lastStudies);
+    }
+    for (const v of message.documents) {
+      writer.uint32(82).string(v!);
+    }
+    if (message.updatedByName !== "") {
+      writer.uint32(90).string(message.updatedByName);
+    }
+    if (message.updatedAt !== "") {
+      writer.uint32(98).string(message.updatedAt);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): EnrollmentFile {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseEnrollmentFile();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.studentId = reader.string();
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.motherTongue = reader.string();
+            continue;
+          }
+          case 3: {
+            if (tag !== 26) {
+              break;
+            }
+
+            message.motherTongueOther = reader.string();
+            continue;
+          }
+          case 4: {
+            if (tag !== 34) {
+              break;
+            }
+
+            message.occupation = reader.string();
+            continue;
+          }
+          case 5: {
+            if (tag !== 42) {
+              break;
+            }
+
+            message.disability = reader.string();
+            continue;
+          }
+          case 6: {
+            if (tag !== 50) {
+              break;
+            }
+
+            message.internet = reader.string();
+            continue;
+          }
+          case 7: {
+            if (tag !== 58) {
+              break;
+            }
+
+            message.device = reader.string();
+            continue;
+          }
+          case 8: {
+            if (tag !== 66) {
+              break;
+            }
+
+            message.preferredMode = reader.string();
+            continue;
+          }
+          case 9: {
+            if (tag !== 74) {
+              break;
+            }
+
+            message.lastStudies = reader.string();
+            continue;
+          }
+          case 10: {
+            if (tag !== 82) {
+              break;
+            }
+
+            message.documents.push(reader.string());
+            continue;
+          }
+          case 11: {
+            if (tag !== 90) {
+              break;
+            }
+
+            message.updatedByName = reader.string();
+            continue;
+          }
+          case 12: {
+            if (tag !== 98) {
+              break;
+            }
+
+            message.updatedAt = reader.string();
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+};
+
+function createBaseGetEnrollmentFileRequest(): GetEnrollmentFileRequest {
+  return { institutionSlug: "", studentId: "" };
+}
+
+export const GetEnrollmentFileRequest: MessageFns<GetEnrollmentFileRequest> = {
+  encode(message: GetEnrollmentFileRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.institutionSlug !== "") {
+      writer.uint32(10).string(message.institutionSlug);
+    }
+    if (message.studentId !== "") {
+      writer.uint32(18).string(message.studentId);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): GetEnrollmentFileRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseGetEnrollmentFileRequest();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.institutionSlug = reader.string();
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.studentId = reader.string();
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+};
+
+function createBaseGetEnrollmentFileResponse(): GetEnrollmentFileResponse {
+  return { file: undefined };
+}
+
+export const GetEnrollmentFileResponse: MessageFns<GetEnrollmentFileResponse> = {
+  encode(message: GetEnrollmentFileResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.file !== undefined) {
+      EnrollmentFile.encode(message.file, writer.uint32(10).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): GetEnrollmentFileResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseGetEnrollmentFileResponse();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.file = EnrollmentFile.decode(reader, reader.uint32());
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+};
+
+function createBaseSaveEnrollmentFileRequest(): SaveEnrollmentFileRequest {
+  return { institutionSlug: "", file: undefined };
+}
+
+export const SaveEnrollmentFileRequest: MessageFns<SaveEnrollmentFileRequest> = {
+  encode(message: SaveEnrollmentFileRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.institutionSlug !== "") {
+      writer.uint32(10).string(message.institutionSlug);
+    }
+    if (message.file !== undefined) {
+      EnrollmentFile.encode(message.file, writer.uint32(18).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): SaveEnrollmentFileRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseSaveEnrollmentFileRequest();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.institutionSlug = reader.string();
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.file = EnrollmentFile.decode(reader, reader.uint32());
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+};
+
+function createBaseSaveEnrollmentFileResponse(): SaveEnrollmentFileResponse {
+  return { file: undefined };
+}
+
+export const SaveEnrollmentFileResponse: MessageFns<SaveEnrollmentFileResponse> = {
+  encode(message: SaveEnrollmentFileResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.file !== undefined) {
+      EnrollmentFile.encode(message.file, writer.uint32(10).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): SaveEnrollmentFileResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseSaveEnrollmentFileResponse();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.file = EnrollmentFile.decode(reader, reader.uint32());
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+};
+
+function createBaseSetReligionExemptionRequest(): SetReligionExemptionRequest {
+  return { institutionSlug: "", enrollmentId: "", exempt: false, requestedOn: "", reference: "" };
+}
+
+export const SetReligionExemptionRequest: MessageFns<SetReligionExemptionRequest> = {
+  encode(message: SetReligionExemptionRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.institutionSlug !== "") {
+      writer.uint32(10).string(message.institutionSlug);
+    }
+    if (message.enrollmentId !== "") {
+      writer.uint32(18).string(message.enrollmentId);
+    }
+    if (message.exempt !== false) {
+      writer.uint32(24).bool(message.exempt);
+    }
+    if (message.requestedOn !== "") {
+      writer.uint32(34).string(message.requestedOn);
+    }
+    if (message.reference !== "") {
+      writer.uint32(42).string(message.reference);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): SetReligionExemptionRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseSetReligionExemptionRequest();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.institutionSlug = reader.string();
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.enrollmentId = reader.string();
+            continue;
+          }
+          case 3: {
+            if (tag !== 24) {
+              break;
+            }
+
+            message.exempt = reader.bool();
+            continue;
+          }
+          case 4: {
+            if (tag !== 34) {
+              break;
+            }
+
+            message.requestedOn = reader.string();
+            continue;
+          }
+          case 5: {
+            if (tag !== 42) {
+              break;
+            }
+
+            message.reference = reader.string();
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+};
+
+function createBaseSetReligionExemptionResponse(): SetReligionExemptionResponse {
+  return {};
+}
+
+export const SetReligionExemptionResponse: MessageFns<SetReligionExemptionResponse> = {
+  encode(_: SetReligionExemptionResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): SetReligionExemptionResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseSetReligionExemptionResponse();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+};
+
+function createBaseRollRow(): RollRow {
+  return {
+    enrollmentId: "",
+    studentId: "",
+    studentCode: "",
+    documentType: "",
+    documentNumber: "",
+    studentName: "",
+    sex: "",
+    birthDate: "",
+    levelId: "",
+    levelName: "",
+    gradeId: "",
+    gradeName: "",
+    sectionId: "",
+    sectionName: "",
+    attentionMode: "",
+    kind: "",
+    status: "",
+    enrolledOn: "",
+    religionExempt: false,
+    siagieStatus: "",
+    siagieNote: "",
+    siagieExportedAt: "",
+    placement: "",
+  };
+}
+
+export const RollRow: MessageFns<RollRow> = {
+  encode(message: RollRow, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.enrollmentId !== "") {
+      writer.uint32(10).string(message.enrollmentId);
+    }
+    if (message.studentId !== "") {
+      writer.uint32(18).string(message.studentId);
+    }
+    if (message.studentCode !== "") {
+      writer.uint32(26).string(message.studentCode);
+    }
+    if (message.documentType !== "") {
+      writer.uint32(34).string(message.documentType);
+    }
+    if (message.documentNumber !== "") {
+      writer.uint32(42).string(message.documentNumber);
+    }
+    if (message.studentName !== "") {
+      writer.uint32(50).string(message.studentName);
+    }
+    if (message.sex !== "") {
+      writer.uint32(58).string(message.sex);
+    }
+    if (message.birthDate !== "") {
+      writer.uint32(66).string(message.birthDate);
+    }
+    if (message.levelId !== "") {
+      writer.uint32(74).string(message.levelId);
+    }
+    if (message.levelName !== "") {
+      writer.uint32(82).string(message.levelName);
+    }
+    if (message.gradeId !== "") {
+      writer.uint32(90).string(message.gradeId);
+    }
+    if (message.gradeName !== "") {
+      writer.uint32(98).string(message.gradeName);
+    }
+    if (message.sectionId !== "") {
+      writer.uint32(106).string(message.sectionId);
+    }
+    if (message.sectionName !== "") {
+      writer.uint32(114).string(message.sectionName);
+    }
+    if (message.attentionMode !== "") {
+      writer.uint32(122).string(message.attentionMode);
+    }
+    if (message.kind !== "") {
+      writer.uint32(130).string(message.kind);
+    }
+    if (message.status !== "") {
+      writer.uint32(138).string(message.status);
+    }
+    if (message.enrolledOn !== "") {
+      writer.uint32(146).string(message.enrolledOn);
+    }
+    if (message.religionExempt !== false) {
+      writer.uint32(152).bool(message.religionExempt);
+    }
+    if (message.siagieStatus !== "") {
+      writer.uint32(162).string(message.siagieStatus);
+    }
+    if (message.siagieNote !== "") {
+      writer.uint32(170).string(message.siagieNote);
+    }
+    if (message.siagieExportedAt !== "") {
+      writer.uint32(178).string(message.siagieExportedAt);
+    }
+    if (message.placement !== "") {
+      writer.uint32(186).string(message.placement);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): RollRow {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseRollRow();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.enrollmentId = reader.string();
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.studentId = reader.string();
+            continue;
+          }
+          case 3: {
+            if (tag !== 26) {
+              break;
+            }
+
+            message.studentCode = reader.string();
+            continue;
+          }
+          case 4: {
+            if (tag !== 34) {
+              break;
+            }
+
+            message.documentType = reader.string();
+            continue;
+          }
+          case 5: {
+            if (tag !== 42) {
+              break;
+            }
+
+            message.documentNumber = reader.string();
+            continue;
+          }
+          case 6: {
+            if (tag !== 50) {
+              break;
+            }
+
+            message.studentName = reader.string();
+            continue;
+          }
+          case 7: {
+            if (tag !== 58) {
+              break;
+            }
+
+            message.sex = reader.string();
+            continue;
+          }
+          case 8: {
+            if (tag !== 66) {
+              break;
+            }
+
+            message.birthDate = reader.string();
+            continue;
+          }
+          case 9: {
+            if (tag !== 74) {
+              break;
+            }
+
+            message.levelId = reader.string();
+            continue;
+          }
+          case 10: {
+            if (tag !== 82) {
+              break;
+            }
+
+            message.levelName = reader.string();
+            continue;
+          }
+          case 11: {
+            if (tag !== 90) {
+              break;
+            }
+
+            message.gradeId = reader.string();
+            continue;
+          }
+          case 12: {
+            if (tag !== 98) {
+              break;
+            }
+
+            message.gradeName = reader.string();
+            continue;
+          }
+          case 13: {
+            if (tag !== 106) {
+              break;
+            }
+
+            message.sectionId = reader.string();
+            continue;
+          }
+          case 14: {
+            if (tag !== 114) {
+              break;
+            }
+
+            message.sectionName = reader.string();
+            continue;
+          }
+          case 15: {
+            if (tag !== 122) {
+              break;
+            }
+
+            message.attentionMode = reader.string();
+            continue;
+          }
+          case 16: {
+            if (tag !== 130) {
+              break;
+            }
+
+            message.kind = reader.string();
+            continue;
+          }
+          case 17: {
+            if (tag !== 138) {
+              break;
+            }
+
+            message.status = reader.string();
+            continue;
+          }
+          case 18: {
+            if (tag !== 146) {
+              break;
+            }
+
+            message.enrolledOn = reader.string();
+            continue;
+          }
+          case 19: {
+            if (tag !== 152) {
+              break;
+            }
+
+            message.religionExempt = reader.bool();
+            continue;
+          }
+          case 20: {
+            if (tag !== 162) {
+              break;
+            }
+
+            message.siagieStatus = reader.string();
+            continue;
+          }
+          case 21: {
+            if (tag !== 170) {
+              break;
+            }
+
+            message.siagieNote = reader.string();
+            continue;
+          }
+          case 22: {
+            if (tag !== 178) {
+              break;
+            }
+
+            message.siagieExportedAt = reader.string();
+            continue;
+          }
+          case 23: {
+            if (tag !== 186) {
+              break;
+            }
+
+            message.placement = reader.string();
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+};
+
+function createBaseRollFilter(): RollFilter {
+  return { periodId: "", levelId: "", gradeId: "", sectionId: "", siagieStatus: "", all: false };
+}
+
+export const RollFilter: MessageFns<RollFilter> = {
+  encode(message: RollFilter, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.periodId !== "") {
+      writer.uint32(10).string(message.periodId);
+    }
+    if (message.levelId !== "") {
+      writer.uint32(18).string(message.levelId);
+    }
+    if (message.gradeId !== "") {
+      writer.uint32(26).string(message.gradeId);
+    }
+    if (message.sectionId !== "") {
+      writer.uint32(34).string(message.sectionId);
+    }
+    if (message.siagieStatus !== "") {
+      writer.uint32(42).string(message.siagieStatus);
+    }
+    if (message.all !== false) {
+      writer.uint32(48).bool(message.all);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): RollFilter {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseRollFilter();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.periodId = reader.string();
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.levelId = reader.string();
+            continue;
+          }
+          case 3: {
+            if (tag !== 26) {
+              break;
+            }
+
+            message.gradeId = reader.string();
+            continue;
+          }
+          case 4: {
+            if (tag !== 34) {
+              break;
+            }
+
+            message.sectionId = reader.string();
+            continue;
+          }
+          case 5: {
+            if (tag !== 42) {
+              break;
+            }
+
+            message.siagieStatus = reader.string();
+            continue;
+          }
+          case 6: {
+            if (tag !== 48) {
+              break;
+            }
+
+            message.all = reader.bool();
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+};
+
+function createBaseListRollRequest(): ListRollRequest {
+  return { institutionSlug: "", filter: undefined };
+}
+
+export const ListRollRequest: MessageFns<ListRollRequest> = {
+  encode(message: ListRollRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.institutionSlug !== "") {
+      writer.uint32(10).string(message.institutionSlug);
+    }
+    if (message.filter !== undefined) {
+      RollFilter.encode(message.filter, writer.uint32(18).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): ListRollRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseListRollRequest();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.institutionSlug = reader.string();
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.filter = RollFilter.decode(reader, reader.uint32());
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+};
+
+function createBaseListRollResponse(): ListRollResponse {
+  return { rows: [], pending: 0, exported: 0, observed: 0, exempt: 0, canManage: false };
+}
+
+export const ListRollResponse: MessageFns<ListRollResponse> = {
+  encode(message: ListRollResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    for (const v of message.rows) {
+      RollRow.encode(v!, writer.uint32(10).fork()).join();
+    }
+    if (message.pending !== 0) {
+      writer.uint32(16).int32(message.pending);
+    }
+    if (message.exported !== 0) {
+      writer.uint32(24).int32(message.exported);
+    }
+    if (message.observed !== 0) {
+      writer.uint32(32).int32(message.observed);
+    }
+    if (message.exempt !== 0) {
+      writer.uint32(40).int32(message.exempt);
+    }
+    if (message.canManage !== false) {
+      writer.uint32(48).bool(message.canManage);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): ListRollResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseListRollResponse();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.rows.push(RollRow.decode(reader, reader.uint32()));
+            continue;
+          }
+          case 2: {
+            if (tag !== 16) {
+              break;
+            }
+
+            message.pending = reader.int32();
+            continue;
+          }
+          case 3: {
+            if (tag !== 24) {
+              break;
+            }
+
+            message.exported = reader.int32();
+            continue;
+          }
+          case 4: {
+            if (tag !== 32) {
+              break;
+            }
+
+            message.observed = reader.int32();
+            continue;
+          }
+          case 5: {
+            if (tag !== 40) {
+              break;
+            }
+
+            message.exempt = reader.int32();
+            continue;
+          }
+          case 6: {
+            if (tag !== 48) {
+              break;
+            }
+
+            message.canManage = reader.bool();
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+};
+
+function createBaseSetSiagieStatusRequest(): SetSiagieStatusRequest {
+  return { institutionSlug: "", enrollmentIds: [], status: "", note: "" };
+}
+
+export const SetSiagieStatusRequest: MessageFns<SetSiagieStatusRequest> = {
+  encode(message: SetSiagieStatusRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.institutionSlug !== "") {
+      writer.uint32(10).string(message.institutionSlug);
+    }
+    for (const v of message.enrollmentIds) {
+      writer.uint32(18).string(v!);
+    }
+    if (message.status !== "") {
+      writer.uint32(26).string(message.status);
+    }
+    if (message.note !== "") {
+      writer.uint32(34).string(message.note);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): SetSiagieStatusRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseSetSiagieStatusRequest();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.institutionSlug = reader.string();
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.enrollmentIds.push(reader.string());
+            continue;
+          }
+          case 3: {
+            if (tag !== 26) {
+              break;
+            }
+
+            message.status = reader.string();
+            continue;
+          }
+          case 4: {
+            if (tag !== 34) {
+              break;
+            }
+
+            message.note = reader.string();
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+};
+
+function createBaseSetSiagieStatusResponse(): SetSiagieStatusResponse {
+  return { updated: 0 };
+}
+
+export const SetSiagieStatusResponse: MessageFns<SetSiagieStatusResponse> = {
+  encode(message: SetSiagieStatusResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.updated !== 0) {
+      writer.uint32(8).int32(message.updated);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): SetSiagieStatusResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseSetSiagieStatusResponse();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 8) {
+              break;
+            }
+
+            message.updated = reader.int32();
+            continue;
+          }
         }
         if ((tag & 7) === 4 || tag === 0) {
           break;
@@ -5111,6 +6753,72 @@ export const PeopleServiceService = {
       Buffer.from(DeletePlacementResponse.encode(value).finish()),
     responseDeserialize: (value: Buffer): DeletePlacementResponse => DeletePlacementResponse.decode(value),
   },
+  /** Cycle and grade the cuadro de equivalencias (RVM 0018-2007-ED) proposes for EBR studies */
+  proposePlacement: {
+    path: "/joseph.people.v1.PeopleService/ProposePlacement" as const,
+    requestStream: false as const,
+    responseStream: false as const,
+    requestSerialize: (value: ProposePlacementRequest): Buffer =>
+      Buffer.from(ProposePlacementRequest.encode(value).finish()),
+    requestDeserialize: (value: Buffer): ProposePlacementRequest => ProposePlacementRequest.decode(value),
+    responseSerialize: (value: ProposePlacementResponse): Buffer =>
+      Buffer.from(ProposePlacementResponse.encode(value).finish()),
+    responseDeserialize: (value: Buffer): ProposePlacementResponse => ProposePlacementResponse.decode(value),
+  },
+  /** EBA enrollment (phase E1): ficha única, exemption from Educación Religiosa, nómina and SIAGIE upload state */
+  getEnrollmentFile: {
+    path: "/joseph.people.v1.PeopleService/GetEnrollmentFile" as const,
+    requestStream: false as const,
+    responseStream: false as const,
+    requestSerialize: (value: GetEnrollmentFileRequest): Buffer =>
+      Buffer.from(GetEnrollmentFileRequest.encode(value).finish()),
+    requestDeserialize: (value: Buffer): GetEnrollmentFileRequest => GetEnrollmentFileRequest.decode(value),
+    responseSerialize: (value: GetEnrollmentFileResponse): Buffer =>
+      Buffer.from(GetEnrollmentFileResponse.encode(value).finish()),
+    responseDeserialize: (value: Buffer): GetEnrollmentFileResponse => GetEnrollmentFileResponse.decode(value),
+  },
+  saveEnrollmentFile: {
+    path: "/joseph.people.v1.PeopleService/SaveEnrollmentFile" as const,
+    requestStream: false as const,
+    responseStream: false as const,
+    requestSerialize: (value: SaveEnrollmentFileRequest): Buffer =>
+      Buffer.from(SaveEnrollmentFileRequest.encode(value).finish()),
+    requestDeserialize: (value: Buffer): SaveEnrollmentFileRequest => SaveEnrollmentFileRequest.decode(value),
+    responseSerialize: (value: SaveEnrollmentFileResponse): Buffer =>
+      Buffer.from(SaveEnrollmentFileResponse.encode(value).finish()),
+    responseDeserialize: (value: Buffer): SaveEnrollmentFileResponse => SaveEnrollmentFileResponse.decode(value),
+  },
+  setReligionExemption: {
+    path: "/joseph.people.v1.PeopleService/SetReligionExemption" as const,
+    requestStream: false as const,
+    responseStream: false as const,
+    requestSerialize: (value: SetReligionExemptionRequest): Buffer =>
+      Buffer.from(SetReligionExemptionRequest.encode(value).finish()),
+    requestDeserialize: (value: Buffer): SetReligionExemptionRequest => SetReligionExemptionRequest.decode(value),
+    responseSerialize: (value: SetReligionExemptionResponse): Buffer =>
+      Buffer.from(SetReligionExemptionResponse.encode(value).finish()),
+    responseDeserialize: (value: Buffer): SetReligionExemptionResponse => SetReligionExemptionResponse.decode(value),
+  },
+  listRoll: {
+    path: "/joseph.people.v1.PeopleService/ListRoll" as const,
+    requestStream: false as const,
+    responseStream: false as const,
+    requestSerialize: (value: ListRollRequest): Buffer => Buffer.from(ListRollRequest.encode(value).finish()),
+    requestDeserialize: (value: Buffer): ListRollRequest => ListRollRequest.decode(value),
+    responseSerialize: (value: ListRollResponse): Buffer => Buffer.from(ListRollResponse.encode(value).finish()),
+    responseDeserialize: (value: Buffer): ListRollResponse => ListRollResponse.decode(value),
+  },
+  setSiagieStatus: {
+    path: "/joseph.people.v1.PeopleService/SetSiagieStatus" as const,
+    requestStream: false as const,
+    responseStream: false as const,
+    requestSerialize: (value: SetSiagieStatusRequest): Buffer =>
+      Buffer.from(SetSiagieStatusRequest.encode(value).finish()),
+    requestDeserialize: (value: Buffer): SetSiagieStatusRequest => SetSiagieStatusRequest.decode(value),
+    responseSerialize: (value: SetSiagieStatusResponse): Buffer =>
+      Buffer.from(SetSiagieStatusResponse.encode(value).finish()),
+    responseDeserialize: (value: Buffer): SetSiagieStatusResponse => SetSiagieStatusResponse.decode(value),
+  },
 } as const;
 
 export interface PeopleServiceServer extends UntypedServiceImplementation {
@@ -5142,6 +6850,14 @@ export interface PeopleServiceServer extends UntypedServiceImplementation {
   listPlacements: handleUnaryCall<ListPlacementsRequest, ListPlacementsResponse>;
   createPlacement: handleUnaryCall<CreatePlacementRequest, CreatePlacementResponse>;
   deletePlacement: handleUnaryCall<DeletePlacementRequest, DeletePlacementResponse>;
+  /** Cycle and grade the cuadro de equivalencias (RVM 0018-2007-ED) proposes for EBR studies */
+  proposePlacement: handleUnaryCall<ProposePlacementRequest, ProposePlacementResponse>;
+  /** EBA enrollment (phase E1): ficha única, exemption from Educación Religiosa, nómina and SIAGIE upload state */
+  getEnrollmentFile: handleUnaryCall<GetEnrollmentFileRequest, GetEnrollmentFileResponse>;
+  saveEnrollmentFile: handleUnaryCall<SaveEnrollmentFileRequest, SaveEnrollmentFileResponse>;
+  setReligionExemption: handleUnaryCall<SetReligionExemptionRequest, SetReligionExemptionResponse>;
+  listRoll: handleUnaryCall<ListRollRequest, ListRollResponse>;
+  setSiagieStatus: handleUnaryCall<SetSiagieStatusRequest, SetSiagieStatusResponse>;
 }
 
 export interface PeopleServiceClient extends Client {
@@ -5452,6 +7168,98 @@ export interface PeopleServiceClient extends Client {
     metadata: Metadata,
     options: Partial<CallOptions>,
     callback: (error: ServiceError | null, response: DeletePlacementResponse) => void,
+  ): ClientUnaryCall;
+  /** Cycle and grade the cuadro de equivalencias (RVM 0018-2007-ED) proposes for EBR studies */
+  proposePlacement(
+    request: ProposePlacementRequest,
+    callback: (error: ServiceError | null, response: ProposePlacementResponse) => void,
+  ): ClientUnaryCall;
+  proposePlacement(
+    request: ProposePlacementRequest,
+    metadata: Metadata,
+    callback: (error: ServiceError | null, response: ProposePlacementResponse) => void,
+  ): ClientUnaryCall;
+  proposePlacement(
+    request: ProposePlacementRequest,
+    metadata: Metadata,
+    options: Partial<CallOptions>,
+    callback: (error: ServiceError | null, response: ProposePlacementResponse) => void,
+  ): ClientUnaryCall;
+  /** EBA enrollment (phase E1): ficha única, exemption from Educación Religiosa, nómina and SIAGIE upload state */
+  getEnrollmentFile(
+    request: GetEnrollmentFileRequest,
+    callback: (error: ServiceError | null, response: GetEnrollmentFileResponse) => void,
+  ): ClientUnaryCall;
+  getEnrollmentFile(
+    request: GetEnrollmentFileRequest,
+    metadata: Metadata,
+    callback: (error: ServiceError | null, response: GetEnrollmentFileResponse) => void,
+  ): ClientUnaryCall;
+  getEnrollmentFile(
+    request: GetEnrollmentFileRequest,
+    metadata: Metadata,
+    options: Partial<CallOptions>,
+    callback: (error: ServiceError | null, response: GetEnrollmentFileResponse) => void,
+  ): ClientUnaryCall;
+  saveEnrollmentFile(
+    request: SaveEnrollmentFileRequest,
+    callback: (error: ServiceError | null, response: SaveEnrollmentFileResponse) => void,
+  ): ClientUnaryCall;
+  saveEnrollmentFile(
+    request: SaveEnrollmentFileRequest,
+    metadata: Metadata,
+    callback: (error: ServiceError | null, response: SaveEnrollmentFileResponse) => void,
+  ): ClientUnaryCall;
+  saveEnrollmentFile(
+    request: SaveEnrollmentFileRequest,
+    metadata: Metadata,
+    options: Partial<CallOptions>,
+    callback: (error: ServiceError | null, response: SaveEnrollmentFileResponse) => void,
+  ): ClientUnaryCall;
+  setReligionExemption(
+    request: SetReligionExemptionRequest,
+    callback: (error: ServiceError | null, response: SetReligionExemptionResponse) => void,
+  ): ClientUnaryCall;
+  setReligionExemption(
+    request: SetReligionExemptionRequest,
+    metadata: Metadata,
+    callback: (error: ServiceError | null, response: SetReligionExemptionResponse) => void,
+  ): ClientUnaryCall;
+  setReligionExemption(
+    request: SetReligionExemptionRequest,
+    metadata: Metadata,
+    options: Partial<CallOptions>,
+    callback: (error: ServiceError | null, response: SetReligionExemptionResponse) => void,
+  ): ClientUnaryCall;
+  listRoll(
+    request: ListRollRequest,
+    callback: (error: ServiceError | null, response: ListRollResponse) => void,
+  ): ClientUnaryCall;
+  listRoll(
+    request: ListRollRequest,
+    metadata: Metadata,
+    callback: (error: ServiceError | null, response: ListRollResponse) => void,
+  ): ClientUnaryCall;
+  listRoll(
+    request: ListRollRequest,
+    metadata: Metadata,
+    options: Partial<CallOptions>,
+    callback: (error: ServiceError | null, response: ListRollResponse) => void,
+  ): ClientUnaryCall;
+  setSiagieStatus(
+    request: SetSiagieStatusRequest,
+    callback: (error: ServiceError | null, response: SetSiagieStatusResponse) => void,
+  ): ClientUnaryCall;
+  setSiagieStatus(
+    request: SetSiagieStatusRequest,
+    metadata: Metadata,
+    callback: (error: ServiceError | null, response: SetSiagieStatusResponse) => void,
+  ): ClientUnaryCall;
+  setSiagieStatus(
+    request: SetSiagieStatusRequest,
+    metadata: Metadata,
+    options: Partial<CallOptions>,
+    callback: (error: ServiceError | null, response: SetSiagieStatusResponse) => void,
   ): ClientUnaryCall;
 }
 

@@ -16,6 +16,14 @@ service DocumentsService {
   rpc SchedulesPdf(SchedulesPdfRequest) returns (SchedulesPdfResponse);
   rpc RecordPdf(RecordPdfRequest) returns (RecordPdfResponse);
   rpc ReceiptPdf(ReceiptPdfRequest) returns (ReceiptPdfResponse);
+  // EBA enrollment (phase E1): ficha única, nómina (PDF and spreadsheet) and the SIAGIE upload spreadsheet
+  rpc EnrollmentFormPdf(EnrollmentFormPdfRequest) returns (EnrollmentFormPdfResponse);
+  rpc RollPdf(RollPdfRequest) returns (RollPdfResponse);
+  rpc RollXlsx(RollXlsxRequest) returns (RollXlsxResponse);
+  rpc SiagieXlsx(SiagieXlsxRequest) returns (SiagieXlsxResponse);
+  // Acta de ubicación o convalidación: a version for its signers (sign with SignVersion), and its PDF
+  rpc GeneratePlacementAct(GeneratePlacementActRequest) returns (GeneratePlacementActResponse);
+  rpc PlacementActPdf(PlacementActPdfRequest) returns (PlacementActPdfResponse);
 
   // Every class of a period as an Excel workbook (list, week of each section and teacher, legend)
   rpc SchedulesXlsx(SchedulesXlsxRequest) returns (SchedulesXlsxResponse);
@@ -103,6 +111,8 @@ message Signer {
 
 message GetScheduleSignersRequest {
   string institution_slug = 1;
+  // schedules (default) | placement
+  string kind = 2;
 }
 
 message GetScheduleSignersResponse {
@@ -116,6 +126,8 @@ message SetScheduleSignersRequest {
   string institution_slug = 1;
   // In signing order; name is ignored
   repeated Signer signers = 2;
+  // schedules (default) | placement
+  string kind = 3;
 }
 
 message SetScheduleSignersResponse {
@@ -232,5 +244,77 @@ message TrackPdfRequest {
 }
 
 message TrackPdfResponse {
+  PdfFile file = 1;
+}
+
+message EnrollmentFormPdfRequest {
+  string institution_slug = 1;
+  string student_id = 2;
+  // Enrollment of this period (empty: the latest)
+  string period_id = 3;
+}
+
+message EnrollmentFormPdfResponse {
+  PdfFile file = 1;
+}
+
+// Same as joseph.people.v1.RollFilter
+message RollQuery {
+  string period_id = 1;
+  string level_id = 2;
+  string grade_id = 3;
+  string section_id = 4;
+  string siagie_status = 5;
+  bool all = 6;
+}
+
+message RollPdfRequest {
+  string institution_slug = 1;
+  RollQuery filter = 2;
+}
+
+message RollPdfResponse {
+  PdfFile file = 1;
+}
+
+message RollXlsxRequest {
+  string institution_slug = 1;
+  RollQuery filter = 2;
+}
+
+message RollXlsxResponse {
+  PdfFile file = 1;
+}
+
+message SiagieXlsxRequest {
+  string institution_slug = 1;
+  RollQuery filter = 2;
+  // Mark the enrollments of the file as exported
+  bool mark_exported = 3;
+}
+
+message SiagieXlsxResponse {
+  PdfFile file = 1;
+  int32 marked = 2;
+}
+
+message GeneratePlacementActRequest {
+  string institution_slug = 1;
+  string placement_id = 2;
+  string note = 3;
+}
+
+message GeneratePlacementActResponse {
+  DocumentVersion version = 1;
+  // "N.° 003-2026"
+  string act_code = 2;
+}
+
+message PlacementActPdfRequest {
+  string institution_slug = 1;
+  string placement_id = 2;
+}
+
+message PlacementActPdfResponse {
   PdfFile file = 1;
 }

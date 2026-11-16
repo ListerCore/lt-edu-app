@@ -91,6 +91,8 @@ export interface Signer {
 
 export interface GetScheduleSignersRequest {
   institutionSlug: string;
+  /** schedules (default) | placement */
+  kind: string;
 }
 
 export interface GetScheduleSignersResponse {
@@ -104,6 +106,8 @@ export interface SetScheduleSignersRequest {
   institutionSlug: string;
   /** In signing order; name is ignored */
   signers: Signer[];
+  /** schedules (default) | placement */
+  kind: string;
 }
 
 export interface SetScheduleSignersResponse {
@@ -222,6 +226,82 @@ export interface TrackPdfRequest {
 }
 
 export interface TrackPdfResponse {
+  file?: PdfFile | undefined;
+}
+
+export interface EnrollmentFormPdfRequest {
+  institutionSlug: string;
+  studentId: string;
+  /** Enrollment of this period (empty: the latest) */
+  periodId: string;
+}
+
+export interface EnrollmentFormPdfResponse {
+  file?: PdfFile | undefined;
+}
+
+/** Same as joseph.people.v1.RollFilter */
+export interface RollQuery {
+  periodId: string;
+  levelId: string;
+  gradeId: string;
+  sectionId: string;
+  siagieStatus: string;
+  all: boolean;
+}
+
+export interface RollPdfRequest {
+  institutionSlug: string;
+  filter?: RollQuery | undefined;
+}
+
+export interface RollPdfResponse {
+  file?: PdfFile | undefined;
+}
+
+export interface RollXlsxRequest {
+  institutionSlug: string;
+  filter?: RollQuery | undefined;
+}
+
+export interface RollXlsxResponse {
+  file?: PdfFile | undefined;
+}
+
+export interface SiagieXlsxRequest {
+  institutionSlug: string;
+  filter?:
+    | RollQuery
+    | undefined;
+  /** Mark the enrollments of the file as exported */
+  markExported: boolean;
+}
+
+export interface SiagieXlsxResponse {
+  file?: PdfFile | undefined;
+  marked: number;
+}
+
+export interface GeneratePlacementActRequest {
+  institutionSlug: string;
+  placementId: string;
+  note: string;
+}
+
+export interface GeneratePlacementActResponse {
+  version?:
+    | DocumentVersion
+    | undefined;
+  /** "N.° 003-2026" */
+  actCode: string;
+}
+
+export interface PlacementActPdfRequest {
+  institutionSlug: string;
+  placementId: string;
+}
+
+export interface PlacementActPdfResponse {
   file?: PdfFile | undefined;
 }
 
@@ -921,13 +1001,16 @@ export const Signer: MessageFns<Signer> = {
 };
 
 function createBaseGetScheduleSignersRequest(): GetScheduleSignersRequest {
-  return { institutionSlug: "" };
+  return { institutionSlug: "", kind: "" };
 }
 
 export const GetScheduleSignersRequest: MessageFns<GetScheduleSignersRequest> = {
   encode(message: GetScheduleSignersRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.institutionSlug !== "") {
       writer.uint32(10).string(message.institutionSlug);
+    }
+    if (message.kind !== "") {
+      writer.uint32(18).string(message.kind);
     }
     return writer;
   },
@@ -951,6 +1034,14 @@ export const GetScheduleSignersRequest: MessageFns<GetScheduleSignersRequest> = 
             }
 
             message.institutionSlug = reader.string();
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.kind = reader.string();
             continue;
           }
         }
@@ -1035,7 +1126,7 @@ export const GetScheduleSignersResponse: MessageFns<GetScheduleSignersResponse> 
 };
 
 function createBaseSetScheduleSignersRequest(): SetScheduleSignersRequest {
-  return { institutionSlug: "", signers: [] };
+  return { institutionSlug: "", signers: [], kind: "" };
 }
 
 export const SetScheduleSignersRequest: MessageFns<SetScheduleSignersRequest> = {
@@ -1045,6 +1136,9 @@ export const SetScheduleSignersRequest: MessageFns<SetScheduleSignersRequest> = 
     }
     for (const v of message.signers) {
       Signer.encode(v!, writer.uint32(18).fork()).join();
+    }
+    if (message.kind !== "") {
+      writer.uint32(26).string(message.kind);
     }
     return writer;
   },
@@ -1076,6 +1170,14 @@ export const SetScheduleSignersRequest: MessageFns<SetScheduleSignersRequest> = 
             }
 
             message.signers.push(Signer.decode(reader, reader.uint32()));
+            continue;
+          }
+          case 3: {
+            if (tag !== 26) {
+              break;
+            }
+
+            message.kind = reader.string();
             continue;
           }
         }
@@ -2356,6 +2458,780 @@ export const TrackPdfResponse: MessageFns<TrackPdfResponse> = {
   },
 };
 
+function createBaseEnrollmentFormPdfRequest(): EnrollmentFormPdfRequest {
+  return { institutionSlug: "", studentId: "", periodId: "" };
+}
+
+export const EnrollmentFormPdfRequest: MessageFns<EnrollmentFormPdfRequest> = {
+  encode(message: EnrollmentFormPdfRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.institutionSlug !== "") {
+      writer.uint32(10).string(message.institutionSlug);
+    }
+    if (message.studentId !== "") {
+      writer.uint32(18).string(message.studentId);
+    }
+    if (message.periodId !== "") {
+      writer.uint32(26).string(message.periodId);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): EnrollmentFormPdfRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseEnrollmentFormPdfRequest();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.institutionSlug = reader.string();
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.studentId = reader.string();
+            continue;
+          }
+          case 3: {
+            if (tag !== 26) {
+              break;
+            }
+
+            message.periodId = reader.string();
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+};
+
+function createBaseEnrollmentFormPdfResponse(): EnrollmentFormPdfResponse {
+  return { file: undefined };
+}
+
+export const EnrollmentFormPdfResponse: MessageFns<EnrollmentFormPdfResponse> = {
+  encode(message: EnrollmentFormPdfResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.file !== undefined) {
+      PdfFile.encode(message.file, writer.uint32(10).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): EnrollmentFormPdfResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseEnrollmentFormPdfResponse();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.file = PdfFile.decode(reader, reader.uint32());
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+};
+
+function createBaseRollQuery(): RollQuery {
+  return { periodId: "", levelId: "", gradeId: "", sectionId: "", siagieStatus: "", all: false };
+}
+
+export const RollQuery: MessageFns<RollQuery> = {
+  encode(message: RollQuery, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.periodId !== "") {
+      writer.uint32(10).string(message.periodId);
+    }
+    if (message.levelId !== "") {
+      writer.uint32(18).string(message.levelId);
+    }
+    if (message.gradeId !== "") {
+      writer.uint32(26).string(message.gradeId);
+    }
+    if (message.sectionId !== "") {
+      writer.uint32(34).string(message.sectionId);
+    }
+    if (message.siagieStatus !== "") {
+      writer.uint32(42).string(message.siagieStatus);
+    }
+    if (message.all !== false) {
+      writer.uint32(48).bool(message.all);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): RollQuery {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseRollQuery();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.periodId = reader.string();
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.levelId = reader.string();
+            continue;
+          }
+          case 3: {
+            if (tag !== 26) {
+              break;
+            }
+
+            message.gradeId = reader.string();
+            continue;
+          }
+          case 4: {
+            if (tag !== 34) {
+              break;
+            }
+
+            message.sectionId = reader.string();
+            continue;
+          }
+          case 5: {
+            if (tag !== 42) {
+              break;
+            }
+
+            message.siagieStatus = reader.string();
+            continue;
+          }
+          case 6: {
+            if (tag !== 48) {
+              break;
+            }
+
+            message.all = reader.bool();
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+};
+
+function createBaseRollPdfRequest(): RollPdfRequest {
+  return { institutionSlug: "", filter: undefined };
+}
+
+export const RollPdfRequest: MessageFns<RollPdfRequest> = {
+  encode(message: RollPdfRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.institutionSlug !== "") {
+      writer.uint32(10).string(message.institutionSlug);
+    }
+    if (message.filter !== undefined) {
+      RollQuery.encode(message.filter, writer.uint32(18).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): RollPdfRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseRollPdfRequest();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.institutionSlug = reader.string();
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.filter = RollQuery.decode(reader, reader.uint32());
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+};
+
+function createBaseRollPdfResponse(): RollPdfResponse {
+  return { file: undefined };
+}
+
+export const RollPdfResponse: MessageFns<RollPdfResponse> = {
+  encode(message: RollPdfResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.file !== undefined) {
+      PdfFile.encode(message.file, writer.uint32(10).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): RollPdfResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseRollPdfResponse();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.file = PdfFile.decode(reader, reader.uint32());
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+};
+
+function createBaseRollXlsxRequest(): RollXlsxRequest {
+  return { institutionSlug: "", filter: undefined };
+}
+
+export const RollXlsxRequest: MessageFns<RollXlsxRequest> = {
+  encode(message: RollXlsxRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.institutionSlug !== "") {
+      writer.uint32(10).string(message.institutionSlug);
+    }
+    if (message.filter !== undefined) {
+      RollQuery.encode(message.filter, writer.uint32(18).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): RollXlsxRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseRollXlsxRequest();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.institutionSlug = reader.string();
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.filter = RollQuery.decode(reader, reader.uint32());
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+};
+
+function createBaseRollXlsxResponse(): RollXlsxResponse {
+  return { file: undefined };
+}
+
+export const RollXlsxResponse: MessageFns<RollXlsxResponse> = {
+  encode(message: RollXlsxResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.file !== undefined) {
+      PdfFile.encode(message.file, writer.uint32(10).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): RollXlsxResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseRollXlsxResponse();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.file = PdfFile.decode(reader, reader.uint32());
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+};
+
+function createBaseSiagieXlsxRequest(): SiagieXlsxRequest {
+  return { institutionSlug: "", filter: undefined, markExported: false };
+}
+
+export const SiagieXlsxRequest: MessageFns<SiagieXlsxRequest> = {
+  encode(message: SiagieXlsxRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.institutionSlug !== "") {
+      writer.uint32(10).string(message.institutionSlug);
+    }
+    if (message.filter !== undefined) {
+      RollQuery.encode(message.filter, writer.uint32(18).fork()).join();
+    }
+    if (message.markExported !== false) {
+      writer.uint32(24).bool(message.markExported);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): SiagieXlsxRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseSiagieXlsxRequest();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.institutionSlug = reader.string();
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.filter = RollQuery.decode(reader, reader.uint32());
+            continue;
+          }
+          case 3: {
+            if (tag !== 24) {
+              break;
+            }
+
+            message.markExported = reader.bool();
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+};
+
+function createBaseSiagieXlsxResponse(): SiagieXlsxResponse {
+  return { file: undefined, marked: 0 };
+}
+
+export const SiagieXlsxResponse: MessageFns<SiagieXlsxResponse> = {
+  encode(message: SiagieXlsxResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.file !== undefined) {
+      PdfFile.encode(message.file, writer.uint32(10).fork()).join();
+    }
+    if (message.marked !== 0) {
+      writer.uint32(16).int32(message.marked);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): SiagieXlsxResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseSiagieXlsxResponse();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.file = PdfFile.decode(reader, reader.uint32());
+            continue;
+          }
+          case 2: {
+            if (tag !== 16) {
+              break;
+            }
+
+            message.marked = reader.int32();
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+};
+
+function createBaseGeneratePlacementActRequest(): GeneratePlacementActRequest {
+  return { institutionSlug: "", placementId: "", note: "" };
+}
+
+export const GeneratePlacementActRequest: MessageFns<GeneratePlacementActRequest> = {
+  encode(message: GeneratePlacementActRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.institutionSlug !== "") {
+      writer.uint32(10).string(message.institutionSlug);
+    }
+    if (message.placementId !== "") {
+      writer.uint32(18).string(message.placementId);
+    }
+    if (message.note !== "") {
+      writer.uint32(26).string(message.note);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): GeneratePlacementActRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseGeneratePlacementActRequest();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.institutionSlug = reader.string();
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.placementId = reader.string();
+            continue;
+          }
+          case 3: {
+            if (tag !== 26) {
+              break;
+            }
+
+            message.note = reader.string();
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+};
+
+function createBaseGeneratePlacementActResponse(): GeneratePlacementActResponse {
+  return { version: undefined, actCode: "" };
+}
+
+export const GeneratePlacementActResponse: MessageFns<GeneratePlacementActResponse> = {
+  encode(message: GeneratePlacementActResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.version !== undefined) {
+      DocumentVersion.encode(message.version, writer.uint32(10).fork()).join();
+    }
+    if (message.actCode !== "") {
+      writer.uint32(18).string(message.actCode);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): GeneratePlacementActResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseGeneratePlacementActResponse();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.version = DocumentVersion.decode(reader, reader.uint32());
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.actCode = reader.string();
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+};
+
+function createBasePlacementActPdfRequest(): PlacementActPdfRequest {
+  return { institutionSlug: "", placementId: "" };
+}
+
+export const PlacementActPdfRequest: MessageFns<PlacementActPdfRequest> = {
+  encode(message: PlacementActPdfRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.institutionSlug !== "") {
+      writer.uint32(10).string(message.institutionSlug);
+    }
+    if (message.placementId !== "") {
+      writer.uint32(18).string(message.placementId);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): PlacementActPdfRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBasePlacementActPdfRequest();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.institutionSlug = reader.string();
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.placementId = reader.string();
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+};
+
+function createBasePlacementActPdfResponse(): PlacementActPdfResponse {
+  return { file: undefined };
+}
+
+export const PlacementActPdfResponse: MessageFns<PlacementActPdfResponse> = {
+  encode(message: PlacementActPdfResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.file !== undefined) {
+      PdfFile.encode(message.file, writer.uint32(10).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): PlacementActPdfResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBasePlacementActPdfResponse();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.file = PdfFile.decode(reader, reader.uint32());
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+};
+
 export type DocumentsServiceService = typeof DocumentsServiceService;
 export const DocumentsServiceService = {
   reportCardsPdf: {
@@ -2396,6 +3272,68 @@ export const DocumentsServiceService = {
     requestDeserialize: (value: Buffer): ReceiptPdfRequest => ReceiptPdfRequest.decode(value),
     responseSerialize: (value: ReceiptPdfResponse): Buffer => Buffer.from(ReceiptPdfResponse.encode(value).finish()),
     responseDeserialize: (value: Buffer): ReceiptPdfResponse => ReceiptPdfResponse.decode(value),
+  },
+  /** EBA enrollment (phase E1): ficha única, nómina (PDF and spreadsheet) and the SIAGIE upload spreadsheet */
+  enrollmentFormPdf: {
+    path: "/joseph.documents.v1.DocumentsService/EnrollmentFormPdf" as const,
+    requestStream: false as const,
+    responseStream: false as const,
+    requestSerialize: (value: EnrollmentFormPdfRequest): Buffer =>
+      Buffer.from(EnrollmentFormPdfRequest.encode(value).finish()),
+    requestDeserialize: (value: Buffer): EnrollmentFormPdfRequest => EnrollmentFormPdfRequest.decode(value),
+    responseSerialize: (value: EnrollmentFormPdfResponse): Buffer =>
+      Buffer.from(EnrollmentFormPdfResponse.encode(value).finish()),
+    responseDeserialize: (value: Buffer): EnrollmentFormPdfResponse => EnrollmentFormPdfResponse.decode(value),
+  },
+  rollPdf: {
+    path: "/joseph.documents.v1.DocumentsService/RollPdf" as const,
+    requestStream: false as const,
+    responseStream: false as const,
+    requestSerialize: (value: RollPdfRequest): Buffer => Buffer.from(RollPdfRequest.encode(value).finish()),
+    requestDeserialize: (value: Buffer): RollPdfRequest => RollPdfRequest.decode(value),
+    responseSerialize: (value: RollPdfResponse): Buffer => Buffer.from(RollPdfResponse.encode(value).finish()),
+    responseDeserialize: (value: Buffer): RollPdfResponse => RollPdfResponse.decode(value),
+  },
+  rollXlsx: {
+    path: "/joseph.documents.v1.DocumentsService/RollXlsx" as const,
+    requestStream: false as const,
+    responseStream: false as const,
+    requestSerialize: (value: RollXlsxRequest): Buffer => Buffer.from(RollXlsxRequest.encode(value).finish()),
+    requestDeserialize: (value: Buffer): RollXlsxRequest => RollXlsxRequest.decode(value),
+    responseSerialize: (value: RollXlsxResponse): Buffer => Buffer.from(RollXlsxResponse.encode(value).finish()),
+    responseDeserialize: (value: Buffer): RollXlsxResponse => RollXlsxResponse.decode(value),
+  },
+  siagieXlsx: {
+    path: "/joseph.documents.v1.DocumentsService/SiagieXlsx" as const,
+    requestStream: false as const,
+    responseStream: false as const,
+    requestSerialize: (value: SiagieXlsxRequest): Buffer => Buffer.from(SiagieXlsxRequest.encode(value).finish()),
+    requestDeserialize: (value: Buffer): SiagieXlsxRequest => SiagieXlsxRequest.decode(value),
+    responseSerialize: (value: SiagieXlsxResponse): Buffer => Buffer.from(SiagieXlsxResponse.encode(value).finish()),
+    responseDeserialize: (value: Buffer): SiagieXlsxResponse => SiagieXlsxResponse.decode(value),
+  },
+  /** Acta de ubicación o convalidación: a version for its signers (sign with SignVersion), and its PDF */
+  generatePlacementAct: {
+    path: "/joseph.documents.v1.DocumentsService/GeneratePlacementAct" as const,
+    requestStream: false as const,
+    responseStream: false as const,
+    requestSerialize: (value: GeneratePlacementActRequest): Buffer =>
+      Buffer.from(GeneratePlacementActRequest.encode(value).finish()),
+    requestDeserialize: (value: Buffer): GeneratePlacementActRequest => GeneratePlacementActRequest.decode(value),
+    responseSerialize: (value: GeneratePlacementActResponse): Buffer =>
+      Buffer.from(GeneratePlacementActResponse.encode(value).finish()),
+    responseDeserialize: (value: Buffer): GeneratePlacementActResponse => GeneratePlacementActResponse.decode(value),
+  },
+  placementActPdf: {
+    path: "/joseph.documents.v1.DocumentsService/PlacementActPdf" as const,
+    requestStream: false as const,
+    responseStream: false as const,
+    requestSerialize: (value: PlacementActPdfRequest): Buffer =>
+      Buffer.from(PlacementActPdfRequest.encode(value).finish()),
+    requestDeserialize: (value: Buffer): PlacementActPdfRequest => PlacementActPdfRequest.decode(value),
+    responseSerialize: (value: PlacementActPdfResponse): Buffer =>
+      Buffer.from(PlacementActPdfResponse.encode(value).finish()),
+    responseDeserialize: (value: Buffer): PlacementActPdfResponse => PlacementActPdfResponse.decode(value),
   },
   /** Every class of a period as an Excel workbook (list, week of each section and teacher, legend) */
   schedulesXlsx: {
@@ -2502,6 +3440,14 @@ export interface DocumentsServiceServer extends UntypedServiceImplementation {
   schedulesPdf: handleUnaryCall<SchedulesPdfRequest, SchedulesPdfResponse>;
   recordPdf: handleUnaryCall<RecordPdfRequest, RecordPdfResponse>;
   receiptPdf: handleUnaryCall<ReceiptPdfRequest, ReceiptPdfResponse>;
+  /** EBA enrollment (phase E1): ficha única, nómina (PDF and spreadsheet) and the SIAGIE upload spreadsheet */
+  enrollmentFormPdf: handleUnaryCall<EnrollmentFormPdfRequest, EnrollmentFormPdfResponse>;
+  rollPdf: handleUnaryCall<RollPdfRequest, RollPdfResponse>;
+  rollXlsx: handleUnaryCall<RollXlsxRequest, RollXlsxResponse>;
+  siagieXlsx: handleUnaryCall<SiagieXlsxRequest, SiagieXlsxResponse>;
+  /** Acta de ubicación o convalidación: a version for its signers (sign with SignVersion), and its PDF */
+  generatePlacementAct: handleUnaryCall<GeneratePlacementActRequest, GeneratePlacementActResponse>;
+  placementActPdf: handleUnaryCall<PlacementActPdfRequest, PlacementActPdfResponse>;
   /** Every class of a period as an Excel workbook (list, week of each section and teacher, legend) */
   schedulesXlsx: handleUnaryCall<SchedulesXlsxRequest, SchedulesXlsxResponse>;
   /** Who signs the timetables; managers also get the staff to pick from */
@@ -2580,6 +3526,98 @@ export interface DocumentsServiceClient extends Client {
     metadata: Metadata,
     options: Partial<CallOptions>,
     callback: (error: ServiceError | null, response: ReceiptPdfResponse) => void,
+  ): ClientUnaryCall;
+  /** EBA enrollment (phase E1): ficha única, nómina (PDF and spreadsheet) and the SIAGIE upload spreadsheet */
+  enrollmentFormPdf(
+    request: EnrollmentFormPdfRequest,
+    callback: (error: ServiceError | null, response: EnrollmentFormPdfResponse) => void,
+  ): ClientUnaryCall;
+  enrollmentFormPdf(
+    request: EnrollmentFormPdfRequest,
+    metadata: Metadata,
+    callback: (error: ServiceError | null, response: EnrollmentFormPdfResponse) => void,
+  ): ClientUnaryCall;
+  enrollmentFormPdf(
+    request: EnrollmentFormPdfRequest,
+    metadata: Metadata,
+    options: Partial<CallOptions>,
+    callback: (error: ServiceError | null, response: EnrollmentFormPdfResponse) => void,
+  ): ClientUnaryCall;
+  rollPdf(
+    request: RollPdfRequest,
+    callback: (error: ServiceError | null, response: RollPdfResponse) => void,
+  ): ClientUnaryCall;
+  rollPdf(
+    request: RollPdfRequest,
+    metadata: Metadata,
+    callback: (error: ServiceError | null, response: RollPdfResponse) => void,
+  ): ClientUnaryCall;
+  rollPdf(
+    request: RollPdfRequest,
+    metadata: Metadata,
+    options: Partial<CallOptions>,
+    callback: (error: ServiceError | null, response: RollPdfResponse) => void,
+  ): ClientUnaryCall;
+  rollXlsx(
+    request: RollXlsxRequest,
+    callback: (error: ServiceError | null, response: RollXlsxResponse) => void,
+  ): ClientUnaryCall;
+  rollXlsx(
+    request: RollXlsxRequest,
+    metadata: Metadata,
+    callback: (error: ServiceError | null, response: RollXlsxResponse) => void,
+  ): ClientUnaryCall;
+  rollXlsx(
+    request: RollXlsxRequest,
+    metadata: Metadata,
+    options: Partial<CallOptions>,
+    callback: (error: ServiceError | null, response: RollXlsxResponse) => void,
+  ): ClientUnaryCall;
+  siagieXlsx(
+    request: SiagieXlsxRequest,
+    callback: (error: ServiceError | null, response: SiagieXlsxResponse) => void,
+  ): ClientUnaryCall;
+  siagieXlsx(
+    request: SiagieXlsxRequest,
+    metadata: Metadata,
+    callback: (error: ServiceError | null, response: SiagieXlsxResponse) => void,
+  ): ClientUnaryCall;
+  siagieXlsx(
+    request: SiagieXlsxRequest,
+    metadata: Metadata,
+    options: Partial<CallOptions>,
+    callback: (error: ServiceError | null, response: SiagieXlsxResponse) => void,
+  ): ClientUnaryCall;
+  /** Acta de ubicación o convalidación: a version for its signers (sign with SignVersion), and its PDF */
+  generatePlacementAct(
+    request: GeneratePlacementActRequest,
+    callback: (error: ServiceError | null, response: GeneratePlacementActResponse) => void,
+  ): ClientUnaryCall;
+  generatePlacementAct(
+    request: GeneratePlacementActRequest,
+    metadata: Metadata,
+    callback: (error: ServiceError | null, response: GeneratePlacementActResponse) => void,
+  ): ClientUnaryCall;
+  generatePlacementAct(
+    request: GeneratePlacementActRequest,
+    metadata: Metadata,
+    options: Partial<CallOptions>,
+    callback: (error: ServiceError | null, response: GeneratePlacementActResponse) => void,
+  ): ClientUnaryCall;
+  placementActPdf(
+    request: PlacementActPdfRequest,
+    callback: (error: ServiceError | null, response: PlacementActPdfResponse) => void,
+  ): ClientUnaryCall;
+  placementActPdf(
+    request: PlacementActPdfRequest,
+    metadata: Metadata,
+    callback: (error: ServiceError | null, response: PlacementActPdfResponse) => void,
+  ): ClientUnaryCall;
+  placementActPdf(
+    request: PlacementActPdfRequest,
+    metadata: Metadata,
+    options: Partial<CallOptions>,
+    callback: (error: ServiceError | null, response: PlacementActPdfResponse) => void,
   ): ClientUnaryCall;
   /** Every class of a period as an Excel workbook (list, week of each section and teacher, legend) */
   schedulesXlsx(

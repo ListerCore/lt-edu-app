@@ -177,6 +177,8 @@ message Section {
   // EBA only: pebaja | literacy, and virtual | itinerant when attention_mode is distance
   string program = 15;
   string distance_variant = 16;
+  // EBA only: gathers students of several grades of the cycle; grade_id is the lowest
+  bool multigrade = 17;
 }
 
 message LevelInput {
@@ -213,6 +215,7 @@ message SectionInput {
   // EBA only; empty program means PEBAJA, empty variant of a distance section means virtual
   string program = 6;
   string distance_variant = 7;
+  bool multigrade = 8;
 }
 
 message GetContextRequest {
@@ -415,6 +418,7 @@ message CreateSectionsRequest {
   string room = 9;
   string program = 10;
   string distance_variant = 11;
+  bool multigrade = 12;
 }
 
 message CreateSectionsResponse {
