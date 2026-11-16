@@ -6,7 +6,7 @@ export type InstitutionType = 'EBR' | 'EBA' | 'EBE' | 'CEPRE' | 'IEST';
 // Tipo de gestión (academic settings): public institutions charge no tuition, only enrollment and the APAFA fee
 export type Management = 'public' | 'private';
 
-export type Role = 'director' | 'coordinator' | 'secretary' | 'teacher' | 'tutor' | 'assistant' | 'psychologist' | 'treasurer' | 'student' | 'guardian';
+export type Role = 'director' | 'coordinator' | 'secretary' | 'teacher' | 'tutor' | 'assistant' | 'psychologist' | 'treasurer' | 'technicalLead' | 'student' | 'guardian';
 
 // One key per platform module (README §2); permissions and institution types are expressed with these
 export type ModuleKey =

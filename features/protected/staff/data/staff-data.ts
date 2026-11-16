@@ -19,4 +19,5 @@ export const staffRoleLabels: Record<string, string> = {
   psychologist: 'Psicología',
   special_ed_specialist: 'Especialista de educación especial',
   treasurer: 'Tesorería',
+  technical_lead: 'Responsable técnico',
 };

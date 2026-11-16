@@ -75,6 +75,7 @@ export const categoryLabels: Record<AttachmentCategory, string> = {
   agenda: 'Agenda',
   financial_statement: 'Estado de cuentas',
   attendance_list: 'Lista de asistencia',
+  screenshot: 'Captura de pantalla',
   other: 'Otro',
 };
 
@@ -99,6 +100,9 @@ export const ownerKindModules: Partial<Record<AttachmentOwnerKind, ModuleKey>> =
   degree: 'degrees',
   attendance_justification: 'student-attendance',
   apafa_meeting: 'apafa',
+  // Institution file: authorizing resolutions and the platform's hosting evidence
+  authorization: 'institution',
+  platform_sheet: 'institution',
 };
 
 export const attachmentFileUrl = (id: string): string => `/api/files/attachments/${id}`;
