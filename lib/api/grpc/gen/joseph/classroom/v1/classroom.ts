@@ -55,7 +55,7 @@ export interface Room {
 export interface Item {
   id: string;
   unitId: string;
-  /** reading | file | video | link | live | activity */
+  /** reading | file | video | link | live | activity | quiz | task */
   kind: string;
   title: string;
   body: string;
@@ -279,6 +279,217 @@ export interface SaveDeliveryRequest {
 }
 
 export interface SaveDeliveryResponse {
+}
+
+export interface Question {
+  id: string;
+  /** single | multiple | short | open */
+  kind: string;
+  prompt: string;
+  options: string[];
+  /** Staff, or a student once graded when the answers are shown: right option indexes and accepted short answers */
+  correct: number[];
+  accepted: string[];
+  points: number;
+}
+
+export interface Assessment {
+  itemId: string;
+  roomId: string;
+  unitId: string;
+  /** quiz | task */
+  kind: string;
+  title: string;
+  instructions: string;
+  published: boolean;
+  /** RFC 3339 or empty */
+  opensAt: string;
+  closesAt: string;
+  maxAttempts: number;
+  competencyIds: string[];
+  showAnswers: boolean;
+  questions: Question[];
+}
+
+export interface Competency {
+  id: string;
+  name: string;
+}
+
+export interface Answer {
+  choices: number[];
+  text: string;
+}
+
+export interface Submission {
+  id: string;
+  itemId: string;
+  studentId: string;
+  studentName: string;
+  studentCode: string;
+  attempt: number;
+  /** in_progress | submitted | graded */
+  status: string;
+  answers: { [key: string]: Answer };
+  autoPoints: number;
+  autoTotal: number;
+  openPoints: { [key: string]: number };
+  /** competency id → AD | A | B | C */
+  levels: { [key: string]: string };
+  feedback: string;
+  startedAt: string;
+  submittedAt: string;
+  late: boolean;
+  gradedAt: string;
+  gradedName: string;
+  recordedAt: string;
+  files: number;
+  /** Level the points suggest (AD from 90 %, A from 70 %, B from 50 %); the teacher confirms */
+  suggestedLevel: string;
+}
+
+export interface Submission_AnswersEntry {
+  key: string;
+  value?: Answer | undefined;
+}
+
+export interface Submission_OpenPointsEntry {
+  key: string;
+  value: number;
+}
+
+export interface Submission_LevelsEntry {
+  key: string;
+  value: string;
+}
+
+export interface RosterRow {
+  studentId: string;
+  studentName: string;
+  studentCode: string;
+  latest?: Submission | undefined;
+  attempts: number;
+  /** RFC 3339 or empty */
+  extension: string;
+}
+
+export interface GetAssessmentRequest {
+  institutionSlug: string;
+  itemId: string;
+}
+
+export interface GetAssessmentResponse {
+  assessment?: Assessment | undefined;
+  canEdit: boolean;
+  family: boolean;
+  competencies: Competency[];
+  roster: RosterRow[];
+  questionsLocked: boolean;
+  attempts: Submission[];
+  extension: string;
+  openNow: boolean;
+  canStart: boolean;
+}
+
+export interface SaveAssessmentRequest {
+  institutionSlug: string;
+  itemId: string;
+  opensAt: string;
+  closesAt: string;
+  maxAttempts: number;
+  competencyIds: string[];
+  showAnswers: boolean;
+  /** Quizzes only: replace the questions (refused once someone handed it in) */
+  replaceQuestions: boolean;
+  questions: Question[];
+}
+
+export interface SaveAssessmentResponse {
+  assessment?: Assessment | undefined;
+}
+
+export interface StartAttemptRequest {
+  institutionSlug: string;
+  itemId: string;
+}
+
+export interface StartAttemptResponse {
+  submission?: Submission | undefined;
+}
+
+export interface SaveAnswersRequest {
+  institutionSlug: string;
+  submissionId: string;
+  answers: { [key: string]: Answer };
+}
+
+export interface SaveAnswersRequest_AnswersEntry {
+  key: string;
+  value?: Answer | undefined;
+}
+
+export interface SaveAnswersResponse {
+}
+
+export interface HandInRequest {
+  institutionSlug: string;
+  submissionId: string;
+  /** Last answers, saved before handing in (empty keeps the saved ones) */
+  answers: { [key: string]: Answer };
+}
+
+export interface HandInRequest_AnswersEntry {
+  key: string;
+  value?: Answer | undefined;
+}
+
+export interface HandInResponse {
+  submission?: Submission | undefined;
+}
+
+export interface GradeSubmissionRequest {
+  institutionSlug: string;
+  submissionId: string;
+  levels: { [key: string]: string };
+  openPoints: { [key: string]: number };
+  feedback: string;
+}
+
+export interface GradeSubmissionRequest_LevelsEntry {
+  key: string;
+  value: string;
+}
+
+export interface GradeSubmissionRequest_OpenPointsEntry {
+  key: string;
+  value: number;
+}
+
+export interface GradeSubmissionResponse {
+  submission?: Submission | undefined;
+}
+
+export interface SetExtensionRequest {
+  institutionSlug: string;
+  itemId: string;
+  studentId: string;
+  /** RFC 3339; empty removes the extension */
+  closesAt: string;
+  reason: string;
+}
+
+export interface SetExtensionResponse {
+}
+
+export interface RecordLevelsRequest {
+  institutionSlug: string;
+  itemId: string;
+}
+
+export interface RecordLevelsResponse {
+  recorded: number;
+  /** Students left out: their section has no teacher for the area, or its sheet is closed or not yours */
+  skippedStudentIds: string[];
 }
 
 function createBasePeriod(): Period {
@@ -3102,6 +3313,2359 @@ export const SaveDeliveryResponse: MessageFns<SaveDeliveryResponse> = {
   },
 };
 
+function createBaseQuestion(): Question {
+  return { id: "", kind: "", prompt: "", options: [], correct: [], accepted: [], points: 0 };
+}
+
+export const Question: MessageFns<Question> = {
+  encode(message: Question, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.id !== "") {
+      writer.uint32(10).string(message.id);
+    }
+    if (message.kind !== "") {
+      writer.uint32(18).string(message.kind);
+    }
+    if (message.prompt !== "") {
+      writer.uint32(26).string(message.prompt);
+    }
+    for (const v of message.options) {
+      writer.uint32(34).string(v!);
+    }
+    if (message.correct.length !== 0) {
+      writer.uint32(42).fork();
+      for (const v of message.correct) {
+        writer.int32(v);
+      }
+      writer.join();
+    }
+    for (const v of message.accepted) {
+      writer.uint32(50).string(v!);
+    }
+    if (message.points !== 0) {
+      writer.uint32(56).int32(message.points);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): Question {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseQuestion();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.id = reader.string();
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.kind = reader.string();
+            continue;
+          }
+          case 3: {
+            if (tag !== 26) {
+              break;
+            }
+
+            message.prompt = reader.string();
+            continue;
+          }
+          case 4: {
+            if (tag !== 34) {
+              break;
+            }
+
+            message.options.push(reader.string());
+            continue;
+          }
+          case 5: {
+            if (tag === 40) {
+              message.correct.push(reader.int32());
+
+              continue;
+            }
+
+            if (tag === 42) {
+              const end2 = reader.uint32() + reader.pos;
+              while (reader.pos < end2) {
+                message.correct.push(reader.int32());
+              }
+
+              continue;
+            }
+
+            break;
+          }
+          case 6: {
+            if (tag !== 50) {
+              break;
+            }
+
+            message.accepted.push(reader.string());
+            continue;
+          }
+          case 7: {
+            if (tag !== 56) {
+              break;
+            }
+
+            message.points = reader.int32();
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+};
+
+function createBaseAssessment(): Assessment {
+  return {
+    itemId: "",
+    roomId: "",
+    unitId: "",
+    kind: "",
+    title: "",
+    instructions: "",
+    published: false,
+    opensAt: "",
+    closesAt: "",
+    maxAttempts: 0,
+    competencyIds: [],
+    showAnswers: false,
+    questions: [],
+  };
+}
+
+export const Assessment: MessageFns<Assessment> = {
+  encode(message: Assessment, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.itemId !== "") {
+      writer.uint32(10).string(message.itemId);
+    }
+    if (message.roomId !== "") {
+      writer.uint32(18).string(message.roomId);
+    }
+    if (message.unitId !== "") {
+      writer.uint32(26).string(message.unitId);
+    }
+    if (message.kind !== "") {
+      writer.uint32(34).string(message.kind);
+    }
+    if (message.title !== "") {
+      writer.uint32(42).string(message.title);
+    }
+    if (message.instructions !== "") {
+      writer.uint32(50).string(message.instructions);
+    }
+    if (message.published !== false) {
+      writer.uint32(56).bool(message.published);
+    }
+    if (message.opensAt !== "") {
+      writer.uint32(66).string(message.opensAt);
+    }
+    if (message.closesAt !== "") {
+      writer.uint32(74).string(message.closesAt);
+    }
+    if (message.maxAttempts !== 0) {
+      writer.uint32(80).int32(message.maxAttempts);
+    }
+    for (const v of message.competencyIds) {
+      writer.uint32(90).string(v!);
+    }
+    if (message.showAnswers !== false) {
+      writer.uint32(96).bool(message.showAnswers);
+    }
+    for (const v of message.questions) {
+      Question.encode(v!, writer.uint32(106).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): Assessment {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseAssessment();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.itemId = reader.string();
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.roomId = reader.string();
+            continue;
+          }
+          case 3: {
+            if (tag !== 26) {
+              break;
+            }
+
+            message.unitId = reader.string();
+            continue;
+          }
+          case 4: {
+            if (tag !== 34) {
+              break;
+            }
+
+            message.kind = reader.string();
+            continue;
+          }
+          case 5: {
+            if (tag !== 42) {
+              break;
+            }
+
+            message.title = reader.string();
+            continue;
+          }
+          case 6: {
+            if (tag !== 50) {
+              break;
+            }
+
+            message.instructions = reader.string();
+            continue;
+          }
+          case 7: {
+            if (tag !== 56) {
+              break;
+            }
+
+            message.published = reader.bool();
+            continue;
+          }
+          case 8: {
+            if (tag !== 66) {
+              break;
+            }
+
+            message.opensAt = reader.string();
+            continue;
+          }
+          case 9: {
+            if (tag !== 74) {
+              break;
+            }
+
+            message.closesAt = reader.string();
+            continue;
+          }
+          case 10: {
+            if (tag !== 80) {
+              break;
+            }
+
+            message.maxAttempts = reader.int32();
+            continue;
+          }
+          case 11: {
+            if (tag !== 90) {
+              break;
+            }
+
+            message.competencyIds.push(reader.string());
+            continue;
+          }
+          case 12: {
+            if (tag !== 96) {
+              break;
+            }
+
+            message.showAnswers = reader.bool();
+            continue;
+          }
+          case 13: {
+            if (tag !== 106) {
+              break;
+            }
+
+            message.questions.push(Question.decode(reader, reader.uint32()));
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+};
+
+function createBaseCompetency(): Competency {
+  return { id: "", name: "" };
+}
+
+export const Competency: MessageFns<Competency> = {
+  encode(message: Competency, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.id !== "") {
+      writer.uint32(10).string(message.id);
+    }
+    if (message.name !== "") {
+      writer.uint32(18).string(message.name);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): Competency {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseCompetency();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.id = reader.string();
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.name = reader.string();
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+};
+
+function createBaseAnswer(): Answer {
+  return { choices: [], text: "" };
+}
+
+export const Answer: MessageFns<Answer> = {
+  encode(message: Answer, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.choices.length !== 0) {
+      writer.uint32(10).fork();
+      for (const v of message.choices) {
+        writer.int32(v);
+      }
+      writer.join();
+    }
+    if (message.text !== "") {
+      writer.uint32(18).string(message.text);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): Answer {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseAnswer();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag === 8) {
+              message.choices.push(reader.int32());
+
+              continue;
+            }
+
+            if (tag === 10) {
+              const end2 = reader.uint32() + reader.pos;
+              while (reader.pos < end2) {
+                message.choices.push(reader.int32());
+              }
+
+              continue;
+            }
+
+            break;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.text = reader.string();
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+};
+
+function createBaseSubmission(): Submission {
+  return {
+    id: "",
+    itemId: "",
+    studentId: "",
+    studentName: "",
+    studentCode: "",
+    attempt: 0,
+    status: "",
+    answers: {},
+    autoPoints: 0,
+    autoTotal: 0,
+    openPoints: {},
+    levels: {},
+    feedback: "",
+    startedAt: "",
+    submittedAt: "",
+    late: false,
+    gradedAt: "",
+    gradedName: "",
+    recordedAt: "",
+    files: 0,
+    suggestedLevel: "",
+  };
+}
+
+export const Submission: MessageFns<Submission> = {
+  encode(message: Submission, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.id !== "") {
+      writer.uint32(10).string(message.id);
+    }
+    if (message.itemId !== "") {
+      writer.uint32(18).string(message.itemId);
+    }
+    if (message.studentId !== "") {
+      writer.uint32(26).string(message.studentId);
+    }
+    if (message.studentName !== "") {
+      writer.uint32(34).string(message.studentName);
+    }
+    if (message.studentCode !== "") {
+      writer.uint32(42).string(message.studentCode);
+    }
+    if (message.attempt !== 0) {
+      writer.uint32(48).int32(message.attempt);
+    }
+    if (message.status !== "") {
+      writer.uint32(58).string(message.status);
+    }
+    globalThis.Object.entries(message.answers).forEach(([key, value]: [string, Answer]) => {
+      Submission_AnswersEntry.encode({ key: key as any, value }, writer.uint32(66).fork()).join();
+    });
+    if (message.autoPoints !== 0) {
+      writer.uint32(72).int32(message.autoPoints);
+    }
+    if (message.autoTotal !== 0) {
+      writer.uint32(80).int32(message.autoTotal);
+    }
+    globalThis.Object.entries(message.openPoints).forEach(([key, value]: [string, number]) => {
+      Submission_OpenPointsEntry.encode({ key: key as any, value }, writer.uint32(90).fork()).join();
+    });
+    globalThis.Object.entries(message.levels).forEach(([key, value]: [string, string]) => {
+      Submission_LevelsEntry.encode({ key: key as any, value }, writer.uint32(98).fork()).join();
+    });
+    if (message.feedback !== "") {
+      writer.uint32(106).string(message.feedback);
+    }
+    if (message.startedAt !== "") {
+      writer.uint32(114).string(message.startedAt);
+    }
+    if (message.submittedAt !== "") {
+      writer.uint32(122).string(message.submittedAt);
+    }
+    if (message.late !== false) {
+      writer.uint32(128).bool(message.late);
+    }
+    if (message.gradedAt !== "") {
+      writer.uint32(138).string(message.gradedAt);
+    }
+    if (message.gradedName !== "") {
+      writer.uint32(146).string(message.gradedName);
+    }
+    if (message.recordedAt !== "") {
+      writer.uint32(154).string(message.recordedAt);
+    }
+    if (message.files !== 0) {
+      writer.uint32(160).int32(message.files);
+    }
+    if (message.suggestedLevel !== "") {
+      writer.uint32(170).string(message.suggestedLevel);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): Submission {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseSubmission();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.id = reader.string();
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.itemId = reader.string();
+            continue;
+          }
+          case 3: {
+            if (tag !== 26) {
+              break;
+            }
+
+            message.studentId = reader.string();
+            continue;
+          }
+          case 4: {
+            if (tag !== 34) {
+              break;
+            }
+
+            message.studentName = reader.string();
+            continue;
+          }
+          case 5: {
+            if (tag !== 42) {
+              break;
+            }
+
+            message.studentCode = reader.string();
+            continue;
+          }
+          case 6: {
+            if (tag !== 48) {
+              break;
+            }
+
+            message.attempt = reader.int32();
+            continue;
+          }
+          case 7: {
+            if (tag !== 58) {
+              break;
+            }
+
+            message.status = reader.string();
+            continue;
+          }
+          case 8: {
+            if (tag !== 66) {
+              break;
+            }
+
+            const entry8 = Submission_AnswersEntry.decode(reader, reader.uint32());
+            if (entry8.value !== undefined) {
+              message.answers[entry8.key] = entry8.value;
+            }
+            continue;
+          }
+          case 9: {
+            if (tag !== 72) {
+              break;
+            }
+
+            message.autoPoints = reader.int32();
+            continue;
+          }
+          case 10: {
+            if (tag !== 80) {
+              break;
+            }
+
+            message.autoTotal = reader.int32();
+            continue;
+          }
+          case 11: {
+            if (tag !== 90) {
+              break;
+            }
+
+            const entry11 = Submission_OpenPointsEntry.decode(reader, reader.uint32());
+            if (entry11.value !== undefined) {
+              message.openPoints[entry11.key] = entry11.value;
+            }
+            continue;
+          }
+          case 12: {
+            if (tag !== 98) {
+              break;
+            }
+
+            const entry12 = Submission_LevelsEntry.decode(reader, reader.uint32());
+            if (entry12.value !== undefined) {
+              message.levels[entry12.key] = entry12.value;
+            }
+            continue;
+          }
+          case 13: {
+            if (tag !== 106) {
+              break;
+            }
+
+            message.feedback = reader.string();
+            continue;
+          }
+          case 14: {
+            if (tag !== 114) {
+              break;
+            }
+
+            message.startedAt = reader.string();
+            continue;
+          }
+          case 15: {
+            if (tag !== 122) {
+              break;
+            }
+
+            message.submittedAt = reader.string();
+            continue;
+          }
+          case 16: {
+            if (tag !== 128) {
+              break;
+            }
+
+            message.late = reader.bool();
+            continue;
+          }
+          case 17: {
+            if (tag !== 138) {
+              break;
+            }
+
+            message.gradedAt = reader.string();
+            continue;
+          }
+          case 18: {
+            if (tag !== 146) {
+              break;
+            }
+
+            message.gradedName = reader.string();
+            continue;
+          }
+          case 19: {
+            if (tag !== 154) {
+              break;
+            }
+
+            message.recordedAt = reader.string();
+            continue;
+          }
+          case 20: {
+            if (tag !== 160) {
+              break;
+            }
+
+            message.files = reader.int32();
+            continue;
+          }
+          case 21: {
+            if (tag !== 170) {
+              break;
+            }
+
+            message.suggestedLevel = reader.string();
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+};
+
+function createBaseSubmission_AnswersEntry(): Submission_AnswersEntry {
+  return { key: "", value: undefined };
+}
+
+export const Submission_AnswersEntry: MessageFns<Submission_AnswersEntry> = {
+  encode(message: Submission_AnswersEntry, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.key !== "") {
+      writer.uint32(10).string(message.key);
+    }
+    if (message.value !== undefined) {
+      Answer.encode(message.value, writer.uint32(18).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): Submission_AnswersEntry {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseSubmission_AnswersEntry();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.key = reader.string();
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.value = Answer.decode(reader, reader.uint32());
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+};
+
+function createBaseSubmission_OpenPointsEntry(): Submission_OpenPointsEntry {
+  return { key: "", value: 0 };
+}
+
+export const Submission_OpenPointsEntry: MessageFns<Submission_OpenPointsEntry> = {
+  encode(message: Submission_OpenPointsEntry, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.key !== "") {
+      writer.uint32(10).string(message.key);
+    }
+    if (message.value !== 0) {
+      writer.uint32(16).int32(message.value);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): Submission_OpenPointsEntry {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseSubmission_OpenPointsEntry();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.key = reader.string();
+            continue;
+          }
+          case 2: {
+            if (tag !== 16) {
+              break;
+            }
+
+            message.value = reader.int32();
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+};
+
+function createBaseSubmission_LevelsEntry(): Submission_LevelsEntry {
+  return { key: "", value: "" };
+}
+
+export const Submission_LevelsEntry: MessageFns<Submission_LevelsEntry> = {
+  encode(message: Submission_LevelsEntry, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.key !== "") {
+      writer.uint32(10).string(message.key);
+    }
+    if (message.value !== "") {
+      writer.uint32(18).string(message.value);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): Submission_LevelsEntry {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseSubmission_LevelsEntry();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.key = reader.string();
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.value = reader.string();
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+};
+
+function createBaseRosterRow(): RosterRow {
+  return { studentId: "", studentName: "", studentCode: "", latest: undefined, attempts: 0, extension: "" };
+}
+
+export const RosterRow: MessageFns<RosterRow> = {
+  encode(message: RosterRow, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.studentId !== "") {
+      writer.uint32(10).string(message.studentId);
+    }
+    if (message.studentName !== "") {
+      writer.uint32(18).string(message.studentName);
+    }
+    if (message.studentCode !== "") {
+      writer.uint32(26).string(message.studentCode);
+    }
+    if (message.latest !== undefined) {
+      Submission.encode(message.latest, writer.uint32(34).fork()).join();
+    }
+    if (message.attempts !== 0) {
+      writer.uint32(40).int32(message.attempts);
+    }
+    if (message.extension !== "") {
+      writer.uint32(50).string(message.extension);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): RosterRow {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseRosterRow();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.studentId = reader.string();
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.studentName = reader.string();
+            continue;
+          }
+          case 3: {
+            if (tag !== 26) {
+              break;
+            }
+
+            message.studentCode = reader.string();
+            continue;
+          }
+          case 4: {
+            if (tag !== 34) {
+              break;
+            }
+
+            message.latest = Submission.decode(reader, reader.uint32());
+            continue;
+          }
+          case 5: {
+            if (tag !== 40) {
+              break;
+            }
+
+            message.attempts = reader.int32();
+            continue;
+          }
+          case 6: {
+            if (tag !== 50) {
+              break;
+            }
+
+            message.extension = reader.string();
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+};
+
+function createBaseGetAssessmentRequest(): GetAssessmentRequest {
+  return { institutionSlug: "", itemId: "" };
+}
+
+export const GetAssessmentRequest: MessageFns<GetAssessmentRequest> = {
+  encode(message: GetAssessmentRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.institutionSlug !== "") {
+      writer.uint32(10).string(message.institutionSlug);
+    }
+    if (message.itemId !== "") {
+      writer.uint32(18).string(message.itemId);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): GetAssessmentRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseGetAssessmentRequest();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.institutionSlug = reader.string();
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.itemId = reader.string();
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+};
+
+function createBaseGetAssessmentResponse(): GetAssessmentResponse {
+  return {
+    assessment: undefined,
+    canEdit: false,
+    family: false,
+    competencies: [],
+    roster: [],
+    questionsLocked: false,
+    attempts: [],
+    extension: "",
+    openNow: false,
+    canStart: false,
+  };
+}
+
+export const GetAssessmentResponse: MessageFns<GetAssessmentResponse> = {
+  encode(message: GetAssessmentResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.assessment !== undefined) {
+      Assessment.encode(message.assessment, writer.uint32(10).fork()).join();
+    }
+    if (message.canEdit !== false) {
+      writer.uint32(16).bool(message.canEdit);
+    }
+    if (message.family !== false) {
+      writer.uint32(24).bool(message.family);
+    }
+    for (const v of message.competencies) {
+      Competency.encode(v!, writer.uint32(34).fork()).join();
+    }
+    for (const v of message.roster) {
+      RosterRow.encode(v!, writer.uint32(42).fork()).join();
+    }
+    if (message.questionsLocked !== false) {
+      writer.uint32(48).bool(message.questionsLocked);
+    }
+    for (const v of message.attempts) {
+      Submission.encode(v!, writer.uint32(58).fork()).join();
+    }
+    if (message.extension !== "") {
+      writer.uint32(66).string(message.extension);
+    }
+    if (message.openNow !== false) {
+      writer.uint32(72).bool(message.openNow);
+    }
+    if (message.canStart !== false) {
+      writer.uint32(80).bool(message.canStart);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): GetAssessmentResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseGetAssessmentResponse();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.assessment = Assessment.decode(reader, reader.uint32());
+            continue;
+          }
+          case 2: {
+            if (tag !== 16) {
+              break;
+            }
+
+            message.canEdit = reader.bool();
+            continue;
+          }
+          case 3: {
+            if (tag !== 24) {
+              break;
+            }
+
+            message.family = reader.bool();
+            continue;
+          }
+          case 4: {
+            if (tag !== 34) {
+              break;
+            }
+
+            message.competencies.push(Competency.decode(reader, reader.uint32()));
+            continue;
+          }
+          case 5: {
+            if (tag !== 42) {
+              break;
+            }
+
+            message.roster.push(RosterRow.decode(reader, reader.uint32()));
+            continue;
+          }
+          case 6: {
+            if (tag !== 48) {
+              break;
+            }
+
+            message.questionsLocked = reader.bool();
+            continue;
+          }
+          case 7: {
+            if (tag !== 58) {
+              break;
+            }
+
+            message.attempts.push(Submission.decode(reader, reader.uint32()));
+            continue;
+          }
+          case 8: {
+            if (tag !== 66) {
+              break;
+            }
+
+            message.extension = reader.string();
+            continue;
+          }
+          case 9: {
+            if (tag !== 72) {
+              break;
+            }
+
+            message.openNow = reader.bool();
+            continue;
+          }
+          case 10: {
+            if (tag !== 80) {
+              break;
+            }
+
+            message.canStart = reader.bool();
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+};
+
+function createBaseSaveAssessmentRequest(): SaveAssessmentRequest {
+  return {
+    institutionSlug: "",
+    itemId: "",
+    opensAt: "",
+    closesAt: "",
+    maxAttempts: 0,
+    competencyIds: [],
+    showAnswers: false,
+    replaceQuestions: false,
+    questions: [],
+  };
+}
+
+export const SaveAssessmentRequest: MessageFns<SaveAssessmentRequest> = {
+  encode(message: SaveAssessmentRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.institutionSlug !== "") {
+      writer.uint32(10).string(message.institutionSlug);
+    }
+    if (message.itemId !== "") {
+      writer.uint32(18).string(message.itemId);
+    }
+    if (message.opensAt !== "") {
+      writer.uint32(26).string(message.opensAt);
+    }
+    if (message.closesAt !== "") {
+      writer.uint32(34).string(message.closesAt);
+    }
+    if (message.maxAttempts !== 0) {
+      writer.uint32(40).int32(message.maxAttempts);
+    }
+    for (const v of message.competencyIds) {
+      writer.uint32(50).string(v!);
+    }
+    if (message.showAnswers !== false) {
+      writer.uint32(56).bool(message.showAnswers);
+    }
+    if (message.replaceQuestions !== false) {
+      writer.uint32(64).bool(message.replaceQuestions);
+    }
+    for (const v of message.questions) {
+      Question.encode(v!, writer.uint32(74).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): SaveAssessmentRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseSaveAssessmentRequest();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.institutionSlug = reader.string();
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.itemId = reader.string();
+            continue;
+          }
+          case 3: {
+            if (tag !== 26) {
+              break;
+            }
+
+            message.opensAt = reader.string();
+            continue;
+          }
+          case 4: {
+            if (tag !== 34) {
+              break;
+            }
+
+            message.closesAt = reader.string();
+            continue;
+          }
+          case 5: {
+            if (tag !== 40) {
+              break;
+            }
+
+            message.maxAttempts = reader.int32();
+            continue;
+          }
+          case 6: {
+            if (tag !== 50) {
+              break;
+            }
+
+            message.competencyIds.push(reader.string());
+            continue;
+          }
+          case 7: {
+            if (tag !== 56) {
+              break;
+            }
+
+            message.showAnswers = reader.bool();
+            continue;
+          }
+          case 8: {
+            if (tag !== 64) {
+              break;
+            }
+
+            message.replaceQuestions = reader.bool();
+            continue;
+          }
+          case 9: {
+            if (tag !== 74) {
+              break;
+            }
+
+            message.questions.push(Question.decode(reader, reader.uint32()));
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+};
+
+function createBaseSaveAssessmentResponse(): SaveAssessmentResponse {
+  return { assessment: undefined };
+}
+
+export const SaveAssessmentResponse: MessageFns<SaveAssessmentResponse> = {
+  encode(message: SaveAssessmentResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.assessment !== undefined) {
+      Assessment.encode(message.assessment, writer.uint32(10).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): SaveAssessmentResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseSaveAssessmentResponse();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.assessment = Assessment.decode(reader, reader.uint32());
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+};
+
+function createBaseStartAttemptRequest(): StartAttemptRequest {
+  return { institutionSlug: "", itemId: "" };
+}
+
+export const StartAttemptRequest: MessageFns<StartAttemptRequest> = {
+  encode(message: StartAttemptRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.institutionSlug !== "") {
+      writer.uint32(10).string(message.institutionSlug);
+    }
+    if (message.itemId !== "") {
+      writer.uint32(18).string(message.itemId);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): StartAttemptRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseStartAttemptRequest();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.institutionSlug = reader.string();
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.itemId = reader.string();
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+};
+
+function createBaseStartAttemptResponse(): StartAttemptResponse {
+  return { submission: undefined };
+}
+
+export const StartAttemptResponse: MessageFns<StartAttemptResponse> = {
+  encode(message: StartAttemptResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.submission !== undefined) {
+      Submission.encode(message.submission, writer.uint32(10).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): StartAttemptResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseStartAttemptResponse();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.submission = Submission.decode(reader, reader.uint32());
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+};
+
+function createBaseSaveAnswersRequest(): SaveAnswersRequest {
+  return { institutionSlug: "", submissionId: "", answers: {} };
+}
+
+export const SaveAnswersRequest: MessageFns<SaveAnswersRequest> = {
+  encode(message: SaveAnswersRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.institutionSlug !== "") {
+      writer.uint32(10).string(message.institutionSlug);
+    }
+    if (message.submissionId !== "") {
+      writer.uint32(18).string(message.submissionId);
+    }
+    globalThis.Object.entries(message.answers).forEach(([key, value]: [string, Answer]) => {
+      SaveAnswersRequest_AnswersEntry.encode({ key: key as any, value }, writer.uint32(26).fork()).join();
+    });
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): SaveAnswersRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseSaveAnswersRequest();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.institutionSlug = reader.string();
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.submissionId = reader.string();
+            continue;
+          }
+          case 3: {
+            if (tag !== 26) {
+              break;
+            }
+
+            const entry3 = SaveAnswersRequest_AnswersEntry.decode(reader, reader.uint32());
+            if (entry3.value !== undefined) {
+              message.answers[entry3.key] = entry3.value;
+            }
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+};
+
+function createBaseSaveAnswersRequest_AnswersEntry(): SaveAnswersRequest_AnswersEntry {
+  return { key: "", value: undefined };
+}
+
+export const SaveAnswersRequest_AnswersEntry: MessageFns<SaveAnswersRequest_AnswersEntry> = {
+  encode(message: SaveAnswersRequest_AnswersEntry, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.key !== "") {
+      writer.uint32(10).string(message.key);
+    }
+    if (message.value !== undefined) {
+      Answer.encode(message.value, writer.uint32(18).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): SaveAnswersRequest_AnswersEntry {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseSaveAnswersRequest_AnswersEntry();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.key = reader.string();
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.value = Answer.decode(reader, reader.uint32());
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+};
+
+function createBaseSaveAnswersResponse(): SaveAnswersResponse {
+  return {};
+}
+
+export const SaveAnswersResponse: MessageFns<SaveAnswersResponse> = {
+  encode(_: SaveAnswersResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): SaveAnswersResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseSaveAnswersResponse();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+};
+
+function createBaseHandInRequest(): HandInRequest {
+  return { institutionSlug: "", submissionId: "", answers: {} };
+}
+
+export const HandInRequest: MessageFns<HandInRequest> = {
+  encode(message: HandInRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.institutionSlug !== "") {
+      writer.uint32(10).string(message.institutionSlug);
+    }
+    if (message.submissionId !== "") {
+      writer.uint32(18).string(message.submissionId);
+    }
+    globalThis.Object.entries(message.answers).forEach(([key, value]: [string, Answer]) => {
+      HandInRequest_AnswersEntry.encode({ key: key as any, value }, writer.uint32(26).fork()).join();
+    });
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): HandInRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseHandInRequest();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.institutionSlug = reader.string();
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.submissionId = reader.string();
+            continue;
+          }
+          case 3: {
+            if (tag !== 26) {
+              break;
+            }
+
+            const entry3 = HandInRequest_AnswersEntry.decode(reader, reader.uint32());
+            if (entry3.value !== undefined) {
+              message.answers[entry3.key] = entry3.value;
+            }
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+};
+
+function createBaseHandInRequest_AnswersEntry(): HandInRequest_AnswersEntry {
+  return { key: "", value: undefined };
+}
+
+export const HandInRequest_AnswersEntry: MessageFns<HandInRequest_AnswersEntry> = {
+  encode(message: HandInRequest_AnswersEntry, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.key !== "") {
+      writer.uint32(10).string(message.key);
+    }
+    if (message.value !== undefined) {
+      Answer.encode(message.value, writer.uint32(18).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): HandInRequest_AnswersEntry {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseHandInRequest_AnswersEntry();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.key = reader.string();
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.value = Answer.decode(reader, reader.uint32());
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+};
+
+function createBaseHandInResponse(): HandInResponse {
+  return { submission: undefined };
+}
+
+export const HandInResponse: MessageFns<HandInResponse> = {
+  encode(message: HandInResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.submission !== undefined) {
+      Submission.encode(message.submission, writer.uint32(10).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): HandInResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseHandInResponse();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.submission = Submission.decode(reader, reader.uint32());
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+};
+
+function createBaseGradeSubmissionRequest(): GradeSubmissionRequest {
+  return { institutionSlug: "", submissionId: "", levels: {}, openPoints: {}, feedback: "" };
+}
+
+export const GradeSubmissionRequest: MessageFns<GradeSubmissionRequest> = {
+  encode(message: GradeSubmissionRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.institutionSlug !== "") {
+      writer.uint32(10).string(message.institutionSlug);
+    }
+    if (message.submissionId !== "") {
+      writer.uint32(18).string(message.submissionId);
+    }
+    globalThis.Object.entries(message.levels).forEach(([key, value]: [string, string]) => {
+      GradeSubmissionRequest_LevelsEntry.encode({ key: key as any, value }, writer.uint32(26).fork()).join();
+    });
+    globalThis.Object.entries(message.openPoints).forEach(([key, value]: [string, number]) => {
+      GradeSubmissionRequest_OpenPointsEntry.encode({ key: key as any, value }, writer.uint32(34).fork()).join();
+    });
+    if (message.feedback !== "") {
+      writer.uint32(42).string(message.feedback);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): GradeSubmissionRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseGradeSubmissionRequest();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.institutionSlug = reader.string();
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.submissionId = reader.string();
+            continue;
+          }
+          case 3: {
+            if (tag !== 26) {
+              break;
+            }
+
+            const entry3 = GradeSubmissionRequest_LevelsEntry.decode(reader, reader.uint32());
+            if (entry3.value !== undefined) {
+              message.levels[entry3.key] = entry3.value;
+            }
+            continue;
+          }
+          case 4: {
+            if (tag !== 34) {
+              break;
+            }
+
+            const entry4 = GradeSubmissionRequest_OpenPointsEntry.decode(reader, reader.uint32());
+            if (entry4.value !== undefined) {
+              message.openPoints[entry4.key] = entry4.value;
+            }
+            continue;
+          }
+          case 5: {
+            if (tag !== 42) {
+              break;
+            }
+
+            message.feedback = reader.string();
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+};
+
+function createBaseGradeSubmissionRequest_LevelsEntry(): GradeSubmissionRequest_LevelsEntry {
+  return { key: "", value: "" };
+}
+
+export const GradeSubmissionRequest_LevelsEntry: MessageFns<GradeSubmissionRequest_LevelsEntry> = {
+  encode(message: GradeSubmissionRequest_LevelsEntry, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.key !== "") {
+      writer.uint32(10).string(message.key);
+    }
+    if (message.value !== "") {
+      writer.uint32(18).string(message.value);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): GradeSubmissionRequest_LevelsEntry {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseGradeSubmissionRequest_LevelsEntry();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.key = reader.string();
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.value = reader.string();
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+};
+
+function createBaseGradeSubmissionRequest_OpenPointsEntry(): GradeSubmissionRequest_OpenPointsEntry {
+  return { key: "", value: 0 };
+}
+
+export const GradeSubmissionRequest_OpenPointsEntry: MessageFns<GradeSubmissionRequest_OpenPointsEntry> = {
+  encode(message: GradeSubmissionRequest_OpenPointsEntry, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.key !== "") {
+      writer.uint32(10).string(message.key);
+    }
+    if (message.value !== 0) {
+      writer.uint32(16).int32(message.value);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): GradeSubmissionRequest_OpenPointsEntry {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseGradeSubmissionRequest_OpenPointsEntry();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.key = reader.string();
+            continue;
+          }
+          case 2: {
+            if (tag !== 16) {
+              break;
+            }
+
+            message.value = reader.int32();
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+};
+
+function createBaseGradeSubmissionResponse(): GradeSubmissionResponse {
+  return { submission: undefined };
+}
+
+export const GradeSubmissionResponse: MessageFns<GradeSubmissionResponse> = {
+  encode(message: GradeSubmissionResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.submission !== undefined) {
+      Submission.encode(message.submission, writer.uint32(10).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): GradeSubmissionResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseGradeSubmissionResponse();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.submission = Submission.decode(reader, reader.uint32());
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+};
+
+function createBaseSetExtensionRequest(): SetExtensionRequest {
+  return { institutionSlug: "", itemId: "", studentId: "", closesAt: "", reason: "" };
+}
+
+export const SetExtensionRequest: MessageFns<SetExtensionRequest> = {
+  encode(message: SetExtensionRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.institutionSlug !== "") {
+      writer.uint32(10).string(message.institutionSlug);
+    }
+    if (message.itemId !== "") {
+      writer.uint32(18).string(message.itemId);
+    }
+    if (message.studentId !== "") {
+      writer.uint32(26).string(message.studentId);
+    }
+    if (message.closesAt !== "") {
+      writer.uint32(34).string(message.closesAt);
+    }
+    if (message.reason !== "") {
+      writer.uint32(42).string(message.reason);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): SetExtensionRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseSetExtensionRequest();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.institutionSlug = reader.string();
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.itemId = reader.string();
+            continue;
+          }
+          case 3: {
+            if (tag !== 26) {
+              break;
+            }
+
+            message.studentId = reader.string();
+            continue;
+          }
+          case 4: {
+            if (tag !== 34) {
+              break;
+            }
+
+            message.closesAt = reader.string();
+            continue;
+          }
+          case 5: {
+            if (tag !== 42) {
+              break;
+            }
+
+            message.reason = reader.string();
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+};
+
+function createBaseSetExtensionResponse(): SetExtensionResponse {
+  return {};
+}
+
+export const SetExtensionResponse: MessageFns<SetExtensionResponse> = {
+  encode(_: SetExtensionResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): SetExtensionResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseSetExtensionResponse();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+};
+
+function createBaseRecordLevelsRequest(): RecordLevelsRequest {
+  return { institutionSlug: "", itemId: "" };
+}
+
+export const RecordLevelsRequest: MessageFns<RecordLevelsRequest> = {
+  encode(message: RecordLevelsRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.institutionSlug !== "") {
+      writer.uint32(10).string(message.institutionSlug);
+    }
+    if (message.itemId !== "") {
+      writer.uint32(18).string(message.itemId);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): RecordLevelsRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseRecordLevelsRequest();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.institutionSlug = reader.string();
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.itemId = reader.string();
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+};
+
+function createBaseRecordLevelsResponse(): RecordLevelsResponse {
+  return { recorded: 0, skippedStudentIds: [] };
+}
+
+export const RecordLevelsResponse: MessageFns<RecordLevelsResponse> = {
+  encode(message: RecordLevelsResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.recorded !== 0) {
+      writer.uint32(8).int32(message.recorded);
+    }
+    for (const v of message.skippedStudentIds) {
+      writer.uint32(18).string(v!);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): RecordLevelsResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseRecordLevelsResponse();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 8) {
+              break;
+            }
+
+            message.recorded = reader.int32();
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.skippedStudentIds.push(reader.string());
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+};
+
 /**
  * Dirección and coordinación manage every room; teachers edit the rooms of the subjects they teach; secretaría and
  * the Responsable técnico read; students and families see published rooms of the student's grade, open units and
@@ -3273,6 +5837,88 @@ export const ClassroomServiceService = {
       Buffer.from(SaveDeliveryResponse.encode(value).finish()),
     responseDeserialize: (value: Buffer): SaveDeliveryResponse => SaveDeliveryResponse.decode(value),
   },
+  /** Online assessments (quiz and task items). Staff read the right answers and the roster; students their attempts */
+  getAssessment: {
+    path: "/joseph.classroom.v1.ClassroomService/GetAssessment" as const,
+    requestStream: false as const,
+    responseStream: false as const,
+    requestSerialize: (value: GetAssessmentRequest): Buffer => Buffer.from(GetAssessmentRequest.encode(value).finish()),
+    requestDeserialize: (value: Buffer): GetAssessmentRequest => GetAssessmentRequest.decode(value),
+    responseSerialize: (value: GetAssessmentResponse): Buffer =>
+      Buffer.from(GetAssessmentResponse.encode(value).finish()),
+    responseDeserialize: (value: Buffer): GetAssessmentResponse => GetAssessmentResponse.decode(value),
+  },
+  saveAssessment: {
+    path: "/joseph.classroom.v1.ClassroomService/SaveAssessment" as const,
+    requestStream: false as const,
+    responseStream: false as const,
+    requestSerialize: (value: SaveAssessmentRequest): Buffer =>
+      Buffer.from(SaveAssessmentRequest.encode(value).finish()),
+    requestDeserialize: (value: Buffer): SaveAssessmentRequest => SaveAssessmentRequest.decode(value),
+    responseSerialize: (value: SaveAssessmentResponse): Buffer =>
+      Buffer.from(SaveAssessmentResponse.encode(value).finish()),
+    responseDeserialize: (value: Buffer): SaveAssessmentResponse => SaveAssessmentResponse.decode(value),
+  },
+  startAttempt: {
+    path: "/joseph.classroom.v1.ClassroomService/StartAttempt" as const,
+    requestStream: false as const,
+    responseStream: false as const,
+    requestSerialize: (value: StartAttemptRequest): Buffer => Buffer.from(StartAttemptRequest.encode(value).finish()),
+    requestDeserialize: (value: Buffer): StartAttemptRequest => StartAttemptRequest.decode(value),
+    responseSerialize: (value: StartAttemptResponse): Buffer =>
+      Buffer.from(StartAttemptResponse.encode(value).finish()),
+    responseDeserialize: (value: Buffer): StartAttemptResponse => StartAttemptResponse.decode(value),
+  },
+  saveAnswers: {
+    path: "/joseph.classroom.v1.ClassroomService/SaveAnswers" as const,
+    requestStream: false as const,
+    responseStream: false as const,
+    requestSerialize: (value: SaveAnswersRequest): Buffer => Buffer.from(SaveAnswersRequest.encode(value).finish()),
+    requestDeserialize: (value: Buffer): SaveAnswersRequest => SaveAnswersRequest.decode(value),
+    responseSerialize: (value: SaveAnswersResponse): Buffer => Buffer.from(SaveAnswersResponse.encode(value).finish()),
+    responseDeserialize: (value: Buffer): SaveAnswersResponse => SaveAnswersResponse.decode(value),
+  },
+  handIn: {
+    path: "/joseph.classroom.v1.ClassroomService/HandIn" as const,
+    requestStream: false as const,
+    responseStream: false as const,
+    requestSerialize: (value: HandInRequest): Buffer => Buffer.from(HandInRequest.encode(value).finish()),
+    requestDeserialize: (value: Buffer): HandInRequest => HandInRequest.decode(value),
+    responseSerialize: (value: HandInResponse): Buffer => Buffer.from(HandInResponse.encode(value).finish()),
+    responseDeserialize: (value: Buffer): HandInResponse => HandInResponse.decode(value),
+  },
+  gradeSubmission: {
+    path: "/joseph.classroom.v1.ClassroomService/GradeSubmission" as const,
+    requestStream: false as const,
+    responseStream: false as const,
+    requestSerialize: (value: GradeSubmissionRequest): Buffer =>
+      Buffer.from(GradeSubmissionRequest.encode(value).finish()),
+    requestDeserialize: (value: Buffer): GradeSubmissionRequest => GradeSubmissionRequest.decode(value),
+    responseSerialize: (value: GradeSubmissionResponse): Buffer =>
+      Buffer.from(GradeSubmissionResponse.encode(value).finish()),
+    responseDeserialize: (value: Buffer): GradeSubmissionResponse => GradeSubmissionResponse.decode(value),
+  },
+  setExtension: {
+    path: "/joseph.classroom.v1.ClassroomService/SetExtension" as const,
+    requestStream: false as const,
+    responseStream: false as const,
+    requestSerialize: (value: SetExtensionRequest): Buffer => Buffer.from(SetExtensionRequest.encode(value).finish()),
+    requestDeserialize: (value: Buffer): SetExtensionRequest => SetExtensionRequest.decode(value),
+    responseSerialize: (value: SetExtensionResponse): Buffer =>
+      Buffer.from(SetExtensionResponse.encode(value).finish()),
+    responseDeserialize: (value: Buffer): SetExtensionResponse => SetExtensionResponse.decode(value),
+  },
+  /** Takes the levels of the latest graded attempts to the official record of the open term */
+  recordLevels: {
+    path: "/joseph.classroom.v1.ClassroomService/RecordLevels" as const,
+    requestStream: false as const,
+    responseStream: false as const,
+    requestSerialize: (value: RecordLevelsRequest): Buffer => Buffer.from(RecordLevelsRequest.encode(value).finish()),
+    requestDeserialize: (value: Buffer): RecordLevelsRequest => RecordLevelsRequest.decode(value),
+    responseSerialize: (value: RecordLevelsResponse): Buffer =>
+      Buffer.from(RecordLevelsResponse.encode(value).finish()),
+    responseDeserialize: (value: Buffer): RecordLevelsResponse => RecordLevelsResponse.decode(value),
+  },
 } as const;
 
 export interface ClassroomServiceServer extends UntypedServiceImplementation {
@@ -3294,6 +5940,16 @@ export interface ClassroomServiceServer extends UntypedServiceImplementation {
   deleteLibraryItem: handleUnaryCall<DeleteLibraryItemRequest, DeleteLibraryItemResponse>;
   listDeliveries: handleUnaryCall<ListDeliveriesRequest, ListDeliveriesResponse>;
   saveDelivery: handleUnaryCall<SaveDeliveryRequest, SaveDeliveryResponse>;
+  /** Online assessments (quiz and task items). Staff read the right answers and the roster; students their attempts */
+  getAssessment: handleUnaryCall<GetAssessmentRequest, GetAssessmentResponse>;
+  saveAssessment: handleUnaryCall<SaveAssessmentRequest, SaveAssessmentResponse>;
+  startAttempt: handleUnaryCall<StartAttemptRequest, StartAttemptResponse>;
+  saveAnswers: handleUnaryCall<SaveAnswersRequest, SaveAnswersResponse>;
+  handIn: handleUnaryCall<HandInRequest, HandInResponse>;
+  gradeSubmission: handleUnaryCall<GradeSubmissionRequest, GradeSubmissionResponse>;
+  setExtension: handleUnaryCall<SetExtensionRequest, SetExtensionResponse>;
+  /** Takes the levels of the latest graded attempts to the official record of the open term */
+  recordLevels: handleUnaryCall<RecordLevelsRequest, RecordLevelsResponse>;
 }
 
 export interface ClassroomServiceClient extends Client {
@@ -3552,6 +6208,128 @@ export interface ClassroomServiceClient extends Client {
     metadata: Metadata,
     options: Partial<CallOptions>,
     callback: (error: ServiceError | null, response: SaveDeliveryResponse) => void,
+  ): ClientUnaryCall;
+  /** Online assessments (quiz and task items). Staff read the right answers and the roster; students their attempts */
+  getAssessment(
+    request: GetAssessmentRequest,
+    callback: (error: ServiceError | null, response: GetAssessmentResponse) => void,
+  ): ClientUnaryCall;
+  getAssessment(
+    request: GetAssessmentRequest,
+    metadata: Metadata,
+    callback: (error: ServiceError | null, response: GetAssessmentResponse) => void,
+  ): ClientUnaryCall;
+  getAssessment(
+    request: GetAssessmentRequest,
+    metadata: Metadata,
+    options: Partial<CallOptions>,
+    callback: (error: ServiceError | null, response: GetAssessmentResponse) => void,
+  ): ClientUnaryCall;
+  saveAssessment(
+    request: SaveAssessmentRequest,
+    callback: (error: ServiceError | null, response: SaveAssessmentResponse) => void,
+  ): ClientUnaryCall;
+  saveAssessment(
+    request: SaveAssessmentRequest,
+    metadata: Metadata,
+    callback: (error: ServiceError | null, response: SaveAssessmentResponse) => void,
+  ): ClientUnaryCall;
+  saveAssessment(
+    request: SaveAssessmentRequest,
+    metadata: Metadata,
+    options: Partial<CallOptions>,
+    callback: (error: ServiceError | null, response: SaveAssessmentResponse) => void,
+  ): ClientUnaryCall;
+  startAttempt(
+    request: StartAttemptRequest,
+    callback: (error: ServiceError | null, response: StartAttemptResponse) => void,
+  ): ClientUnaryCall;
+  startAttempt(
+    request: StartAttemptRequest,
+    metadata: Metadata,
+    callback: (error: ServiceError | null, response: StartAttemptResponse) => void,
+  ): ClientUnaryCall;
+  startAttempt(
+    request: StartAttemptRequest,
+    metadata: Metadata,
+    options: Partial<CallOptions>,
+    callback: (error: ServiceError | null, response: StartAttemptResponse) => void,
+  ): ClientUnaryCall;
+  saveAnswers(
+    request: SaveAnswersRequest,
+    callback: (error: ServiceError | null, response: SaveAnswersResponse) => void,
+  ): ClientUnaryCall;
+  saveAnswers(
+    request: SaveAnswersRequest,
+    metadata: Metadata,
+    callback: (error: ServiceError | null, response: SaveAnswersResponse) => void,
+  ): ClientUnaryCall;
+  saveAnswers(
+    request: SaveAnswersRequest,
+    metadata: Metadata,
+    options: Partial<CallOptions>,
+    callback: (error: ServiceError | null, response: SaveAnswersResponse) => void,
+  ): ClientUnaryCall;
+  handIn(
+    request: HandInRequest,
+    callback: (error: ServiceError | null, response: HandInResponse) => void,
+  ): ClientUnaryCall;
+  handIn(
+    request: HandInRequest,
+    metadata: Metadata,
+    callback: (error: ServiceError | null, response: HandInResponse) => void,
+  ): ClientUnaryCall;
+  handIn(
+    request: HandInRequest,
+    metadata: Metadata,
+    options: Partial<CallOptions>,
+    callback: (error: ServiceError | null, response: HandInResponse) => void,
+  ): ClientUnaryCall;
+  gradeSubmission(
+    request: GradeSubmissionRequest,
+    callback: (error: ServiceError | null, response: GradeSubmissionResponse) => void,
+  ): ClientUnaryCall;
+  gradeSubmission(
+    request: GradeSubmissionRequest,
+    metadata: Metadata,
+    callback: (error: ServiceError | null, response: GradeSubmissionResponse) => void,
+  ): ClientUnaryCall;
+  gradeSubmission(
+    request: GradeSubmissionRequest,
+    metadata: Metadata,
+    options: Partial<CallOptions>,
+    callback: (error: ServiceError | null, response: GradeSubmissionResponse) => void,
+  ): ClientUnaryCall;
+  setExtension(
+    request: SetExtensionRequest,
+    callback: (error: ServiceError | null, response: SetExtensionResponse) => void,
+  ): ClientUnaryCall;
+  setExtension(
+    request: SetExtensionRequest,
+    metadata: Metadata,
+    callback: (error: ServiceError | null, response: SetExtensionResponse) => void,
+  ): ClientUnaryCall;
+  setExtension(
+    request: SetExtensionRequest,
+    metadata: Metadata,
+    options: Partial<CallOptions>,
+    callback: (error: ServiceError | null, response: SetExtensionResponse) => void,
+  ): ClientUnaryCall;
+  /** Takes the levels of the latest graded attempts to the official record of the open term */
+  recordLevels(
+    request: RecordLevelsRequest,
+    callback: (error: ServiceError | null, response: RecordLevelsResponse) => void,
+  ): ClientUnaryCall;
+  recordLevels(
+    request: RecordLevelsRequest,
+    metadata: Metadata,
+    callback: (error: ServiceError | null, response: RecordLevelsResponse) => void,
+  ): ClientUnaryCall;
+  recordLevels(
+    request: RecordLevelsRequest,
+    metadata: Metadata,
+    options: Partial<CallOptions>,
+    callback: (error: ServiceError | null, response: RecordLevelsResponse) => void,
   ): ClientUnaryCall;
 }
 

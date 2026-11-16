@@ -34,6 +34,17 @@ service ClassroomService {
 
   rpc ListDeliveries(ListDeliveriesRequest) returns (ListDeliveriesResponse);
   rpc SaveDelivery(SaveDeliveryRequest) returns (SaveDeliveryResponse);
+
+  // Online assessments (quiz and task items). Staff read the right answers and the roster; students their attempts
+  rpc GetAssessment(GetAssessmentRequest) returns (GetAssessmentResponse);
+  rpc SaveAssessment(SaveAssessmentRequest) returns (SaveAssessmentResponse);
+  rpc StartAttempt(StartAttemptRequest) returns (StartAttemptResponse);
+  rpc SaveAnswers(SaveAnswersRequest) returns (SaveAnswersResponse);
+  rpc HandIn(HandInRequest) returns (HandInResponse);
+  rpc GradeSubmission(GradeSubmissionRequest) returns (GradeSubmissionResponse);
+  rpc SetExtension(SetExtensionRequest) returns (SetExtensionResponse);
+  // Takes the levels of the latest graded attempts to the official record of the open term
+  rpc RecordLevels(RecordLevelsRequest) returns (RecordLevelsResponse);
 }
 
 message Period {
@@ -68,7 +79,7 @@ message Room {
 message Item {
   string id = 1;
   string unit_id = 2;
-  // reading | file | video | link | live | activity
+  // reading | file | video | link | live | activity | quiz | task
   string kind = 3;
   string title = 4;
   string body = 5;
@@ -286,3 +297,177 @@ message SaveDeliveryRequest {
 }
 
 message SaveDeliveryResponse {}
+
+message Question {
+  string id = 1;
+  // single | multiple | short | open
+  string kind = 2;
+  string prompt = 3;
+  repeated string options = 4;
+  // Staff, or a student once graded when the answers are shown: right option indexes and accepted short answers
+  repeated int32 correct = 5;
+  repeated string accepted = 6;
+  int32 points = 7;
+}
+
+message Assessment {
+  string item_id = 1;
+  string room_id = 2;
+  string unit_id = 3;
+  // quiz | task
+  string kind = 4;
+  string title = 5;
+  string instructions = 6;
+  bool published = 7;
+  // RFC 3339 or empty
+  string opens_at = 8;
+  string closes_at = 9;
+  int32 max_attempts = 10;
+  repeated string competency_ids = 11;
+  bool show_answers = 12;
+  repeated Question questions = 13;
+}
+
+message Competency {
+  string id = 1;
+  string name = 2;
+}
+
+message Answer {
+  repeated int32 choices = 1;
+  string text = 2;
+}
+
+message Submission {
+  string id = 1;
+  string item_id = 2;
+  string student_id = 3;
+  string student_name = 4;
+  string student_code = 5;
+  int32 attempt = 6;
+  // in_progress | submitted | graded
+  string status = 7;
+  map<string, Answer> answers = 8;
+  int32 auto_points = 9;
+  int32 auto_total = 10;
+  map<string, int32> open_points = 11;
+  // competency id → AD | A | B | C
+  map<string, string> levels = 12;
+  string feedback = 13;
+  string started_at = 14;
+  string submitted_at = 15;
+  bool late = 16;
+  string graded_at = 17;
+  string graded_name = 18;
+  string recorded_at = 19;
+  int32 files = 20;
+  // Level the points suggest (AD from 90 %, A from 70 %, B from 50 %); the teacher confirms
+  string suggested_level = 21;
+}
+
+message RosterRow {
+  string student_id = 1;
+  string student_name = 2;
+  string student_code = 3;
+  Submission latest = 4;
+  int32 attempts = 5;
+  // RFC 3339 or empty
+  string extension = 6;
+}
+
+message GetAssessmentRequest {
+  string institution_slug = 1;
+  string item_id = 2;
+}
+
+message GetAssessmentResponse {
+  Assessment assessment = 1;
+  bool can_edit = 2;
+  bool family = 3;
+  repeated Competency competencies = 4;
+  repeated RosterRow roster = 5;
+  bool questions_locked = 6;
+  repeated Submission attempts = 7;
+  string extension = 8;
+  bool open_now = 9;
+  bool can_start = 10;
+}
+
+message SaveAssessmentRequest {
+  string institution_slug = 1;
+  string item_id = 2;
+  string opens_at = 3;
+  string closes_at = 4;
+  int32 max_attempts = 5;
+  repeated string competency_ids = 6;
+  bool show_answers = 7;
+  // Quizzes only: replace the questions (refused once someone handed it in)
+  bool replace_questions = 8;
+  repeated Question questions = 9;
+}
+
+message SaveAssessmentResponse {
+  Assessment assessment = 1;
+}
+
+message StartAttemptRequest {
+  string institution_slug = 1;
+  string item_id = 2;
+}
+
+message StartAttemptResponse {
+  Submission submission = 1;
+}
+
+message SaveAnswersRequest {
+  string institution_slug = 1;
+  string submission_id = 2;
+  map<string, Answer> answers = 3;
+}
+
+message SaveAnswersResponse {}
+
+message HandInRequest {
+  string institution_slug = 1;
+  string submission_id = 2;
+  // Last answers, saved before handing in (empty keeps the saved ones)
+  map<string, Answer> answers = 3;
+}
+
+message HandInResponse {
+  Submission submission = 1;
+}
+
+message GradeSubmissionRequest {
+  string institution_slug = 1;
+  string submission_id = 2;
+  map<string, string> levels = 3;
+  map<string, int32> open_points = 4;
+  string feedback = 5;
+}
+
+message GradeSubmissionResponse {
+  Submission submission = 1;
+}
+
+message SetExtensionRequest {
+  string institution_slug = 1;
+  string item_id = 2;
+  string student_id = 3;
+  // RFC 3339; empty removes the extension
+  string closes_at = 4;
+  string reason = 5;
+}
+
+message SetExtensionResponse {}
+
+message RecordLevelsRequest {
+  string institution_slug = 1;
+  string item_id = 2;
+}
+
+message RecordLevelsResponse {
+  int32 recorded = 1;
+  // Students left out: their section has no teacher for the area, or its sheet is closed or not yours
+  repeated string skipped_student_ids = 2;
+}
