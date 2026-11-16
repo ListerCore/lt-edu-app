@@ -35,7 +35,7 @@ export const ReportsTab = ({ slug, board, onEditReport, onEditItem, onChange }: 
     <div className="space-y-8">
       {board.reports.map((report) => {
         const items = board.items.filter((it) => it.report === report.kind);
-        const done = items.filter((it) => it.status !== 'pending').length;
+        const done = items.filter((it) => it.status === 'not_applicable' || (it.status === 'verified' && it.files > 0)).length;
         const sections = [...new Set(items.map((it) => it.section))];
         return (
           <section key={report.kind} aria-labelledby={`report-${report.kind}`} className="space-y-3 rounded-2xl border border-border bg-background p-5">
@@ -86,7 +86,8 @@ export const ReportsTab = ({ slug, board, onEditReport, onEditItem, onChange }: 
                             {[it.module, it.route].filter(Boolean).join(' · ')}
                             {(it.annex || it.folio) && ` · Anexo ${it.annex || '—'}, folio ${it.folio || '—'}`}
                           </span>
-                          {it.verifiedByName && <span className="block text-xs text-success">Verificó {it.verifiedByName}</span>}
+                          {it.verifiedByName && it.files > 0 && <span className="block text-xs text-success">Verificó {it.verifiedByName}</span>}
+                          {it.status === 'verified' && it.files === 0 && <span className="block text-xs text-warning">Se quitó su evidencia: cuenta como pendiente hasta subir otra.</span>}
                         </span>
                         <span className={cn('pill', it.files > 0 ? 'bg-secondary text-foreground' : 'bg-warning/12 text-warning')}>
                           {it.files === 0 ? 'Sin evidencia' : it.files === 1 ? '1 evidencia' : `${it.files} evidencias`}
@@ -108,7 +109,7 @@ export const ReportsTab = ({ slug, board, onEditReport, onEditItem, onChange }: 
                               options={[
                                 { value: 'pending', label: 'Pendiente' },
                                 ...(board.canVerify || it.status === 'verified' ? [{ value: 'verified', label: 'Verificado' }] : []),
-                                { value: 'not_applicable', label: 'No aplica' },
+                                ...(board.canVerify || it.status === 'not_applicable' ? [{ value: 'not_applicable', label: 'No aplica' }] : []),
                               ]}
                               onChange={(next): void => status(it, next)}
                             />
@@ -124,7 +125,7 @@ export const ReportsTab = ({ slug, board, onEditReport, onEditItem, onChange }: 
           </section>
         );
       })}
-      {!board.canVerify && board.canWrite && <p className="text-xs text-muted-foreground">Solo el responsable técnico marca una fila como verificada, y solo con una evidencia subida.</p>}
+      {!board.canVerify && board.canWrite && <p className="text-xs text-muted-foreground">Solo el responsable técnico marca una fila como verificada (con una evidencia subida) o como «no aplica».</p>}
     </div>
   );
 };
