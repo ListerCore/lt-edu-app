@@ -9,7 +9,7 @@ import { MorphIcon } from '@/components/ui/morph-icon';
 import { AttachmentsPanel } from '@/features/protected/attachments/components/attachments-panel';
 import { cn } from '@/lib/utils';
 import { copySectionsAction, deletePeriodAction, deleteSectionAction, getPeriodAction, setPeriodStatusAction } from '../actions/academic-actions';
-import { attentionModeLabels, daysBetween, formatDay, formatRange, lower, PERIODS_PATH, periodStatusClass, periodStatusLabels, seasonLabels, shiftLabels, termStatusLabels } from '../data/academic-data';
+import { attentionModeLabels, daysBetween, distanceVariantLabels, ebaProgramLabels, formatDay, formatRange, lower, PERIODS_PATH, periodStatusClass, periodStatusLabels, seasonLabels, shiftLabels, termStatusLabels } from '../data/academic-data';
 import { runAcademicAction } from '../hooks/use-academic-form';
 import { useAcademicData } from '../hooks/use-academic-data';
 import { useInstitutionSlug } from '../hooks/use-institution-slug';
@@ -291,6 +291,8 @@ const SectionsBoard = ({ context, levels, sections, editable, isPending, onAdd, 
                             <span className="text-xs text-muted-foreground">
                               {shiftLabels[section.shift]} · {section.capacity}
                               {section.attentionMode && ` · ${attentionModeLabels[section.attentionMode]}`}
+                              {section.distanceVariant && ` ${distanceVariantLabels[section.distanceVariant]?.toLowerCase()}`}
+                              {section.program === 'literacy' && ` · ${ebaProgramLabels.literacy}`}
                               {section.room && ` · ${section.room}`}
                             </span>
                           </button>

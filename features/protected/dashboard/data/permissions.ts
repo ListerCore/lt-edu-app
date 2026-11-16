@@ -21,13 +21,14 @@ export const roleLabels: Record<Role, string> = {
   assistant: 'Auxiliar',
   psychologist: 'Psicólogo',
   treasurer: 'Tesorería',
+  technicalLead: 'Responsable técnico',
   student: 'Estudiante',
   guardian: 'Apoderado',
 };
 
 // Some roles carry another name in certain institutions
 const roleLabelOverrides: Partial<Record<InstitutionType, Partial<Record<Role, string>>>> = {
-  EBA: { student: 'Estudiante EBA' },
+  EBA: { tutor: 'Tutor virtual', student: 'Estudiante EBA' },
   CEPRE: { coordinator: 'Coordinador de ciclo', student: 'Alumno' },
   IEST: { director: 'Director general', coordinator: 'Jefe de unidad académica', psychologist: 'Bienestar estudiantil' },
 };
@@ -37,7 +38,7 @@ export const roleLabel = (role: Role, institutionType: InstitutionType): string 
 // Roles that exist in each institution type, in the order the selector lists them (README §3)
 export const institutionRoles: Record<InstitutionType, Role[]> = {
   EBR: ['director', 'coordinator', 'secretary', 'teacher', 'tutor', 'assistant', 'psychologist', 'treasurer', 'student', 'guardian'],
-  EBA: ['director', 'coordinator', 'secretary', 'teacher', 'tutor', 'psychologist', 'treasurer', 'student'],
+  EBA: ['director', 'coordinator', 'secretary', 'teacher', 'tutor', 'psychologist', 'treasurer', 'technicalLead', 'student'],
   EBE: ['director', 'coordinator', 'secretary', 'teacher', 'assistant', 'psychologist', 'treasurer', 'guardian'],
   CEPRE: ['director', 'coordinator', 'secretary', 'teacher', 'tutor', 'treasurer', 'student', 'guardian'],
   IEST: ['director', 'coordinator', 'secretary', 'teacher', 'tutor', 'psychologist', 'treasurer', 'student'],
@@ -179,6 +180,8 @@ export const rolePermissions: Record<Role, RolePermissions> = {
     reports: ['view', 'export'],
     // Reads the APAFA meetings and their actas; dirección and secretaría convene them
     apafa: VIEW,
+    // Reads the institution file (authorizations, platform sheet); dirección records it
+    institution: VIEW,
   },
   secretary: {
     home: VIEW,
@@ -201,6 +204,7 @@ export const rolePermissions: Record<Role, RolePermissions> = {
     reports: ['view', 'export'],
     // Convenes the APAFA meetings, records the acta and keeps the board (with dirección)
     apafa: ALL,
+    institution: VIEW,
   },
   teacher: teacherPermissions,
   tutor: { ...teacherPermissions, tutoring: ALL, wellbeing: ['view', 'create'], discipline: EDIT, 'parent-school': EDIT },
@@ -239,6 +243,18 @@ export const rolePermissions: Record<Role, RolePermissions> = {
     reports: ['view', 'export'],
     announcements: VIEW,
   },
+  // Responsable técnico (CEBA): keeps the e-learning platform sheet for the DRE reports and reads the structure it
+  // documents; the equipment and evidence modules join in phase E8 (docs/ceba/PLAN.md)
+  technicalLead: {
+    home: VIEW,
+    notifications: ['view', 'update'],
+    account: ['view', 'update'],
+    institution: ['view', 'update'],
+    structure: VIEW,
+    'attention-modes': VIEW,
+    periods: VIEW,
+    announcements: VIEW,
+  },
   student: studentPermissions,
   // Families read the APAFA meetings of their institution once convened, with the agenda, the acta and the documents
   guardian: { ...studentPermissions, payments: VIEW, 'progress-reports': VIEW, 'individual-plans': VIEW, therapies: VIEW, 'parent-school': VIEW, apafa: VIEW },
@@ -252,7 +268,7 @@ export const canAccess = (institutionType: InstitutionType, role: Role, module: 
 // ---------- tabs ----------
 
 const MANAGERS: Role[] = ['director', 'coordinator'];
-const STAFF: Role[] = ['director', 'coordinator', 'secretary', 'teacher', 'tutor', 'assistant', 'psychologist', 'treasurer'];
+const STAFF: Role[] = ['director', 'coordinator', 'secretary', 'teacher', 'tutor', 'assistant', 'psychologist', 'treasurer', 'technicalLead'];
 const EVERYONE: Role[] = [...STAFF, 'student', 'guardian'];
 
 // Which roles see each tab of the pages whose views differ by role. A role reaching a page sees only these tabs;
@@ -287,6 +303,7 @@ export const demoUserNames: Record<Role, string> = {
   assistant: 'Pedro Rojas',
   psychologist: 'Lucía Paredes',
   treasurer: 'Miguel Salazar',
+  technicalLead: 'Daniel Vargas',
   student: 'Valeria Ccori',
   guardian: 'Julio Ccori',
 };

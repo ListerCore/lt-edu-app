@@ -61,14 +61,34 @@ export interface SectionBatchValues {
   names: string;
   shift: string;
   attentionMode: string;
+  // EBA only: pebaja | literacy, and virtual | itinerant for the distance form
+  program: string;
+  distanceVariant: string;
   capacity: string;
   room: string;
+}
+
+// The EBA fields both section forms share
+export interface EbaSectionValues {
+  attentionMode: string;
+  program: string;
+  distanceVariant: string;
+}
+
+export interface EbaSectionFieldsProps<V extends EbaSectionValues> {
+  idPrefix: string;
+  levelModes: string[];
+  values: V;
+  errors: Partial<Record<string, string>>;
+  setField: <K extends keyof V>(field: K, value: V[K]) => void;
 }
 
 export interface SectionFormValues {
   name: string;
   shift: string;
   attentionMode: string;
+  program: string;
+  distanceVariant: string;
   capacity: string;
   room: string;
 }

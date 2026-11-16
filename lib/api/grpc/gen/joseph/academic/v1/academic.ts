@@ -155,6 +155,9 @@ export interface Section {
   /** Tutor of the section (staff), empty when none */
   tutorId: string;
   tutorName: string;
+  /** EBA only: pebaja | literacy, and virtual | itinerant when attention_mode is distance */
+  program: string;
+  distanceVariant: string;
 }
 
 export interface LevelInput {
@@ -188,6 +191,9 @@ export interface SectionInput {
   attentionMode: string;
   capacity: number;
   room: string;
+  /** EBA only; empty program means PEBAJA, empty variant of a distance section means virtual */
+  program: string;
+  distanceVariant: string;
 }
 
 export interface GetContextRequest {
@@ -393,6 +399,8 @@ export interface CreateSectionsRequest {
   attentionMode: string;
   capacity: number;
   room: string;
+  program: string;
+  distanceVariant: string;
 }
 
 export interface CreateSectionsResponse {
@@ -1525,6 +1533,8 @@ function createBaseSection(): Section {
     room: "",
     tutorId: "",
     tutorName: "",
+    program: "",
+    distanceVariant: "",
   };
 }
 
@@ -1571,6 +1581,12 @@ export const Section: MessageFns<Section> = {
     }
     if (message.tutorName !== "") {
       writer.uint32(114).string(message.tutorName);
+    }
+    if (message.program !== "") {
+      writer.uint32(122).string(message.program);
+    }
+    if (message.distanceVariant !== "") {
+      writer.uint32(130).string(message.distanceVariant);
     }
     return writer;
   },
@@ -1698,6 +1714,22 @@ export const Section: MessageFns<Section> = {
             }
 
             message.tutorName = reader.string();
+            continue;
+          }
+          case 15: {
+            if (tag !== 122) {
+              break;
+            }
+
+            message.program = reader.string();
+            continue;
+          }
+          case 16: {
+            if (tag !== 130) {
+              break;
+            }
+
+            message.distanceVariant = reader.string();
             continue;
           }
         }
@@ -1992,7 +2024,7 @@ export const PeriodInput: MessageFns<PeriodInput> = {
 };
 
 function createBaseSectionInput(): SectionInput {
-  return { name: "", shift: "", attentionMode: "", capacity: 0, room: "" };
+  return { name: "", shift: "", attentionMode: "", capacity: 0, room: "", program: "", distanceVariant: "" };
 }
 
 export const SectionInput: MessageFns<SectionInput> = {
@@ -2011,6 +2043,12 @@ export const SectionInput: MessageFns<SectionInput> = {
     }
     if (message.room !== "") {
       writer.uint32(42).string(message.room);
+    }
+    if (message.program !== "") {
+      writer.uint32(50).string(message.program);
+    }
+    if (message.distanceVariant !== "") {
+      writer.uint32(58).string(message.distanceVariant);
     }
     return writer;
   },
@@ -2066,6 +2104,22 @@ export const SectionInput: MessageFns<SectionInput> = {
             }
 
             message.room = reader.string();
+            continue;
+          }
+          case 6: {
+            if (tag !== 50) {
+              break;
+            }
+
+            message.program = reader.string();
+            continue;
+          }
+          case 7: {
+            if (tag !== 58) {
+              break;
+            }
+
+            message.distanceVariant = reader.string();
             continue;
           }
         }
@@ -4240,6 +4294,8 @@ function createBaseCreateSectionsRequest(): CreateSectionsRequest {
     attentionMode: "",
     capacity: 0,
     room: "",
+    program: "",
+    distanceVariant: "",
   };
 }
 
@@ -4271,6 +4327,12 @@ export const CreateSectionsRequest: MessageFns<CreateSectionsRequest> = {
     }
     if (message.room !== "") {
       writer.uint32(74).string(message.room);
+    }
+    if (message.program !== "") {
+      writer.uint32(82).string(message.program);
+    }
+    if (message.distanceVariant !== "") {
+      writer.uint32(90).string(message.distanceVariant);
     }
     return writer;
   },
@@ -4358,6 +4420,22 @@ export const CreateSectionsRequest: MessageFns<CreateSectionsRequest> = {
             }
 
             message.room = reader.string();
+            continue;
+          }
+          case 10: {
+            if (tag !== 82) {
+              break;
+            }
+
+            message.program = reader.string();
+            continue;
+          }
+          case 11: {
+            if (tag !== 90) {
+              break;
+            }
+
+            message.distanceVariant = reader.string();
             continue;
           }
         }

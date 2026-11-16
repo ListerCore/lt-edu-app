@@ -30,6 +30,21 @@ export const attentionModeHints: Record<string, string> = {
   blended: 'Parte presencial y parte con tutoría y material para avanzar en casa.',
   distance: 'Estudio autónomo con material y asesorías. La norma la permite solo en el ciclo avanzado.',
 };
+// EBA programs and the variants of the distance form (docs/ceba/README.md §1.1 and §1.3)
+export const ebaProgramLabels: Record<string, string> = { pebaja: 'PEBAJA', literacy: 'Alfabetización' };
+export const ebaProgramHints: Record<string, string> = {
+  pebaja: 'Jóvenes y adultos desde los 14 años, en los tres ciclos.',
+  literacy: 'Círculos de aprendizaje desde los 15 años, presenciales, en los ciclos inicial e intermedio.',
+};
+export const distanceVariantLabels: Record<string, string> = { virtual: 'Virtual', itinerant: 'Itinerante' };
+export const distanceVariantHints: Record<string, string> = {
+  virtual: 'Con internet: aula virtual, foros y sesiones en línea.',
+  itinerant: 'Sin internet o en zonas alejadas: material impreso y visitas del tutor.',
+};
+
+// Programs a cycle can host: Alfabetización only in cycles that never go remote (inicial, intermedio)
+export const ebaProgramsFor = (levelModes: string[]): string[] => (levelModes.includes('distance') ? ['pebaja'] : ['pebaja', 'literacy']);
+
 export const seasonLabels: Record<string, string> = {
   summer: 'Verano',
   annual: 'Anual',
