@@ -52,6 +52,9 @@ service PeopleService {
   rpc SetReligionExemption(SetReligionExemptionRequest) returns (SetReligionExemptionResponse);
   rpc ListRoll(ListRollRequest) returns (ListRollResponse);
   rpc SetSiagieStatus(SetSiagieStatusRequest) returns (SetSiagieStatusResponse);
+  // Loads the real roll from a spreadsheet (phase E9): commit=false checks every row and reconciles the totals per
+  // section; commit=true imports, and only when the check has no errors
+  rpc ImportRoll(ImportRollRequest) returns (ImportRollResponse);
 }
 
 message EnrollmentSummary {
@@ -595,4 +598,65 @@ message SetSiagieStatusRequest {
 
 message SetSiagieStatusResponse {
   int32 updated = 1;
+}
+
+message ImportRow {
+  int32 line = 1;
+  string document_type = 2;
+  string document_number = 3;
+  string paternal_surname = 4;
+  string maternal_surname = 5;
+  string given_names = 6;
+  // dd/mm/aaaa
+  string birth_date = 7;
+  // M (mujer) | H (hombre)
+  string sex = 8;
+  string email = 9;
+  string phone = 10;
+  string cycle = 11;
+  string grade = 12;
+  string section = 13;
+  // nuevo | promovido | trasladado | reentrante
+  string kind = 14;
+  string origin = 15;
+}
+
+// status: ready | existing (the student is already in the institution) | skipped (already enrolled) | enrolled | error
+message ImportResult {
+  int32 line = 1;
+  string status = 2;
+  string student_name = 3;
+  string placement = 4;
+  bool known = 5;
+  string message = 6;
+}
+
+message ImportSection {
+  string section_id = 1;
+  string label = 2;
+  int32 capacity = 3;
+  int32 before = 4;
+  int32 incoming = 5;
+  int32 after = 6;
+}
+
+message ImportRollRequest {
+  string institution_slug = 1;
+  string period_id = 2;
+  repeated ImportRow rows = 3;
+  bool commit = 4;
+}
+
+message ImportRollResponse {
+  repeated ImportResult rows = 1;
+  repeated ImportSection sections = 2;
+  int32 total = 3;
+  int32 ready = 4;
+  int32 skipped = 5;
+  int32 errors = 6;
+  int32 created = 7;
+  int32 enrolled = 8;
+  bool committed = 9;
+  int32 period_before = 10;
+  int32 period_after = 11;
 }

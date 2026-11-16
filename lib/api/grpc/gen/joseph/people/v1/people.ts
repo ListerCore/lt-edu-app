@@ -572,6 +572,67 @@ export interface SetSiagieStatusResponse {
   updated: number;
 }
 
+export interface ImportRow {
+  line: number;
+  documentType: string;
+  documentNumber: string;
+  paternalSurname: string;
+  maternalSurname: string;
+  givenNames: string;
+  /** dd/mm/aaaa */
+  birthDate: string;
+  /** M (mujer) | H (hombre) */
+  sex: string;
+  email: string;
+  phone: string;
+  cycle: string;
+  grade: string;
+  section: string;
+  /** nuevo | promovido | trasladado | reentrante */
+  kind: string;
+  origin: string;
+}
+
+/** status: ready | existing (the student is already in the institution) | skipped (already enrolled) | enrolled | error */
+export interface ImportResult {
+  line: number;
+  status: string;
+  studentName: string;
+  placement: string;
+  known: boolean;
+  message: string;
+}
+
+export interface ImportSection {
+  sectionId: string;
+  label: string;
+  capacity: number;
+  before: number;
+  incoming: number;
+  after: number;
+}
+
+export interface ImportRollRequest {
+  institutionSlug: string;
+  periodId: string;
+  rows: ImportRow[];
+  commit: boolean;
+}
+
+export interface ImportRollResponse {
+  rows: ImportResult[];
+  sections: ImportSection[];
+  total: number;
+  ready: number;
+  skipped: number;
+  errors: number;
+  created: number;
+  enrolled: number;
+  committed: boolean;
+  periodBefore: number;
+  periodAfter: number;
+}
+
 function createBaseEnrollmentSummary(): EnrollmentSummary {
   return {
     id: "",
@@ -6537,6 +6598,671 @@ export const SetSiagieStatusResponse: MessageFns<SetSiagieStatusResponse> = {
   },
 };
 
+function createBaseImportRow(): ImportRow {
+  return {
+    line: 0,
+    documentType: "",
+    documentNumber: "",
+    paternalSurname: "",
+    maternalSurname: "",
+    givenNames: "",
+    birthDate: "",
+    sex: "",
+    email: "",
+    phone: "",
+    cycle: "",
+    grade: "",
+    section: "",
+    kind: "",
+    origin: "",
+  };
+}
+
+export const ImportRow: MessageFns<ImportRow> = {
+  encode(message: ImportRow, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.line !== 0) {
+      writer.uint32(8).int32(message.line);
+    }
+    if (message.documentType !== "") {
+      writer.uint32(18).string(message.documentType);
+    }
+    if (message.documentNumber !== "") {
+      writer.uint32(26).string(message.documentNumber);
+    }
+    if (message.paternalSurname !== "") {
+      writer.uint32(34).string(message.paternalSurname);
+    }
+    if (message.maternalSurname !== "") {
+      writer.uint32(42).string(message.maternalSurname);
+    }
+    if (message.givenNames !== "") {
+      writer.uint32(50).string(message.givenNames);
+    }
+    if (message.birthDate !== "") {
+      writer.uint32(58).string(message.birthDate);
+    }
+    if (message.sex !== "") {
+      writer.uint32(66).string(message.sex);
+    }
+    if (message.email !== "") {
+      writer.uint32(74).string(message.email);
+    }
+    if (message.phone !== "") {
+      writer.uint32(82).string(message.phone);
+    }
+    if (message.cycle !== "") {
+      writer.uint32(90).string(message.cycle);
+    }
+    if (message.grade !== "") {
+      writer.uint32(98).string(message.grade);
+    }
+    if (message.section !== "") {
+      writer.uint32(106).string(message.section);
+    }
+    if (message.kind !== "") {
+      writer.uint32(114).string(message.kind);
+    }
+    if (message.origin !== "") {
+      writer.uint32(122).string(message.origin);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): ImportRow {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseImportRow();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 8) {
+              break;
+            }
+
+            message.line = reader.int32();
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.documentType = reader.string();
+            continue;
+          }
+          case 3: {
+            if (tag !== 26) {
+              break;
+            }
+
+            message.documentNumber = reader.string();
+            continue;
+          }
+          case 4: {
+            if (tag !== 34) {
+              break;
+            }
+
+            message.paternalSurname = reader.string();
+            continue;
+          }
+          case 5: {
+            if (tag !== 42) {
+              break;
+            }
+
+            message.maternalSurname = reader.string();
+            continue;
+          }
+          case 6: {
+            if (tag !== 50) {
+              break;
+            }
+
+            message.givenNames = reader.string();
+            continue;
+          }
+          case 7: {
+            if (tag !== 58) {
+              break;
+            }
+
+            message.birthDate = reader.string();
+            continue;
+          }
+          case 8: {
+            if (tag !== 66) {
+              break;
+            }
+
+            message.sex = reader.string();
+            continue;
+          }
+          case 9: {
+            if (tag !== 74) {
+              break;
+            }
+
+            message.email = reader.string();
+            continue;
+          }
+          case 10: {
+            if (tag !== 82) {
+              break;
+            }
+
+            message.phone = reader.string();
+            continue;
+          }
+          case 11: {
+            if (tag !== 90) {
+              break;
+            }
+
+            message.cycle = reader.string();
+            continue;
+          }
+          case 12: {
+            if (tag !== 98) {
+              break;
+            }
+
+            message.grade = reader.string();
+            continue;
+          }
+          case 13: {
+            if (tag !== 106) {
+              break;
+            }
+
+            message.section = reader.string();
+            continue;
+          }
+          case 14: {
+            if (tag !== 114) {
+              break;
+            }
+
+            message.kind = reader.string();
+            continue;
+          }
+          case 15: {
+            if (tag !== 122) {
+              break;
+            }
+
+            message.origin = reader.string();
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+};
+
+function createBaseImportResult(): ImportResult {
+  return { line: 0, status: "", studentName: "", placement: "", known: false, message: "" };
+}
+
+export const ImportResult: MessageFns<ImportResult> = {
+  encode(message: ImportResult, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.line !== 0) {
+      writer.uint32(8).int32(message.line);
+    }
+    if (message.status !== "") {
+      writer.uint32(18).string(message.status);
+    }
+    if (message.studentName !== "") {
+      writer.uint32(26).string(message.studentName);
+    }
+    if (message.placement !== "") {
+      writer.uint32(34).string(message.placement);
+    }
+    if (message.known !== false) {
+      writer.uint32(40).bool(message.known);
+    }
+    if (message.message !== "") {
+      writer.uint32(50).string(message.message);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): ImportResult {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseImportResult();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 8) {
+              break;
+            }
+
+            message.line = reader.int32();
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.status = reader.string();
+            continue;
+          }
+          case 3: {
+            if (tag !== 26) {
+              break;
+            }
+
+            message.studentName = reader.string();
+            continue;
+          }
+          case 4: {
+            if (tag !== 34) {
+              break;
+            }
+
+            message.placement = reader.string();
+            continue;
+          }
+          case 5: {
+            if (tag !== 40) {
+              break;
+            }
+
+            message.known = reader.bool();
+            continue;
+          }
+          case 6: {
+            if (tag !== 50) {
+              break;
+            }
+
+            message.message = reader.string();
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+};
+
+function createBaseImportSection(): ImportSection {
+  return { sectionId: "", label: "", capacity: 0, before: 0, incoming: 0, after: 0 };
+}
+
+export const ImportSection: MessageFns<ImportSection> = {
+  encode(message: ImportSection, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.sectionId !== "") {
+      writer.uint32(10).string(message.sectionId);
+    }
+    if (message.label !== "") {
+      writer.uint32(18).string(message.label);
+    }
+    if (message.capacity !== 0) {
+      writer.uint32(24).int32(message.capacity);
+    }
+    if (message.before !== 0) {
+      writer.uint32(32).int32(message.before);
+    }
+    if (message.incoming !== 0) {
+      writer.uint32(40).int32(message.incoming);
+    }
+    if (message.after !== 0) {
+      writer.uint32(48).int32(message.after);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): ImportSection {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseImportSection();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.sectionId = reader.string();
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.label = reader.string();
+            continue;
+          }
+          case 3: {
+            if (tag !== 24) {
+              break;
+            }
+
+            message.capacity = reader.int32();
+            continue;
+          }
+          case 4: {
+            if (tag !== 32) {
+              break;
+            }
+
+            message.before = reader.int32();
+            continue;
+          }
+          case 5: {
+            if (tag !== 40) {
+              break;
+            }
+
+            message.incoming = reader.int32();
+            continue;
+          }
+          case 6: {
+            if (tag !== 48) {
+              break;
+            }
+
+            message.after = reader.int32();
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+};
+
+function createBaseImportRollRequest(): ImportRollRequest {
+  return { institutionSlug: "", periodId: "", rows: [], commit: false };
+}
+
+export const ImportRollRequest: MessageFns<ImportRollRequest> = {
+  encode(message: ImportRollRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.institutionSlug !== "") {
+      writer.uint32(10).string(message.institutionSlug);
+    }
+    if (message.periodId !== "") {
+      writer.uint32(18).string(message.periodId);
+    }
+    for (const v of message.rows) {
+      ImportRow.encode(v!, writer.uint32(26).fork()).join();
+    }
+    if (message.commit !== false) {
+      writer.uint32(32).bool(message.commit);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): ImportRollRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseImportRollRequest();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.institutionSlug = reader.string();
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.periodId = reader.string();
+            continue;
+          }
+          case 3: {
+            if (tag !== 26) {
+              break;
+            }
+
+            message.rows.push(ImportRow.decode(reader, reader.uint32()));
+            continue;
+          }
+          case 4: {
+            if (tag !== 32) {
+              break;
+            }
+
+            message.commit = reader.bool();
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+};
+
+function createBaseImportRollResponse(): ImportRollResponse {
+  return {
+    rows: [],
+    sections: [],
+    total: 0,
+    ready: 0,
+    skipped: 0,
+    errors: 0,
+    created: 0,
+    enrolled: 0,
+    committed: false,
+    periodBefore: 0,
+    periodAfter: 0,
+  };
+}
+
+export const ImportRollResponse: MessageFns<ImportRollResponse> = {
+  encode(message: ImportRollResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    for (const v of message.rows) {
+      ImportResult.encode(v!, writer.uint32(10).fork()).join();
+    }
+    for (const v of message.sections) {
+      ImportSection.encode(v!, writer.uint32(18).fork()).join();
+    }
+    if (message.total !== 0) {
+      writer.uint32(24).int32(message.total);
+    }
+    if (message.ready !== 0) {
+      writer.uint32(32).int32(message.ready);
+    }
+    if (message.skipped !== 0) {
+      writer.uint32(40).int32(message.skipped);
+    }
+    if (message.errors !== 0) {
+      writer.uint32(48).int32(message.errors);
+    }
+    if (message.created !== 0) {
+      writer.uint32(56).int32(message.created);
+    }
+    if (message.enrolled !== 0) {
+      writer.uint32(64).int32(message.enrolled);
+    }
+    if (message.committed !== false) {
+      writer.uint32(72).bool(message.committed);
+    }
+    if (message.periodBefore !== 0) {
+      writer.uint32(80).int32(message.periodBefore);
+    }
+    if (message.periodAfter !== 0) {
+      writer.uint32(88).int32(message.periodAfter);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): ImportRollResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseImportRollResponse();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.rows.push(ImportResult.decode(reader, reader.uint32()));
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.sections.push(ImportSection.decode(reader, reader.uint32()));
+            continue;
+          }
+          case 3: {
+            if (tag !== 24) {
+              break;
+            }
+
+            message.total = reader.int32();
+            continue;
+          }
+          case 4: {
+            if (tag !== 32) {
+              break;
+            }
+
+            message.ready = reader.int32();
+            continue;
+          }
+          case 5: {
+            if (tag !== 40) {
+              break;
+            }
+
+            message.skipped = reader.int32();
+            continue;
+          }
+          case 6: {
+            if (tag !== 48) {
+              break;
+            }
+
+            message.errors = reader.int32();
+            continue;
+          }
+          case 7: {
+            if (tag !== 56) {
+              break;
+            }
+
+            message.created = reader.int32();
+            continue;
+          }
+          case 8: {
+            if (tag !== 64) {
+              break;
+            }
+
+            message.enrolled = reader.int32();
+            continue;
+          }
+          case 9: {
+            if (tag !== 72) {
+              break;
+            }
+
+            message.committed = reader.bool();
+            continue;
+          }
+          case 10: {
+            if (tag !== 80) {
+              break;
+            }
+
+            message.periodBefore = reader.int32();
+            continue;
+          }
+          case 11: {
+            if (tag !== 88) {
+              break;
+            }
+
+            message.periodAfter = reader.int32();
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+};
+
 export type PeopleServiceService = typeof PeopleServiceService;
 export const PeopleServiceService = {
   /** Names and rules of the institution, its structure and periods */
@@ -6819,6 +7545,19 @@ export const PeopleServiceService = {
       Buffer.from(SetSiagieStatusResponse.encode(value).finish()),
     responseDeserialize: (value: Buffer): SetSiagieStatusResponse => SetSiagieStatusResponse.decode(value),
   },
+  /**
+   * Loads the real roll from a spreadsheet (phase E9): commit=false checks every row and reconciles the totals per
+   * section; commit=true imports, and only when the check has no errors
+   */
+  importRoll: {
+    path: "/joseph.people.v1.PeopleService/ImportRoll" as const,
+    requestStream: false as const,
+    responseStream: false as const,
+    requestSerialize: (value: ImportRollRequest): Buffer => Buffer.from(ImportRollRequest.encode(value).finish()),
+    requestDeserialize: (value: Buffer): ImportRollRequest => ImportRollRequest.decode(value),
+    responseSerialize: (value: ImportRollResponse): Buffer => Buffer.from(ImportRollResponse.encode(value).finish()),
+    responseDeserialize: (value: Buffer): ImportRollResponse => ImportRollResponse.decode(value),
+  },
 } as const;
 
 export interface PeopleServiceServer extends UntypedServiceImplementation {
@@ -6858,6 +7597,11 @@ export interface PeopleServiceServer extends UntypedServiceImplementation {
   setReligionExemption: handleUnaryCall<SetReligionExemptionRequest, SetReligionExemptionResponse>;
   listRoll: handleUnaryCall<ListRollRequest, ListRollResponse>;
   setSiagieStatus: handleUnaryCall<SetSiagieStatusRequest, SetSiagieStatusResponse>;
+  /**
+   * Loads the real roll from a spreadsheet (phase E9): commit=false checks every row and reconciles the totals per
+   * section; commit=true imports, and only when the check has no errors
+   */
+  importRoll: handleUnaryCall<ImportRollRequest, ImportRollResponse>;
 }
 
 export interface PeopleServiceClient extends Client {
@@ -7260,6 +8004,25 @@ export interface PeopleServiceClient extends Client {
     metadata: Metadata,
     options: Partial<CallOptions>,
     callback: (error: ServiceError | null, response: SetSiagieStatusResponse) => void,
+  ): ClientUnaryCall;
+  /**
+   * Loads the real roll from a spreadsheet (phase E9): commit=false checks every row and reconciles the totals per
+   * section; commit=true imports, and only when the check has no errors
+   */
+  importRoll(
+    request: ImportRollRequest,
+    callback: (error: ServiceError | null, response: ImportRollResponse) => void,
+  ): ClientUnaryCall;
+  importRoll(
+    request: ImportRollRequest,
+    metadata: Metadata,
+    callback: (error: ServiceError | null, response: ImportRollResponse) => void,
+  ): ClientUnaryCall;
+  importRoll(
+    request: ImportRollRequest,
+    metadata: Metadata,
+    options: Partial<CallOptions>,
+    callback: (error: ServiceError | null, response: ImportRollResponse) => void,
   ): ClientUnaryCall;
 }
 

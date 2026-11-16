@@ -39,4 +39,5 @@ export const peopleRpc = {
   setReligionExemption: rpc((c) => c.setReligionExemption),
   roll: rpc((c) => c.listRoll),
   setSiagieStatus: rpc((c) => c.setSiagieStatus),
+  importRoll: rpc((c) => c.importRoll),
 };

@@ -1,4 +1,4 @@
-import { Accessibility, Activity, Award, BadgeCheck, Bell, BellRing, BookOpen, Brain, Briefcase, CalendarDays, CalendarRange, ChartColumn, CircleUserRound, ClipboardCheck, ClipboardList, ClipboardPen, Clock, FileCheck, FileSearch, FileSpreadsheet, FileText, FolderOpen, GraduationCap, HandHeart, Handshake, HeartHandshake, Home, IdCard, Layers, LayoutDashboard, Library, LibraryBig, MessagesSquare, MonitorPlay, NotebookText, Scale, School, ScrollText, Settings, Shapes, ShieldAlert, ShieldCheck, Trophy, UserCheck, UserCog, Users, UsersRound, Wallet } from 'lucide';
+import { Accessibility, Activity, Award, BadgeCheck, Bell, BellRing, BookOpen, Brain, Briefcase, CalendarDays, CalendarRange, ChartColumn, CircleUserRound, ClipboardCheck, ClipboardList, ClipboardPen, Clock, FileCheck, FileSearch, FileSpreadsheet, FileText, FileUp, FolderOpen, GraduationCap, HandHeart, Handshake, HeartHandshake, Home, IdCard, Layers, LayoutDashboard, Library, LibraryBig, MessagesSquare, MonitorPlay, NotebookText, Scale, School, ScrollText, Settings, Shapes, ShieldAlert, ShieldCheck, Trophy, UserCheck, UserCog, Users, UsersRound, Wallet } from 'lucide';
 import type { InstitutionType, Management, NavLabel, NavSection } from '../types';
 
 export const DASHBOARD_PATH = '/dashboard';
@@ -39,6 +39,7 @@ export const dashboardNavigation: NavSection[] = [
           { label: { default: 'Matrícula', CEPRE: 'Inscripción por ciclo' }, icon: ClipboardList, href: path('enrollment'), module: 'enrollment' },
           { label: 'Ubicación y convalidación', icon: FileSearch, href: path('enrollment/placement'), module: 'placement' },
           { label: 'Nómina y SIAGIE', icon: FileSpreadsheet, href: path('enrollment/roll'), module: 'roll' },
+          { label: 'Importar nómina', icon: FileUp, href: path('enrollment/import'), module: 'enrollment' },
         ],
       },
       {
