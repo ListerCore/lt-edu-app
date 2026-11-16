@@ -73,10 +73,19 @@ ws.onmessage = (m) => {
     pending.delete(d.id);
   }
 };
+// Every command answers or gives up after 45 s (a page that hangs Chrome must not stop the walkthrough)
 const send = (method, params = {}) =>
   new Promise((r) => {
     const i = ++id;
-    pending.set(i, r);
+    const timer = setTimeout(() => {
+      pending.delete(i);
+      problems.push(`timeout: ${method}`);
+      r({});
+    }, 45_000);
+    pending.set(i, (d) => {
+      clearTimeout(timer);
+      r(d);
+    });
     ws.send(JSON.stringify({ id: i, method, params }));
   });
 const evaluate = async (expression) => (await send('Runtime.evaluate', { expression, awaitPromise: true, returnByValue: true })).result?.result?.value;
@@ -136,6 +145,8 @@ for (const role of roles) {
           if (shot.result?.data) writeFileSync(join(out, file), Buffer.from(shot.result.data, 'base64'));
         }
         results.push({ role, path, viewport, theme, title: screen?.title ?? '', denied: Boolean(screen?.denied), issues });
+        // Kept as it goes, so a stopped run still leaves what it saw
+        writeFileSync(join(out, 'report.json'), JSON.stringify(results, null, 2));
         if (issues.length) console.log(`  ✗ ${path} ${viewport}/${theme}: ${issues[0]}`);
       }
     }
