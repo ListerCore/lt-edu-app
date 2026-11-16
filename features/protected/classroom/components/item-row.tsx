@@ -7,7 +7,7 @@ import { MorphIcon } from '@/components/ui/morph-icon';
 import { ConfirmDelete } from '@/features/protected/academic/components/academic-ui';
 import { AttachmentsPanel } from '@/features/protected/attachments/components/attachments-panel';
 import { cn } from '@/lib/utils';
-import { assessmentPath, itemKinds, materialCategories } from '../data/classroom-data';
+import { assessmentPath, forumPath, itemKinds, materialCategories } from '../data/classroom-data';
 import { useRecordView } from '../hooks/use-record-view';
 import type { ItemRowProps } from '../types';
 
@@ -104,7 +104,12 @@ export const ItemRow = ({ item, roomId, index, count, canEdit, family, live, isM
               {family ? (item.kind === 'quiz' ? 'Ir al cuestionario' : 'Ir a la tarea') : canEdit ? 'Configurar y calificar' : 'Ver entregas'}
             </Link>
           )}
-          {item.kind !== 'quiz' && item.kind !== 'task' && (item.kind === 'file' || item.files > 0 || (canEdit && !item.libraryItemId)) && (
+          {item.kind === 'forum' && (
+            <Link href={forumPath(roomId, item.id)} onClick={(): void => recordView(item.id)} className="btn-brand inline-flex h-9 px-4 text-sm">
+              {family ? 'Entrar al foro' : 'Abrir y moderar el foro'}
+            </Link>
+          )}
+          {item.kind !== 'quiz' && item.kind !== 'task' && item.kind !== 'forum' && (item.kind === 'file' || item.files > 0 || (canEdit && !item.libraryItemId)) && (
             <AttachmentsPanel
               ownerKind={ownerKind}
               ownerId={ownerId}

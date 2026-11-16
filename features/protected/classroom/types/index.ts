@@ -1,8 +1,8 @@
 import type { IconInput } from 'morphicons/react';
-import type { Answer, Assessment, Competency, Delivery, Item, LibraryItem, Period, Question, Room, RosterRow, Submission, Unit } from '@/lib/api/grpc/gen/joseph/classroom/v1/classroom';
+import type { Answer, Assessment, Competency, Delivery, Forum, Item, LibraryItem, Participation, Period, Post, Question, Room, RosterRow, Submission, Thread, Unit } from '@/lib/api/grpc/gen/joseph/classroom/v1/classroom';
 import type { AcademicResult, FormState, RemoteState } from '@/features/protected/academic/types';
 
-export type { AcademicResult, Answer, Assessment, Competency, Delivery, FormState, Item, LibraryItem, Period, Question, RemoteState, Room, RosterRow, Submission, Unit };
+export type { AcademicResult, Answer, Assessment, Competency, Delivery, Forum, FormState, Item, LibraryItem, Participation, Period, Post, Question, RemoteState, Room, RosterRow, Submission, Thread, Unit };
 
 // manager: every room · teacher: their rooms · reader: reads all · family: a student's rooms
 export type ClassroomMode = 'manager' | 'teacher' | 'reader' | 'family';
@@ -432,4 +432,67 @@ export interface SubmissionReviewProps {
   assessment: Assessment;
   competencies: Competency[];
   submission: Submission;
+}
+
+// ---------- forums ----------
+
+export interface ForumData {
+  forum: Forum;
+  threads: Thread[];
+  canPost: boolean;
+  canModerate: boolean;
+  myUserId: string;
+  newPosts: number;
+  participation: Participation[];
+}
+
+export interface ForumPageState extends RemoteState<ForumData> {
+  // Students with no post yet, for the teacher's nudge
+  silent: number;
+  post: (body: string, parentId: string) => Promise<boolean>;
+  isPosting: boolean;
+  edit: (postId: string, body: string) => Promise<boolean>;
+  remove: (postId: string) => void;
+  togglePin: (post: Post) => void;
+  show: (post: Post) => void;
+  setClosed: (closed: boolean) => void;
+  setKind: (kind: string) => void;
+  busyId: string | null;
+}
+
+export interface UseModeratePostResult {
+  hide: (post: Post, reason: string) => Promise<boolean>;
+  isHiding: boolean;
+}
+
+export interface ForumPageProps {
+  roomId: string;
+  itemId: string;
+}
+
+export interface PostCardProps {
+  post: Post;
+  isMine: boolean;
+  canModerate: boolean;
+  busy: boolean;
+  reply?: boolean;
+  onEdit: (body: string) => Promise<boolean>;
+  onDelete: () => void;
+  onPin: () => void;
+  onHide: () => void;
+  onShow: () => void;
+}
+
+export interface PostComposerProps {
+  placeholder: string;
+  submitLabel: string;
+  isPosting: boolean;
+  compact?: boolean;
+  onSubmit: (body: string) => Promise<boolean>;
+}
+
+export interface HidePostDialogProps {
+  post: Post;
+  onClose: () => void;
+  onHidden: () => void;
 }

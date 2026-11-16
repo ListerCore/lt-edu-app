@@ -38,4 +38,10 @@ export const classroomRpc = {
   gradeSubmission: classroom((c) => c.gradeSubmission),
   setExtension: classroom((c) => c.setExtension),
   recordLevels: classroom((c) => c.recordLevels),
+  forum: classroom((c) => c.getForum),
+  saveForum: classroom((c) => c.saveForum),
+  createPost: classroom((c) => c.createPost),
+  editPost: classroom((c) => c.editPost),
+  deletePost: classroom((c) => c.deletePost),
+  moderatePost: classroom((c) => c.moderatePost),
 };

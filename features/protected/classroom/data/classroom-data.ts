@@ -1,4 +1,4 @@
-import { CalendarClock, ClipboardCheck, FilePen, FileText, Link2, ListChecks, Paperclip, PlayCircle } from 'lucide';
+import { CalendarClock, ClipboardCheck, FilePen, FileText, Link2, ListChecks, MessagesSquare, Paperclip, PlayCircle } from 'lucide';
 import { DASHBOARD_PATH } from '@/features/protected/dashboard/data/dashboard-navigation';
 import type { ItemKindMeta } from '../types';
 
@@ -18,8 +18,20 @@ export const itemKinds: Record<string, ItemKindMeta> = {
   live: { label: 'Sesión en vivo', icon: CalendarClock, hint: 'Videollamada con fecha y hora; la asistencia se registra al entrar desde aquí.' },
   activity: { label: 'Actividad', icon: ListChecks, hint: 'Indicaciones de un trabajo para la semana.' },
   quiz: { label: 'Cuestionario', icon: ClipboardCheck, hint: 'Preguntas que el estudiante responde en línea; las cerradas se califican solas. Configúralo después de crearlo.' },
+  forum: { label: 'Foro', icon: MessagesSquare, hint: 'Un espacio para conversar sobre la unidad. Escribe la pregunta o la consigna en las indicaciones.' },
   task: { label: 'Tarea', icon: FilePen, hint: 'Un trabajo que el estudiante entrega con archivos. Configura fechas y competencias después de crearlo.' },
 };
+
+export const forumPath = (roomId: string, itemId: string): string => `${CLASSROOM_PATH}/${roomId}/forums/${itemId}`;
+
+export const forumKindLabels: Record<string, string> = { debate: 'Debate', questions: 'Consultas al docente', intro: 'Presentación' };
+export const forumKindHints: Record<string, string> = {
+  debate: 'Una pregunta para discutir entre todos.',
+  questions: 'Dudas sobre la unidad; el docente responde.',
+  intro: 'Cada estudiante se presenta al grupo.',
+};
+// Roles that read as staff in a forum thread
+export const staffAuthorRoles = ['teacher', 'tutor', 'director', 'academic_coordinator', 'superadmin'];
 
 export const assessmentPath = (roomId: string, itemId: string): string => `${CLASSROOM_PATH}/${roomId}/assessments/${itemId}`;
 

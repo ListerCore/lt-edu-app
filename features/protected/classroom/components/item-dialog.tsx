@@ -26,7 +26,7 @@ export const ItemDialog = ({ unitId, item, onClose, onSaved }: ItemDialogProps):
   const fromLibrary = Boolean(item?.libraryItemId);
   const meta = itemKinds[values.kind];
   const kindOptions = Object.entries(itemKinds).map(([value, k]) => ({ value, label: k.label }));
-  const bodyLabel = values.kind === 'activity' ? 'Indicaciones' : values.kind === 'quiz' || values.kind === 'task' ? 'Indicaciones (opcional)' : values.kind === 'live' ? 'Qué se verá (opcional)' : 'Contenido';
+  const bodyLabel = values.kind === 'activity' ? 'Indicaciones' : values.kind === 'forum' ? 'Pregunta o consigna del foro' : values.kind === 'quiz' || values.kind === 'task' ? 'Indicaciones (opcional)' : values.kind === 'live' ? 'Qué se verá (opcional)' : 'Contenido';
 
   return (
     <FormDialog title={item ? 'Editar material' : 'Agregar material'} description={meta?.hint ?? ''} submitLabel={item ? 'Guardar' : 'Agregar'} isPending={isPending} onSubmit={submit} onClose={onClose} wide>
