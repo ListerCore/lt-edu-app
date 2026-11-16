@@ -52,7 +52,7 @@ export const institutionModules: Record<InstitutionType, ModuleKey[]> = {
   // School: competency grades, report cards, official certificates and the parents' school
   EBR: [...coreModules, 'grades', 'report-cards', 'closing', 'certificates', 'psychology', 'discipline', 'parent-school', 'apafa'],
   // CEBA: attention modes (in person, blended, distance), placement and validation tests, certificates
-  EBA: [...coreModules, 'attention-modes', 'placement', 'classroom', 'classroom-library', 'grades', 'report-cards', 'closing', 'certificates', 'psychology', 'discipline', 'apafa'],
+  EBA: [...coreModules, 'attention-modes', 'placement', 'roll', 'classroom', 'classroom-library', 'grades', 'report-cards', 'closing', 'certificates', 'psychology', 'discipline', 'apafa'],
   // CEBE: levels per competency against the adaptations of each POI, individual plans, progress reports, therapies and
   // inclusion support (SAANEE)
   EBE: [...coreModules, 'grades', 'report-cards', 'closing', 'individual-plans', 'progress-reports', 'therapies', 'inclusion-support', 'psychology', 'discipline', 'parent-school', 'apafa'],
@@ -157,6 +157,7 @@ export const rolePermissions: Record<Role, RolePermissions> = {
     structure: ALL,
     'attention-modes': ALL,
     placement: ALL,
+    roll: ALL,
     'report-cards': ALL,
     closing: ALL,
     'individual-plans': ALL,
@@ -195,7 +196,9 @@ export const rolePermissions: Record<Role, RolePermissions> = {
     account: ['view', 'update'],
     periods: VIEW,
     enrollment: ALL,
-    placement: VIEW,
+    // Secretaría runs the procedures and the SIAGIE upload; the acta is signed by its signers
+    placement: ALL,
+    roll: ALL,
     certificates: ALL,
     degrees: ALL,
     students: ALL,

@@ -32,6 +32,12 @@ export const documentsRpc = {
   generate: documents((c) => c.generateSchedules),
   sign: documents((c) => c.signVersion),
   versionPdf: documents((c) => c.versionPdf),
+  enrollmentForm: documents((c) => c.enrollmentFormPdf),
+  rollPdf: documents((c) => c.rollPdf),
+  rollXlsx: documents((c) => c.rollXlsx),
+  siagieXlsx: documents((c) => c.siagieXlsx),
+  generatePlacementAct: documents((c) => c.generatePlacementAct),
+  placementActPdf: documents((c) => c.placementActPdf),
   track: publicDocuments((c) => c.trackDocument),
   trackPdf: publicDocuments((c) => c.trackPdf),
 };

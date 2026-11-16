@@ -32,6 +32,8 @@ export type ModuleKey =
   | 'certificates'
   | 'attention-modes'
   | 'placement'
+  // EBA: nómina de matrícula and the SIAGIE upload
+  | 'roll'
   | 'individual-plans'
   | 'therapies'
   | 'inclusion-support'

@@ -119,7 +119,16 @@ export const getPlacementsAction = async (slug: string): Promise<AcademicResult<
 
 export const createPlacementAction = async (slug: string, v: PlacementFormValues): Promise<AcademicResult<Placement>> =>
   validIds(v.studentId) && optionalId(v.levelId) && optionalId(v.gradeId)
-    ? runRpc(slug, (token) => peopleRpc.createPlacement({ institutionSlug: slug, ...v, decidedOn: date(v.decidedOn) }, { token }), (d) => d.placement, 'Registrado.')
+    ? runRpc(
+        slug,
+        (token) =>
+          peopleRpc.createPlacement(
+            { institutionSlug: slug, ...v, decidedOn: date(v.decidedOn), origin: v.origin.slice(0, 160), originStudies: v.originStudies.slice(0, 160), subjectIds: v.subjectIds.filter((id) => validIds(id)) },
+            { token },
+          ),
+        (d) => d.placement,
+        'Registrado.',
+      )
     : { ok: false, message: 'Revisa los datos del formulario.', fields: { studentId: 'Elige un estudiante.' } };
 
 export const deletePlacementAction = async (slug: string, id: string): Promise<AcademicResult<null>> =>
