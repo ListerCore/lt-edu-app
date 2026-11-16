@@ -3,7 +3,7 @@
 import { useEffect, useRef, useSyncExternalStore } from 'react';
 
 // What joseph-api publishes on the live stream (internal/core/service/live_service.go); ids only, never personal data
-export type LiveEventType = 'system.ping' | 'announcement.published' | 'announcement.updated' | 'announcement.deleted' | 'academic.changed' | 'people.changed' | 'attendance.changed' | 'assessment.changed' | 'exams.changed' | 'programs.changed' | 'finance.changed' | 'wellbeing.changed' | 'apafa.changed' | 'institution.changed';
+export type LiveEventType = 'system.ping' | 'announcement.published' | 'announcement.updated' | 'announcement.deleted' | 'academic.changed' | 'people.changed' | 'attendance.changed' | 'assessment.changed' | 'exams.changed' | 'programs.changed' | 'finance.changed' | 'wellbeing.changed' | 'apafa.changed' | 'institution.changed' | 'classroom.changed';
 
 // Any change to announcements (published, edited or deleted)
 export const isAnnouncementEvent = (type: LiveEvent['type']): boolean => type.startsWith('announcement.');
@@ -37,6 +37,9 @@ export const isApafaEvent = (type: LiveEvent['type']): boolean => type === 'apaf
 
 // Institution file: authorizations, platform sheet or staff access changed (data.area)
 export const isInstitutionEvent = (type: LiveEvent['type']): boolean => type === 'institution.changed';
+
+// Virtual classroom: rooms, units, material, library or deliveries changed (data.area, data.room)
+export const isClassroomEvent = (type: LiveEvent['type']): boolean => type === 'classroom.changed';
 
 // "resync" is local: the socket came back after a drop, so whatever happened meanwhile must be refetched
 export interface LiveEvent {

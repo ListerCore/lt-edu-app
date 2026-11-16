@@ -51,7 +51,10 @@ export type ModuleKey =
   | 'users'
   | 'audit'
   // APAFA (parents' association) meetings and board: public institutions of Educación Básica only
-  | 'apafa';
+  | 'apafa'
+  // Virtual classroom (CEBA, phase E2): rooms and material, and the institution's library
+  | 'classroom'
+  | 'classroom-library';
 
 export type PermissionAction = 'view' | 'create' | 'update' | 'delete' | 'export';
 

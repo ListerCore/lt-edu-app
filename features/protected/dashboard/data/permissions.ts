@@ -52,7 +52,7 @@ export const institutionModules: Record<InstitutionType, ModuleKey[]> = {
   // School: competency grades, report cards, official certificates and the parents' school
   EBR: [...coreModules, 'grades', 'report-cards', 'closing', 'certificates', 'psychology', 'discipline', 'parent-school', 'apafa'],
   // CEBA: attention modes (in person, blended, distance), placement and validation tests, certificates
-  EBA: [...coreModules, 'attention-modes', 'placement', 'grades', 'report-cards', 'closing', 'certificates', 'psychology', 'discipline', 'apafa'],
+  EBA: [...coreModules, 'attention-modes', 'placement', 'classroom', 'classroom-library', 'grades', 'report-cards', 'closing', 'certificates', 'psychology', 'discipline', 'apafa'],
   // CEBE: levels per competency against the adaptations of each POI, individual plans, progress reports, therapies and
   // inclusion support (SAANEE)
   EBE: [...coreModules, 'grades', 'report-cards', 'closing', 'individual-plans', 'progress-reports', 'therapies', 'inclusion-support', 'psychology', 'discipline', 'parent-school', 'apafa'],
@@ -114,6 +114,9 @@ const teacherPermissions: RolePermissions = {
   'question-bank': EDIT,
   'study-materials': EDIT,
   internships: EDIT,
+  // Teachers build the virtual classroom of the subjects they teach (the API checks which rooms)
+  classroom: EDIT,
+  'classroom-library': EDIT,
   cards: VIEW,
   announcements: ['view', 'create'],
   // Teachers report faults and refer students to psychology (they see the status of their referrals)
@@ -135,6 +138,7 @@ const studentPermissions: RolePermissions = {
   rankings: VIEW,
   'study-materials': VIEW,
   internships: VIEW,
+  classroom: VIEW,
   certificates: VIEW,
   cards: VIEW,
   announcements: VIEW,
@@ -182,6 +186,8 @@ export const rolePermissions: Record<Role, RolePermissions> = {
     apafa: VIEW,
     // Reads the institution file (authorizations, platform sheet); dirección records it
     institution: VIEW,
+    classroom: ALL,
+    'classroom-library': ALL,
   },
   secretary: {
     home: VIEW,
@@ -205,6 +211,7 @@ export const rolePermissions: Record<Role, RolePermissions> = {
     // Convenes the APAFA meetings, records the acta and keeps the board (with dirección)
     apafa: ALL,
     institution: VIEW,
+    classroom: VIEW,
   },
   teacher: teacherPermissions,
   tutor: { ...teacherPermissions, tutoring: ALL, wellbeing: ['view', 'create'], discipline: EDIT, 'parent-school': EDIT },
@@ -254,6 +261,9 @@ export const rolePermissions: Record<Role, RolePermissions> = {
     'attention-modes': VIEW,
     periods: VIEW,
     announcements: VIEW,
+    // Reads the virtual classroom: evidence of the Anexo 2 for the DRE reports
+    classroom: VIEW,
+    'classroom-library': VIEW,
   },
   student: studentPermissions,
   // Families read the APAFA meetings of their institution once convened, with the agenda, the acta and the documents

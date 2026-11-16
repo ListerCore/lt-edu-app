@@ -1,4 +1,6 @@
 import {
+  LibraryBig,
+  MonitorPlay,
   Accessibility,
   Activity,
   Award,
@@ -98,6 +100,14 @@ export const dashboardNavigation: NavSection[] = [
         ],
       },
       { label: 'Material de estudio', icon: FolderOpen, href: path('study-materials'), module: 'study-materials' },
+      {
+        label: 'Aula virtual',
+        icon: MonitorPlay,
+        children: [
+          { label: 'Aulas', icon: MonitorPlay, href: path('classroom'), module: 'classroom' },
+          { label: 'Biblioteca', icon: LibraryBig, href: path('classroom/library'), module: 'classroom-library' },
+        ],
+      },
       {
         label: 'Certificación',
         icon: BadgeCheck,
