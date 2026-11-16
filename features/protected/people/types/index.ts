@@ -3,6 +3,19 @@ import type { RemoteState } from '@/features/protected/academic/types';
 import type { Subject } from '@/lib/api/grpc/gen/joseph/academic/v1/curriculum';
 import type { Enrollment, EnrollmentFile, Guardian, Placement, RollFilter, RollRow, SectionOccupancy, Student, StudentDetail } from '@/lib/api/grpc/gen/joseph/people/v1/people';
 
+import type { GetStudentCertificatesResponse, StudentCertificate, StudyRecord } from '@/lib/api/grpc/gen/joseph/documents/v1/documents';
+
+export type { GetStudentCertificatesResponse as CertificateBoard, StudentCertificate, StudyRecord };
+
+// A constancia to issue: enrollment (periodId), studies, or conclusion of a cycle (levelId)
+export interface CertificateInput {
+  studentId: string;
+  kind: 'enrollment' | 'studies' | 'cycle';
+  periodId: string;
+  levelId: string;
+  purpose: string;
+}
+
 export type { AcademicContext, Enrollment, EnrollmentFile, Guardian, Level, Period, Placement, RollFilter, RollRow, Section, SectionOccupancy, Student, StudentDetail, Subject };
 
 export interface PeopleContextData {

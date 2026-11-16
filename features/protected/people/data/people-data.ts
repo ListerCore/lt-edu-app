@@ -45,6 +45,10 @@ export const equivalenceOrigins: Record<string, string> = { ebr_primaria: 'Prima
 // State of the acta's newest version
 export const actStatusLabels: Record<string, string> = { pending: 'Pendiente de firma', published: 'Firmada', superseded: 'Reemplazada', cancelled: 'Anulada' };
 export const actStatusClass: Record<string, string> = { pending: 'bg-warning/12 text-warning', published: 'bg-success/12 text-success', superseded: 'bg-secondary text-muted-foreground', cancelled: 'bg-secondary text-muted-foreground' };
+// Constancias (phase E7)
+export const certificateKindLabels: Record<string, string> = { enrollment: 'Constancia de matrícula', studies: 'Constancia de estudios', cycle: 'Constancia de conclusión de ciclo' };
+export const studySituationLabels: Record<string, string> = { PRO: 'Promovido', PER: 'Permanece en el grado', RR: 'Recuperación pedagógica' };
+
 export const actCode = (year: number, number: number): string => `N.° ${String(number).padStart(3, '0')}-${year}`;
 
 // ---------- ficha única (EBA) ----------
