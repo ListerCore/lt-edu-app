@@ -24,6 +24,9 @@ service DocumentsService {
   // Acta de ubicación o convalidación: a version for its signers (sign with SignVersion), and its PDF
   rpc GeneratePlacementAct(GeneratePlacementActRequest) returns (GeneratePlacementActResponse);
   rpc PlacementActPdf(PlacementActPdfRequest) returns (PlacementActPdfResponse);
+  // Permanence of a distance section (phase E5): summary PDF and the spreadsheet with every week
+  rpc PermanencePdf(PermanencePdfRequest) returns (PermanencePdfResponse);
+  rpc PermanenceXlsx(PermanenceXlsxRequest) returns (PermanenceXlsxResponse);
 
   // Every class of a period as an Excel workbook (list, week of each section and teacher, legend)
   rpc SchedulesXlsx(SchedulesXlsxRequest) returns (SchedulesXlsxResponse);
@@ -316,5 +319,23 @@ message PlacementActPdfRequest {
 }
 
 message PlacementActPdfResponse {
+  PdfFile file = 1;
+}
+
+message PermanencePdfRequest {
+  string institution_slug = 1;
+  string section_id = 2;
+}
+
+message PermanencePdfResponse {
+  PdfFile file = 1;
+}
+
+message PermanenceXlsxRequest {
+  string institution_slug = 1;
+  string section_id = 2;
+}
+
+message PermanenceXlsxResponse {
   PdfFile file = 1;
 }

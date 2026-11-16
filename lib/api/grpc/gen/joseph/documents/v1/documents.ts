@@ -305,6 +305,24 @@ export interface PlacementActPdfResponse {
   file?: PdfFile | undefined;
 }
 
+export interface PermanencePdfRequest {
+  institutionSlug: string;
+  sectionId: string;
+}
+
+export interface PermanencePdfResponse {
+  file?: PdfFile | undefined;
+}
+
+export interface PermanenceXlsxRequest {
+  institutionSlug: string;
+  sectionId: string;
+}
+
+export interface PermanenceXlsxResponse {
+  file?: PdfFile | undefined;
+}
+
 function createBasePdfFile(): PdfFile {
   return { fileName: "", content: Buffer.alloc(0) };
 }
@@ -3232,6 +3250,212 @@ export const PlacementActPdfResponse: MessageFns<PlacementActPdfResponse> = {
   },
 };
 
+function createBasePermanencePdfRequest(): PermanencePdfRequest {
+  return { institutionSlug: "", sectionId: "" };
+}
+
+export const PermanencePdfRequest: MessageFns<PermanencePdfRequest> = {
+  encode(message: PermanencePdfRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.institutionSlug !== "") {
+      writer.uint32(10).string(message.institutionSlug);
+    }
+    if (message.sectionId !== "") {
+      writer.uint32(18).string(message.sectionId);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): PermanencePdfRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBasePermanencePdfRequest();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.institutionSlug = reader.string();
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.sectionId = reader.string();
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+};
+
+function createBasePermanencePdfResponse(): PermanencePdfResponse {
+  return { file: undefined };
+}
+
+export const PermanencePdfResponse: MessageFns<PermanencePdfResponse> = {
+  encode(message: PermanencePdfResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.file !== undefined) {
+      PdfFile.encode(message.file, writer.uint32(10).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): PermanencePdfResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBasePermanencePdfResponse();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.file = PdfFile.decode(reader, reader.uint32());
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+};
+
+function createBasePermanenceXlsxRequest(): PermanenceXlsxRequest {
+  return { institutionSlug: "", sectionId: "" };
+}
+
+export const PermanenceXlsxRequest: MessageFns<PermanenceXlsxRequest> = {
+  encode(message: PermanenceXlsxRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.institutionSlug !== "") {
+      writer.uint32(10).string(message.institutionSlug);
+    }
+    if (message.sectionId !== "") {
+      writer.uint32(18).string(message.sectionId);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): PermanenceXlsxRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBasePermanenceXlsxRequest();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.institutionSlug = reader.string();
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.sectionId = reader.string();
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+};
+
+function createBasePermanenceXlsxResponse(): PermanenceXlsxResponse {
+  return { file: undefined };
+}
+
+export const PermanenceXlsxResponse: MessageFns<PermanenceXlsxResponse> = {
+  encode(message: PermanenceXlsxResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.file !== undefined) {
+      PdfFile.encode(message.file, writer.uint32(10).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): PermanenceXlsxResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBasePermanenceXlsxResponse();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.file = PdfFile.decode(reader, reader.uint32());
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+};
+
 export type DocumentsServiceService = typeof DocumentsServiceService;
 export const DocumentsServiceService = {
   reportCardsPdf: {
@@ -3334,6 +3558,28 @@ export const DocumentsServiceService = {
     responseSerialize: (value: PlacementActPdfResponse): Buffer =>
       Buffer.from(PlacementActPdfResponse.encode(value).finish()),
     responseDeserialize: (value: Buffer): PlacementActPdfResponse => PlacementActPdfResponse.decode(value),
+  },
+  /** Permanence of a distance section (phase E5): summary PDF and the spreadsheet with every week */
+  permanencePdf: {
+    path: "/joseph.documents.v1.DocumentsService/PermanencePdf" as const,
+    requestStream: false as const,
+    responseStream: false as const,
+    requestSerialize: (value: PermanencePdfRequest): Buffer => Buffer.from(PermanencePdfRequest.encode(value).finish()),
+    requestDeserialize: (value: Buffer): PermanencePdfRequest => PermanencePdfRequest.decode(value),
+    responseSerialize: (value: PermanencePdfResponse): Buffer =>
+      Buffer.from(PermanencePdfResponse.encode(value).finish()),
+    responseDeserialize: (value: Buffer): PermanencePdfResponse => PermanencePdfResponse.decode(value),
+  },
+  permanenceXlsx: {
+    path: "/joseph.documents.v1.DocumentsService/PermanenceXlsx" as const,
+    requestStream: false as const,
+    responseStream: false as const,
+    requestSerialize: (value: PermanenceXlsxRequest): Buffer =>
+      Buffer.from(PermanenceXlsxRequest.encode(value).finish()),
+    requestDeserialize: (value: Buffer): PermanenceXlsxRequest => PermanenceXlsxRequest.decode(value),
+    responseSerialize: (value: PermanenceXlsxResponse): Buffer =>
+      Buffer.from(PermanenceXlsxResponse.encode(value).finish()),
+    responseDeserialize: (value: Buffer): PermanenceXlsxResponse => PermanenceXlsxResponse.decode(value),
   },
   /** Every class of a period as an Excel workbook (list, week of each section and teacher, legend) */
   schedulesXlsx: {
@@ -3448,6 +3694,9 @@ export interface DocumentsServiceServer extends UntypedServiceImplementation {
   /** Acta de ubicación o convalidación: a version for its signers (sign with SignVersion), and its PDF */
   generatePlacementAct: handleUnaryCall<GeneratePlacementActRequest, GeneratePlacementActResponse>;
   placementActPdf: handleUnaryCall<PlacementActPdfRequest, PlacementActPdfResponse>;
+  /** Permanence of a distance section (phase E5): summary PDF and the spreadsheet with every week */
+  permanencePdf: handleUnaryCall<PermanencePdfRequest, PermanencePdfResponse>;
+  permanenceXlsx: handleUnaryCall<PermanenceXlsxRequest, PermanenceXlsxResponse>;
   /** Every class of a period as an Excel workbook (list, week of each section and teacher, legend) */
   schedulesXlsx: handleUnaryCall<SchedulesXlsxRequest, SchedulesXlsxResponse>;
   /** Who signs the timetables; managers also get the staff to pick from */
@@ -3618,6 +3867,37 @@ export interface DocumentsServiceClient extends Client {
     metadata: Metadata,
     options: Partial<CallOptions>,
     callback: (error: ServiceError | null, response: PlacementActPdfResponse) => void,
+  ): ClientUnaryCall;
+  /** Permanence of a distance section (phase E5): summary PDF and the spreadsheet with every week */
+  permanencePdf(
+    request: PermanencePdfRequest,
+    callback: (error: ServiceError | null, response: PermanencePdfResponse) => void,
+  ): ClientUnaryCall;
+  permanencePdf(
+    request: PermanencePdfRequest,
+    metadata: Metadata,
+    callback: (error: ServiceError | null, response: PermanencePdfResponse) => void,
+  ): ClientUnaryCall;
+  permanencePdf(
+    request: PermanencePdfRequest,
+    metadata: Metadata,
+    options: Partial<CallOptions>,
+    callback: (error: ServiceError | null, response: PermanencePdfResponse) => void,
+  ): ClientUnaryCall;
+  permanenceXlsx(
+    request: PermanenceXlsxRequest,
+    callback: (error: ServiceError | null, response: PermanenceXlsxResponse) => void,
+  ): ClientUnaryCall;
+  permanenceXlsx(
+    request: PermanenceXlsxRequest,
+    metadata: Metadata,
+    callback: (error: ServiceError | null, response: PermanenceXlsxResponse) => void,
+  ): ClientUnaryCall;
+  permanenceXlsx(
+    request: PermanenceXlsxRequest,
+    metadata: Metadata,
+    options: Partial<CallOptions>,
+    callback: (error: ServiceError | null, response: PermanenceXlsxResponse) => void,
   ): ClientUnaryCall;
   /** Every class of a period as an Excel workbook (list, week of each section and teacher, legend) */
   schedulesXlsx(

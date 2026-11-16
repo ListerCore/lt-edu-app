@@ -1,0 +1,153 @@
+syntax = "proto3";
+
+// Participation and permanence (docs/ceba/PLAN.md, phase E5). The platform records each action of a student as an
+// activity event (sign-in, material opened, live session, attempt, task handed in, forum post, tutoring); these
+// calls read it: the permanence of the distance sections with the institution's rule (the tutor adjusts a week with
+// a reason) and the participation of each student in a classroom room. Same metadata and institution scoping as
+// joseph.academic.v1
+package joseph.participation.v1;
+
+option go_package = "api/internal/adapter/inbound/grpc/gen/participationv1;participationv1";
+
+// Staff read (not families); dirección and coordinación change the rule; they and the section's tutor adjust
+service ParticipationService {
+  rpc GetPermanenceBoard(GetPermanenceBoardRequest) returns (GetPermanenceBoardResponse);
+  rpc SavePermanenceRule(SavePermanenceRuleRequest) returns (SavePermanenceRuleResponse);
+  rpc GetSectionPermanence(GetSectionPermanenceRequest) returns (GetSectionPermanenceResponse);
+  rpc AdjustPermanence(AdjustPermanenceRequest) returns (AdjustPermanenceResponse);
+  rpc GetRoomParticipation(GetRoomParticipationRequest) returns (GetRoomParticipationResponse);
+}
+
+// A week (window_days) counts when the student was active on min_active_days of its days
+message PermanenceRule {
+  int32 window_days = 1;
+  int32 min_active_days = 2;
+  // Days without activity that raise a dropout alert
+  int32 inactive_days = 3;
+  // Permanence under this percent raises an alert
+  int32 low_percent = 4;
+  string updated_by_name = 5;
+  string updated_at = 6;
+}
+
+message DistanceSection {
+  string id = 1;
+  string name = 2;
+  string level_name = 3;
+  string grade_name = 4;
+  // virtual | itinerant
+  string variant = 5;
+  string tutor_name = 6;
+  int32 students = 7;
+}
+
+message GetPermanenceBoardRequest {
+  string institution_slug = 1;
+  // Empty: the period in course
+  string period_id = 2;
+}
+
+message GetPermanenceBoardResponse {
+  PermanenceRule rule = 1;
+  string period_id = 2;
+  repeated DistanceSection sections = 3;
+  bool can_edit_rule = 4;
+}
+
+message SavePermanenceRuleRequest {
+  string institution_slug = 1;
+  PermanenceRule rule = 2;
+}
+
+message SavePermanenceRuleResponse {
+  PermanenceRule rule = 1;
+}
+
+message PermanenceWindow {
+  // YYYY-MM-DD
+  string start = 1;
+  string end = 2;
+  int32 active_days = 3;
+  bool present = 4;
+  bool adjusted = 5;
+  string reason = 6;
+}
+
+message Activity {
+  int32 active_days = 1;
+  int32 logins = 2;
+  int32 views = 3;
+  int32 live = 4;
+  int32 attempts = 5;
+  int32 submissions = 6;
+  int32 posts = 7;
+  int32 tutoring = 8;
+  string last_at = 9;
+}
+
+message StudentPermanence {
+  string enrollment_id = 1;
+  string student_id = 2;
+  string student_name = 3;
+  string student_code = 4;
+  // Enrollment status: active | withdrawn | transferred | completed
+  string status = 5;
+  repeated PermanenceWindow windows = 6;
+  int32 present = 7;
+  int32 counted = 8;
+  int32 percent = 9;
+  Activity activity = 10;
+  int32 idle_days = 11;
+}
+
+message GetSectionPermanenceRequest {
+  string institution_slug = 1;
+  string section_id = 2;
+}
+
+message GetSectionPermanenceResponse {
+  string label = 1;
+  string period_name = 2;
+  PermanenceRule rule = 3;
+  repeated StudentPermanence students = 4;
+  bool can_adjust = 5;
+  string from = 6;
+  string to = 7;
+}
+
+message AdjustPermanenceRequest {
+  string institution_slug = 1;
+  string enrollment_id = 2;
+  // First day of the window (YYYY-MM-DD)
+  string window_start = 3;
+  bool present = 4;
+  // Removes the adjustment instead
+  bool clear = 5;
+  string reason = 6;
+}
+
+message AdjustPermanenceResponse {}
+
+message RoomParticipation {
+  string student_id = 1;
+  string student_name = 2;
+  string student_code = 3;
+  // Distinct materials opened
+  int32 items_seen = 4;
+  int32 views = 5;
+  int32 live = 6;
+  int32 attempts = 7;
+  int32 submissions = 8;
+  int32 posts = 9;
+  int32 active_days = 10;
+  string last_at = 11;
+}
+
+message GetRoomParticipationRequest {
+  string institution_slug = 1;
+  string room_id = 2;
+}
+
+message GetRoomParticipationResponse {
+  repeated RoomParticipation students = 1;
+}
