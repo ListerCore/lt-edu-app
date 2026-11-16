@@ -49,10 +49,11 @@ const coreModules: ModuleKey[] = ['home', 'notifications', 'account', 'announcem
 
 // Each type adds the modules its academic flow needs (README §2 matrix)
 export const institutionModules: Record<InstitutionType, ModuleKey[]> = {
-  // School: competency grades, report cards, official certificates and the parents' school
-  EBR: [...coreModules, 'grades', 'report-cards', 'closing', 'certificates', 'psychology', 'discipline', 'parent-school', 'apafa'],
-  // CEBA: attention modes (in person, blended, distance), placement and validation tests, certificates
-  EBA: [...coreModules, 'attention-modes', 'placement', 'roll', 'permanence', 'virtual-tutoring', 'compliance', 'classroom', 'classroom-library', 'grades', 'report-cards', 'closing', 'certificates', 'psychology', 'discipline', 'apafa'],
+  // School: competency grades, report cards and the parents' school (the certificates page is the institutes')
+  EBR: [...coreModules, 'grades', 'report-cards', 'closing', 'psychology', 'discipline', 'parent-school', 'apafa'],
+  // CEBA: attention modes (in person, blended, distance), placement and validation tests; its constancias are on
+  // each student (the certificates page is the institutes')
+  EBA: [...coreModules, 'attention-modes', 'placement', 'roll', 'permanence', 'virtual-tutoring', 'compliance', 'classroom', 'classroom-library', 'grades', 'report-cards', 'closing', 'psychology', 'discipline', 'apafa'],
   // CEBE: levels per competency against the adaptations of each POI, individual plans, progress reports, therapies and
   // inclusion support (SAANEE)
   EBE: [...coreModules, 'grades', 'report-cards', 'closing', 'individual-plans', 'progress-reports', 'therapies', 'inclusion-support', 'psychology', 'discipline', 'parent-school', 'apafa'],
@@ -134,10 +135,9 @@ const studentPermissions: RolePermissions = {
   'virtual-tutoring': VIEW,
   notifications: ['view', 'update'],
   account: ['view', 'update'],
-  courses: VIEW,
+  // Courses and the grade sheets are staff's (the API refuses families): students read their report card
   schedules: VIEW,
   'student-attendance': VIEW,
-  grades: VIEW,
   'report-cards': VIEW,
   'mock-exams': VIEW,
   rankings: VIEW,

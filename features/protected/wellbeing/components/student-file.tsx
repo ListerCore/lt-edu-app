@@ -203,10 +203,11 @@ const TutoringTab = ({ slug, f, onChanged }: TabProps): JSX.Element => {
           </ul>
         )}
       </Block>
-      {(f.sessions.length > 0 || f.saanee.length > 0) && (
+      {/* An API older than the app sends neither list */}
+      {((f.sessions?.length ?? 0) > 0 || (f.saanee?.length ?? 0) > 0) && (
         <Block title="Tutoría virtual" empty="">
           <ul className="space-y-2">
-            {f.sessions.map((x) => (
+            {(f.sessions ?? []).map((x) => (
               <li key={x.id} className="flex flex-wrap items-baseline justify-between gap-2 rounded-xl border border-border bg-background px-4 py-2.5 text-sm">
                 <span className="text-foreground">{x.reason}</span>
                 <span className="flex items-center gap-2 text-xs text-muted-foreground">
@@ -215,7 +216,7 @@ const TutoringTab = ({ slug, f, onChanged }: TabProps): JSX.Element => {
                 </span>
               </li>
             ))}
-            {f.saanee.map((x) => (
+            {(f.saanee ?? []).map((x) => (
               <li key={x.id} className="rounded-xl border border-border bg-background px-4 py-2.5 text-sm">
                 <span className="flex flex-wrap items-baseline justify-between gap-2">
                   <span className="font-medium text-foreground">Derivación al SAANEE</span>

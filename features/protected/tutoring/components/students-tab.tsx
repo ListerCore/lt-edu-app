@@ -58,7 +58,7 @@ export const StudentsTab = ({ board, onWrite, onSchedule, onSaanee }: Props): JS
                     </span>
                   </span>
                   <span className="flex flex-wrap gap-1">
-                    {r.alerts.map((a) => (
+                    {[...new Set(r.alerts)].map((a) => (
                       <span key={a} className={cn('pill', alertCodeClass[a])}>
                         {alertCodeLabels[a] ?? a}
                       </span>
