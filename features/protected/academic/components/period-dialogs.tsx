@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, type JSX } from 'react';
+import { Checkbox } from '@/components/ui/checkbox';
 import { FormField } from '@/components/ui/form-field';
 import { Input } from '@/components/ui/input';
 import { createSectionsAction, savePeriodAction, updateSectionAction, updateTermAction } from '../actions/academic-actions';
@@ -152,7 +153,7 @@ interface SectionsDialogProps {
 
 // EBA fields of a section: the form of attention, the program (Alfabetización only in cycles that never go remote, and
 // always in person) and, for the distance form, whether it is online or itinerant
-const EbaSectionFields = <V extends EbaSectionValues>({ idPrefix, levelModes, values, errors, setField }: EbaSectionFieldsProps<V>): JSX.Element => {
+const EbaSectionFields = <V extends EbaSectionValues>({ idPrefix, levelModes, gradeCount, values, errors, setField }: EbaSectionFieldsProps<V>): JSX.Element => {
   const programs = ebaProgramsFor(levelModes);
   const modes = values.program === 'literacy' ? levelModes.filter((m) => m === 'in_person') : levelModes;
   const pickProgram = (program: string): void => {
@@ -180,6 +181,18 @@ const EbaSectionFields = <V extends EbaSectionValues>({ idPrefix, levelModes, va
           />
         </FormField>
       )}
+      {gradeCount > 1 && (
+        <div className="sm:col-span-2">
+          <label htmlFor={`${idPrefix}-multigrade`} className="flex items-start gap-3 text-sm">
+            <Checkbox id={`${idPrefix}-multigrade`} checked={values.multigrade} onCheckedChange={(c): void => setField('multigrade', (c === true) as V['multigrade'])} className="mt-0.5" />
+            <span>
+              <span className="font-medium text-foreground">Aula multigrado</span>
+              <span className="block text-xs text-muted-foreground">Reúne estudiantes de varios grados del ciclo con un mismo docente. Se matricula a cada uno en su grado.</span>
+            </span>
+          </label>
+          {errors.multigrade && <p className="mt-1 text-sm text-destructive">{errors.multigrade}</p>}
+        </div>
+      )}
     </div>
   );
 };
@@ -199,6 +212,7 @@ export const SectionsDialog = ({ slug, context, period, levels, initialLevelId, 
       attentionMode: firstLevel?.attentionModes[0] ?? '',
       program: 'pebaja',
       distanceVariant: 'virtual',
+      multigrade: false,
       capacity: context.institutionKind === 'ebe' ? '10' : context.institutionKind === 'cepre' ? '45' : '30',
       room: '',
     },
@@ -263,7 +277,7 @@ export const SectionsDialog = ({ slug, context, period, levels, initialLevelId, 
             </FormField>
           </div>
           {context.usesAttentionModes && level && (
-            <EbaSectionFields idPrefix="sections" levelModes={level.attentionModes} values={values} errors={errors} setField={setField} />
+            <EbaSectionFields idPrefix="sections" levelModes={level.attentionModes} gradeCount={level.grades.length} values={values} errors={errors} setField={setField} />
           )}
         </>
       )}
@@ -289,6 +303,7 @@ export const SectionDialog = ({ slug, context, section, level, onClose, onSaved 
       attentionMode: section.attentionMode,
       program: section.program || 'pebaja',
       distanceVariant: section.distanceVariant || 'virtual',
+      multigrade: section.multigrade,
       capacity: String(section.capacity),
       room: section.room,
     },
@@ -316,7 +331,7 @@ export const SectionDialog = ({ slug, context, section, level, onClose, onSaved 
           <Input placeholder="Ej.: Aula 204" id="section-room" value={values.room} maxLength={60} onChange={(e): void => setField('room', e.target.value)} className={controlClassName} />
         </FormField>
       </div>
-      {context.usesAttentionModes && level && <EbaSectionFields idPrefix="section" levelModes={level.attentionModes} values={values} errors={errors} setField={setField} />}
+      {context.usesAttentionModes && level && <EbaSectionFields idPrefix="section" levelModes={level.attentionModes} gradeCount={level.grades.length} values={values} errors={errors} setField={setField} />}
     </FormDialog>
   );
 };

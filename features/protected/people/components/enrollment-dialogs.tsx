@@ -50,7 +50,8 @@ interface SectionPickerProps {
 const SectionPicker = ({ ctx, board, levelId, gradeId, sectionId, errors, onLevel, onGrade, onSection, lockLevel }: SectionPickerProps): JSX.Element => {
   const v = ctx.context.vocabulary;
   const level = ctx.levels.find((l) => l.id === levelId);
-  const sections = (board?.sections ?? []).filter((s) => s.levelId === levelId && (!ctx.context.hasGrades || s.gradeId === gradeId));
+  // A multigrade section (EBA) takes every grade of its cycle
+  const sections = (board?.sections ?? []).filter((s) => s.levelId === levelId && (!ctx.context.hasGrades || s.gradeId === gradeId || s.multigrade));
   return (
     <>
       <div className={cn('grid gap-5', ctx.context.hasGrades && 'sm:grid-cols-2')}>
@@ -68,7 +69,7 @@ const SectionPicker = ({ ctx, board, levelId, gradeId, sectionId, errors, onLeve
           <SectionOption selected={sectionId === ''} label="Asignar después" detail="" onSelect={(): void => onSection('')} />
           {sections.map((s: Section) => {
             const free = freeOf(board, s.id);
-            return <SectionOption key={s.id} selected={sectionId === s.id} disabled={free !== null && free <= 0} label={s.name} detail={`${shiftLabels[s.shift]}${s.attentionMode ? ` · ${attentionModeLabels[s.attentionMode]}` : ''} · ${free === null ? s.capacity : free <= 0 ? 'llena' : `${free} libres`}`} onSelect={(): void => onSection(s.id)} />;
+            return <SectionOption key={s.id} selected={sectionId === s.id} disabled={free !== null && free <= 0} label={s.multigrade ? `${s.name} (multigrado)` : s.name} detail={`${shiftLabels[s.shift]}${s.attentionMode ? ` · ${attentionModeLabels[s.attentionMode]}` : ''} · ${free === null ? s.capacity : free <= 0 ? 'llena' : `${free} libres`}`} onSelect={(): void => onSection(s.id)} />;
           })}
         </div>
       </FormField>

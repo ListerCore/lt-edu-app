@@ -75,20 +75,20 @@ export const schedulesXlsxAction = async (slug: string, periodId: string): Promi
       )
     : notFound;
 
-// Who signs the timetables (and, for managers, the staff to choose from)
-export const scheduleSignersAction = async (slug: string): Promise<AcademicResult<GetScheduleSignersResponse>> =>
+// Who signs a kind of document, the timetables by default (and, for managers, the staff to choose from)
+export const scheduleSignersAction = async (slug: string, kind = 'schedules'): Promise<AcademicResult<GetScheduleSignersResponse>> =>
   runRpc(
     slug,
-    (token) => documentsRpc.signers({ institutionSlug: slug }, { token }),
+    (token) => documentsRpc.signers({ institutionSlug: slug, kind: /^(schedules|placement)$/.test(kind) ? kind : 'schedules' }, { token }),
     (d) => d,
   );
 
 // Replaces the signers, in signing order
-export const setScheduleSignersAction = async (slug: string, signers: Array<Pick<Signer, 'staffId' | 'position'>>): Promise<AcademicResult<Signer[]>> =>
-  signers.every((x) => validIds(x.staffId))
+export const setScheduleSignersAction = async (slug: string, signers: Array<Pick<Signer, 'staffId' | 'position'>>, kind = 'schedules'): Promise<AcademicResult<Signer[]>> =>
+  signers.every((x) => validIds(x.staffId)) && /^(schedules|placement)$/.test(kind)
     ? runRpc(
         slug,
-        (token) => documentsRpc.setSigners({ institutionSlug: slug, signers: signers.map((x) => ({ staffId: x.staffId, position: x.position.slice(0, 120), name: '' })) }, { token }),
+        (token) => documentsRpc.setSigners({ institutionSlug: slug, kind, signers: signers.map((x) => ({ staffId: x.staffId, position: x.position.slice(0, 120), name: '' })) }, { token }),
         (d) => d.signers,
         'Firmantes guardados.',
       )

@@ -293,6 +293,7 @@ const SectionsBoard = ({ context, levels, sections, editable, isPending, onAdd, 
                               {section.attentionMode && ` · ${attentionModeLabels[section.attentionMode]}`}
                               {section.distanceVariant && ` ${distanceVariantLabels[section.distanceVariant]?.toLowerCase()}`}
                               {section.program === 'literacy' && ` · ${ebaProgramLabels.literacy}`}
+                              {section.multigrade && ' · multigrado'}
                               {section.room && ` · ${section.room}`}
                             </span>
                           </button>
