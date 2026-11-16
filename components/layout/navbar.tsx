@@ -31,8 +31,7 @@ export const Navbar = (): JSX.Element => {
           <Link href="/" onClick={close} className="flex items-center gap-2.5" aria-label={`${siteConfig.name}, inicio`}>
             <BrandMark className="size-7" />
             <span className="text-xl leading-none font-light tracking-tight whitespace-nowrap text-foreground">
-              {siteConfig.name.toLowerCase()}
-              <span className="ml-1 hidden text-xs font-medium text-muted-foreground sm:inline lg:max-xl:hidden">{siteConfig.tagline.toLowerCase()}</span>
+              {siteConfig.name}
             </span>
           </Link>
 

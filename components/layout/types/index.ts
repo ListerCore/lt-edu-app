@@ -4,6 +4,10 @@ export interface BrandMarkProps {
   className?: string;
 }
 
+export interface BrandWatermarkProps {
+  className?: string;
+}
+
 export interface NavLabelProps {
   link: SiteLink;
 }

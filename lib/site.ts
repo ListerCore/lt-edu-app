@@ -2,7 +2,7 @@ import type { SiteConfig } from './types';
 
 // Single source for brand, navigation and contact data shared by navbar, footer and metadata
 export const siteConfig: SiteConfig = {
-  name: 'Joseph',
+  name: 'ListerCore Edu',
   domain: 'joseph.pe',
   institutionType: 'EBR',
   tagline: 'Gestión educativa',
