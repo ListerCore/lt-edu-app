@@ -4,7 +4,7 @@ import { ComplaintsPage } from '@/features/public/legal/components/complaints-pa
 
 export const metadata: Metadata = {
   title: 'Libro de Reclamaciones',
-  description: 'Libro de Reclamaciones virtual de Joseph para presentar reclamos y quejas conforme al Código de Protección y Defensa del Consumidor.',
+  description: 'Libro de Reclamaciones virtual de ListerCore Edu para presentar reclamos y quejas conforme al Código de Protección y Defensa del Consumidor.',
   alternates: { canonical: '/legal/complaints' },
 };
 

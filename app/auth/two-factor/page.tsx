@@ -11,7 +11,7 @@ const Page = (): JSX.Element => (
   <AuthCard
     id="two-factor-title"
     title="Verificación en dos pasos"
-    description="Abre tu app autenticadora (Google Authenticator u otra) e ingresa el código de 6 dígitos de Joseph."
+    description="Abre tu app autenticadora (Google Authenticator u otra) e ingresa el código de 6 dígitos de ListerCore Edu."
     footer={
       <>
         ¿No eres tú?{' '}
