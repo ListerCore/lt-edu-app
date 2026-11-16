@@ -22,6 +22,9 @@ export const itemKinds: Record<string, ItemKindMeta> = {
   task: { label: 'Tarea', icon: FilePen, hint: 'Un trabajo que el estudiante entrega con archivos. Configura fechas y competencias después de crearlo.' },
 };
 
+// Registro de participación of a room (phase E5)
+export const participationPath = (roomId: string): string => `${CLASSROOM_PATH}/${roomId}/participation`;
+
 export const forumPath = (roomId: string, itemId: string): string => `${CLASSROOM_PATH}/${roomId}/forums/${itemId}`;
 
 export const forumKindLabels: Record<string, string> = { debate: 'Debate', questions: 'Consultas al docente', intro: 'Presentación' };

@@ -38,6 +38,8 @@ export const documentsRpc = {
   siagieXlsx: documents((c) => c.siagieXlsx),
   generatePlacementAct: documents((c) => c.generatePlacementAct),
   placementActPdf: documents((c) => c.placementActPdf),
+  permanencePdf: documents((c) => c.permanencePdf),
+  permanenceXlsx: documents((c) => c.permanenceXlsx),
   track: publicDocuments((c) => c.trackDocument),
   trackPdf: publicDocuments((c) => c.trackPdf),
 };

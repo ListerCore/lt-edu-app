@@ -85,6 +85,7 @@ export const dashboardNavigation: NavSection[] = [
         children: [
           { label: { default: 'De estudiantes', CEPRE: 'De alumnos' }, icon: UsersRound, href: path('attendance/students'), module: 'student-attendance' },
           { label: 'De docentes', icon: CalendarDays, href: path('attendance/staff'), module: 'staff-attendance' },
+          { label: 'Permanencia a distancia', icon: Activity, href: path('attendance/permanence'), module: 'permanence' },
         ],
       },
       { label: 'Carnets', icon: IdCard, href: path('cards'), module: 'cards' },

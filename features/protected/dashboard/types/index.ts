@@ -34,6 +34,8 @@ export type ModuleKey =
   | 'placement'
   // EBA: nómina de matrícula and the SIAGIE upload
   | 'roll'
+  // EBA: permanence of the distance form, from the platform's activity
+  | 'permanence'
   | 'individual-plans'
   | 'therapies'
   | 'inclusion-support'

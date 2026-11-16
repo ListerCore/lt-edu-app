@@ -52,7 +52,7 @@ export const institutionModules: Record<InstitutionType, ModuleKey[]> = {
   // School: competency grades, report cards, official certificates and the parents' school
   EBR: [...coreModules, 'grades', 'report-cards', 'closing', 'certificates', 'psychology', 'discipline', 'parent-school', 'apafa'],
   // CEBA: attention modes (in person, blended, distance), placement and validation tests, certificates
-  EBA: [...coreModules, 'attention-modes', 'placement', 'roll', 'classroom', 'classroom-library', 'grades', 'report-cards', 'closing', 'certificates', 'psychology', 'discipline', 'apafa'],
+  EBA: [...coreModules, 'attention-modes', 'placement', 'roll', 'permanence', 'classroom', 'classroom-library', 'grades', 'report-cards', 'closing', 'certificates', 'psychology', 'discipline', 'apafa'],
   // CEBE: levels per competency against the adaptations of each POI, individual plans, progress reports, therapies and
   // inclusion support (SAANEE)
   EBE: [...coreModules, 'grades', 'report-cards', 'closing', 'individual-plans', 'progress-reports', 'therapies', 'inclusion-support', 'psychology', 'discipline', 'parent-school', 'apafa'],
@@ -105,6 +105,7 @@ const teacherPermissions: RolePermissions = {
   schedules: VIEW,
   students: VIEW,
   'student-attendance': EDIT,
+  permanence: VIEW,
   grades: EDIT,
   'report-cards': VIEW,
   'progress-reports': EDIT,
@@ -158,6 +159,7 @@ export const rolePermissions: Record<Role, RolePermissions> = {
     'attention-modes': ALL,
     placement: ALL,
     roll: ALL,
+    permanence: ALL,
     'report-cards': ALL,
     closing: ALL,
     'individual-plans': ALL,
@@ -199,6 +201,7 @@ export const rolePermissions: Record<Role, RolePermissions> = {
     // Secretaría runs the procedures and the SIAGIE upload; the acta is signed by its signers
     placement: ALL,
     roll: ALL,
+    permanence: VIEW,
     certificates: ALL,
     degrees: ALL,
     students: ALL,
@@ -217,7 +220,8 @@ export const rolePermissions: Record<Role, RolePermissions> = {
     classroom: VIEW,
   },
   teacher: teacherPermissions,
-  tutor: { ...teacherPermissions, tutoring: ALL, wellbeing: ['view', 'create'], discipline: EDIT, 'parent-school': EDIT },
+  // The tutor adjusts the permanence of their own distance section (the API checks it)
+  tutor: { ...teacherPermissions, permanence: EDIT, tutoring: ALL, wellbeing: ['view', 'create'], discipline: EDIT, 'parent-school': EDIT },
   assistant: {
     home: VIEW,
     notifications: ['view', 'update'],

@@ -2,10 +2,10 @@
 
 import Link from 'next/link';
 import { useState, type JSX } from 'react';
-import { ArrowLeft, CalendarClock, Copy, Plus, Settings2, UserRound } from 'lucide';
+import { Activity, ArrowLeft, CalendarClock, Copy, Plus, Settings2, UserRound } from 'lucide';
 import { MorphIcon } from '@/components/ui/morph-icon';
 import { AcademicPage, LoadError, PageSkeleton, StatusPill } from '@/features/protected/academic/components/academic-ui';
-import { CLASSROOM_PATH, roomStatusClass, roomStatusLabels } from '../data/classroom-data';
+import { CLASSROOM_PATH, participationPath, roomStatusClass, roomStatusLabels } from '../data/classroom-data';
 import { useReorderUnits } from '../hooks/use-reorder-units';
 import { useRoomPage } from '../hooks/use-room-page';
 import type { Unit } from '../types';
@@ -47,6 +47,10 @@ export const RoomPage = ({ id }: { id: string }): JSX.Element => {
               Copiar de otro periodo
             </button>
           )}
+          <Link href={participationPath(id)} className="btn-alt">
+            <MorphIcon icon={Activity} size={16} />
+            Participación
+          </Link>
           <button type="button" className="btn-alt" onClick={(): void => setSettings(true)}>
             <MorphIcon icon={Settings2} size={16} />
             Ajustes

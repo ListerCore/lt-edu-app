@@ -36,7 +36,7 @@ export const AlertsPage = (): JSX.Element => {
     <AcademicPage
       titleId="alerts-title"
       title="Alertas"
-      description="Inasistencias cerca del límite, conducta desaprobatoria, faltas graves sin cerrar, reconsideraciones por resolver, compromisos vencidos, derivaciones a psicología sin atender y estudiantes sin plan de orientación."
+      description="Inasistencias cerca del límite, conducta desaprobatoria, faltas graves sin cerrar, reconsideraciones por resolver, compromisos vencidos, derivaciones a psicología sin atender, estudiantes sin plan de orientación y, en la forma a distancia, riesgo de abandono."
       context={null}
     >
       {error ? (
