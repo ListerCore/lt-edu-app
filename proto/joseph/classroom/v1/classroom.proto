@@ -1,0 +1,288 @@
+syntax = "proto3";
+
+// Virtual classroom (sección de aula virtual, Anexo 2 of RSG N.° 613-2014-MINEDU): one room per subject × grade of
+// each period, its units and material, the institution's library and the itinerant deliveries. Same metadata and
+// institution scoping as joseph.academic.v1. Files go through the attachments API (owner_kind classroom_item and
+// library_item)
+package joseph.classroom.v1;
+
+option go_package = "api/internal/adapter/inbound/grpc/gen/classroomv1;classroomv1";
+
+// Dirección and coordinación manage every room; teachers edit the rooms of the subjects they teach; secretaría and
+// the Responsable técnico read; students and families see published rooms of the student's grade, open units and
+// published material
+service ClassroomService {
+  rpc ListRooms(ListRoomsRequest) returns (ListRoomsResponse);
+  rpc GenerateRooms(GenerateRoomsRequest) returns (GenerateRoomsResponse);
+  rpc GetRoom(GetRoomRequest) returns (GetRoomResponse);
+  rpc UpdateRoom(UpdateRoomRequest) returns (UpdateRoomResponse);
+  rpc CopyRoom(CopyRoomRequest) returns (CopyRoomResponse);
+
+  rpc SaveUnit(SaveUnitRequest) returns (SaveUnitResponse);
+  rpc DeleteUnit(DeleteUnitRequest) returns (DeleteUnitResponse);
+  rpc ReorderUnits(ReorderUnitsRequest) returns (ReorderUnitsResponse);
+
+  rpc SaveItem(SaveItemRequest) returns (SaveItemResponse);
+  rpc DeleteItem(DeleteItemRequest) returns (DeleteItemResponse);
+  rpc ReorderItems(ReorderItemsRequest) returns (ReorderItemsResponse);
+  // A student opened a piece of material or joined a live session; a no-op for anyone else
+  rpc RecordView(RecordViewRequest) returns (RecordViewResponse);
+
+  rpc ListLibrary(ListLibraryRequest) returns (ListLibraryResponse);
+  rpc SaveLibraryItem(SaveLibraryItemRequest) returns (SaveLibraryItemResponse);
+  rpc DeleteLibraryItem(DeleteLibraryItemRequest) returns (DeleteLibraryItemResponse);
+
+  rpc ListDeliveries(ListDeliveriesRequest) returns (ListDeliveriesResponse);
+  rpc SaveDelivery(SaveDeliveryRequest) returns (SaveDeliveryResponse);
+}
+
+message Period {
+  string id = 1;
+  string name = 2;
+  string status = 3;
+}
+
+message Room {
+  string id = 1;
+  string period_id = 2;
+  string period_name = 3;
+  string subject_id = 4;
+  string subject_name = 5;
+  string subject_code = 6;
+  string level_id = 7;
+  string level_name = 8;
+  string grade_id = 9;
+  string grade_name = 10;
+  string grade_short = 11;
+  string description = 12;
+  string staff_id = 13;
+  string staff_name = 14;
+  // draft | published
+  string status = 15;
+  int32 units = 16;
+  int32 items = 17;
+  int32 students = 18;
+  string updated_at = 19;
+}
+
+message Item {
+  string id = 1;
+  string unit_id = 2;
+  // reading | file | video | link | live | activity
+  string kind = 3;
+  string title = 4;
+  string body = 5;
+  string url = 6;
+  bool complementary = 7;
+  // live only: RFC 3339 start and length
+  string starts_at = 8;
+  optional int32 duration_minutes = 9;
+  string recording_url = 10;
+  // Taken from the library: body, url and files come from there
+  string library_item_id = 11;
+  bool published = 12;
+  int32 files = 13;
+  // For a student: whether they opened it. For staff: how many students did
+  bool viewed = 14;
+  int32 views = 15;
+}
+
+message Unit {
+  string id = 1;
+  string title = 2;
+  string summary = 3;
+  // YYYY-MM-DD or empty (open as soon as published)
+  string opens_on = 4;
+  bool published = 5;
+  repeated Item items = 6;
+}
+
+message LibraryItem {
+  string id = 1;
+  // reading | file | video | link
+  string kind = 2;
+  string title = 3;
+  string description = 4;
+  string body = 5;
+  string url = 6;
+  string topic = 7;
+  string created_name = 8;
+  string updated_at = 9;
+  int32 files = 10;
+  int32 uses = 11;
+}
+
+message Delivery {
+  string unit_id = 1;
+  string student_id = 2;
+  string student_name = 3;
+  string student_code = 4;
+  // YYYY-MM-DD or empty
+  string delivered_on = 5;
+  string returned_on = 6;
+  string notes = 7;
+  string recorded_by_name = 8;
+}
+
+message ListRoomsRequest {
+  string institution_slug = 1;
+  // Empty: the period in course
+  string period_id = 2;
+}
+
+message ListRoomsResponse {
+  repeated Period periods = 1;
+  string period_id = 2;
+  repeated Room rooms = 3;
+  bool can_manage = 4;
+  // manager | teacher | reader | family
+  string mode = 5;
+}
+
+message GenerateRoomsRequest {
+  string institution_slug = 1;
+  string period_id = 2;
+}
+
+message GenerateRoomsResponse {
+  int32 created = 1;
+}
+
+message GetRoomRequest {
+  string institution_slug = 1;
+  string id = 2;
+}
+
+message GetRoomResponse {
+  Room room = 1;
+  repeated Unit units = 2;
+  bool can_edit = 3;
+  bool family = 4;
+}
+
+message UpdateRoomRequest {
+  string institution_slug = 1;
+  string id = 2;
+  string description = 3;
+  string status = 4;
+  // Only dirección and coordinación change it; empty leaves it without a teacher in charge
+  string staff_id = 5;
+}
+
+message UpdateRoomResponse {
+  Room room = 1;
+}
+
+message CopyRoomRequest {
+  string institution_slug = 1;
+  string id = 2;
+  string from_room_id = 3;
+}
+
+message CopyRoomResponse {
+  int32 units = 1;
+}
+
+message SaveUnitRequest {
+  string institution_slug = 1;
+  // Empty id creates it at the end of room_id
+  string id = 2;
+  string room_id = 3;
+  string title = 4;
+  string summary = 5;
+  string opens_on = 6;
+  bool published = 7;
+}
+
+message SaveUnitResponse {
+  Unit unit = 1;
+}
+
+message DeleteUnitRequest {
+  string institution_slug = 1;
+  string id = 2;
+}
+
+message DeleteUnitResponse {}
+
+message ReorderUnitsRequest {
+  string institution_slug = 1;
+  string room_id = 2;
+  repeated string ids = 3;
+}
+
+message ReorderUnitsResponse {}
+
+message SaveItemRequest {
+  string institution_slug = 1;
+  // Empty id creates it at the end of unit_id
+  Item item = 2;
+}
+
+message SaveItemResponse {
+  Item item = 1;
+}
+
+message DeleteItemRequest {
+  string institution_slug = 1;
+  string id = 2;
+}
+
+message DeleteItemResponse {}
+
+message ReorderItemsRequest {
+  string institution_slug = 1;
+  string unit_id = 2;
+  repeated string ids = 3;
+}
+
+message ReorderItemsResponse {}
+
+message RecordViewRequest {
+  string institution_slug = 1;
+  string item_id = 2;
+}
+
+message RecordViewResponse {}
+
+message ListLibraryRequest {
+  string institution_slug = 1;
+}
+
+message ListLibraryResponse {
+  repeated LibraryItem items = 1;
+  bool can_edit = 2;
+}
+
+message SaveLibraryItemRequest {
+  string institution_slug = 1;
+  LibraryItem item = 2;
+}
+
+message SaveLibraryItemResponse {
+  LibraryItem item = 1;
+}
+
+message DeleteLibraryItemRequest {
+  string institution_slug = 1;
+  string id = 2;
+}
+
+message DeleteLibraryItemResponse {}
+
+message ListDeliveriesRequest {
+  string institution_slug = 1;
+  string unit_id = 2;
+}
+
+message ListDeliveriesResponse {
+  repeated Delivery deliveries = 1;
+}
+
+message SaveDeliveryRequest {
+  string institution_slug = 1;
+  // Empty delivered_on removes the record
+  Delivery delivery = 2;
+}
+
+message SaveDeliveryResponse {}
