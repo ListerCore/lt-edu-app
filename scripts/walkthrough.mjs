@@ -45,33 +45,45 @@ const findChrome = () => {
 };
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
-const port = 9400 + Math.floor(Math.random() * 400);
-const chrome = spawn(findChrome(), ['--headless=new', `--remote-debugging-port=${port}`, '--hide-scrollbars', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', `--user-data-dir=/tmp/walkthrough-${port}`, 'about:blank'], { stdio: 'ignore' });
-let target;
-for (let i = 0; i < 60 && !target; i++) {
-  await sleep(250);
-  try {
-    target = (await (await fetch(`http://127.0.0.1:${port}/json`)).json()).find((t) => t.type === 'page');
-  } catch {}
-}
-const ws = new WebSocket(target.webSocketDebuggerUrl);
-await new Promise((r) => (ws.onopen = r));
+let chrome;
+let ws;
 let id = 0;
 const pending = new Map();
 let problems = [];
-ws.onmessage = (m) => {
-  const d = JSON.parse(m.data);
-  if (d.method === 'Runtime.exceptionThrown') problems.push(`exception: ${(d.params.exceptionDetails.exception?.description ?? d.params.exceptionDetails.text).slice(0, 300)}`);
-  if (d.method === 'Runtime.consoleAPICalled' && d.params.type === 'error') {
-    const text = d.params.args.map((a) => a.value ?? a.description ?? '').join(' ').slice(0, 300);
-    // The browser's own noise is not the page's error
-    if (!/favicon|DevTools|Download the React DevTools/.test(text)) problems.push(`console: ${text}`);
+// A fresh Chrome per role: a headless tab wedges after a few hundred navigations
+const startBrowser = async () => {
+  const port = 9400 + Math.floor(Math.random() * 400);
+  chrome = spawn(findChrome(), ['--headless=new', `--remote-debugging-port=${port}`, '--hide-scrollbars', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', `--user-data-dir=/tmp/walkthrough-${port}`, 'about:blank'], { stdio: 'ignore' });
+  let target;
+  for (let i = 0; i < 60 && !target; i++) {
+    await sleep(250);
+    try {
+      target = (await (await fetch(`http://127.0.0.1:${port}/json`)).json()).find((t) => t.type === 'page');
+    } catch {}
   }
-  if (d.method === 'Network.responseReceived' && d.params.type === 'Document' && d.params.response.status >= 400) problems.push(`http ${d.params.response.status}: ${d.params.response.url}`);
-  if (d.id && pending.has(d.id)) {
-    pending.get(d.id)(d);
-    pending.delete(d.id);
-  }
+  ws = new WebSocket(target.webSocketDebuggerUrl);
+  await new Promise((r) => (ws.onopen = r));
+  ws.onmessage = (m) => {
+    const d = JSON.parse(m.data);
+    if (d.method === 'Runtime.exceptionThrown') problems.push(`exception: ${(d.params.exceptionDetails.exception?.description ?? d.params.exceptionDetails.text).slice(0, 300)}`);
+    if (d.method === 'Runtime.consoleAPICalled' && d.params.type === 'error') {
+      const text = d.params.args.map((a) => a.value ?? a.description ?? '').join(' ').slice(0, 300);
+      // The browser's own noise is not the page's error
+      if (!/favicon|DevTools|Download the React DevTools/.test(text)) problems.push(`console: ${text}`);
+    }
+    if (d.method === 'Network.responseReceived' && d.params.type === 'Document' && d.params.response.status >= 400) problems.push(`http ${d.params.response.status}: ${d.params.response.url}`);
+    if (d.id && pending.has(d.id)) {
+      pending.get(d.id)(d);
+      pending.delete(d.id);
+    }
+  };
+  await send('Network.enable');
+  await send('Runtime.enable');
+  await send('Page.enable');
+};
+const stopBrowser = () => {
+  ws?.close();
+  chrome?.kill();
 };
 // Every command answers or gives up after 45 s (a page that hangs Chrome must not stop the walkthrough)
 const send = (method, params = {}) =>
@@ -89,10 +101,6 @@ const send = (method, params = {}) =>
     ws.send(JSON.stringify({ id: i, method, params }));
   });
 const evaluate = async (expression) => (await send('Runtime.evaluate', { expression, awaitPromise: true, returnByValue: true })).result?.result?.value;
-await send('Network.enable');
-await send('Runtime.enable');
-await send('Page.enable');
-
 const host = new URL(base).hostname;
 const results = [];
 mkdirSync(out, { recursive: true });
@@ -100,6 +108,8 @@ mkdirSync(out, { recursive: true });
 for (const role of roles) {
   const token = sessions[role];
   if (!token) continue;
+  stopBrowser();
+  await startBrowser();
   await send('Network.setCookie', { name: 'joseph_session', value: token, domain: host, path: '/', httpOnly: true });
   await send('Emulation.setDeviceMetricsOverride', { width: 1440, height: 1000, deviceScaleFactor: 1, mobile: false });
   await send('Page.navigate', { url: `${base}/` });
@@ -152,8 +162,7 @@ for (const role of roles) {
     }
   }
 }
-ws.close();
-chrome.kill();
+stopBrowser();
 
 const failed = results.filter((r) => r.issues.length);
 const lines = [`# Recorrido por rol · ${type}`, '', `${results.length} vistas (${new Set(results.map((r) => r.role)).size} roles), ${failed.length} con problemas.`, ''];
