@@ -4,9 +4,9 @@ import { useState, type JSX } from 'react';
 import { FormField } from '@/components/ui/form-field';
 import { Input } from '@/components/ui/input';
 import { createSectionsAction, savePeriodAction, updateSectionAction, updateTermAction } from '../actions/academic-actions';
-import { attentionModeLabels, daysBetween, items, lower, seasonLabels, shiftLabels, splitNames, suggestedPeriodName, termSchemeHints, termSchemeLabels, termStatusLabels } from '../data/academic-data';
+import { attentionModeLabels, daysBetween, distanceVariantHints, distanceVariantLabels, ebaProgramHints, ebaProgramLabels, ebaProgramsFor, items, lower, seasonLabels, shiftLabels, splitNames, suggestedPeriodName, termSchemeHints, termSchemeLabels, termStatusLabels } from '../data/academic-data';
 import { useAcademicForm } from '../hooks/use-academic-form';
-import type { AcademicContext, Level, Period, PeriodFormValues, Section, SectionBatchValues, SectionFormValues, Term, TermFormValues } from '../types';
+import type { AcademicContext, EbaSectionFieldsProps, EbaSectionValues, Level, Period, PeriodFormValues, Section, SectionBatchValues, SectionFormValues, Term, TermFormValues } from '../types';
 import { ChoiceChips, controlClassName, SelectField } from './academic-ui';
 import { FormDialog } from './form-dialog';
 
@@ -150,6 +150,40 @@ interface SectionsDialogProps {
   onSaved: () => void;
 }
 
+// EBA fields of a section: the form of attention, the program (Alfabetización only in cycles that never go remote, and
+// always in person) and, for the distance form, whether it is online or itinerant
+const EbaSectionFields = <V extends EbaSectionValues>({ idPrefix, levelModes, values, errors, setField }: EbaSectionFieldsProps<V>): JSX.Element => {
+  const programs = ebaProgramsFor(levelModes);
+  const modes = values.program === 'literacy' ? levelModes.filter((m) => m === 'in_person') : levelModes;
+  const pickProgram = (program: string): void => {
+    setField('program', program as V['program']);
+    if (program === 'literacy') setField('attentionMode', 'in_person' as V['attentionMode']);
+  };
+  return (
+    <div className="grid gap-5 sm:grid-cols-2">
+      <FormField id={`${idPrefix}-mode`} label="Forma de atención" required error={errors.attentionMode}>
+        <SelectField id={`${idPrefix}-mode`} value={values.attentionMode} options={items(attentionModeLabels, modes)} onChange={(v): void => setField('attentionMode', v as V['attentionMode'])} invalid={Boolean(errors.attentionMode)} />
+      </FormField>
+      {programs.length > 1 && (
+        <FormField id={`${idPrefix}-program`} label="Programa" required error={errors.program} hint={ebaProgramHints[values.program]}>
+          <SelectField id={`${idPrefix}-program`} value={values.program} options={items(ebaProgramLabels, programs)} onChange={pickProgram} invalid={Boolean(errors.program)} />
+        </FormField>
+      )}
+      {values.attentionMode === 'distance' && (
+        <FormField id={`${idPrefix}-variant`} label="Modalidad a distancia" required error={errors.distanceVariant} hint={distanceVariantHints[values.distanceVariant]}>
+          <SelectField
+            id={`${idPrefix}-variant`}
+            value={values.distanceVariant}
+            options={items(distanceVariantLabels, Object.keys(distanceVariantLabels))}
+            onChange={(v): void => setField('distanceVariant', v as V['distanceVariant'])}
+            invalid={Boolean(errors.distanceVariant)}
+          />
+        </FormField>
+      )}
+    </div>
+  );
+};
+
 // Several sections at once: one per chosen grade and name ("A, B" for 1.° to 5.°)
 export const SectionsDialog = ({ slug, context, period, levels, initialLevelId, onClose, onSaved }: SectionsDialogProps): JSX.Element => {
   const vocabulary = context.vocabulary;
@@ -163,6 +197,8 @@ export const SectionsDialog = ({ slug, context, period, levels, initialLevelId, 
       names: context.institutionKind === 'cepre' ? 'Aula 1' : 'A',
       shift: shifts[0],
       attentionMode: firstLevel?.attentionModes[0] ?? '',
+      program: 'pebaja',
+      distanceVariant: 'virtual',
       capacity: context.institutionKind === 'ebe' ? '10' : context.institutionKind === 'cepre' ? '45' : '30',
       room: '',
     },
@@ -186,6 +222,7 @@ export const SectionsDialog = ({ slug, context, period, levels, initialLevelId, 
     setField('levelId', id);
     setField('gradeIds', next?.grades.map((g) => g.id) ?? []);
     setField('attentionMode', next?.attentionModes[0] ?? '');
+    setField('program', 'pebaja');
   };
 
   const sectionsNoun = lower(vocabulary?.sections ?? 'secciones');
@@ -226,9 +263,7 @@ export const SectionsDialog = ({ slug, context, period, levels, initialLevelId, 
             </FormField>
           </div>
           {context.usesAttentionModes && level && (
-            <FormField id="sections-mode" label="Forma de atención" required error={errors.attentionMode}>
-              <SelectField id="sections-mode" value={values.attentionMode} options={items(attentionModeLabels, level.attentionModes)} onChange={(v): void => setField('attentionMode', v)} invalid={Boolean(errors.attentionMode)} />
-            </FormField>
+            <EbaSectionFields idPrefix="sections" levelModes={level.attentionModes} values={values} errors={errors} setField={setField} />
           )}
         </>
       )}
@@ -248,7 +283,15 @@ interface SectionDialogProps {
 export const SectionDialog = ({ slug, context, section, level, onClose, onSaved }: SectionDialogProps): JSX.Element => {
   const shifts = context.settings?.shifts ?? ['morning'];
   const { values, errors, isPending, setField, submit } = useAcademicForm<SectionFormValues, Section>({
-    initial: { name: section.name, shift: section.shift, attentionMode: section.attentionMode, capacity: String(section.capacity), room: section.room },
+    initial: {
+      name: section.name,
+      shift: section.shift,
+      attentionMode: section.attentionMode,
+      program: section.program || 'pebaja',
+      distanceVariant: section.distanceVariant || 'virtual',
+      capacity: String(section.capacity),
+      room: section.room,
+    },
     validate: (v): Record<string, string> => (v.name.trim() === '' ? { name: 'Escribe el nombre.' } : {}),
     save: (v) => updateSectionAction(slug, section.id, v),
     onSaved: () => {
@@ -273,11 +316,7 @@ export const SectionDialog = ({ slug, context, section, level, onClose, onSaved 
           <Input placeholder="Ej.: Aula 204" id="section-room" value={values.room} maxLength={60} onChange={(e): void => setField('room', e.target.value)} className={controlClassName} />
         </FormField>
       </div>
-      {context.usesAttentionModes && level && (
-        <FormField id="section-mode" label="Forma de atención" required error={errors.attentionMode}>
-          <SelectField id="section-mode" value={values.attentionMode} options={items(attentionModeLabels, level.attentionModes)} onChange={(v): void => setField('attentionMode', v)} invalid={Boolean(errors.attentionMode)} />
-        </FormField>
-      )}
+      {context.usesAttentionModes && level && <EbaSectionFields idPrefix="section" levelModes={level.attentionModes} values={values} errors={errors} setField={setField} />}
     </FormDialog>
   );
 };

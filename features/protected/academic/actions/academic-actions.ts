@@ -131,7 +131,7 @@ export const createSectionsAction = async (slug: string, periodId: string, value
     slug,
     (token) =>
       academicRpc.createSections(
-        { institutionSlug: slug, periodId, levelId: values.levelId, gradeIds: values.gradeIds, names, shift: values.shift, attentionMode: values.attentionMode, capacity: toInt(values.capacity) ?? 0, room: values.room },
+        { institutionSlug: slug, periodId, levelId: values.levelId, gradeIds: values.gradeIds, names, shift: values.shift, attentionMode: values.attentionMode, program: values.program, distanceVariant: values.distanceVariant, capacity: toInt(values.capacity) ?? 0, room: values.room },
         { token },
       ),
     (data) => data.sections,
@@ -142,7 +142,7 @@ export const updateSectionAction = async (slug: string, id: string, values: Sect
   ids(id)
     ? run(
         slug,
-        (token) => academicRpc.updateSection({ institutionSlug: slug, id, section: { name: values.name, shift: values.shift, attentionMode: values.attentionMode, capacity: toInt(values.capacity) ?? 0, room: values.room } }, { token }),
+        (token) => academicRpc.updateSection({ institutionSlug: slug, id, section: { name: values.name, shift: values.shift, attentionMode: values.attentionMode, program: values.program, distanceVariant: values.distanceVariant, capacity: toInt(values.capacity) ?? 0, room: values.room } }, { token }),
         (data) => data.section,
         'Cambios guardados.',
       )
