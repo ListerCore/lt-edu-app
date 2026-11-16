@@ -24,4 +24,9 @@ export const closingRpc = {
   issue: closing((c) => c.issueRecord),
   record: closing((c) => c.getRecord),
   export: closing((c) => c.exportResults),
+  // EBA (phase E7)
+  promotionRules: closing((c) => c.getPromotionRules),
+  savePromotionRule: closing((c) => c.savePromotionRule),
+  resetPromotionRule: closing((c) => c.resetPromotionRule),
+  setSiagieGrades: closing((c) => c.setSiagieGrades),
 };

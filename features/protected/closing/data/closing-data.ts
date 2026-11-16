@@ -15,6 +15,12 @@ export const unitClass: Record<string, string> = {
   barred: 'bg-destructive/12 text-destructive',
 };
 
+// The cell of an area the student is exempted from (Educación Religiosa, Ley 29635)
+export const EXEMPT = 'EXO';
+
+// Each student's grade shows only when a multigrade section mixes them
+export const mixedGrades = (rows: Array<{ gradeShort: string }>): boolean => rows.some((r) => r.gradeShort !== rows[0]?.gradeShort);
+
 export const recordKindLabels: Record<string, string> = { final: 'Acta de evaluación final', complementary: 'Acta de recuperación', unit: 'Acta de unidad didáctica' };
 
 // Saves the CSV the API built (base64) with its name

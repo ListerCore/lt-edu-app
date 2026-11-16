@@ -3,7 +3,7 @@ import { formatDay } from '@/features/protected/academic/data/academic-data';
 import { cn } from '@/lib/utils';
 import type { RecordData } from '../types';
 
-const cellTone: Record<string, string> = { AD: 'text-success font-semibold', A: 'text-success', B: 'text-warning', C: 'text-destructive font-semibold' };
+const cellTone: Record<string, string> = { AD: 'text-success font-semibold', A: 'text-success', B: 'text-warning', C: 'text-destructive font-semibold', EXO: 'text-muted-foreground text-[9px]' };
 const situationTone = (s: string): string => (/^(PRO|Aprobado)/.test(s) ? 'text-success' : /^(PER|Desaprobado|Inhabilitado)/.test(s) ? 'text-destructive' : 'text-warning');
 
 // An issued acta, as frozen when it was issued: header, the register (one column per competency or evaluation),
@@ -11,6 +11,7 @@ const situationTone = (s: string): string => (/^(PRO|Aprobado)/.test(s) ? 'text-
 export const RecordView = ({ data }: { data: RecordData }): JSX.Element => {
   const { record, content: c } = data;
   const columns = c.groups.flatMap((g) => g.columns);
+  const grades = c.rows.some((r) => r.grade);
   return (
     <article data-print-card className="acta-sheet rounded-2xl border border-border bg-background p-6 print:rounded-none print:border-0 print:p-0">
       <header className="flex flex-wrap items-start justify-between gap-4 border-b-2 border-brand pb-3">
@@ -54,6 +55,7 @@ export const RecordView = ({ data }: { data: RecordData }): JSX.Element => {
             <tr className="text-muted-foreground">
               <th rowSpan={2} scope="col" className="border border-border px-1.5 py-1 text-center font-medium whitespace-nowrap">N.°</th>
               <th rowSpan={2} scope="col" className="border border-border px-1.5 py-1 text-left font-medium">Código</th>
+              {grades && <th rowSpan={2} scope="col" className="border border-border px-1.5 py-1 text-center font-medium">Grado</th>}
               <th rowSpan={2} scope="col" className="min-w-44 border border-border px-1.5 py-1 text-left font-medium">Apellidos y nombres</th>
               {c.groups.map((g) => (
                 <th key={g.name} colSpan={g.columns.length} scope="colgroup" className="border border-border px-1 py-1 text-center font-medium text-foreground">
@@ -75,6 +77,7 @@ export const RecordView = ({ data }: { data: RecordData }): JSX.Element => {
               <tr key={r.n} className="break-inside-avoid">
                 <td className="border border-border px-1.5 py-1 text-center tabular-nums">{r.n}</td>
                 <td className="border border-border px-1.5 py-1 whitespace-nowrap tabular-nums">{r.code}</td>
+                {grades && <td className="border border-border px-1.5 py-1 text-center whitespace-nowrap">{r.grade}</td>}
                 <td className="border border-border px-1.5 py-1 text-foreground">
                   {r.name}
                   {r.note && <span className="block text-[10px] text-muted-foreground print:text-[7px]">{r.note}</span>}
