@@ -46,18 +46,20 @@ export const grpcAddress = (): string | null => {
   }
 };
 
-// One HTTP/2 channel per service and server process, kept on globalThis so dev reloads do not open one per edit
-const globalClients = globalThis as typeof globalThis & { __josephGrpcClients?: Map<string, { address: string; client: Client }> };
+// One HTTP/2 channel per service and server process, kept on globalThis so dev reloads do not open one per edit. The
+// constructor is kept too: when a proto changes, dev reloads bring a new generated class with new methods and
+// decoders, and the old client must not be reused
+const globalClients = globalThis as typeof globalThis & { __josephGrpcClients?: Map<string, { address: string; ctor: unknown; client: Client }> };
 const clients = (globalClients.__josephGrpcClients ??= new Map());
 
 const clientFor = <C extends Client>(ctor: GrpcClientConstructor<C>, address: string): C => {
   const cached = clients.get(ctor.serviceName);
-  if (cached?.address === address) return cached.client as C;
+  if (cached?.address === address && cached.ctor === ctor) return cached.client as C;
   cached?.client.close();
   // The API lives on the internal network: plaintext unless APP__API__GRPC_TLS=true
   const channelCredentials = process.env.APP__API__GRPC_TLS === 'true' ? credentials.createSsl() : credentials.createInsecure();
   const client = new ctor(address, channelCredentials, { 'grpc.primary_user_agent': 'joseph-app', 'grpc.keepalive_time_ms': 60_000 });
-  clients.set(ctor.serviceName, { address, client });
+  clients.set(ctor.serviceName, { address, ctor, client });
   return client;
 };
 
