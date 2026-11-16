@@ -45,6 +45,14 @@ service ClassroomService {
   rpc SetExtension(SetExtensionRequest) returns (SetExtensionResponse);
   // Takes the levels of the latest graded attempts to the official record of the open term
   rpc RecordLevels(RecordLevelsRequest) returns (RecordLevelsResponse);
+
+  // Forums (forum items). Opening a forum marks it read for the person
+  rpc GetForum(GetForumRequest) returns (GetForumResponse);
+  rpc SaveForum(SaveForumRequest) returns (SaveForumResponse);
+  rpc CreatePost(CreatePostRequest) returns (CreatePostResponse);
+  rpc EditPost(EditPostRequest) returns (EditPostResponse);
+  rpc DeletePost(DeletePostRequest) returns (DeletePostResponse);
+  rpc ModeratePost(ModeratePostRequest) returns (ModeratePostResponse);
 }
 
 message Period {
@@ -79,7 +87,7 @@ message Room {
 message Item {
   string id = 1;
   string unit_id = 2;
-  // reading | file | video | link | live | activity | quiz | task
+  // reading | file | video | link | live | activity | quiz | task | forum
   string kind = 3;
   string title = 4;
   string body = 5;
@@ -471,3 +479,110 @@ message RecordLevelsResponse {
   // Students left out: their section has no teacher for the area, or its sheet is closed or not yours
   repeated string skipped_student_ids = 2;
 }
+
+message Forum {
+  string item_id = 1;
+  string room_id = 2;
+  string title = 3;
+  // The teacher's opening question or guidance
+  string prompt = 4;
+  // debate | questions | intro
+  string kind = 5;
+  bool closed = 6;
+  string closed_by_name = 7;
+}
+
+message Post {
+  string id = 1;
+  string parent_id = 2;
+  string author_user_id = 3;
+  string author_name = 4;
+  // Role code of the author (student, teacher, tutor…)
+  string author_role = 5;
+  // Empty for families when hidden
+  string body = 6;
+  bool pinned = 7;
+  bool hidden = 8;
+  string hidden_reason = 9;
+  string hidden_by_name = 10;
+  string created_at = 11;
+  string edited_at = 12;
+  // Posted after the person's previous visit, by someone else
+  bool is_new = 13;
+}
+
+message Thread {
+  Post post = 1;
+  repeated Post replies = 2;
+}
+
+message Participation {
+  string student_id = 1;
+  string student_name = 2;
+  string student_code = 3;
+  int32 threads = 4;
+  int32 replies = 5;
+  string last_at = 6;
+}
+
+message GetForumRequest {
+  string institution_slug = 1;
+  string item_id = 2;
+}
+
+message GetForumResponse {
+  Forum forum = 1;
+  repeated Thread threads = 2;
+  bool can_post = 3;
+  bool can_moderate = 4;
+  string my_user_id = 5;
+  int32 new_posts = 6;
+  // Staff only
+  repeated Participation participation = 7;
+}
+
+message SaveForumRequest {
+  string institution_slug = 1;
+  string item_id = 2;
+  string kind = 3;
+  bool closed = 4;
+}
+
+message SaveForumResponse {}
+
+message CreatePostRequest {
+  string institution_slug = 1;
+  string item_id = 2;
+  // Empty starts a thread
+  string parent_id = 3;
+  string body = 4;
+}
+
+message CreatePostResponse {
+  Post post = 1;
+}
+
+message EditPostRequest {
+  string institution_slug = 1;
+  string id = 2;
+  string body = 3;
+}
+
+message EditPostResponse {}
+
+message DeletePostRequest {
+  string institution_slug = 1;
+  string id = 2;
+}
+
+message DeletePostResponse {}
+
+message ModeratePostRequest {
+  string institution_slug = 1;
+  string id = 2;
+  bool pinned = 3;
+  bool hidden = 4;
+  string reason = 5;
+}
+
+message ModeratePostResponse {}

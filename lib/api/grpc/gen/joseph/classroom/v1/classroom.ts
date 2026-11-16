@@ -55,7 +55,7 @@ export interface Room {
 export interface Item {
   id: string;
   unitId: string;
-  /** reading | file | video | link | live | activity | quiz | task */
+  /** reading | file | video | link | live | activity | quiz | task | forum */
   kind: string;
   title: string;
   body: string;
@@ -490,6 +490,117 @@ export interface RecordLevelsResponse {
   recorded: number;
   /** Students left out: their section has no teacher for the area, or its sheet is closed or not yours */
   skippedStudentIds: string[];
+}
+
+export interface Forum {
+  itemId: string;
+  roomId: string;
+  title: string;
+  /** The teacher's opening question or guidance */
+  prompt: string;
+  /** debate | questions | intro */
+  kind: string;
+  closed: boolean;
+  closedByName: string;
+}
+
+export interface Post {
+  id: string;
+  parentId: string;
+  authorUserId: string;
+  authorName: string;
+  /** Role code of the author (student, teacher, tutor…) */
+  authorRole: string;
+  /** Empty for families when hidden */
+  body: string;
+  pinned: boolean;
+  hidden: boolean;
+  hiddenReason: string;
+  hiddenByName: string;
+  createdAt: string;
+  editedAt: string;
+  /** Posted after the person's previous visit, by someone else */
+  isNew: boolean;
+}
+
+export interface Thread {
+  post?: Post | undefined;
+  replies: Post[];
+}
+
+export interface Participation {
+  studentId: string;
+  studentName: string;
+  studentCode: string;
+  threads: number;
+  replies: number;
+  lastAt: string;
+}
+
+export interface GetForumRequest {
+  institutionSlug: string;
+  itemId: string;
+}
+
+export interface GetForumResponse {
+  forum?: Forum | undefined;
+  threads: Thread[];
+  canPost: boolean;
+  canModerate: boolean;
+  myUserId: string;
+  newPosts: number;
+  /** Staff only */
+  participation: Participation[];
+}
+
+export interface SaveForumRequest {
+  institutionSlug: string;
+  itemId: string;
+  kind: string;
+  closed: boolean;
+}
+
+export interface SaveForumResponse {
+}
+
+export interface CreatePostRequest {
+  institutionSlug: string;
+  itemId: string;
+  /** Empty starts a thread */
+  parentId: string;
+  body: string;
+}
+
+export interface CreatePostResponse {
+  post?: Post | undefined;
+}
+
+export interface EditPostRequest {
+  institutionSlug: string;
+  id: string;
+  body: string;
+}
+
+export interface EditPostResponse {
+}
+
+export interface DeletePostRequest {
+  institutionSlug: string;
+  id: string;
+}
+
+export interface DeletePostResponse {
+}
+
+export interface ModeratePostRequest {
+  institutionSlug: string;
+  id: string;
+  pinned: boolean;
+  hidden: boolean;
+  reason: string;
+}
+
+export interface ModeratePostResponse {
 }
 
 function createBasePeriod(): Period {
@@ -5666,6 +5777,1204 @@ export const RecordLevelsResponse: MessageFns<RecordLevelsResponse> = {
   },
 };
 
+function createBaseForum(): Forum {
+  return { itemId: "", roomId: "", title: "", prompt: "", kind: "", closed: false, closedByName: "" };
+}
+
+export const Forum: MessageFns<Forum> = {
+  encode(message: Forum, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.itemId !== "") {
+      writer.uint32(10).string(message.itemId);
+    }
+    if (message.roomId !== "") {
+      writer.uint32(18).string(message.roomId);
+    }
+    if (message.title !== "") {
+      writer.uint32(26).string(message.title);
+    }
+    if (message.prompt !== "") {
+      writer.uint32(34).string(message.prompt);
+    }
+    if (message.kind !== "") {
+      writer.uint32(42).string(message.kind);
+    }
+    if (message.closed !== false) {
+      writer.uint32(48).bool(message.closed);
+    }
+    if (message.closedByName !== "") {
+      writer.uint32(58).string(message.closedByName);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): Forum {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseForum();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.itemId = reader.string();
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.roomId = reader.string();
+            continue;
+          }
+          case 3: {
+            if (tag !== 26) {
+              break;
+            }
+
+            message.title = reader.string();
+            continue;
+          }
+          case 4: {
+            if (tag !== 34) {
+              break;
+            }
+
+            message.prompt = reader.string();
+            continue;
+          }
+          case 5: {
+            if (tag !== 42) {
+              break;
+            }
+
+            message.kind = reader.string();
+            continue;
+          }
+          case 6: {
+            if (tag !== 48) {
+              break;
+            }
+
+            message.closed = reader.bool();
+            continue;
+          }
+          case 7: {
+            if (tag !== 58) {
+              break;
+            }
+
+            message.closedByName = reader.string();
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+};
+
+function createBasePost(): Post {
+  return {
+    id: "",
+    parentId: "",
+    authorUserId: "",
+    authorName: "",
+    authorRole: "",
+    body: "",
+    pinned: false,
+    hidden: false,
+    hiddenReason: "",
+    hiddenByName: "",
+    createdAt: "",
+    editedAt: "",
+    isNew: false,
+  };
+}
+
+export const Post: MessageFns<Post> = {
+  encode(message: Post, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.id !== "") {
+      writer.uint32(10).string(message.id);
+    }
+    if (message.parentId !== "") {
+      writer.uint32(18).string(message.parentId);
+    }
+    if (message.authorUserId !== "") {
+      writer.uint32(26).string(message.authorUserId);
+    }
+    if (message.authorName !== "") {
+      writer.uint32(34).string(message.authorName);
+    }
+    if (message.authorRole !== "") {
+      writer.uint32(42).string(message.authorRole);
+    }
+    if (message.body !== "") {
+      writer.uint32(50).string(message.body);
+    }
+    if (message.pinned !== false) {
+      writer.uint32(56).bool(message.pinned);
+    }
+    if (message.hidden !== false) {
+      writer.uint32(64).bool(message.hidden);
+    }
+    if (message.hiddenReason !== "") {
+      writer.uint32(74).string(message.hiddenReason);
+    }
+    if (message.hiddenByName !== "") {
+      writer.uint32(82).string(message.hiddenByName);
+    }
+    if (message.createdAt !== "") {
+      writer.uint32(90).string(message.createdAt);
+    }
+    if (message.editedAt !== "") {
+      writer.uint32(98).string(message.editedAt);
+    }
+    if (message.isNew !== false) {
+      writer.uint32(104).bool(message.isNew);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): Post {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBasePost();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.id = reader.string();
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.parentId = reader.string();
+            continue;
+          }
+          case 3: {
+            if (tag !== 26) {
+              break;
+            }
+
+            message.authorUserId = reader.string();
+            continue;
+          }
+          case 4: {
+            if (tag !== 34) {
+              break;
+            }
+
+            message.authorName = reader.string();
+            continue;
+          }
+          case 5: {
+            if (tag !== 42) {
+              break;
+            }
+
+            message.authorRole = reader.string();
+            continue;
+          }
+          case 6: {
+            if (tag !== 50) {
+              break;
+            }
+
+            message.body = reader.string();
+            continue;
+          }
+          case 7: {
+            if (tag !== 56) {
+              break;
+            }
+
+            message.pinned = reader.bool();
+            continue;
+          }
+          case 8: {
+            if (tag !== 64) {
+              break;
+            }
+
+            message.hidden = reader.bool();
+            continue;
+          }
+          case 9: {
+            if (tag !== 74) {
+              break;
+            }
+
+            message.hiddenReason = reader.string();
+            continue;
+          }
+          case 10: {
+            if (tag !== 82) {
+              break;
+            }
+
+            message.hiddenByName = reader.string();
+            continue;
+          }
+          case 11: {
+            if (tag !== 90) {
+              break;
+            }
+
+            message.createdAt = reader.string();
+            continue;
+          }
+          case 12: {
+            if (tag !== 98) {
+              break;
+            }
+
+            message.editedAt = reader.string();
+            continue;
+          }
+          case 13: {
+            if (tag !== 104) {
+              break;
+            }
+
+            message.isNew = reader.bool();
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+};
+
+function createBaseThread(): Thread {
+  return { post: undefined, replies: [] };
+}
+
+export const Thread: MessageFns<Thread> = {
+  encode(message: Thread, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.post !== undefined) {
+      Post.encode(message.post, writer.uint32(10).fork()).join();
+    }
+    for (const v of message.replies) {
+      Post.encode(v!, writer.uint32(18).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): Thread {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseThread();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.post = Post.decode(reader, reader.uint32());
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.replies.push(Post.decode(reader, reader.uint32()));
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+};
+
+function createBaseParticipation(): Participation {
+  return { studentId: "", studentName: "", studentCode: "", threads: 0, replies: 0, lastAt: "" };
+}
+
+export const Participation: MessageFns<Participation> = {
+  encode(message: Participation, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.studentId !== "") {
+      writer.uint32(10).string(message.studentId);
+    }
+    if (message.studentName !== "") {
+      writer.uint32(18).string(message.studentName);
+    }
+    if (message.studentCode !== "") {
+      writer.uint32(26).string(message.studentCode);
+    }
+    if (message.threads !== 0) {
+      writer.uint32(32).int32(message.threads);
+    }
+    if (message.replies !== 0) {
+      writer.uint32(40).int32(message.replies);
+    }
+    if (message.lastAt !== "") {
+      writer.uint32(50).string(message.lastAt);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): Participation {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseParticipation();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.studentId = reader.string();
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.studentName = reader.string();
+            continue;
+          }
+          case 3: {
+            if (tag !== 26) {
+              break;
+            }
+
+            message.studentCode = reader.string();
+            continue;
+          }
+          case 4: {
+            if (tag !== 32) {
+              break;
+            }
+
+            message.threads = reader.int32();
+            continue;
+          }
+          case 5: {
+            if (tag !== 40) {
+              break;
+            }
+
+            message.replies = reader.int32();
+            continue;
+          }
+          case 6: {
+            if (tag !== 50) {
+              break;
+            }
+
+            message.lastAt = reader.string();
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+};
+
+function createBaseGetForumRequest(): GetForumRequest {
+  return { institutionSlug: "", itemId: "" };
+}
+
+export const GetForumRequest: MessageFns<GetForumRequest> = {
+  encode(message: GetForumRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.institutionSlug !== "") {
+      writer.uint32(10).string(message.institutionSlug);
+    }
+    if (message.itemId !== "") {
+      writer.uint32(18).string(message.itemId);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): GetForumRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseGetForumRequest();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.institutionSlug = reader.string();
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.itemId = reader.string();
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+};
+
+function createBaseGetForumResponse(): GetForumResponse {
+  return {
+    forum: undefined,
+    threads: [],
+    canPost: false,
+    canModerate: false,
+    myUserId: "",
+    newPosts: 0,
+    participation: [],
+  };
+}
+
+export const GetForumResponse: MessageFns<GetForumResponse> = {
+  encode(message: GetForumResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.forum !== undefined) {
+      Forum.encode(message.forum, writer.uint32(10).fork()).join();
+    }
+    for (const v of message.threads) {
+      Thread.encode(v!, writer.uint32(18).fork()).join();
+    }
+    if (message.canPost !== false) {
+      writer.uint32(24).bool(message.canPost);
+    }
+    if (message.canModerate !== false) {
+      writer.uint32(32).bool(message.canModerate);
+    }
+    if (message.myUserId !== "") {
+      writer.uint32(42).string(message.myUserId);
+    }
+    if (message.newPosts !== 0) {
+      writer.uint32(48).int32(message.newPosts);
+    }
+    for (const v of message.participation) {
+      Participation.encode(v!, writer.uint32(58).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): GetForumResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseGetForumResponse();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.forum = Forum.decode(reader, reader.uint32());
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.threads.push(Thread.decode(reader, reader.uint32()));
+            continue;
+          }
+          case 3: {
+            if (tag !== 24) {
+              break;
+            }
+
+            message.canPost = reader.bool();
+            continue;
+          }
+          case 4: {
+            if (tag !== 32) {
+              break;
+            }
+
+            message.canModerate = reader.bool();
+            continue;
+          }
+          case 5: {
+            if (tag !== 42) {
+              break;
+            }
+
+            message.myUserId = reader.string();
+            continue;
+          }
+          case 6: {
+            if (tag !== 48) {
+              break;
+            }
+
+            message.newPosts = reader.int32();
+            continue;
+          }
+          case 7: {
+            if (tag !== 58) {
+              break;
+            }
+
+            message.participation.push(Participation.decode(reader, reader.uint32()));
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+};
+
+function createBaseSaveForumRequest(): SaveForumRequest {
+  return { institutionSlug: "", itemId: "", kind: "", closed: false };
+}
+
+export const SaveForumRequest: MessageFns<SaveForumRequest> = {
+  encode(message: SaveForumRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.institutionSlug !== "") {
+      writer.uint32(10).string(message.institutionSlug);
+    }
+    if (message.itemId !== "") {
+      writer.uint32(18).string(message.itemId);
+    }
+    if (message.kind !== "") {
+      writer.uint32(26).string(message.kind);
+    }
+    if (message.closed !== false) {
+      writer.uint32(32).bool(message.closed);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): SaveForumRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseSaveForumRequest();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.institutionSlug = reader.string();
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.itemId = reader.string();
+            continue;
+          }
+          case 3: {
+            if (tag !== 26) {
+              break;
+            }
+
+            message.kind = reader.string();
+            continue;
+          }
+          case 4: {
+            if (tag !== 32) {
+              break;
+            }
+
+            message.closed = reader.bool();
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+};
+
+function createBaseSaveForumResponse(): SaveForumResponse {
+  return {};
+}
+
+export const SaveForumResponse: MessageFns<SaveForumResponse> = {
+  encode(_: SaveForumResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): SaveForumResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseSaveForumResponse();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+};
+
+function createBaseCreatePostRequest(): CreatePostRequest {
+  return { institutionSlug: "", itemId: "", parentId: "", body: "" };
+}
+
+export const CreatePostRequest: MessageFns<CreatePostRequest> = {
+  encode(message: CreatePostRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.institutionSlug !== "") {
+      writer.uint32(10).string(message.institutionSlug);
+    }
+    if (message.itemId !== "") {
+      writer.uint32(18).string(message.itemId);
+    }
+    if (message.parentId !== "") {
+      writer.uint32(26).string(message.parentId);
+    }
+    if (message.body !== "") {
+      writer.uint32(34).string(message.body);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): CreatePostRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseCreatePostRequest();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.institutionSlug = reader.string();
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.itemId = reader.string();
+            continue;
+          }
+          case 3: {
+            if (tag !== 26) {
+              break;
+            }
+
+            message.parentId = reader.string();
+            continue;
+          }
+          case 4: {
+            if (tag !== 34) {
+              break;
+            }
+
+            message.body = reader.string();
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+};
+
+function createBaseCreatePostResponse(): CreatePostResponse {
+  return { post: undefined };
+}
+
+export const CreatePostResponse: MessageFns<CreatePostResponse> = {
+  encode(message: CreatePostResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.post !== undefined) {
+      Post.encode(message.post, writer.uint32(10).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): CreatePostResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseCreatePostResponse();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.post = Post.decode(reader, reader.uint32());
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+};
+
+function createBaseEditPostRequest(): EditPostRequest {
+  return { institutionSlug: "", id: "", body: "" };
+}
+
+export const EditPostRequest: MessageFns<EditPostRequest> = {
+  encode(message: EditPostRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.institutionSlug !== "") {
+      writer.uint32(10).string(message.institutionSlug);
+    }
+    if (message.id !== "") {
+      writer.uint32(18).string(message.id);
+    }
+    if (message.body !== "") {
+      writer.uint32(26).string(message.body);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): EditPostRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseEditPostRequest();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.institutionSlug = reader.string();
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.id = reader.string();
+            continue;
+          }
+          case 3: {
+            if (tag !== 26) {
+              break;
+            }
+
+            message.body = reader.string();
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+};
+
+function createBaseEditPostResponse(): EditPostResponse {
+  return {};
+}
+
+export const EditPostResponse: MessageFns<EditPostResponse> = {
+  encode(_: EditPostResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): EditPostResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseEditPostResponse();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+};
+
+function createBaseDeletePostRequest(): DeletePostRequest {
+  return { institutionSlug: "", id: "" };
+}
+
+export const DeletePostRequest: MessageFns<DeletePostRequest> = {
+  encode(message: DeletePostRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.institutionSlug !== "") {
+      writer.uint32(10).string(message.institutionSlug);
+    }
+    if (message.id !== "") {
+      writer.uint32(18).string(message.id);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): DeletePostRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseDeletePostRequest();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.institutionSlug = reader.string();
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.id = reader.string();
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+};
+
+function createBaseDeletePostResponse(): DeletePostResponse {
+  return {};
+}
+
+export const DeletePostResponse: MessageFns<DeletePostResponse> = {
+  encode(_: DeletePostResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): DeletePostResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseDeletePostResponse();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+};
+
+function createBaseModeratePostRequest(): ModeratePostRequest {
+  return { institutionSlug: "", id: "", pinned: false, hidden: false, reason: "" };
+}
+
+export const ModeratePostRequest: MessageFns<ModeratePostRequest> = {
+  encode(message: ModeratePostRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.institutionSlug !== "") {
+      writer.uint32(10).string(message.institutionSlug);
+    }
+    if (message.id !== "") {
+      writer.uint32(18).string(message.id);
+    }
+    if (message.pinned !== false) {
+      writer.uint32(24).bool(message.pinned);
+    }
+    if (message.hidden !== false) {
+      writer.uint32(32).bool(message.hidden);
+    }
+    if (message.reason !== "") {
+      writer.uint32(42).string(message.reason);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): ModeratePostRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseModeratePostRequest();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.institutionSlug = reader.string();
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.id = reader.string();
+            continue;
+          }
+          case 3: {
+            if (tag !== 24) {
+              break;
+            }
+
+            message.pinned = reader.bool();
+            continue;
+          }
+          case 4: {
+            if (tag !== 32) {
+              break;
+            }
+
+            message.hidden = reader.bool();
+            continue;
+          }
+          case 5: {
+            if (tag !== 42) {
+              break;
+            }
+
+            message.reason = reader.string();
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+};
+
+function createBaseModeratePostResponse(): ModeratePostResponse {
+  return {};
+}
+
+export const ModeratePostResponse: MessageFns<ModeratePostResponse> = {
+  encode(_: ModeratePostResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): ModeratePostResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseModeratePostResponse();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+};
+
 /**
  * Dirección and coordinación manage every room; teachers edit the rooms of the subjects they teach; secretaría and
  * the Responsable técnico read; students and families see published rooms of the student's grade, open units and
@@ -5919,6 +7228,62 @@ export const ClassroomServiceService = {
       Buffer.from(RecordLevelsResponse.encode(value).finish()),
     responseDeserialize: (value: Buffer): RecordLevelsResponse => RecordLevelsResponse.decode(value),
   },
+  /** Forums (forum items). Opening a forum marks it read for the person */
+  getForum: {
+    path: "/joseph.classroom.v1.ClassroomService/GetForum" as const,
+    requestStream: false as const,
+    responseStream: false as const,
+    requestSerialize: (value: GetForumRequest): Buffer => Buffer.from(GetForumRequest.encode(value).finish()),
+    requestDeserialize: (value: Buffer): GetForumRequest => GetForumRequest.decode(value),
+    responseSerialize: (value: GetForumResponse): Buffer => Buffer.from(GetForumResponse.encode(value).finish()),
+    responseDeserialize: (value: Buffer): GetForumResponse => GetForumResponse.decode(value),
+  },
+  saveForum: {
+    path: "/joseph.classroom.v1.ClassroomService/SaveForum" as const,
+    requestStream: false as const,
+    responseStream: false as const,
+    requestSerialize: (value: SaveForumRequest): Buffer => Buffer.from(SaveForumRequest.encode(value).finish()),
+    requestDeserialize: (value: Buffer): SaveForumRequest => SaveForumRequest.decode(value),
+    responseSerialize: (value: SaveForumResponse): Buffer => Buffer.from(SaveForumResponse.encode(value).finish()),
+    responseDeserialize: (value: Buffer): SaveForumResponse => SaveForumResponse.decode(value),
+  },
+  createPost: {
+    path: "/joseph.classroom.v1.ClassroomService/CreatePost" as const,
+    requestStream: false as const,
+    responseStream: false as const,
+    requestSerialize: (value: CreatePostRequest): Buffer => Buffer.from(CreatePostRequest.encode(value).finish()),
+    requestDeserialize: (value: Buffer): CreatePostRequest => CreatePostRequest.decode(value),
+    responseSerialize: (value: CreatePostResponse): Buffer => Buffer.from(CreatePostResponse.encode(value).finish()),
+    responseDeserialize: (value: Buffer): CreatePostResponse => CreatePostResponse.decode(value),
+  },
+  editPost: {
+    path: "/joseph.classroom.v1.ClassroomService/EditPost" as const,
+    requestStream: false as const,
+    responseStream: false as const,
+    requestSerialize: (value: EditPostRequest): Buffer => Buffer.from(EditPostRequest.encode(value).finish()),
+    requestDeserialize: (value: Buffer): EditPostRequest => EditPostRequest.decode(value),
+    responseSerialize: (value: EditPostResponse): Buffer => Buffer.from(EditPostResponse.encode(value).finish()),
+    responseDeserialize: (value: Buffer): EditPostResponse => EditPostResponse.decode(value),
+  },
+  deletePost: {
+    path: "/joseph.classroom.v1.ClassroomService/DeletePost" as const,
+    requestStream: false as const,
+    responseStream: false as const,
+    requestSerialize: (value: DeletePostRequest): Buffer => Buffer.from(DeletePostRequest.encode(value).finish()),
+    requestDeserialize: (value: Buffer): DeletePostRequest => DeletePostRequest.decode(value),
+    responseSerialize: (value: DeletePostResponse): Buffer => Buffer.from(DeletePostResponse.encode(value).finish()),
+    responseDeserialize: (value: Buffer): DeletePostResponse => DeletePostResponse.decode(value),
+  },
+  moderatePost: {
+    path: "/joseph.classroom.v1.ClassroomService/ModeratePost" as const,
+    requestStream: false as const,
+    responseStream: false as const,
+    requestSerialize: (value: ModeratePostRequest): Buffer => Buffer.from(ModeratePostRequest.encode(value).finish()),
+    requestDeserialize: (value: Buffer): ModeratePostRequest => ModeratePostRequest.decode(value),
+    responseSerialize: (value: ModeratePostResponse): Buffer =>
+      Buffer.from(ModeratePostResponse.encode(value).finish()),
+    responseDeserialize: (value: Buffer): ModeratePostResponse => ModeratePostResponse.decode(value),
+  },
 } as const;
 
 export interface ClassroomServiceServer extends UntypedServiceImplementation {
@@ -5950,6 +7315,13 @@ export interface ClassroomServiceServer extends UntypedServiceImplementation {
   setExtension: handleUnaryCall<SetExtensionRequest, SetExtensionResponse>;
   /** Takes the levels of the latest graded attempts to the official record of the open term */
   recordLevels: handleUnaryCall<RecordLevelsRequest, RecordLevelsResponse>;
+  /** Forums (forum items). Opening a forum marks it read for the person */
+  getForum: handleUnaryCall<GetForumRequest, GetForumResponse>;
+  saveForum: handleUnaryCall<SaveForumRequest, SaveForumResponse>;
+  createPost: handleUnaryCall<CreatePostRequest, CreatePostResponse>;
+  editPost: handleUnaryCall<EditPostRequest, EditPostResponse>;
+  deletePost: handleUnaryCall<DeletePostRequest, DeletePostResponse>;
+  moderatePost: handleUnaryCall<ModeratePostRequest, ModeratePostResponse>;
 }
 
 export interface ClassroomServiceClient extends Client {
@@ -6330,6 +7702,97 @@ export interface ClassroomServiceClient extends Client {
     metadata: Metadata,
     options: Partial<CallOptions>,
     callback: (error: ServiceError | null, response: RecordLevelsResponse) => void,
+  ): ClientUnaryCall;
+  /** Forums (forum items). Opening a forum marks it read for the person */
+  getForum(
+    request: GetForumRequest,
+    callback: (error: ServiceError | null, response: GetForumResponse) => void,
+  ): ClientUnaryCall;
+  getForum(
+    request: GetForumRequest,
+    metadata: Metadata,
+    callback: (error: ServiceError | null, response: GetForumResponse) => void,
+  ): ClientUnaryCall;
+  getForum(
+    request: GetForumRequest,
+    metadata: Metadata,
+    options: Partial<CallOptions>,
+    callback: (error: ServiceError | null, response: GetForumResponse) => void,
+  ): ClientUnaryCall;
+  saveForum(
+    request: SaveForumRequest,
+    callback: (error: ServiceError | null, response: SaveForumResponse) => void,
+  ): ClientUnaryCall;
+  saveForum(
+    request: SaveForumRequest,
+    metadata: Metadata,
+    callback: (error: ServiceError | null, response: SaveForumResponse) => void,
+  ): ClientUnaryCall;
+  saveForum(
+    request: SaveForumRequest,
+    metadata: Metadata,
+    options: Partial<CallOptions>,
+    callback: (error: ServiceError | null, response: SaveForumResponse) => void,
+  ): ClientUnaryCall;
+  createPost(
+    request: CreatePostRequest,
+    callback: (error: ServiceError | null, response: CreatePostResponse) => void,
+  ): ClientUnaryCall;
+  createPost(
+    request: CreatePostRequest,
+    metadata: Metadata,
+    callback: (error: ServiceError | null, response: CreatePostResponse) => void,
+  ): ClientUnaryCall;
+  createPost(
+    request: CreatePostRequest,
+    metadata: Metadata,
+    options: Partial<CallOptions>,
+    callback: (error: ServiceError | null, response: CreatePostResponse) => void,
+  ): ClientUnaryCall;
+  editPost(
+    request: EditPostRequest,
+    callback: (error: ServiceError | null, response: EditPostResponse) => void,
+  ): ClientUnaryCall;
+  editPost(
+    request: EditPostRequest,
+    metadata: Metadata,
+    callback: (error: ServiceError | null, response: EditPostResponse) => void,
+  ): ClientUnaryCall;
+  editPost(
+    request: EditPostRequest,
+    metadata: Metadata,
+    options: Partial<CallOptions>,
+    callback: (error: ServiceError | null, response: EditPostResponse) => void,
+  ): ClientUnaryCall;
+  deletePost(
+    request: DeletePostRequest,
+    callback: (error: ServiceError | null, response: DeletePostResponse) => void,
+  ): ClientUnaryCall;
+  deletePost(
+    request: DeletePostRequest,
+    metadata: Metadata,
+    callback: (error: ServiceError | null, response: DeletePostResponse) => void,
+  ): ClientUnaryCall;
+  deletePost(
+    request: DeletePostRequest,
+    metadata: Metadata,
+    options: Partial<CallOptions>,
+    callback: (error: ServiceError | null, response: DeletePostResponse) => void,
+  ): ClientUnaryCall;
+  moderatePost(
+    request: ModeratePostRequest,
+    callback: (error: ServiceError | null, response: ModeratePostResponse) => void,
+  ): ClientUnaryCall;
+  moderatePost(
+    request: ModeratePostRequest,
+    metadata: Metadata,
+    callback: (error: ServiceError | null, response: ModeratePostResponse) => void,
+  ): ClientUnaryCall;
+  moderatePost(
+    request: ModeratePostRequest,
+    metadata: Metadata,
+    options: Partial<CallOptions>,
+    callback: (error: ServiceError | null, response: ModeratePostResponse) => void,
   ): ClientUnaryCall;
 }
 
