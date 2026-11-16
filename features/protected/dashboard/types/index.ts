@@ -38,6 +38,8 @@ export type ModuleKey =
   | 'permanence'
   // EBA: the virtual tutor's desk (students, sessions, messages, SAANEE) and the student's own tutoring
   | 'virtual-tutoring'
+  // EBA: DRE compliance (equipment of the virtual tutors, verification matrices and the two technical reports)
+  | 'compliance'
   | 'individual-plans'
   | 'therapies'
   | 'inclusion-support'

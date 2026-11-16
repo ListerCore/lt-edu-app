@@ -1,4 +1,4 @@
-import { Accessibility, Activity, Award, BadgeCheck, Bell, BellRing, BookOpen, Brain, Briefcase, CalendarDays, CalendarRange, ChartColumn, CircleUserRound, ClipboardCheck, ClipboardList, ClipboardPen, Clock, FileCheck, FileSearch, FileSpreadsheet, FileText, FolderOpen, GraduationCap, HandHeart, Handshake, HeartHandshake, Home, IdCard, Layers, LayoutDashboard, Library, LibraryBig, MessagesSquare, MonitorPlay, NotebookText, Scale, School, ScrollText, Settings, Shapes, ShieldAlert, Trophy, UserCheck, UserCog, Users, UsersRound, Wallet } from 'lucide';
+import { Accessibility, Activity, Award, BadgeCheck, Bell, BellRing, BookOpen, Brain, Briefcase, CalendarDays, CalendarRange, ChartColumn, CircleUserRound, ClipboardCheck, ClipboardList, ClipboardPen, Clock, FileCheck, FileSearch, FileSpreadsheet, FileText, FolderOpen, GraduationCap, HandHeart, Handshake, HeartHandshake, Home, IdCard, Layers, LayoutDashboard, Library, LibraryBig, MessagesSquare, MonitorPlay, NotebookText, Scale, School, ScrollText, Settings, Shapes, ShieldAlert, ShieldCheck, Trophy, UserCheck, UserCog, Users, UsersRound, Wallet } from 'lucide';
 import type { InstitutionType, Management, NavLabel, NavSection } from '../types';
 
 export const DASHBOARD_PATH = '/dashboard';
@@ -119,6 +119,7 @@ export const dashboardNavigation: NavSection[] = [
       // Public institutions only (managementModules): meetings of the parents' association
       { label: 'APAFA', icon: Handshake, href: path('apafa'), module: 'apafa' },
       { label: 'Reportes', icon: ChartColumn, href: path('reports'), module: 'reports' },
+      { label: 'Cumplimiento DRE', icon: ShieldCheck, href: path('compliance'), module: 'compliance' },
       {
         label: 'Configuración',
         icon: Settings,

@@ -111,6 +111,11 @@ export const ownerKindModules: Partial<Record<AttachmentOwnerKind, ModuleKey>> =
   classroom_item: 'classroom',
   library_item: 'classroom-library',
   submission: 'classroom',
+  // DRE compliance: photos and plans of the room, the devices, the captures of tests and of each report row
+  equipment_room: 'compliance',
+  equipment_device: 'compliance',
+  equipment_check: 'compliance',
+  compliance_item: 'compliance',
 };
 
 export const attachmentFileUrl = (id: string): string => `/api/files/attachments/${id}`;

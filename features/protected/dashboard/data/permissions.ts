@@ -52,7 +52,7 @@ export const institutionModules: Record<InstitutionType, ModuleKey[]> = {
   // School: competency grades, report cards, official certificates and the parents' school
   EBR: [...coreModules, 'grades', 'report-cards', 'closing', 'certificates', 'psychology', 'discipline', 'parent-school', 'apafa'],
   // CEBA: attention modes (in person, blended, distance), placement and validation tests, certificates
-  EBA: [...coreModules, 'attention-modes', 'placement', 'roll', 'permanence', 'virtual-tutoring', 'classroom', 'classroom-library', 'grades', 'report-cards', 'closing', 'certificates', 'psychology', 'discipline', 'apafa'],
+  EBA: [...coreModules, 'attention-modes', 'placement', 'roll', 'permanence', 'virtual-tutoring', 'compliance', 'classroom', 'classroom-library', 'grades', 'report-cards', 'closing', 'certificates', 'psychology', 'discipline', 'apafa'],
   // CEBE: levels per competency against the adaptations of each POI, individual plans, progress reports, therapies and
   // inclusion support (SAANEE)
   EBE: [...coreModules, 'grades', 'report-cards', 'closing', 'individual-plans', 'progress-reports', 'therapies', 'inclusion-support', 'psychology', 'discipline', 'parent-school', 'apafa'],
@@ -165,6 +165,7 @@ export const rolePermissions: Record<Role, RolePermissions> = {
     roll: ALL,
     permanence: ALL,
     'virtual-tutoring': ALL,
+    compliance: VIEW,
     'report-cards': ALL,
     closing: ALL,
     'individual-plans': ALL,
@@ -273,6 +274,8 @@ export const rolePermissions: Record<Role, RolePermissions> = {
     'attention-modes': VIEW,
     periods: VIEW,
     announcements: VIEW,
+    // Keeps the equipment, the evidence and the two technical reports; the only one who verifies a row
+    compliance: ALL,
     // Reads the virtual classroom: evidence of the Anexo 2 for the DRE reports
     classroom: VIEW,
     'classroom-library': VIEW,
