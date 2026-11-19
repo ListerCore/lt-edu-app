@@ -4,6 +4,8 @@ import { Footer } from '@/components/layout/footer';
 import { Navbar } from '@/components/layout/navbar';
 import { SectionActivityProvider } from '@/components/providers/section-activity';
 import { SiteBackground } from '@/components/layout/site-background';
+import { WhatsAppButton } from '@/components/layout/whatsapp-button';
+import { siteConfig } from '@/lib/site';
 import { NotFoundPage } from '@/features/public/system/components/not-found-page';
 
 export const metadata: Metadata = { title: 'Página no encontrada' };
@@ -18,6 +20,7 @@ const NotFound = (): JSX.Element => (
         <NotFoundPage />
       </main>
       <Footer />
+      {siteConfig.whatsapp.number && <WhatsAppButton number={siteConfig.whatsapp.number} message={siteConfig.whatsapp.message} />}
     </div>
   </SectionActivityProvider>
 );

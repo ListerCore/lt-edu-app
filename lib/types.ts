@@ -23,6 +23,11 @@ export interface SiteConfig {
   access: SiteLink[];
   // Main phone, printed on the back of the ID cards
   phone: string;
+  // WhatsApp chat opened by the floating button; number is digits only with country code
+  whatsapp: {
+    number: string;
+    message: string;
+  };
   office: {
     address: string;
     city: string;

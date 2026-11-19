@@ -28,6 +28,11 @@ export const siteConfig: SiteConfig = {
     { label: 'Crear cuenta', href: '/auth/signup' },
     { label: 'Recuperar cuenta', href: '/auth/recovery-account' },
   ],
+  // Floating chat button; digits only with country code (51 + 9 digits). Empty hides the button
+  whatsapp: {
+    number: '51929525631',
+    message: 'Hola, vengo de la web de ListerCore Edu y quisiera más información.',
+  },
   // Office pin, resolved from the shared Google Maps link
   phone: '(01) 555 0123',
   office: {

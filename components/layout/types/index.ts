@@ -11,3 +11,8 @@ export interface BrandWatermarkProps {
 export interface NavLabelProps {
   link: SiteLink;
 }
+
+export interface WhatsAppButtonProps {
+  number: string;
+  message: string;
+}
