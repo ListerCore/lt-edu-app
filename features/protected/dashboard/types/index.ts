@@ -1,5 +1,6 @@
 import type { Announcement } from '@/features/protected/announcements/types';
 import type { IconInput } from 'morphicons/react';
+import type { AppNotification } from '@/features/protected/notifications/types';
 
 export type InstitutionType = 'EBR' | 'EBA' | 'EBE' | 'CEPRE' | 'IEST';
 
@@ -173,4 +174,45 @@ export interface UseAnnouncementTickerResult {
   total: number;
   pause: () => void;
   resume: () => void;
+}
+
+// Home (/dashboard): everything the landing renders, already prepared by useDashboardHome
+export interface UseDashboardHomeResult {
+  firstName: string;
+  roleLabel: string;
+  institutionName: string;
+  institutionTypeLabel: string;
+  // "miércoles, 18 de noviembre"; empty while prerendering
+  todayLabel: string;
+  // Modules of the role, taken from the sidebar tree
+  shortcuts: ResolvedLeaf[];
+  // The role reads announcements (otherwise the block is hidden)
+  showAnnouncements: boolean;
+  announcements: Announcement[];
+  isLoadingAnnouncements: boolean;
+  notifications: AppNotification[];
+  isLoadingNotifications: boolean;
+  unreadCount: number;
+  // Reference time for the relative labels of the notifications
+  now: number;
+  isRead: (id: string) => boolean;
+  markRead: (id: string) => void;
+}
+
+export interface DashboardHomeShortcutsProps {
+  shortcuts: ResolvedLeaf[];
+}
+
+export interface DashboardHomeAnnouncementsProps {
+  announcements: Announcement[];
+  isLoading: boolean;
+}
+
+export interface DashboardHomeActivityProps {
+  notifications: AppNotification[];
+  isLoading: boolean;
+  unreadCount: number;
+  now: number;
+  isRead: (id: string) => boolean;
+  onOpen: (id: string) => void;
 }
