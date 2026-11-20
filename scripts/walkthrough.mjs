@@ -4,9 +4,9 @@
 // errors, uncaught exceptions, error screens ("No se pudo cargar", the error boundary) and access denials. It writes
 // a screenshot per page and a report (report.md and report.json) into the output folder.
 //
-//   cd joseph-api && go run ./cmd/demosessions -slug demo-eba > /tmp/sessions.json
+//   cd lt-edu-api && go run ./cmd/demosessions -slug demo-eba > /tmp/sessions.json
 //   node scripts/walkthrough.mjs --sessions /tmp/sessions.json --type EBA --out /tmp/walkthrough
-//   cd joseph-api && go run ./cmd/demosessions -cleanup
+//   cd lt-edu-api && go run ./cmd/demosessions -cleanup
 //
 // Options: --base http://localhost:5173  --roles director,tutor  --themes light,dark  --viewports desktop,mobile
 // --wait 6000 (ms per page). Chrome: CHROME=/path/to/chrome, otherwise the Chrome for Testing of Playwright's cache.
@@ -110,11 +110,11 @@ for (const role of roles) {
   if (!token) continue;
   stopBrowser();
   await startBrowser();
-  await send('Network.setCookie', { name: 'joseph_session', value: token, domain: host, path: '/', httpOnly: true });
+  await send('Network.setCookie', { name: 'ltedu_session', value: token, domain: host, path: '/', httpOnly: true });
   await send('Emulation.setDeviceMetricsOverride', { width: 1440, height: 1000, deviceScaleFactor: 1, mobile: false });
   await send('Page.navigate', { url: `${base}/` });
   await sleep(1500);
-  await evaluate(`localStorage.setItem('joseph-workspace', ${JSON.stringify(JSON.stringify({ institutionType: type, role }))})`);
+  await evaluate(`localStorage.setItem('lt-edu-workspace', ${JSON.stringify(JSON.stringify({ institutionType: type, role }))})`);
   // The pages of the role: every link its sidebar offers, with the collapsed groups opened
   await send('Page.navigate', { url: `${base}/dashboard` });
   await sleep(wait);

@@ -3,14 +3,14 @@ import type { SiteConfig } from './types';
 // Single source for brand, navigation and contact data shared by navbar, footer and metadata
 export const siteConfig: SiteConfig = {
   name: 'ListerCore Edu',
-  domain: 'joseph.pe',
+  domain: 'listercore.es',
   institutionType: 'EBR',
   tagline: 'Gestión educativa',
   description: 'Sistema de gestión educativa: matrícula, asistencia con carnet QR, notas, pensiones y comunicados para colegios, CEBA, CEBE, academias e institutos.',
   emails: {
-    info: 'informes@joseph.pe',
-    support: 'soporte@joseph.pe',
-    privacy: 'privacidad@joseph.pe',
+    info: 'informes@listercore.es',
+    support: 'soporte@listercore.es',
+    privacy: 'privacidad@listercore.es',
   },
   // Home sections presenting the platform, then the public pages
   navigation: [

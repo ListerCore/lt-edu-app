@@ -1,4 +1,4 @@
-// Pagination block of every paged list returned by joseph-api
+// Pagination block of every paged list returned by lt-edu-api
 export interface Pagination {
   has_prev_page: boolean;
   has_next_page: boolean;
@@ -24,7 +24,7 @@ export interface ListResponse<T, F extends Record<string, string> = Record<strin
 export const PAGE_SIZES = [10, 20, 50] as const;
 export const DEFAULT_PAGE_SIZE = 10;
 
-// Slices an in-memory list the way joseph-api will page it (used by the simulated actions)
+// Slices an in-memory list the way lt-edu-api will page it (used by the simulated actions)
 export const paginate = <T>(items: T[], page: number, pageSize: number): { data: T[]; pagination: Pagination } => {
   const totalPages = Math.max(1, Math.ceil(items.length / pageSize));
   const current = Math.min(Math.max(1, page), totalPages);

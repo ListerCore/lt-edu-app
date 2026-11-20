@@ -1,13 +1,13 @@
-// Cookies of the signed-in browser. The session and challenge cookies are httpOnly: only joseph-app's server reads
-// them and forwards the token to joseph-api as Authorization: Bearer. Shared by proxy.ts, route handlers and actions
-export const SESSION_COOKIE = 'joseph_session';
+// Cookies of the signed-in browser. The session and challenge cookies are httpOnly: only lt-edu-app's server reads
+// them and forwards the token to lt-edu-api as Authorization: Bearer. Shared by proxy.ts, route handlers and actions
+export const SESSION_COOKIE = 'ltedu_session';
 // Handle of a sign-in waiting for its second step (code by email or authenticator app)
-export const CHALLENGE_COOKIE = 'joseph_challenge';
+export const CHALLENGE_COOKIE = 'ltedu_challenge';
 // Readable hint for the UI (navbar, menus): "1" while a session cookie exists. It grants nothing
-export const SIGNED_IN_COOKIE = 'joseph_signed_in';
+export const SIGNED_IN_COOKIE = 'ltedu_signed_in';
 // Google sign-in in flight: CSRF state and PKCE verifier, only sent back to the callback
-export const GOOGLE_STATE_COOKIE = 'joseph_google_state';
-export const GOOGLE_VERIFIER_COOKIE = 'joseph_google_verifier';
+export const GOOGLE_STATE_COOKIE = 'ltedu_google_state';
+export const GOOGLE_VERIFIER_COOKIE = 'ltedu_google_verifier';
 export const GOOGLE_COOKIE_PATH = '/api/auth/google';
 
 export const cookieOptions = (expires: Date) => ({

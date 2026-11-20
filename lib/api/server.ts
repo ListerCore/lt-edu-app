@@ -15,7 +15,7 @@ interface ApiRequestOptions {
   body?: unknown;
   // Session token, sent as Authorization: Bearer
   token?: string;
-  // Turnstile token of a public form, verified by joseph-api (X-Captcha-Token)
+  // Turnstile token of a public form, verified by lt-edu-api (X-Captcha-Token)
   captchaToken?: string;
 }
 
@@ -23,7 +23,7 @@ const unavailable: ApiError = { code: 'api_unavailable', message: 'No pudimos co
 
 export const apiBaseUrl = (): string | null => process.env.APP__API__URL?.replace(/\/$/, '') ?? null;
 
-const notConfigured: ApiError = { code: 'api_not_configured', message: 'Falta configurar APP__API__URL en joseph-app.' };
+const notConfigured: ApiError = { code: 'api_not_configured', message: 'Falta configurar APP__API__URL en lt-edu-app.' };
 
 // The API URL only exists at runtime (the Docker build has no APP__API__URL), so the call must never run while
 // prerendering: otherwise "not configured" is baked into the static shell and served forever
@@ -32,14 +32,14 @@ const runtimeBaseUrl = async (): Promise<string | null> => {
   return apiBaseUrl();
 };
 
-// The visitor's IP and user agent travel to joseph-api (rate limits, audit trail, Libro de Reclamaciones)
+// The visitor's IP and user agent travel to lt-edu-api (rate limits, audit trail, Libro de Reclamaciones)
 const visitorHeaders = async (): Promise<Record<string, string>> => {
   const requestHeaders = await headers();
   const forwardedFor = requestHeaders.get('x-forwarded-for')?.split(',')[0]?.trim() || requestHeaders.get('x-real-ip') || '';
-  return { ...(forwardedFor && { 'X-Forwarded-For': forwardedFor }), 'User-Agent': requestHeaders.get('user-agent') ?? 'joseph-app' };
+  return { ...(forwardedFor && { 'X-Forwarded-For': forwardedFor }), 'User-Agent': requestHeaders.get('user-agent') ?? 'lt-edu-app' };
 };
 
-// Calls joseph-api from the Next.js server
+// Calls lt-edu-api from the Next.js server
 export const apiRequest = async <T>(path: string, { method = 'GET', body, token, captchaToken }: ApiRequestOptions = {}): Promise<ApiResult<T>> => {
   const baseUrl = await runtimeBaseUrl();
   if (!baseUrl) return { ok: false, status: 503, error: notConfigured };
