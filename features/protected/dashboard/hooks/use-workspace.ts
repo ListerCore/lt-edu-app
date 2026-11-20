@@ -6,7 +6,7 @@ import type { InstitutionType, ModuleKey, PermissionAction, Role, UseWorkspaceRe
 import type { TabPage } from '../data/permissions';
 import { useInstitutionManagement } from './use-institution-management';
 
-const STORAGE_KEY = 'joseph-workspace';
+const STORAGE_KEY = 'lt-edu-workspace';
 const DEFAULT_WORKSPACE: Workspace = { institutionType: 'EBR', role: 'director' };
 
 let cached: Workspace | null = null;
@@ -45,8 +45,8 @@ const subscribe = (listener: () => void): (() => void) => {
   return () => listeners.delete(listener);
 };
 
-// Current institution type + role (simulated until joseph-api provides the session), the institution's management
-// type (from joseph-api) and the permission check, which hides modules the management type does not have
+// Current institution type + role (simulated until lt-edu-api provides the session), the institution's management
+// type (from lt-edu-api) and the permission check, which hides modules the management type does not have
 export const useWorkspace = (): UseWorkspaceResult => {
   const workspace = useSyncExternalStore(subscribe, read, () => DEFAULT_WORKSPACE);
   const { management, isPublic, reload: reloadManagement } = useInstitutionManagement(workspace.institutionType);

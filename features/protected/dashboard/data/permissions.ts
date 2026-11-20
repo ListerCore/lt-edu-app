@@ -50,17 +50,17 @@ const coreModules: ModuleKey[] = ['home', 'notifications', 'account', 'announcem
 // Each type adds the modules its academic flow needs (README §2 matrix)
 export const institutionModules: Record<InstitutionType, ModuleKey[]> = {
   // School: competency grades, report cards and the parents' school (the certificates page is the institutes')
-  EBR: [...coreModules, 'grades', 'report-cards', 'closing', 'psychology', 'discipline', 'parent-school', 'apafa'],
+  EBR: [...coreModules, 'grades', 'report-cards', 'closing', 'psychology', 'live-classes', 'discipline', 'parent-school', 'apafa'],
   // CEBA: attention modes (in person, blended, distance), placement and validation tests; its constancias are on
   // each student (the certificates page is the institutes')
-  EBA: [...coreModules, 'attention-modes', 'placement', 'roll', 'permanence', 'virtual-tutoring', 'compliance', 'classroom', 'classroom-library', 'grades', 'report-cards', 'closing', 'psychology', 'discipline', 'apafa'],
+  EBA: [...coreModules, 'attention-modes', 'placement', 'roll', 'permanence', 'virtual-tutoring', 'compliance', 'classroom', 'classroom-library', 'live-classes', 'grades', 'report-cards', 'closing', 'psychology', 'discipline', 'apafa'],
   // CEBE: levels per competency against the adaptations of each POI, individual plans, progress reports, therapies and
   // inclusion support (SAANEE)
   EBE: [...coreModules, 'grades', 'report-cards', 'closing', 'individual-plans', 'progress-reports', 'therapies', 'inclusion-support', 'psychology', 'discipline', 'parent-school', 'apafa'],
   // Pre-university academy: mock exams, rankings, question bank and study materials; no promotion or certificates
   CEPRE: [...coreModules, 'mock-exams', 'rankings', 'question-bank', 'study-materials'],
   // Institute: grades out of 20, internships (experiencias formativas), certificates and degrees
-  IEST: [...coreModules, 'grades', 'report-cards', 'closing', 'study-materials', 'internships', 'certificates', 'degrees', 'psychology'],
+  IEST: [...coreModules, 'grades', 'report-cards', 'closing', 'study-materials', 'internships', 'certificates', 'degrees', 'psychology', 'live-classes'],
 };
 
 // Modules that exist only under one management type. A module listed here is hidden from the other type even when
@@ -84,7 +84,7 @@ const exclusiveModules = new Set<ModuleKey>(Object.values(managementModules).fla
 // True when the module exists under that management type (shared modules always do)
 export const hasManagementModule = (management: Management, module: ModuleKey): boolean => !exclusiveModules.has(module) || managementModules[management].includes(module);
 
-// What the panel assumes before joseph-api answers: the ListerCore Edu demos of CEBA and CEBE are public, the rest private
+// What the panel assumes before lt-edu-api answers: the ListerCore Edu demos of CEBA and CEBE are public, the rest private
 export const demoManagement: Record<InstitutionType, Management> = {
   EBR: 'private',
   EBA: 'public',
@@ -121,6 +121,8 @@ const teacherPermissions: RolePermissions = {
   // Teachers build the virtual classroom of the subjects they teach (the API checks which rooms)
   classroom: EDIT,
   'classroom-library': EDIT,
+  // Their live classes and tutoring sessions (the API says which ones they host)
+  'live-classes': VIEW,
   cards: VIEW,
   announcements: ['view', 'create'],
   // Teachers report faults and refer students to psychology (they see the status of their referrals)
@@ -144,6 +146,8 @@ const studentPermissions: RolePermissions = {
   'study-materials': VIEW,
   internships: VIEW,
   classroom: VIEW,
+  // Their live classes, tutoring and psychology appointments, to join them
+  'live-classes': VIEW,
   certificates: VIEW,
   cards: VIEW,
   announcements: VIEW,
@@ -197,6 +201,7 @@ export const rolePermissions: Record<Role, RolePermissions> = {
     institution: VIEW,
     classroom: ALL,
     'classroom-library': ALL,
+    'live-classes': VIEW,
   },
   secretary: {
     home: VIEW,
@@ -253,6 +258,8 @@ export const rolePermissions: Record<Role, RolePermissions> = {
     'inclusion-support': EDIT,
     'parent-school': ALL,
     announcements: VIEW,
+    // Psychology appointments by video call
+    'live-classes': VIEW,
   },
   treasurer: {
     home: VIEW,

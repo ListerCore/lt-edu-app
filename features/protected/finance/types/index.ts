@@ -1,4 +1,4 @@
-import type { Account, Charge, FeeItem, FeePlan, GetCashResponse, GetSummaryResponse, Payment, Statement } from '@/lib/api/grpc/gen/joseph/finance/v1/finance';
+import type { Account, Charge, FeeItem, FeePlan, GetCashResponse, GetSummaryResponse, Payment, Statement } from '@/lib/api/grpc/gen/ltedu/finance/v1/finance';
 
 export type { Account, Charge, FeeItem, FeePlan, GetCashResponse as Cash, GetSummaryResponse as Summary, Payment, Statement };
 

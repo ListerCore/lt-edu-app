@@ -1,4 +1,4 @@
-import type { Admission, AnswerSheet, BookletItem, Course, CourseStat, ExamStudent, GetMockResponse, GetOverviewResponse, GetResultsResponse, KeyItem, Level, LoadReport, MockCourse, MockExam, MockWeight, Question, StudentExams, StudentMock } from '@/lib/api/grpc/gen/joseph/exams/v1/exams';
+import type { Admission, AnswerSheet, BookletItem, Course, CourseStat, ExamStudent, GetMockResponse, GetOverviewResponse, GetResultsResponse, KeyItem, Level, LoadReport, MockCourse, MockExam, MockWeight, Question, StudentExams, StudentMock } from '@/lib/api/grpc/gen/ltedu/exams/v1/exams';
 
 export type {
   Admission,

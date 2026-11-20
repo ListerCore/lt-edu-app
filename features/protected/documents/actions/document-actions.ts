@@ -3,7 +3,7 @@
 import { notFound, runRpc, validIds } from '@/features/protected/academic/lib/run-rpc';
 import type { AcademicResult } from '@/features/protected/academic/types';
 import { documentsRpc } from '@/lib/api/grpc/documents';
-import type { DocumentVersion, GenerateSchedulesResponse, ListScheduleIssuesResponse, GetScheduleSignersResponse, PdfFile as PdfMessage, Signer } from '@/lib/api/grpc/gen/joseph/documents/v1/documents';
+import type { DocumentVersion, GenerateSchedulesResponse, ListScheduleIssuesResponse, GetScheduleSignersResponse, PdfFile as PdfMessage, Signer } from '@/lib/api/grpc/gen/ltedu/documents/v1/documents';
 
 // A file built by the API (PDF unless mime says otherwise), as base64 so it can cross the server action boundary
 export interface PdfDownload {

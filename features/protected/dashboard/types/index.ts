@@ -63,7 +63,9 @@ export type ModuleKey =
   | 'apafa'
   // Virtual classroom (CEBA, phase E2): rooms and material, and the institution's library
   | 'classroom'
-  | 'classroom-library';
+  | 'classroom-library'
+  // Live sessions: live classes, virtual tutoring and psychology appointments, on the platform or on Google Meet
+  | 'live-classes';
 
 export type PermissionAction = 'view' | 'create' | 'update' | 'delete' | 'export';
 
@@ -95,7 +97,7 @@ export interface NavSection {
   items: NavItem[];
 }
 
-// Simulated session context: who is signed in and in which institution (later it comes from joseph-api)
+// Simulated session context: who is signed in and in which institution (later it comes from lt-edu-api)
 export interface Workspace {
   institutionType: InstitutionType;
   role: Role;
@@ -112,7 +114,7 @@ export interface WorkspaceProfile {
   availableRoles: Role[];
 }
 
-// Management type of the workspace institution, read from joseph-api (a per-type demo default until it arrives)
+// Management type of the workspace institution, read from lt-edu-api (a per-type demo default until it arrives)
 export interface UseInstitutionManagementResult {
   management: Management;
   isPublic: boolean;
