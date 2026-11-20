@@ -1,7 +1,7 @@
 import 'server-only';
 import type { CallOptions, ClientUnaryCall, Metadata, ServiceError } from '@grpc/grpc-js';
 import { grpcCall, type GrpcCallOptions, type GrpcResult } from './client';
-import { PeopleServiceClient } from './gen/joseph/people/v1/people';
+import { PeopleServiceClient } from './gen/ltedu/people/v1/people';
 
 type Unary<Req, Res> = (request: Req, metadata: Metadata, options: Partial<CallOptions>, callback: (error: ServiceError | null, response: Res) => void) => ClientUnaryCall;
 type Call<Req, Res> = (request: Req, options: GrpcCallOptions & { token: string }) => Promise<GrpcResult<Res>>;
@@ -11,7 +11,7 @@ const rpc =
   (request, options) =>
     grpcCall(PeopleServiceClient, (client, md, opts, cb) => pick(client).call(client, request, md, opts, cb), options);
 
-// joseph.people.v1.PeopleService (joseph-api/proto/joseph/people/v1/people.proto)
+// ltedu.people.v1.PeopleService (lt-edu-api/proto/ltedu/people/v1/people.proto)
 export const peopleRpc = {
   context: rpc((c) => c.getPeopleContext),
   listStudents: rpc((c) => c.listStudents),

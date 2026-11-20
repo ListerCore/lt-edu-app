@@ -3,7 +3,7 @@ import { credentials, Metadata, status, type CallOptions, type ChannelCredential
 import { headers } from 'next/headers';
 import { connection } from 'next/server';
 import type { ApiError } from '../server';
-import { ErrorDetail } from './gen/joseph/common/v1/error';
+import { ErrorDetail } from './gen/ltedu/common/v1/error';
 import { Status } from './gen/google/rpc/status';
 
 export type GrpcResult<T> = { ok: true; data: T } | { ok: false; error: ApiError };
@@ -27,13 +27,13 @@ export interface GrpcClientConstructor<C extends Client> {
 }
 
 const unavailable: ApiError = { code: 'api_unavailable', message: 'No pudimos conectar con el servidor. Inténtalo de nuevo en unos minutos.' };
-const notConfigured: ApiError = { code: 'api_not_configured', message: 'Falta configurar APP__API__GRPC_ADDR (o APP__API__URL) en joseph-app.' };
+const notConfigured: ApiError = { code: 'api_not_configured', message: 'Falta configurar APP__API__GRPC_ADDR (o APP__API__URL) en lt-edu-app.' };
 const unexpected: ApiError = { code: 'internal', message: 'Ocurrió un error inesperado. Inténtalo de nuevo.' };
 
-const ERROR_DETAIL_TYPE = 'type.googleapis.com/joseph.common.v1.ErrorDetail';
+const ERROR_DETAIL_TYPE = 'type.googleapis.com/ltedu.common.v1.ErrorDetail';
 const DEFAULT_GRPC_PORT = '9090';
 
-// host:port of joseph-api's gRPC listener. Without APP__API__GRPC_ADDR it is the host of APP__API__URL on port 9090
+// host:port of lt-edu-api's gRPC listener. Without APP__API__GRPC_ADDR it is the host of APP__API__URL on port 9090
 export const grpcAddress = (): string | null => {
   const explicit = process.env.APP__API__GRPC_ADDR?.trim();
   if (explicit) return explicit;
@@ -49,8 +49,8 @@ export const grpcAddress = (): string | null => {
 // One HTTP/2 channel per service and server process, kept on globalThis so dev reloads do not open one per edit. The
 // constructor is kept too: when a proto changes, dev reloads bring a new generated class with new methods and
 // decoders, and the old client must not be reused
-const globalClients = globalThis as typeof globalThis & { __josephGrpcClients?: Map<string, { address: string; ctor: unknown; client: Client }> };
-const clients = (globalClients.__josephGrpcClients ??= new Map());
+const globalClients = globalThis as typeof globalThis & { __ltEduGrpcClients?: Map<string, { address: string; ctor: unknown; client: Client }> };
+const clients = (globalClients.__ltEduGrpcClients ??= new Map());
 
 const clientFor = <C extends Client>(ctor: GrpcClientConstructor<C>, address: string): C => {
   const cached = clients.get(ctor.serviceName);
@@ -58,27 +58,27 @@ const clientFor = <C extends Client>(ctor: GrpcClientConstructor<C>, address: st
   cached?.client.close();
   // The API lives on the internal network: plaintext unless APP__API__GRPC_TLS=true
   const channelCredentials = process.env.APP__API__GRPC_TLS === 'true' ? credentials.createSsl() : credentials.createInsecure();
-  const client = new ctor(address, channelCredentials, { 'grpc.primary_user_agent': 'joseph-app', 'grpc.keepalive_time_ms': 60_000 });
+  const client = new ctor(address, channelCredentials, { 'grpc.primary_user_agent': 'lt-edu-app', 'grpc.keepalive_time_ms': 60_000 });
   clients.set(ctor.serviceName, { address, ctor, client });
   return client;
 };
 
-// The visitor's IP and user agent travel to joseph-api (rate limits, logs), as with the HTTP client
+// The visitor's IP and user agent travel to lt-edu-api (rate limits, logs), as with the HTTP client
 const callMetadata = async ({ token, requestHeaders, anonymous }: GrpcCallOptions): Promise<Metadata> => {
   const metadata = new Metadata();
   if (anonymous) {
-    metadata.set('x-user-agent', 'joseph-app');
+    metadata.set('x-user-agent', 'lt-edu-app');
     return metadata;
   }
   const source = requestHeaders ?? (await headers());
   const forwardedFor = source.get('x-forwarded-for')?.split(',')[0]?.trim() || source.get('x-real-ip') || '';
   if (forwardedFor) metadata.set('x-forwarded-for', forwardedFor);
-  metadata.set('x-user-agent', source.get('user-agent') ?? 'joseph-app');
+  metadata.set('x-user-agent', source.get('user-agent') ?? 'lt-edu-app');
   if (token) metadata.set('authorization', `Bearer ${token}`);
   return metadata;
 };
 
-// joseph-api puts an ErrorDetail (code, message, fields) in the status details of every failure it expects
+// lt-edu-api puts an ErrorDetail (code, message, fields) in the status details of every failure it expects
 const toApiError = (error: ServiceError): ApiError => {
   const raw = error.metadata?.get('grpc-status-details-bin')[0];
   if (raw) {
@@ -97,7 +97,7 @@ const toApiError = (error: ServiceError): ApiError => {
 
 export type Invoke<C, T> = (client: C, metadata: Metadata, options: Partial<CallOptions>, callback: (error: ServiceError | null, response: T) => void) => ClientUnaryCall;
 
-// Unary call to a joseph-api gRPC service from the Next.js server
+// Unary call to a lt-edu-api gRPC service from the Next.js server
 export const grpcCall = async <C extends Client, T>(ctor: GrpcClientConstructor<C>, invoke: Invoke<C, T>, options: GrpcCallOptions = {}): Promise<GrpcResult<T>> => {
   // Like the HTTP client: never run while prerendering, or "not configured" would be baked into the static shell.
   // proxy.ts always runs per request and passes its own headers

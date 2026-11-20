@@ -1,7 +1,7 @@
 import 'server-only';
 import type { CallOptions, ClientUnaryCall, Metadata, ServiceError } from '@grpc/grpc-js';
 import { grpcCall, type GrpcCallOptions, type GrpcResult } from './client';
-import { WellbeingServiceClient } from './gen/joseph/wellbeing/v1/wellbeing';
+import { WellbeingServiceClient } from './gen/ltedu/wellbeing/v1/wellbeing';
 
 type Unary<Req, Res> = (request: Req, metadata: Metadata, options: Partial<CallOptions>, callback: (error: ServiceError | null, response: Res) => void) => ClientUnaryCall;
 type Call<Req, Res> = (request: Req, options: GrpcCallOptions & { token: string }) => Promise<GrpcResult<Res>>;
@@ -12,7 +12,7 @@ const wellbeing =
   (request, options) =>
     grpcCall(WellbeingServiceClient, (client, md, opts, cb) => pick(client).call(client, request, md, opts, cb), options);
 
-// joseph.wellbeing.v1 (joseph-api/proto/joseph/wellbeing/v1/wellbeing.proto)
+// ltedu.wellbeing.v1 (lt-edu-api/proto/ltedu/wellbeing/v1/wellbeing.proto)
 export const wellbeingRpc = {
   students: wellbeing((c) => c.listStudents),
   file: wellbeing((c) => c.getStudentFile),

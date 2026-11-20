@@ -1,7 +1,7 @@
 import 'server-only';
 import type { CallOptions, ClientUnaryCall, Metadata, ServiceError } from '@grpc/grpc-js';
 import { grpcCall, type GrpcCallOptions, type GrpcResult } from './client';
-import { AttendanceServiceClient } from './gen/joseph/attendance/v1/attendance';
+import { AttendanceServiceClient } from './gen/ltedu/attendance/v1/attendance';
 
 type Unary<Req, Res> = (request: Req, metadata: Metadata, options: Partial<CallOptions>, callback: (error: ServiceError | null, response: Res) => void) => ClientUnaryCall;
 type Call<Req, Res> = (request: Req, options: GrpcCallOptions & { token: string }) => Promise<GrpcResult<Res>>;
@@ -11,7 +11,7 @@ const attendance =
   (request, options) =>
     grpcCall(AttendanceServiceClient, (client, md, opts, cb) => pick(client).call(client, request, md, opts, cb), options);
 
-// joseph.attendance.v1 (joseph-api/proto/joseph/attendance/v1/attendance.proto)
+// ltedu.attendance.v1 (lt-edu-api/proto/ltedu/attendance/v1/attendance.proto)
 export const attendanceRpc = {
   overview: attendance((c) => c.getOverview),
   scan: attendance((c) => c.scan),

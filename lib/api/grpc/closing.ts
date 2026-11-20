@@ -1,7 +1,7 @@
 import 'server-only';
 import type { CallOptions, ClientUnaryCall, Metadata, ServiceError } from '@grpc/grpc-js';
 import { grpcCall, type GrpcCallOptions, type GrpcResult } from './client';
-import { ClosingServiceClient } from './gen/joseph/assessment/v1/closing';
+import { ClosingServiceClient } from './gen/ltedu/assessment/v1/closing';
 
 type Unary<Req, Res> = (request: Req, metadata: Metadata, options: Partial<CallOptions>, callback: (error: ServiceError | null, response: Res) => void) => ClientUnaryCall;
 type Call<Req, Res> = (request: Req, options: GrpcCallOptions & { token: string }) => Promise<GrpcResult<Res>>;
@@ -11,7 +11,7 @@ const closing =
   (request, options) =>
     grpcCall(ClosingServiceClient, (client, md, opts, cb) => pick(client).call(client, request, md, opts, cb), options);
 
-// joseph.assessment.v1.ClosingService (joseph-api/proto/joseph/assessment/v1/closing.proto)
+// ltedu.assessment.v1.ClosingService (lt-edu-api/proto/ltedu/assessment/v1/closing.proto)
 export const closingRpc = {
   overview: closing((c) => c.getClosing),
   section: closing((c) => c.getSectionClosing),

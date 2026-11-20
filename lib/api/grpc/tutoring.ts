@@ -1,7 +1,7 @@
 import 'server-only';
 import type { CallOptions, ClientUnaryCall, Metadata, ServiceError } from '@grpc/grpc-js';
 import { grpcCall, type GrpcCallOptions, type GrpcResult } from './client';
-import { TutoringServiceClient } from './gen/joseph/wellbeing/v1/tutoring';
+import { TutoringServiceClient } from './gen/ltedu/wellbeing/v1/tutoring';
 
 type Unary<Req, Res> = (request: Req, metadata: Metadata, options: Partial<CallOptions>, callback: (error: ServiceError | null, response: Res) => void) => ClientUnaryCall;
 type Call<Req, Res> = (request: Req, options: GrpcCallOptions & { token: string }) => Promise<GrpcResult<Res>>;
@@ -11,7 +11,7 @@ const tutoring =
   (request, options) =>
     grpcCall(TutoringServiceClient, (client, md, opts, cb) => pick(client).call(client, request, md, opts, cb), options);
 
-// joseph.wellbeing.v1.TutoringService (joseph-api/proto/joseph/wellbeing/v1/tutoring.proto)
+// ltedu.wellbeing.v1.TutoringService (lt-edu-api/proto/ltedu/wellbeing/v1/tutoring.proto)
 export const tutoringRpc = {
   board: tutoring((c) => c.getTutorBoard),
   assignments: tutoring((c) => c.getTutorAssignments),

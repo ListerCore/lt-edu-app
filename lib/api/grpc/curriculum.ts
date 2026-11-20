@@ -1,7 +1,7 @@
 import 'server-only';
 import type { CallOptions, ClientUnaryCall, Metadata, ServiceError } from '@grpc/grpc-js';
 import { grpcCall, type GrpcCallOptions, type GrpcResult } from './client';
-import { CurriculumServiceClient } from './gen/joseph/academic/v1/curriculum';
+import { CurriculumServiceClient } from './gen/ltedu/academic/v1/curriculum';
 
 type Unary<Req, Res> = (request: Req, metadata: Metadata, options: Partial<CallOptions>, callback: (error: ServiceError | null, response: Res) => void) => ClientUnaryCall;
 type Call<Req, Res> = (request: Req, options: GrpcCallOptions & { token: string }) => Promise<GrpcResult<Res>>;
@@ -11,7 +11,7 @@ const rpc =
   (request, options) =>
     grpcCall(CurriculumServiceClient, (client, md, opts, cb) => pick(client).call(client, request, md, opts, cb), options);
 
-// joseph.academic.v1.CurriculumService (joseph-api/proto/joseph/academic/v1/curriculum.proto)
+// ltedu.academic.v1.CurriculumService (lt-edu-api/proto/ltedu/academic/v1/curriculum.proto)
 export const curriculumRpc = {
   list: rpc((c) => c.listCurricula),
   get: rpc((c) => c.getCurriculum),

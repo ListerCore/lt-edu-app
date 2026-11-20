@@ -1,7 +1,7 @@
 import 'server-only';
 import type { CallOptions, ClientUnaryCall, Metadata, ServiceError } from '@grpc/grpc-js';
 import { grpcCall, type GrpcCallOptions, type GrpcResult } from './client';
-import { StaffServiceClient, TeachingServiceClient } from './gen/joseph/teaching/v1/teaching';
+import { StaffServiceClient, TeachingServiceClient } from './gen/ltedu/teaching/v1/teaching';
 
 type Unary<Req, Res> = (request: Req, metadata: Metadata, options: Partial<CallOptions>, callback: (error: ServiceError | null, response: Res) => void) => ClientUnaryCall;
 type Call<Req, Res> = (request: Req, options: GrpcCallOptions & { token: string }) => Promise<GrpcResult<Res>>;
@@ -16,7 +16,7 @@ const teaching =
   (request, options) =>
     grpcCall(TeachingServiceClient, (client, md, opts, cb) => pick(client).call(client, request, md, opts, cb), options);
 
-// joseph.teaching.v1 (joseph-api/proto/joseph/teaching/v1/teaching.proto)
+// ltedu.teaching.v1 (lt-edu-api/proto/ltedu/teaching/v1/teaching.proto)
 export const staffRpc = {
   list: staff((c) => c.listStaff),
   get: staff((c) => c.getStaff),

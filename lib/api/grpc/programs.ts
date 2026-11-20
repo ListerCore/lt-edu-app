@@ -1,7 +1,7 @@
 import 'server-only';
 import type { CallOptions, ClientUnaryCall, Metadata, ServiceError } from '@grpc/grpc-js';
 import { grpcCall, type GrpcCallOptions, type GrpcResult } from './client';
-import { ProgramsServiceClient } from './gen/joseph/programs/v1/programs';
+import { ProgramsServiceClient } from './gen/ltedu/programs/v1/programs';
 
 type Unary<Req, Res> = (request: Req, metadata: Metadata, options: Partial<CallOptions>, callback: (error: ServiceError | null, response: Res) => void) => ClientUnaryCall;
 type Call<Req, Res> = (request: Req, options: GrpcCallOptions & { token: string }) => Promise<GrpcResult<Res>>;
@@ -11,7 +11,7 @@ const programs =
   (request, options) =>
     grpcCall(ProgramsServiceClient, (client, md, opts, cb) => pick(client).call(client, request, md, opts, cb), options);
 
-// joseph.programs.v1 (joseph-api/proto/joseph/programs/v1/programs.proto)
+// ltedu.programs.v1 (lt-edu-api/proto/ltedu/programs/v1/programs.proto)
 export const programsRpc = {
   programs: programs((c) => c.getPrograms),
   setCoordinator: programs((c) => c.setCoordinator),

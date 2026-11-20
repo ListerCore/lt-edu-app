@@ -1,7 +1,7 @@
 import 'server-only';
 import type { CallOptions, ClientUnaryCall, Metadata, ServiceError } from '@grpc/grpc-js';
 import { grpcCall, type GrpcCallOptions, type GrpcResult } from './client';
-import { ClassroomServiceClient } from './gen/joseph/classroom/v1/classroom';
+import { ClassroomServiceClient } from './gen/ltedu/classroom/v1/classroom';
 
 type Unary<Req, Res> = (request: Req, metadata: Metadata, options: Partial<CallOptions>, callback: (error: ServiceError | null, response: Res) => void) => ClientUnaryCall;
 type Call<Req, Res> = (request: Req, options: GrpcCallOptions & { token: string }) => Promise<GrpcResult<Res>>;
@@ -11,7 +11,7 @@ const classroom =
   (request, options) =>
     grpcCall(ClassroomServiceClient, (client, md, opts, cb) => pick(client).call(client, request, md, opts, cb), options);
 
-// joseph.classroom.v1 (joseph-api/proto/joseph/classroom/v1/classroom.proto)
+// ltedu.classroom.v1 (lt-edu-api/proto/ltedu/classroom/v1/classroom.proto)
 export const classroomRpc = {
   rooms: classroom((c) => c.listRooms),
   generateRooms: classroom((c) => c.generateRooms),

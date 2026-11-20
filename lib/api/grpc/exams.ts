@@ -1,7 +1,7 @@
 import 'server-only';
 import type { CallOptions, ClientUnaryCall, Metadata, ServiceError } from '@grpc/grpc-js';
 import { grpcCall, type GrpcCallOptions, type GrpcResult } from './client';
-import { ExamsServiceClient } from './gen/joseph/exams/v1/exams';
+import { ExamsServiceClient } from './gen/ltedu/exams/v1/exams';
 
 type Unary<Req, Res> = (request: Req, metadata: Metadata, options: Partial<CallOptions>, callback: (error: ServiceError | null, response: Res) => void) => ClientUnaryCall;
 type Call<Req, Res> = (request: Req, options: GrpcCallOptions & { token: string }) => Promise<GrpcResult<Res>>;
@@ -11,7 +11,7 @@ const exams =
   (request, options) =>
     grpcCall(ExamsServiceClient, (client, md, opts, cb) => pick(client).call(client, request, md, opts, cb), options);
 
-// joseph.exams.v1 (joseph-api/proto/joseph/exams/v1/exams.proto)
+// ltedu.exams.v1 (lt-edu-api/proto/ltedu/exams/v1/exams.proto)
 export const examsRpc = {
   overview: exams((c) => c.getOverview),
   questions: exams((c) => c.listQuestions),

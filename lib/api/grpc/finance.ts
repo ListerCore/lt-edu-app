@@ -1,7 +1,7 @@
 import 'server-only';
 import type { CallOptions, ClientUnaryCall, Metadata, ServiceError } from '@grpc/grpc-js';
 import { grpcCall, type GrpcCallOptions, type GrpcResult } from './client';
-import { FinanceServiceClient } from './gen/joseph/finance/v1/finance';
+import { FinanceServiceClient } from './gen/ltedu/finance/v1/finance';
 
 type Unary<Req, Res> = (request: Req, metadata: Metadata, options: Partial<CallOptions>, callback: (error: ServiceError | null, response: Res) => void) => ClientUnaryCall;
 type Call<Req, Res> = (request: Req, options: GrpcCallOptions & { token: string }) => Promise<GrpcResult<Res>>;
@@ -12,7 +12,7 @@ const finance =
   (request, options) =>
     grpcCall(FinanceServiceClient, (client, md, opts, cb) => pick(client).call(client, request, md, opts, cb), options);
 
-// joseph.finance.v1 (joseph-api/proto/joseph/finance/v1/finance.proto)
+// ltedu.finance.v1 (lt-edu-api/proto/ltedu/finance/v1/finance.proto)
 export const financeRpc = {
   summary: finance((c) => c.getSummary),
   plans: finance((c) => c.listPlans),

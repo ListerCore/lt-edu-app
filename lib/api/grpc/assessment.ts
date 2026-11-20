@@ -1,7 +1,7 @@
 import 'server-only';
 import type { CallOptions, ClientUnaryCall, Metadata, ServiceError } from '@grpc/grpc-js';
 import { grpcCall, type GrpcCallOptions, type GrpcResult } from './client';
-import { AssessmentServiceClient } from './gen/joseph/assessment/v1/assessment';
+import { AssessmentServiceClient } from './gen/ltedu/assessment/v1/assessment';
 
 type Unary<Req, Res> = (request: Req, metadata: Metadata, options: Partial<CallOptions>, callback: (error: ServiceError | null, response: Res) => void) => ClientUnaryCall;
 type Call<Req, Res> = (request: Req, options: GrpcCallOptions & { token: string }) => Promise<GrpcResult<Res>>;
@@ -11,7 +11,7 @@ const assessment =
   (request, options) =>
     grpcCall(AssessmentServiceClient, (client, md, opts, cb) => pick(client).call(client, request, md, opts, cb), options);
 
-// joseph.assessment.v1 (joseph-api/proto/joseph/assessment/v1/assessment.proto)
+// ltedu.assessment.v1 (lt-edu-api/proto/ltedu/assessment/v1/assessment.proto)
 export const assessmentRpc = {
   gradebook: assessment((c) => c.getGradebook),
   sheet: assessment((c) => c.getSheet),
