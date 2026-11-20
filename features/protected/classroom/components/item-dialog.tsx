@@ -8,6 +8,9 @@ import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { SelectField, controlClassName } from '@/features/protected/academic/components/academic-ui';
 import { FormDialog } from '@/features/protected/academic/components/form-dialog';
+import { useInstitutionSlug } from '@/features/protected/academic/hooks/use-institution-slug';
+import { ProviderPicker } from '@/features/protected/meetings/components/provider-picker';
+import { usePlatformAvailable, useProviderFallback } from '@/features/protected/meetings/hooks/use-live-config';
 import { itemKinds } from '../data/classroom-data';
 import { useSaveItem } from '../hooks/use-save-item';
 import type { ItemDialogProps } from '../types';
@@ -23,6 +26,8 @@ export const ItemDialog = ({ unitId, item, onClose, onSaved }: ItemDialogProps):
       onClose();
     },
   });
+  const platformAvailable = usePlatformAvailable(useInstitutionSlug());
+  useProviderFallback(platformAvailable, values.provider, !item, (p): void => setField('provider', p));
   const fromLibrary = Boolean(item?.libraryItemId);
   const meta = itemKinds[values.kind];
   const kindOptions = Object.entries(itemKinds).map(([value, k]) => ({ value, label: k.label }));
@@ -46,8 +51,19 @@ export const ItemDialog = ({ unitId, item, onClose, onSaved }: ItemDialogProps):
         </p>
       ) : (
         <>
-          {(values.kind === 'video' || values.kind === 'link' || values.kind === 'live') && (
-            <FormField id="item-url" label={values.kind === 'live' ? 'Enlace de la videollamada' : 'Dirección'} required error={errors.url}>
+          {values.kind === 'live' && (
+            <ProviderPicker
+              id="item-live"
+              provider={values.provider}
+              link={values.url}
+              platformAvailable={platformAvailable !== false || item?.provider === 'platform'}
+              onProvider={(p): void => setField('provider', p)}
+              onLink={(v): void => setField('url', v)}
+              linkError={errors.url}
+            />
+          )}
+          {(values.kind === 'video' || values.kind === 'link') && (
+            <FormField id="item-url" label="Dirección" required error={errors.url}>
               <Input id="item-url" type="url" inputMode="url" placeholder="https://" value={values.url} maxLength={500} onChange={(e): void => setField('url', e.target.value)} aria-invalid={Boolean(errors.url)} className={controlClassName} />
             </FormField>
           )}

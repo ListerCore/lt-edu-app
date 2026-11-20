@@ -6,7 +6,7 @@ import { saveLibraryItemAction } from '../actions/save-library-item';
 import { HTTPS_PATTERN } from '../data/classroom-data';
 import type { FormState, LibraryValues, UseLibraryFormParams } from '../types';
 
-// Create or edit a library entry; checks by kind like joseph-api
+// Create or edit a library entry; checks by kind like lt-edu-api
 export const useSaveLibraryItem = ({ entry, onSaved }: UseLibraryFormParams): FormState<LibraryValues> => {
   const slug = useInstitutionSlug();
   return useAcademicForm({

@@ -15,7 +15,7 @@ export const useAddFromLibrary = (onAdded: () => void): UseAddFromLibraryResult 
     void runAcademicAction(
       saveItemAction(
         slug,
-        { id: '', unitId, kind: entry.kind, title: entry.title, body: '', url: '', complementary: false, startsAt: '', durationMinutes: undefined, recordingUrl: '', libraryItemId: entry.id, published: false },
+        { id: '', unitId, kind: entry.kind, title: entry.title, body: '', url: '', complementary: false, startsAt: '', durationMinutes: undefined, recordingUrl: '', provider: 'meet', libraryItemId: entry.id, published: false },
         `«${entry.title}» agregado sin publicar.`,
       ),
     )

@@ -7,6 +7,7 @@ import { MorphIcon } from '@/components/ui/morph-icon';
 import { ConfirmDelete } from '@/features/protected/academic/components/academic-ui';
 import { AttachmentsPanel } from '@/features/protected/attachments/components/attachments-panel';
 import { cn } from '@/lib/utils';
+import { liveHref } from '@/features/protected/meetings/data/meetings-data';
 import { assessmentPath, forumPath, itemKinds, materialCategories } from '../data/classroom-data';
 import { useRecordView } from '../hooks/use-record-view';
 import type { ItemRowProps } from '../types';
@@ -80,11 +81,11 @@ export const ItemRow = ({ item, roomId, index, count, canEdit, family, live, isM
           {item.kind === 'live' && live && (
             <div className="flex flex-wrap items-center gap-3 rounded-lg bg-secondary px-3 py-2.5 text-sm">
               <MorphIcon icon={Video} size={16} className="text-brand" />
-              <span className="flex-1">{live.phase === 'ended' ? 'La sesión ya terminó.' : live.phase === 'open' ? 'La sesión está abierta.' : `Empieza el ${live.label}. El enlace se activa 15 minutos antes.`}</span>
-              {live.phase === 'open' && (
-                <a href={item.url} target="_blank" rel="noreferrer" onClick={(): void => recordView(item.id)} className="btn-brand h-9 px-4 text-sm">
-                  Entrar a la sesión
-                </a>
+              <span className="flex-1">{live.phase === 'ended' ? 'La sesión ya terminó.' : live.phase === 'open' ? `La sesión está abierta (${item.provider === 'platform' ? 'en la plataforma' : 'por Google Meet'}).` : `Empieza el ${live.label}${item.provider === 'platform' ? ', en la plataforma' : ', por Google Meet'}. El botón se activa 15 minutos antes.`}</span>
+              {(live.phase === 'open' || (canEdit && live.phase !== 'ended')) && (
+                <Link href={liveHref('class', item.id)} className="btn-brand h-9 px-4 text-sm">
+                  {canEdit && live.phase !== 'open' ? 'Abrir la sala' : 'Entrar a la sesión'}
+                </Link>
               )}
               {live.phase === 'ended' && item.recordingUrl && (
                 <a href={item.recordingUrl} target="_blank" rel="noreferrer" className="btn-alt h-9 px-4 text-sm">

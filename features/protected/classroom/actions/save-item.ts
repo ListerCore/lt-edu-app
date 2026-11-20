@@ -18,6 +18,7 @@ export const saveItemAction = async (slug: string, p: ItemPayload, message?: str
                 id: p.id,
                 unitId: p.unitId,
                 kind: p.kind,
+                provider: p.provider,
                 title: p.title,
                 body: p.body,
                 url: p.url,

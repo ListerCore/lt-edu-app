@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useState, type JSX } from 'react';
 import { Activity, ArrowLeft, CalendarClock, Copy, Plus, Settings2, UserRound } from 'lucide';
 import { MorphIcon } from '@/components/ui/morph-icon';
+import { liveHref } from '@/features/protected/meetings/data/meetings-data';
 import { AcademicPage, LoadError, PageSkeleton, StatusPill } from '@/features/protected/academic/components/academic-ui';
 import { CLASSROOM_PATH, participationPath, roomStatusClass, roomStatusLabels } from '../data/classroom-data';
 import { useReorderUnits } from '../hooks/use-reorder-units';
@@ -125,9 +126,9 @@ export const RoomPage = ({ id }: { id: string }): JSX.Element => {
                 <p className="mt-2 text-sm text-foreground">{page.nextLive.item.title}</p>
                 <p className="text-xs text-muted-foreground first-letter:uppercase">{page.nextLive.live.label}</p>
                 {page.nextLive.live.phase === 'open' && (
-                  <a href={page.nextLive.item.url} target="_blank" rel="noreferrer" className="btn-brand mt-3 h-9 w-full text-sm">
+                  <Link href={liveHref('class', page.nextLive.item.id)} className="btn-brand mt-3 h-9 w-full text-sm">
                     Entrar ahora
-                  </a>
+                  </Link>
                 )}
               </section>
             )}

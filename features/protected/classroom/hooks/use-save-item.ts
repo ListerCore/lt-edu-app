@@ -17,11 +17,12 @@ const initialOf = (item: Item | null): ItemValues =>
         startsAt: item.startsAt ? isoToLimaLocal(item.startsAt) : '',
         durationMinutes: item.durationMinutes ? String(item.durationMinutes) : '60',
         recordingUrl: item.recordingUrl,
+        provider: item.provider === 'platform' ? 'platform' : 'meet',
         published: item.published,
       }
-    : { kind: 'reading', title: '', body: '', url: '', complementary: false, startsAt: '', durationMinutes: '60', recordingUrl: '', published: false };
+    : { kind: 'reading', title: '', body: '', url: '', complementary: false, startsAt: '', durationMinutes: '60', recordingUrl: '', provider: 'platform', published: false };
 
-// Checks by kind, the same as joseph-api; material taken from the library only edits its title and flags
+// Checks by kind, the same as lt-edu-api; material taken from the library only edits its title and flags
 const validate =
   (fromLibrary: boolean) =>
   (v: ItemValues): Record<string, string> => {
@@ -30,7 +31,9 @@ const validate =
     if (fromLibrary) return errors;
     if (v.url.trim() && !HTTPS_PATTERN.test(v.url.trim())) errors.url = 'Escribe una dirección completa que empiece con https://.';
     if ((v.kind === 'reading' || v.kind === 'activity') && !v.body.trim()) errors.body = 'Escribe el contenido o las indicaciones.';
-    if ((v.kind === 'video' || v.kind === 'link' || v.kind === 'live') && !v.url.trim()) errors.url = v.kind === 'live' ? 'Pega el enlace de la videollamada.' : 'Pega la dirección.';
+    const meetLink = v.kind === 'live' && v.provider === 'meet';
+    if (v.kind === 'live' && v.provider === 'platform') delete errors.url;
+    if ((v.kind === 'video' || v.kind === 'link' || meetLink) && !v.url.trim()) errors.url = v.kind === 'live' ? 'Pega el enlace de Google Meet.' : 'Pega la dirección.';
     if (v.kind === 'live') {
       if (!limaLocalToIso(v.startsAt)) errors.startsAt = 'Indica el día y la hora.';
       const minutes = Number(v.durationMinutes);
@@ -56,11 +59,12 @@ export const useSaveItem = ({ unitId, item, onSaved }: UseItemFormParams): FormS
         kind: v.kind,
         title: v.title.trim().replace(/\s+/g, ' ').slice(0, 160),
         body: fromLibrary ? '' : v.body.trim().slice(0, 20000),
-        url: fromLibrary ? '' : v.url.trim(),
+        url: fromLibrary || (live && v.provider === 'platform') ? '' : v.url.trim(),
         complementary: v.complementary,
         startsAt: live ? limaLocalToIso(v.startsAt) : '',
         durationMinutes: live ? Number(v.durationMinutes) : undefined,
         recordingUrl: live ? v.recordingUrl.trim() : '',
+        provider: live ? v.provider : 'meet',
         libraryItemId: item?.libraryItemId ?? '',
         published: v.published,
       });

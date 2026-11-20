@@ -22,7 +22,7 @@ const blank = (kind: string): QuestionDraft => ({
   points: kind === 'open' ? '5' : '1',
 });
 
-// Questions as joseph-api wants them: trimmed, blank options dropped (right answers re-indexed), one accepted
+// Questions as lt-edu-api wants them: trimmed, blank options dropped (right answers re-indexed), one accepted
 // answer per line
 const toQuestion = (d: QuestionDraft): Question => {
   const kept = d.options.map((text, i) => ({ text: text.trim(), i })).filter((o) => o.text !== '');

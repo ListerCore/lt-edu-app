@@ -1,5 +1,5 @@
 import type { IconInput } from 'morphicons/react';
-import type { Answer, Assessment, Competency, Delivery, Forum, Item, LibraryItem, Participation, Period, Post, Question, Room, RosterRow, Submission, Thread, Unit } from '@/lib/api/grpc/gen/joseph/classroom/v1/classroom';
+import type { Answer, Assessment, Competency, Delivery, Forum, Item, LibraryItem, Participation, Period, Post, Question, Room, RosterRow, Submission, Thread, Unit } from '@/lib/api/grpc/gen/ltedu/classroom/v1/classroom';
 import type { AcademicResult, FormState, RemoteState } from '@/features/protected/academic/types';
 
 export type { AcademicResult, Answer, Assessment, Competency, Delivery, Forum, FormState, Item, LibraryItem, Participation, Period, Post, Question, RemoteState, Room, RosterRow, Submission, Thread, Unit };
@@ -92,6 +92,8 @@ export interface ItemValues {
   startsAt: string;
   durationMinutes: string;
   recordingUrl: string;
+  // live: platform (video inside ListerCore Edu) | meet (url is the Google Meet link)
+  provider: 'platform' | 'meet';
   published: boolean;
 }
 
@@ -106,6 +108,7 @@ export interface ItemPayload {
   startsAt: string;
   durationMinutes: number | undefined;
   recordingUrl: string;
+  provider: string;
   libraryItemId: string;
   published: boolean;
 }
