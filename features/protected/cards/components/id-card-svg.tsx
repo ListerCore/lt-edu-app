@@ -13,7 +13,7 @@ const nameLines = (name: string, max: number): string[] => {
   return cut > 0 ? [name.slice(0, cut), name.slice(cut + 1)] : [name];
 };
 
-// The attendance QR the gate reads, from joseph-api's modules (with a one-module quiet zone of paper)
+// The attendance QR the gate reads, from lt-edu-api's modules (with a one-module quiet zone of paper)
 const RealQr = ({ qr, x, y, size }: { qr: { size: number; modules: string }; x: number; y: number; size: number }): JSX.Element => {
   const cell = size / (qr.size + 2);
   const rows: string[] = [];
@@ -39,7 +39,7 @@ const RealQr = ({ qr, x, y, size }: { qr: { size: number; modules: string }; x: 
   );
 };
 
-// Decorative QR-like pattern for demo cardholders that have no card in joseph-api
+// Decorative QR-like pattern for demo cardholders that have no card in lt-edu-api
 const Qr = ({ seed, x, y, size, qr }: { seed: string; x: number; y: number; size: number; qr?: { size: number; modules: string } | null }): JSX.Element => {
   if (qr && qr.size > 0 && qr.modules.length === qr.size * qr.size) return <RealQr qr={qr} x={x} y={y} size={size} />;
   const cell = size / QR_SIZE;

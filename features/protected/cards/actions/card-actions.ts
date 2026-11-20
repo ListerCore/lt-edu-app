@@ -12,7 +12,7 @@ import { SESSION_COOKIE } from '@/lib/auth/cookies';
 import { demoCardholders, ownCardholderFor } from '../data/cardholders-roster';
 import type { CardActionResult, Cardholder, CardholdersResponse, GetCardholdersParams } from '../types';
 
-// Simulated latency so loading states are visible; replaced by joseph-api calls later
+// Simulated latency so loading states are visible; replaced by lt-edu-api calls later
 const simulate = async (ms = 350): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms));
 
 // Accent-insensitive comparison, so "jose" finds "José"
@@ -27,7 +27,7 @@ const withQr = async (slug: string, kind: 'student' | 'staff', token: string, da
   return data.map((c) => ({ ...c, qr: byId.get(c.id) ?? null }));
 };
 
-// Students come from joseph-api (people.students with their enrollment in the running period and main guardian)
+// Students come from lt-edu-api (people.students with their enrollment in the running period and main guardian)
 const realStudents = async ({ institutionType, search, page, pageSize }: GetCardholdersParams): Promise<CardActionResult<CardholdersResponse>> => {
   const token = (await cookies()).get(SESSION_COOKIE)?.value;
   if (!token) return { ok: false, message: 'Tu sesión venció. Ingresa de nuevo.' };
@@ -56,7 +56,7 @@ const realStudents = async ({ institutionType, search, page, pageSize }: GetCard
   return { ok: true, message: 'ok', data: { data: await withQr(slug, 'student', token, data), meta: { search_query: query, filter: { group: 'students' }, pagination } } };
 };
 
-// Staff come from joseph-api too (people.staff), with their job as the card detail
+// Staff come from lt-edu-api too (people.staff), with their job as the card detail
 const realStaff = async ({ institutionType, search, page, pageSize }: GetCardholdersParams): Promise<CardActionResult<CardholdersResponse>> => {
   const token = (await cookies()).get(SESSION_COOKIE)?.value;
   if (!token) return { ok: false, message: 'Tu sesión venció. Ingresa de nuevo.' };
@@ -100,7 +100,7 @@ export const getOwnCardholderAction = async (institutionType: InstitutionType, r
   return own ? { ok: true, message: 'ok', data: own } : { ok: false, message: 'No encontramos tu carnet.' };
 };
 
-// Simulated: joseph-api will receive the file (multipart) and return the stored photo URL
+// Simulated: lt-edu-api will receive the file (multipart) and return the stored photo URL
 export const updateCardholderPhotoAction = async (id: string, photoUrl: string): Promise<CardActionResult<{ id: string; photoUrl: string }>> => {
   await simulate(500);
   return { ok: true, message: 'Foto actualizada.', data: { id, photoUrl } };

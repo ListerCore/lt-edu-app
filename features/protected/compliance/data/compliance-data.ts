@@ -19,7 +19,7 @@ export const reportTitles: Record<string, { title: string; norm: string }> = {
   equipment: { title: 'Equipos para tutores virtuales', norm: 'RSG 613-2014-MINEDU, numeral 6.3.2, literal c)' },
 };
 
-// Evidence categories of each record (joseph-api attachment_service.go ownerSpecs)
+// Evidence categories of each record (lt-edu-api attachment_service.go ownerSpecs)
 export const evidenceCategories: AttachmentCategory[] = ['screenshot', 'report', 'other'];
 export const roomCategories: AttachmentCategory[] = ['photo', 'plan', 'other'];
 export const deviceCategories: AttachmentCategory[] = ['photo', 'certificate', 'report', 'other'];

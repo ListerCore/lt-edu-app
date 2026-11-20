@@ -42,7 +42,7 @@ const phoneFor = (seed: number): string => {
 
 const relatives = ['Carmen', 'Julio', 'Rosa', 'Óscar', 'Elena', 'Víctor', 'Marta', 'Raúl'];
 
-// Simulated roster of the institution; joseph-api will return the real one with photos
+// Simulated roster of the institution; lt-edu-api will return the real one with photos
 export const demoCardholders = (institutionType: InstitutionType): Cardholder[] => {
   const details = studentDetails[institutionType];
   const students: Cardholder[] = studentNames.map((name, index) => ({ id: `st-${index}`, group: 'students', name, detail: details[index % details.length], code: `2026-${String(412 + index * 37).padStart(4, '0')}`, documentNumber: documentFor(index + 3), photoUrl: null, emergencyName: `${relatives[index % relatives.length]} ${name.split(' ')[1]} (apoderado)`, emergencyPhone: phoneFor(index + 11) }));
@@ -50,7 +50,7 @@ export const demoCardholders = (institutionType: InstitutionType): Cardholder[] 
   return [...students, ...staff];
 };
 
-// Which roster entry is the signed-in person (simulated until the session carries it; joseph-app only): students and guardians
+// Which roster entry is the signed-in person (simulated until the session carries it; lt-edu-app only): students and guardians
 // map to a student card (the guardian's child), staff roles to their own staff card
 export const ownCardholderFor = (institutionType: InstitutionType, role: Role): Cardholder | null => {
   const roster = demoCardholders(institutionType);

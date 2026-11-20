@@ -1,8 +1,8 @@
-import type { ClosingArea, ClosingRow, GetClosingResponse, GetPromotionRulesResponse, PromotionRule, RecordInfo, SectionClosing, UnitClosing, UnitRow } from '@/lib/api/grpc/gen/joseph/assessment/v1/closing';
+import type { ClosingArea, ClosingRow, GetClosingResponse, GetPromotionRulesResponse, PromotionRule, RecordInfo, SectionClosing, UnitClosing, UnitRow } from '@/lib/api/grpc/gen/ltedu/assessment/v1/closing';
 
 export type { ClosingArea, ClosingRow, GetClosingResponse as ClosingOverview, GetPromotionRulesResponse as PromotionRules, PromotionRule, RecordInfo, SectionClosing, UnitClosing, UnitRow };
 
-// The frozen body of an acta (joseph-api service.RecordContent)
+// The frozen body of an acta (lt-edu-api service.RecordContent)
 export interface RecordContent {
   title: string;
   institution: string;
