@@ -1,4 +1,4 @@
 version: v2
 modules:
-  # proto/joseph is a copy of joseph-api/proto/joseph (pnpm proto:sync); edit it there
+  # proto/ltedu is a copy of lt-edu-api/proto/ltedu (pnpm proto:sync); edit it there
   - path: proto

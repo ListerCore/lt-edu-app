@@ -1,4 +1,4 @@
-# joseph-app
+# lt-edu-app
 
 Estructura inicial (réplica vacía de `lister-app`): Next.js 16, React 19, Tailwind 4, shadcn (base-vega), sileo y tema claro/oscuro/sistema.
 
