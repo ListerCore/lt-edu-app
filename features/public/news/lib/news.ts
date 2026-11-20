@@ -18,7 +18,7 @@ const fetchPublicNews = async (institution: string): Promise<NewsResult> => {
   const result = await announcementsRpc.listPublic(institution, { anonymous: true, timeoutMs: 5000 });
   if (!result.ok) {
     cacheLife('seconds');
-    console.warn('[news] joseph-api unavailable:', result.error.code);
+    console.warn('[news] lt-edu-api unavailable:', result.error.code);
     return { ok: false };
   }
   cacheLife('minutes');
@@ -32,7 +32,7 @@ const fetchPublicNewsItem = async (slug: string): Promise<NewsItemResult> => {
   const result = await announcementsRpc.getPublic(slug, { anonymous: true, timeoutMs: 5000 });
   if (!result.ok && result.error.code !== 'not_found') {
     cacheLife('seconds');
-    console.warn('[news] joseph-api unavailable:', result.error.code);
+    console.warn('[news] lt-edu-api unavailable:', result.error.code);
     return { ok: false };
   }
   cacheLife('minutes');

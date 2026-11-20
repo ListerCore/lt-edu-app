@@ -5,7 +5,7 @@ import type { ResolvedTheme, Theme, ThemeContextValue, ThemeProviderProps } from
 
 const ThemeContext = createContext<ThemeContextValue | undefined>(undefined);
 
-export const THEME_STORAGE_KEY = 'joseph-theme';
+export const THEME_STORAGE_KEY = 'lt-edu-theme';
 const DARK_QUERY = '(prefers-color-scheme: dark)';
 
 // Reads the stored preference; anything unknown falls back to following the OS

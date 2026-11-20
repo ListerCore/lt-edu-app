@@ -10,7 +10,7 @@ import { coverOf, ctaHref, formatDateTime, isExternal, isFeaturedAt, kindMeta, N
 import type { FeaturedAnnouncementsModalProps } from '@/features/protected/announcements/types';
 import { cn } from '@/lib/utils';
 
-const SEEN_KEY = 'joseph-featured-seen';
+const SEEN_KEY = 'lt-edu-featured-seen';
 
 // What was already shown in this tab: the same set of announcements does not pop up again until something changes
 const readSeen = (): string | null => {

@@ -3,7 +3,7 @@ import type { JSX } from 'react';
 import { CircleAlert, CircleCheck, CircleX, CloudOff, FileText, History, Search, TriangleAlert } from 'lucide';
 import { MorphIcon } from '@/components/ui/morph-icon';
 import { documentsRpc } from '@/lib/api/grpc/documents';
-import type { DocumentVersion } from '@/lib/api/grpc/gen/joseph/documents/v1/documents';
+import type { DocumentVersion } from '@/lib/api/grpc/gen/ltedu/documents/v1/documents';
 import { cn } from '@/lib/utils';
 
 const TRACKING = /^[0-9a-z]{12}$/;

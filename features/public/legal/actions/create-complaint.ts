@@ -10,7 +10,7 @@ const isValidPayload = (payload: ComplaintPayload): boolean => {
   return required.every((value): boolean => typeof value === 'string' && value.trim().length > 0) && (payload.tipo === 'RECLAMO' || payload.tipo === 'QUEJA');
 };
 
-// POST /complaints on joseph-api, behind Turnstile; the API assigns the correlative sheet number
+// POST /complaints on lt-edu-api, behind Turnstile; the API assigns the correlative sheet number
 export const createComplaintAction = async (payload: ComplaintPayload, captchaToken: string): Promise<CreateComplaintResponse> => {
   if (!isValidPayload(payload)) return { ok: false, message: 'Revisa los datos de la hoja de reclamación.' };
 

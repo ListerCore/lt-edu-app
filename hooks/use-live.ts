@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useSyncExternalStore } from 'react';
 
-// What joseph-api publishes on the live stream (internal/core/service/live_service.go); ids only, never personal data
+// What lt-edu-api publishes on the live stream (internal/core/service/live_service.go); ids only, never personal data
 export type LiveEventType = 'system.ping' | 'announcement.published' | 'announcement.updated' | 'announcement.deleted' | 'academic.changed' | 'people.changed' | 'attendance.changed' | 'assessment.changed' | 'exams.changed' | 'programs.changed' | 'finance.changed' | 'wellbeing.changed' | 'apafa.changed' | 'institution.changed' | 'classroom.changed' | 'tutoring.changed' | 'compliance.changed';
 
 // Any change to announcements (published, edited or deleted)
@@ -76,7 +76,7 @@ const setStatus = (next: LiveStatus): void => {
 
 const emit = (event: LiveEvent): void => listeners.forEach((listener) => listener(event));
 
-// One WebSocket per browser tab to /ws/live (relayed by proxy.ts to joseph-api, which reads the Redis stream)
+// One WebSocket per browser tab to /ws/live (relayed by proxy.ts to lt-edu-api, which reads the Redis stream)
 const connect = (): void => {
   const scheme = window.location.protocol === 'https:' ? 'wss' : 'ws';
   const current = new WebSocket(`${scheme}://${window.location.host}/ws/live`);
