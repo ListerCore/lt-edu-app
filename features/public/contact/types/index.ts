@@ -41,7 +41,7 @@ export type ContactRequestField = keyof ContactRequestFormValues;
 
 export type ContactRequestErrors = Partial<Record<ContactRequestField | 'captcha', string>>;
 
-// Shape sent to joseph-api, snake_case like the other payloads
+// Shape sent to lt-edu-api, snake_case like the other payloads
 export interface ContactRequestPayload {
   nombre: string;
   relacion: ContactRelation;
@@ -64,7 +64,7 @@ export interface UseCreateContactRequestResult {
   isPending: boolean;
   isSubmitted: boolean;
   setField: <K extends ContactRequestField>(field: K, value: ContactRequestFormValues[K]) => void;
-  // Turnstile widget and its single-use token (the token is sent with the form, joseph-api verifies it)
+  // Turnstile widget and its single-use token (the token is sent with the form, lt-edu-api verifies it)
   turnstileRef: RefObject<TurnstileInstance | null>;
   setCaptchaToken: (token: string | null) => void;
   submit: () => void;

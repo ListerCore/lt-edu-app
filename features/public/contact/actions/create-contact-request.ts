@@ -7,7 +7,7 @@ import type { ContactRequestPayload, CreateContactRequestResponse } from '../typ
 // Server Functions are reachable by direct POST, so required fields are re-checked here (the API validates fully)
 const isValidPayload = (payload: ContactRequestPayload): boolean => [payload.nombre, payload.relacion, payload.email, payload.motivo, payload.mensaje, payload.consentimiento_at].every((value): boolean => typeof value === 'string' && value.trim().length > 0);
 
-// POST /contact-requests on joseph-api, behind Turnstile; secretaría receives it in the panel
+// POST /contact-requests on lt-edu-api, behind Turnstile; secretaría receives it in the panel
 export const createContactRequestAction = async (payload: ContactRequestPayload, captchaToken: string): Promise<CreateContactRequestResponse> => {
   if (!isValidPayload(payload)) return { ok: false, message: 'Revisa los datos del formulario e inténtalo de nuevo.' };
 

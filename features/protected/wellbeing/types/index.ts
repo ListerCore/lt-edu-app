@@ -20,7 +20,7 @@ import type {
   TherapySession,
   WellAlert,
   WellStudent,
-} from '@/lib/api/grpc/gen/joseph/wellbeing/v1/wellbeing';
+} from '@/lib/api/grpc/gen/ltedu/wellbeing/v1/wellbeing';
 
 export type {
   Commitment,

@@ -35,7 +35,7 @@ const validate = (values: ContactRequestFormValues): ContactRequestErrors => {
   return errors;
 };
 
-// Validated form values -> joseph-api payload; only called after validate() passes, so relation and topic are set
+// Validated form values -> lt-edu-api payload; only called after validate() passes, so relation and topic are set
 const toPayload = (values: ContactRequestFormValues): ContactRequestPayload => ({
   nombre: clean(values.fullName),
   relacion: values.relation as ContactRequestPayload['relacion'],
@@ -47,7 +47,7 @@ const toPayload = (values: ContactRequestFormValues): ContactRequestPayload => (
   consentimiento_at: new Date().toISOString(),
 });
 
-// Owns the inquiry form state and sends it to joseph-api through the server action
+// Owns the inquiry form state and sends it to lt-edu-api through the server action
 export const useCreateContactRequest = (): UseCreateContactRequestResult => {
   const [values, setValues] = useState<ContactRequestFormValues>(initialValues);
   const [errors, setErrors] = useState<ContactRequestErrors>({});
