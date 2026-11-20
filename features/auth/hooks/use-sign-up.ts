@@ -23,7 +23,7 @@ const validate = (values: SignUpValues): FieldErrors<keyof SignUpValues> => {
   return errors;
 };
 
-// Creates a user account; joseph-api resolves the institution and role from the email the institution registered
+// Creates a user account; lt-edu-api resolves the institution and role from the email the institution registered
 export const useSignUp = (): UseSignUpResult => {
   const router = useRouter();
   const [values, setValues] = useState<SignUpValues>(initialValues);

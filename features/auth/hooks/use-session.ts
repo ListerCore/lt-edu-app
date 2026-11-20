@@ -20,7 +20,7 @@ const read = (): boolean => document.cookie.split('; ').includes(`${SIGNED_IN_CO
 const notify = (): void => listeners.forEach((listener) => listener());
 
 // UI hint of the sign-in state (navbar, menus), from the readable cookie the server sets next to the httpOnly
-// session. The real check is the session cookie, verified by proxy.ts and joseph-api
+// session. The real check is the session cookie, verified by proxy.ts and lt-edu-api
 export const startSession = (): void => notify();
 
 export const endSession = (): void => {

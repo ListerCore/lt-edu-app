@@ -16,7 +16,7 @@ interface TurnstileFieldProps {
   onToken: (token: string | null) => void;
 }
 
-// Turnstile widget following the site theme; the token is verified by joseph-api and is single use
+// Turnstile widget following the site theme; the token is verified by lt-edu-api and is single use
 export const TurnstileField = ({ turnstileRef, error, onToken }: TurnstileFieldProps): JSX.Element => {
   const { resolvedTheme } = useTheme();
 

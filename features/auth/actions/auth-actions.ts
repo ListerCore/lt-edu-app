@@ -5,7 +5,7 @@ import { apiRequest, type ApiError } from '@/lib/api/server';
 import { CHALLENGE_COOKIE, clearSessionCookies, cookieOptions, SESSION_COOKIE, setSessionCookies } from '@/lib/auth/cookies';
 import type { AuthActionResult, ChangePasswordPayload, ForgotPasswordPayload, PasswordSetupPayload, SignInPayload, SignInResult, SignUpPayload, TwoFactorPayload } from '../types';
 
-// joseph-api answers (internal/adapter/inbound/http/handler/auth_handler.go): a session, or the app step
+// lt-edu-api answers (internal/adapter/inbound/http/handler/auth_handler.go): a session, or the app step
 interface SignInResponse {
   session?: { token: string; expires_at: string };
   challenge_token?: string;
@@ -38,7 +38,7 @@ export const signInAction = async ({ email, password, captchaToken }: SignInPayl
   return { ok: true, message: 'Ingresa el código de tu app autenticadora.', signedIn: false };
 };
 
-// joseph-api matches the email against the people each institution registered: that decides institution and role
+// lt-edu-api matches the email against the people each institution registered: that decides institution and role
 export const signUpAction = async ({ nombre, email, password, captchaToken }: SignUpPayload): Promise<AuthActionResult> => {
   if (!captchaToken) return { ok: false, message: 'Completa la verificación de seguridad.' };
   const result = await apiRequest('/auth/sign-up', { method: 'POST', body: { full_name: nombre, email, password }, captchaToken });
@@ -80,7 +80,7 @@ export const changePasswordAction = async ({ currentPassword, password }: Change
   return result.ok ? { ok: true, message: 'Contraseña actualizada.' } : failure(result.error);
 };
 
-// Revokes the session in joseph-api and forgets it here; the cookie goes even if the API is unreachable
+// Revokes the session in lt-edu-api and forgets it here; the cookie goes even if the API is unreachable
 export const signOutAction = async (): Promise<AuthActionResult> => {
   const store = await cookies();
   const token = store.get(SESSION_COOKIE)?.value;

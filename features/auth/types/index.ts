@@ -1,7 +1,7 @@
 import type { TurnstileInstance } from '@marsidev/react-turnstile';
 import type { ReactNode, RefObject } from 'react';
 
-// Result shared by every auth action; `code` (joseph-api's error code) lets the hooks react to specific failures
+// Result shared by every auth action; `code` (lt-edu-api's error code) lets the hooks react to specific failures
 export interface AuthActionResult {
   ok: boolean;
   message: string;
