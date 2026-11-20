@@ -35,7 +35,7 @@ export const IMAGE_TYPES = ['image/png', 'image/jpeg', 'image/webp'];
 export const IMAGE_MAX_BYTES = 5 * 1024 * 1024;
 export const PDF_TYPE = 'application/pdf';
 export const PDF_MAX_BYTES = 10 * 1024 * 1024;
-// joseph-api enforces the same limits (internal/core/service/announcement_service.go)
+// lt-edu-api enforces the same limits (internal/core/service/announcement_service.go)
 export const MAX_ATTACHMENTS = 6;
 export const MAX_ATTACHMENTS_BYTES = 40 * 1024 * 1024;
 export const ATTACHMENT_ACCEPT = [...IMAGE_TYPES, PDF_TYPE].join(',');

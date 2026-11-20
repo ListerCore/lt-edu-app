@@ -16,7 +16,7 @@ export interface AccountRole {
   institution: AccountInstitution | null;
 }
 
-// The signed-in account, from joseph-api's GET /auth/me
+// The signed-in account, from lt-edu-api's GET /auth/me
 export interface Account {
   id: string;
   email: string;

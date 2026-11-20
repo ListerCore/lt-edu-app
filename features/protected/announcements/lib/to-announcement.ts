@@ -1,6 +1,6 @@
 import type { Announcement, AnnouncementAudience, AnnouncementKind, AttachmentKind, CtaLabel } from '../types';
 
-// One shape for both joseph-api transports: gRPC (camelCase, Date) and the HTTP publish answer (snake_case)
+// One shape for both lt-edu-api transports: gRPC (camelCase, Date) and the HTTP publish answer (snake_case)
 interface RawAttachment {
   id: string;
   kind: string;

@@ -5,7 +5,7 @@ import { apiRequest, type ApiError } from '@/lib/api/server';
 import { SESSION_COOKIE } from '@/lib/auth/cookies';
 import type { Account, AccountActionResult, AccountRole, MailedCode, MfaPurpose, TotpSetup, TwoFactorStatus } from '../types';
 
-// joseph-api answers (internal/adapter/inbound/http/handler/auth_handler.go)
+// lt-edu-api answers (internal/adapter/inbound/http/handler/auth_handler.go)
 interface MeResponse {
   user: { id: string; email: string; full_name: string; avatar_url: string | null; email_verified: boolean; has_password: boolean; created_at: string };
   roles: AccountRole[];

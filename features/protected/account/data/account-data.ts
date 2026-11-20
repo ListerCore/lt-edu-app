@@ -5,7 +5,7 @@ import type { InstitutionKind } from '../types';
 // Photo shared with the ID card: own card for students and staff; guardians have their own (their card is the child's)
 export const accountPhotoKey = (institutionType: InstitutionType, role: Role): string => (role === 'guardian' ? `guardian-${institutionType}` : (ownCardholderFor(institutionType, role)?.id ?? `account-${role}`));
 
-// joseph-api's institution kinds (iam.institutions.kind)
+// lt-edu-api's institution kinds (iam.institutions.kind)
 export const institutionKindLabels: Record<InstitutionKind, string> = {
   ebr: 'Colegio · EBR',
   eba: 'CEBA · EBA',
@@ -14,7 +14,7 @@ export const institutionKindLabels: Record<InstitutionKind, string> = {
   institute: 'Instituto',
 };
 
-// Seconds before another mailed code can be requested (joseph-api enforces the same 30 s)
+// Seconds before another mailed code can be requested (lt-edu-api enforces the same 30 s)
 export const MAIL_CODE_COOLDOWN = 30;
 
 export const mfaPurposeCopy = {
@@ -43,4 +43,4 @@ export const recoveryCodesText = (codes: string[], email: string, issuedAt: Date
     '',
   ].join('\n');
 
-export const recoveryCodesFileName = (issuedAt: Date): string => `joseph-codigos-respaldo-${issuedAt.toISOString().slice(0, 10)}.txt`;
+export const recoveryCodesFileName = (issuedAt: Date): string => `lt-edu-codigos-respaldo-${issuedAt.toISOString().slice(0, 10)}.txt`;

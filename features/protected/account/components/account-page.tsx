@@ -14,7 +14,7 @@ import { AccountRolesCard } from './account-roles-card';
 import { AccountSecurityCard } from './account-security-card';
 import { TwoFactorCard } from './two-factor-card';
 
-// Mi cuenta: the signed-in account from joseph-api (identity, roles, security) and its two-step verification
+// Mi cuenta: the signed-in account from lt-edu-api (identity, roles, security) and its two-step verification
 export const AccountPage = (): JSX.Element => {
   const { account, twoFactor, error, isLoading, reload } = useAccount();
   const { institutionType, role } = useWorkspace();

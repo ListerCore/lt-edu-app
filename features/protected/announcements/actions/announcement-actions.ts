@@ -34,7 +34,7 @@ export const getAnnouncementAction = async (slug: string): Promise<AnnouncementA
   return { ok: true, message: 'ok', data: { announcement: toAnnouncement(result.data.announcement), canEdit: result.data.canEdit } };
 };
 
-// Publishes with its images and PDFs (multipart to joseph-api). /news refreshes at once; open pages hear it live
+// Publishes with its images and PDFs (multipart to lt-edu-api). /news refreshes at once; open pages hear it live
 export const createAnnouncementAction = async (form: FormData): Promise<AnnouncementActionResult<Announcement>> => {
   const token = await sessionToken();
   if (!token) return signedOut;
