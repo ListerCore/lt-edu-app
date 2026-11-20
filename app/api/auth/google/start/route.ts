@@ -5,7 +5,7 @@ import { GOOGLE_COOKIE_PATH, GOOGLE_STATE_COOKIE, GOOGLE_VERIFIER_COOKIE } from 
 import { publicOrigin } from '@/lib/auth/public-origin';
 
 // Starts "Continuar con Google": CSRF state and PKCE verifier stay in httpOnly cookies scoped to the callback,
-// joseph-api only sees the state and the S256 challenge and answers Google's consent URL
+// lt-edu-api only sees the state and the S256 challenge and answers Google's consent URL
 export const POST = async (request: Request): Promise<Response> => {
   // Same-origin only, so another site cannot start a sign-in in the visitor's browser
   if (request.headers.get('origin') !== publicOrigin(request)) return NextResponse.json({ error: { code: 'forbidden', message: 'Origen no permitido.' } }, { status: 403 });

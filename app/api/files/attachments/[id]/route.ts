@@ -3,10 +3,10 @@ import { apiBaseUrl } from '@/lib/api/server';
 import { SESSION_COOKIE } from '@/lib/auth/cookies';
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
-// Headers of joseph-api's answer that travel to the browser
+// Headers of lt-edu-api's answer that travel to the browser
 const PASSED = ['content-type', 'content-length', 'content-disposition', 'cache-control', 'x-content-type-options'];
 
-// Files attached to records (PDF, images, Word, Excel). joseph-api is internal, so the site relays them with the
+// Files attached to records (PDF, images, Word, Excel). lt-edu-api is internal, so the site relays them with the
 // session; the API checks the person's role against the module of the record
 export const GET = async (_request: Request, { params }: RouteContext<'/api/files/attachments/[id]'>): Promise<Response> => {
   const { id } = await params;

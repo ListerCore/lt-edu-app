@@ -6,7 +6,7 @@ import { apiRequest } from '@/lib/api/server';
 import { CHALLENGE_COOKIE, cookieOptions, GOOGLE_COOKIE_PATH, GOOGLE_STATE_COOKIE, GOOGLE_VERIFIER_COOKIE, setSessionCookies } from '@/lib/auth/cookies';
 import { publicOrigin } from '@/lib/auth/public-origin';
 
-// joseph-api answers a session, or the authenticator-app step when the account has TOTP on
+// lt-edu-api answers a session, or the authenticator-app step when the account has TOTP on
 interface GoogleCallbackResponse {
   session?: { token: string; expires_at: string };
   challenge_token?: string;

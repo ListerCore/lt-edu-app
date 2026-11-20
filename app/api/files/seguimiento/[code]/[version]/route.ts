@@ -2,7 +2,7 @@ import { documentsRpc } from '@/lib/api/grpc/documents';
 
 const TRACKING = /^[0-9a-z]{12}$/;
 
-// The PDF of a published (current or superseded) version, opened from the public tracking page. joseph-api is
+// The PDF of a published (current or superseded) version, opened from the public tracking page. lt-edu-api is
 // internal, so the site relays it; pending and cancelled versions are not served
 export const GET = async (_request: Request, { params }: RouteContext<'/api/files/seguimiento/[code]/[version]'>): Promise<Response> => {
   const { code, version } = await params;

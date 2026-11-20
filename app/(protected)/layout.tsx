@@ -10,7 +10,7 @@ interface ProtectedLayoutProps {
   children: ReactNode;
 }
 
-// Group wrapper for the signed-in area; the session check goes here once auth talks to joseph-api
+// Group wrapper for the signed-in area; the session check goes here once auth talks to lt-edu-api
 const ProtectedLayout = ({ children }: ProtectedLayoutProps): ReactNode => children;
 
 export default ProtectedLayout;

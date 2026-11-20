@@ -3,10 +3,10 @@ import { apiBaseUrl } from '@/lib/api/server';
 import { SESSION_COOKIE } from '@/lib/auth/cookies';
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
-// Headers of joseph-api's answer that travel to the browser
+// Headers of lt-edu-api's answer that travel to the browser
 const PASSED = ['content-type', 'content-length', 'content-disposition', 'cache-control', 'x-content-type-options'];
 
-// Images and PDFs of announcements. joseph-api is internal, so the site relays them; the session (if any) goes
+// Images and PDFs of announcements. lt-edu-api is internal, so the site relays them; the session (if any) goes
 // along so internal announcements open for the people allowed to read them
 export const GET = async (_request: Request, { params }: RouteContext<'/api/files/announcements/[id]/[attachmentId]'>): Promise<Response> => {
   const { id, attachmentId } = await params;
