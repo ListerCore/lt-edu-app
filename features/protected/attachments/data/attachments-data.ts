@@ -2,7 +2,7 @@ import { File as FileIcon, FileImage, FileSpreadsheet, FileText } from 'lucide';
 import type { ModuleKey } from '@/features/protected/dashboard/types';
 import type { AttachmentCategory, AttachmentFileKind, AttachmentFileMeta, AttachmentOwnerKind } from '../types';
 
-// joseph-api enforces the same limits (internal/core/service/attachment_service.go)
+// lt-edu-api enforces the same limits (internal/core/service/attachment_service.go)
 export const ATTACHMENT_MAX_BYTES = 10 * 1024 * 1024;
 export const ATTACHMENTS_PER_UPLOAD = 10;
 // One upload travels through a server action (45 MB body limit in next.config.ts)
@@ -25,7 +25,7 @@ const extensionKinds: Record<string, AttachmentFileKind> = { pdf: 'pdf', png: 'i
 export const ATTACHMENT_ACCEPT = [...Object.keys(typeKinds), ...Object.keys(extensionKinds).map((ext) => `.${ext}`)].join(',');
 export const ATTACHMENT_TYPES_HINT = 'PDF, imágenes (PNG, JPG, WebP), Word (.docx) o Excel (.xlsx) · hasta 10 MB cada uno';
 
-// Kind of a picked file, or null when joseph-api would refuse it (it sniffs the bytes again anyway)
+// Kind of a picked file, or null when lt-edu-api would refuse it (it sniffs the bytes again anyway)
 export const fileKindOfUpload = (file: File): AttachmentFileKind | null => {
   const byType = typeKinds[file.type];
   if (byType) return byType;
@@ -33,7 +33,7 @@ export const fileKindOfUpload = (file: File): AttachmentFileKind | null => {
   return file.type === '' || file.type === 'application/octet-stream' || file.type === 'application/zip' ? (extensionKinds[ext] ?? null) : null;
 };
 
-// Kind of a stored file, from the type joseph-api detected
+// Kind of a stored file, from the type lt-edu-api detected
 export const fileKindOf = (contentType: string): AttachmentFileKind => typeKinds[contentType] ?? 'other';
 
 export const fileKindMeta: Record<AttachmentFileKind, AttachmentFileMeta> = {
@@ -83,7 +83,7 @@ export const categoryLabels: Record<AttachmentCategory, string> = {
   other: 'Otro',
 };
 
-// Unknown codes (a category added in joseph-api first) still read as something
+// Unknown codes (a category added in lt-edu-api first) still read as something
 export const categoryLabel = (value: string): string => categoryLabels[value as AttachmentCategory] ?? 'Otro';
 
 // Module whose view permission shows the panel of each owner kind; kinds missing here are always shown (the API decides)

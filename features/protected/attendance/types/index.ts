@@ -18,7 +18,7 @@ import type {
   StudentAttendance,
   SubjectTally,
   Tally,
-} from '@/lib/api/grpc/gen/joseph/attendance/v1/attendance';
+} from '@/lib/api/grpc/gen/ltedu/attendance/v1/attendance';
 
 export type {
   CardCode,

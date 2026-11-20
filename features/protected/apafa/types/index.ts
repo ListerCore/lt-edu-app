@@ -1,4 +1,4 @@
-import type { BoardMember, Fees, Meeting } from '@/lib/api/grpc/gen/joseph/apafa/v1/apafa';
+import type { BoardMember, Fees, Meeting } from '@/lib/api/grpc/gen/ltedu/apafa/v1/apafa';
 import type { AcademicResult, FormState } from '@/features/protected/academic/types';
 
 export type { BoardMember, Fees, Meeting };

@@ -33,7 +33,7 @@ export const useUploadAttachments = ({ ownerKind, ownerId, onUploaded }: UseUplo
         setError(problem);
         return false;
       }
-      // Payload joseph-api expects; empty title is left out so the API stores none
+      // Payload lt-edu-api expects; empty title is left out so the API stores none
       const form = new FormData();
       form.set('institution', institution);
       form.set('owner_kind', ownerKind);

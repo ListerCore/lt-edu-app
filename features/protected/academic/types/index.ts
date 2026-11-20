@@ -1,5 +1,5 @@
-import type { AcademicContext, Grade, Level, Period, Section, Settings, Term, Vocabulary } from '@/lib/api/grpc/gen/joseph/academic/v1/academic';
-import type { Competency, Curriculum, Module, Subject } from '@/lib/api/grpc/gen/joseph/academic/v1/curriculum';
+import type { AcademicContext, Grade, Level, Period, Section, Settings, Term, Vocabulary } from '@/lib/api/grpc/gen/ltedu/academic/v1/academic';
+import type { Competency, Curriculum, Module, Subject } from '@/lib/api/grpc/gen/ltedu/academic/v1/curriculum';
 
 export type { AcademicContext, Competency, Curriculum, Grade, Level, Module, Period, Section, Settings, Subject, Term, Vocabulary };
 

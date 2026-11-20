@@ -16,7 +16,7 @@ export const levelClass: Record<string, string> = {
 
 export const cellKey = (studentId: string, competencyId: string): string => `${studentId}:${competencyId}`;
 
-// Weighted average of the scores a student has (same rule as joseph-api: evaluations not taken do not count)
+// Weighted average of the scores a student has (same rule as lt-edu-api: evaluations not taken do not count)
 export const weightedAverage = (evaluations: Evaluation[], score: (evaluationId: string) => number | null): number | null => {
   let sum = 0;
   let weights = 0;

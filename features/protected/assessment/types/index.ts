@@ -1,4 +1,4 @@
-import type { CardCompetency, CardSubject, CardTerm, Competency, Evaluation, FamilyCard, GetGradebookResponse, LevelMark, ReportCard, ScoreMark, Sheet, SheetProgress, StudentRef, TutorProgress } from '@/lib/api/grpc/gen/joseph/assessment/v1/assessment';
+import type { CardCompetency, CardSubject, CardTerm, Competency, Evaluation, FamilyCard, GetGradebookResponse, LevelMark, ReportCard, ScoreMark, Sheet, SheetProgress, StudentRef, TutorProgress } from '@/lib/api/grpc/gen/ltedu/assessment/v1/assessment';
 
 export type { CardCompetency, CardSubject, CardTerm, Competency, Evaluation, FamilyCard, GetGradebookResponse as Gradebook, LevelMark, ReportCard, ScoreMark, Sheet, SheetProgress, StudentRef, TutorProgress };
 

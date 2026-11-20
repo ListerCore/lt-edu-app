@@ -338,7 +338,7 @@ export const OfficialCard = ({ card, logo }: { card: ReportCard; logo: string })
         <p className="text-right text-[0.85em] leading-tight">
           Emitido: {longDate(card.issuedOn)}
           <br />
-          Generado con joseph
+          Generado con ListerCore Edu
         </p>
       </Sheet>
     </article>

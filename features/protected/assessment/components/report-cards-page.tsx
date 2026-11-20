@@ -6,6 +6,7 @@ import { MorphIcon } from '@/components/ui/morph-icon';
 import { AcademicPage, LoadError, PageSkeleton, SelectField } from '@/features/protected/academic/components/academic-ui';
 import { useAcademicData } from '@/features/protected/academic/hooks/use-academic-data';
 import { useInstitutionSlug } from '@/features/protected/academic/hooks/use-institution-slug';
+import { useWorkspace } from '@/features/protected/dashboard/hooks/use-workspace';
 import { reportCardsPdfAction } from '@/features/protected/documents/actions/document-actions';
 import { usePdf } from '@/features/protected/documents/lib/use-pdf';
 import { isAssessmentEvent } from '@/hooks/use-live';
@@ -14,11 +15,14 @@ import { getGradebookAction, getMyCardsAction, getReportCardAction, getSectionCa
 import type { FamilyCard, Gradebook, ReportCard } from '../types';
 import { ReportCardView } from './report-card';
 
-// Libretas: staff browse and print the cards of a section; families read their children's
+// Libretas: staff browse and print the cards of a section; students and guardians read only their own (or their
+// children's). The role in use decides the view, never the data that came back: a family never sees the section list
 export const ReportCardsPage = (): JSX.Element => {
   const slug = useInstitutionSlug();
+  const { role } = useWorkspace();
+  const familyRole = role === 'student' || role === 'guardian';
   const mine = useAcademicData(`my-cards:${slug}`, () => getMyCardsAction(slug), isAssessmentEvent);
-  const family = Boolean(mine.data && mine.data.length > 0);
+  const family = familyRole || Boolean(mine.data && mine.data.length > 0);
   const [periodId, setPeriodId] = useState('');
   const [termId, setTermId] = useState('');
   const book = useAcademicData(`cards-book:${slug}:${periodId}:${termId}`, () => getGradebookAction(slug, periodId, termId), isAssessmentEvent);
@@ -31,8 +35,18 @@ export const ReportCardsPage = (): JSX.Element => {
       description={literal ? 'El informe de progreso de cada estudiante: niveles por competencia, conclusiones, asistencia y el comentario del tutor.' : 'El promedio de cada unidad o curso con sus evaluaciones y la asistencia.'}
       context={null}
     >
-      {family && mine.data ? (
-        <FamilyCards slug={slug} items={mine.data} />
+      {family ? (
+        mine.error ? (
+          <LoadError message={mine.error} onRetry={mine.reload} />
+        ) : !mine.data ? (
+          <PageSkeleton />
+        ) : mine.data.length > 0 ? (
+          <FamilyCards slug={slug} items={mine.data} />
+        ) : (
+          <DemoFamilyCard slug={slug} />
+        )
+      ) : mine.isLoading ? (
+        <PageSkeleton />
       ) : book.error ? (
         <LoadError message={book.error} onRetry={book.reload} />
       ) : !book.data ? (
@@ -153,6 +167,20 @@ const FamilyCards = ({ slug, items }: { slug: string; items: FamilyCard[] }): JS
       {item && (item.card ? <FamilyCardView key={item.studentId} slug={slug} initial={item.card} /> : <p className="rounded-2xl border border-dashed border-border px-6 py-10 text-center text-sm text-muted-foreground">{item.message || 'Aún no hay libreta.'}</p>)}
     </div>
   );
+};
+
+// The demo role selector plays "Estudiante" or "Apoderado" on a staff session, which holds no student of its own: it
+// previews the card of a single demo student, as that student would see it, instead of the whole section
+const DemoFamilyCard = ({ slug }: { slug: string }): JSX.Element => {
+  const book = useAcademicData(`demo-family-book:${slug}`, () => getGradebookAction(slug, '', ''), () => false);
+  const sectionId = book.data?.tutor[0]?.sectionId ?? book.data?.sheets[0]?.sectionId ?? '';
+  const termId = book.data?.termId ?? '';
+  const cards = useAcademicData(`demo-family-cards:${slug}:${sectionId}:${termId}`, async () => (sectionId ? getSectionCardsAction(slug, sectionId, termId) : { ok: true as const, data: [] }), () => false);
+  const first = cards.data?.[0];
+  if (book.error || cards.error) return <p className="rounded-2xl border border-dashed border-border px-6 py-10 text-center text-sm text-muted-foreground">Tu cuenta aún no está vinculada a un estudiante matriculado.</p>;
+  if (!book.data || !cards.data) return <PageSkeleton />;
+  if (!first?.student) return <p className="rounded-2xl border border-dashed border-border px-6 py-10 text-center text-sm text-muted-foreground">Aún no hay libreta.</p>;
+  return <FamilyCards slug={slug} items={[{ studentId: first.student.id, studentName: first.student.name, card: first, message: '' }]} />;
 };
 
 // A family picks among the closed terms; the card of each is loaded on demand
