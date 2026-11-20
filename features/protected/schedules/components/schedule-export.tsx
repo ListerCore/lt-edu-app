@@ -13,7 +13,7 @@ import { generateSchedulesAction, scheduleIssuesAction, schedulesPdfAction, sche
 import { PdfViewer } from '@/features/protected/documents/components/pdf-viewer';
 import { SignersDialog } from '@/features/protected/documents/components/signers-dialog';
 import { usePdf, usePdfPreview } from '@/features/protected/documents/lib/use-pdf';
-import type { DocumentVersion, IssuedDocument, ListScheduleIssuesResponse, Signer } from '@/lib/api/grpc/gen/joseph/documents/v1/documents';
+import type { DocumentVersion, IssuedDocument, ListScheduleIssuesResponse, Signer } from '@/lib/api/grpc/gen/ltedu/documents/v1/documents';
 import { cn } from '@/lib/utils';
 import { gradesOf, sectionName, teachersOf } from '../data/schedule-export';
 import type { PlannerData } from '../types';

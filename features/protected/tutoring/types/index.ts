@@ -13,7 +13,7 @@ import type {
   TutoringSession,
   TutorLoad,
   TutorStudent,
-} from '@/lib/api/grpc/gen/joseph/wellbeing/v1/tutoring';
+} from '@/lib/api/grpc/gen/ltedu/wellbeing/v1/tutoring';
 
 export type {
   GetMyTutoringResponse as MyTutoring,
@@ -42,6 +42,8 @@ export interface SessionInput {
   scheduledAt: string;
   durationMin: number;
   link: string;
+  // virtual: platform (video inside ListerCore Edu) | meet (link)
+  provider: 'platform' | 'meet';
   reason: string;
   alertKind: string;
   studentIds: string[];

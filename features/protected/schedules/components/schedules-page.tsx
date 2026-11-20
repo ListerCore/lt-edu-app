@@ -13,7 +13,7 @@ import { runAcademicAction } from '@/features/protected/academic/hooks/use-acade
 import { useAcademicData } from '@/features/protected/academic/hooks/use-academic-data';
 import { useWorkspace } from '@/features/protected/dashboard/hooks/use-workspace';
 import { scheduleIssuesAction } from '@/features/protected/documents/actions/document-actions';
-import type { ListScheduleIssuesResponse } from '@/lib/api/grpc/gen/joseph/documents/v1/documents';
+import type { ListScheduleIssuesResponse } from '@/lib/api/grpc/gen/ltedu/documents/v1/documents';
 import { usePeopleContext } from '@/features/protected/people/hooks/use-people-context';
 import { cn } from '@/lib/utils';
 import { autoFillAction, clearSectionAction, getMyScheduleAction, getPlannerAction, placeClassAction, removeClassAction } from '../actions/schedule-actions';

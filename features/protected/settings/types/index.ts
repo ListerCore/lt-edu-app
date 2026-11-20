@@ -1,4 +1,4 @@
-import type { AuditEvent, Authorization, Member, PlatformSheet } from '@/lib/api/grpc/gen/joseph/institution/v1/institution';
+import type { AuditEvent, Authorization, Member, PlatformSheet } from '@/lib/api/grpc/gen/ltedu/institution/v1/institution';
 import type { AcademicResult, FormState, Level, RemoteState } from '@/features/protected/academic/types';
 
 export type { AcademicResult, AuditEvent, Authorization, FormState, Member, PlatformSheet, RemoteState };

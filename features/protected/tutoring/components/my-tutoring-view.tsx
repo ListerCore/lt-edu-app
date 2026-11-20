@@ -1,8 +1,10 @@
 'use client';
 
+import Link from 'next/link';
 import type { JSX } from 'react';
-import { ExternalLink, HeartHandshake } from 'lucide';
+import { HeartHandshake, Video } from 'lucide';
 import { MorphIcon } from '@/components/ui/morph-icon';
+import { liveHref } from '@/features/protected/meetings/data/meetings-data';
 import { LoadError, PageSkeleton } from '@/features/protected/academic/components/academic-ui';
 import { cn } from '@/lib/utils';
 import { formatWhen, sessionModeLabels, sessionStatusClass, sessionStatusLabels } from '../data/tutoring-data';
@@ -46,11 +48,11 @@ export const MyTutoringView = ({ slug }: { slug: string }): JSX.Element => {
                   <span className="block text-xs text-muted-foreground">
                     {formatWhen(s.scheduledAt)} · {s.durationMin} min · {sessionModeLabels[s.mode]}
                   </span>
-                  {s.link && (
-                    <a href={s.link} target="_blank" rel="noopener noreferrer" className="btn-brand mt-2 h-8 px-3 text-xs">
-                      <MorphIcon icon={ExternalLink} size={14} />
-                      Unirme
-                    </a>
+                  {s.mode === 'virtual' && (s.provider === 'platform' || s.link) && (
+                    <Link href={liveHref('tutoring', s.id)} className="btn-brand mt-2 h-8 px-3 text-xs">
+                      <MorphIcon icon={Video} size={14} />
+                      Unirme {s.provider === 'platform' ? '(en la plataforma)' : '(Google Meet)'}
+                    </Link>
                   )}
                 </li>
               ))}

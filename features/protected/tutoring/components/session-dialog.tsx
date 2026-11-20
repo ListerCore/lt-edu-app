@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState, useTransition, type JSX } from 'react';
+import { useCallback, useMemo, useState, useTransition, type JSX } from 'react';
 import { FormField } from '@/components/ui/form-field';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -8,6 +8,8 @@ import { SelectField } from '@/features/protected/academic/components/academic-u
 import { FormDialog } from '@/features/protected/academic/components/form-dialog';
 import { runAcademicAction } from '@/features/protected/academic/hooks/use-academic-form';
 import { isoToLimaLocal } from '@/features/protected/classroom/data/classroom-data';
+import { ProviderPicker } from '@/features/protected/meetings/components/provider-picker';
+import { usePlatformAvailable, useProviderFallback } from '@/features/protected/meetings/hooks/use-live-config';
 import { saveSessionAction } from '../actions/save-session';
 import { alertCodeLabels, sessionModeLabels } from '../data/tutoring-data';
 import type { SessionDraft, SessionInput, TutorBoardRow, TutoringSession } from '../types';
@@ -35,10 +37,12 @@ export const SessionDialog = ({ slug, staffId, students, draft, session, onClose
   const [v, setV] = useState<SessionInput>(() =>
     session
       ? { id: session.id, staffId, kind: session.kind as SessionInput['kind'], mode: session.mode as SessionInput['mode'], scheduledAt: isoToLimaLocal(session.scheduledAt),
-          durationMin: session.durationMin, link: session.link, reason: session.reason, alertKind: session.alertKind, studentIds: session.attendees.map((a) => a.studentId) }
-      : { id: '', staffId, kind: draft?.kind ?? 'individual', mode: 'virtual', scheduledAt: tomorrowEvening(), durationMin: draft?.kind === 'group' ? 45 : 30, link: '',
+          durationMin: session.durationMin, link: session.link, provider: session.provider === 'platform' ? 'platform' : 'meet', reason: session.reason, alertKind: session.alertKind, studentIds: session.attendees.map((a) => a.studentId) }
+      : { id: '', staffId, kind: draft?.kind ?? 'individual', mode: 'virtual', scheduledAt: tomorrowEvening(), durationMin: draft?.kind === 'group' ? 45 : 30, link: '', provider: 'platform',
           reason: draft?.reason ?? '', alertKind: draft?.alertKind ?? '', studentIds: draft?.studentIds ?? [] },
   );
+  const platformAvailable = usePlatformAvailable(slug);
+  useProviderFallback(platformAvailable, v.provider, !session, useCallback((p: SessionInput['provider']): void => setV((x) => ({ ...x, provider: p })), []));
   const [query, setQuery] = useState('');
   const [isPending, start] = useTransition();
   const set = (patch: Partial<SessionInput>): void => setV((x) => ({ ...x, ...patch }));
@@ -51,7 +55,7 @@ export const SessionDialog = ({ slug, staffId, students, draft, session, onClose
   const errors = {
     students: v.studentIds.length === 0 ? 'Elige a quién convocar.' : v.kind === 'individual' && v.studentIds.length > 1 ? 'La tutoría individual es con un estudiante.' : '',
     reason: v.reason.trim().length < 3 ? 'Escribe el motivo.' : '',
-    link: v.link && !/^https?:\/\/\S+\.\S+/.test(v.link) ? 'El enlace empieza con https://' : '',
+    link: v.mode === 'virtual' && v.provider === 'meet' && v.link && !/^https?:\/\/\S+\.\S+/.test(v.link) ? 'El enlace empieza con https://' : '',
     when: !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(v.scheduledAt) ? 'Indica la fecha y la hora.' : '',
   };
   const invalid = Object.values(errors).some(Boolean) || v.durationMin < 5 || v.durationMin > 240;
@@ -59,7 +63,7 @@ export const SessionDialog = ({ slug, staffId, students, draft, session, onClose
   const shownReason = v.reason.trim() !== '' && errors.reason ? errors.reason : undefined;
   const submit = (): void =>
     start(async () => {
-      const r = await runAcademicAction(saveSessionAction(slug, { ...v, reason: v.reason.trim(), link: v.mode === 'virtual' ? v.link.trim() : '' }));
+      const r = await runAcademicAction(saveSessionAction(slug, { ...v, reason: v.reason.trim(), link: v.mode === 'virtual' && v.provider === 'meet' ? v.link.trim() : '' }));
       if (r.ok) onSaved();
     });
   return (
@@ -79,9 +83,16 @@ export const SessionDialog = ({ slug, staffId, students, draft, session, onClose
         </FormField>
       </div>
       {v.mode === 'virtual' && (
-        <FormField id="session-link" label="Enlace de la videollamada" error={errors.link || undefined} hint="Google Meet, Jitsi u otro. Puedes agregarlo después.">
-          <Input id="session-link" type="url" placeholder="https://meet.google.com/…" maxLength={500} value={v.link} onChange={(e): void => set({ link: e.target.value })} />
-        </FormField>
+        <ProviderPicker
+          id="session"
+          provider={v.provider}
+          link={v.link}
+          platformAvailable={platformAvailable !== false || session?.provider === 'platform'}
+          onProvider={(p): void => set({ provider: p })}
+          onLink={(link): void => set({ link })}
+          linkError={errors.link || undefined}
+          linkOptional
+        />
       )}
       <FormField id="session-reason" label="Motivo" required error={shownReason}>
         <Textarea id="session-reason" rows={2} maxLength={300} value={v.reason} onChange={(e): void => set({ reason: e.target.value })} />

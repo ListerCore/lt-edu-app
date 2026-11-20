@@ -1,5 +1,5 @@
-import type { AcademicContext, Period, Section } from '@/lib/api/grpc/gen/joseph/academic/v1/academic';
-import type { Assignment, ScheduleEntry, ScheduleGroup, Staff, TimeBlock } from '@/lib/api/grpc/gen/joseph/teaching/v1/teaching';
+import type { AcademicContext, Period, Section } from '@/lib/api/grpc/gen/ltedu/academic/v1/academic';
+import type { Assignment, ScheduleEntry, ScheduleGroup, Staff, TimeBlock } from '@/lib/api/grpc/gen/ltedu/teaching/v1/teaching';
 
 export type { AcademicContext, Assignment, Period, ScheduleEntry, ScheduleGroup, Section, Staff, TimeBlock };
 

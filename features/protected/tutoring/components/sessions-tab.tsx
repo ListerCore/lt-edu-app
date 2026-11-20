@@ -1,8 +1,10 @@
 'use client';
 
+import Link from 'next/link';
 import { useTransition, type JSX } from 'react';
-import { CalendarPlus, CheckCheck, ExternalLink, Pencil, X } from 'lucide';
+import { CalendarPlus, CheckCheck, Pencil, Video, X } from 'lucide';
 import { MorphIcon } from '@/components/ui/morph-icon';
+import { liveHref } from '@/features/protected/meetings/data/meetings-data';
 import { runAcademicAction } from '@/features/protected/academic/hooks/use-academic-form';
 import { useNow } from '@/features/protected/apafa/hooks/use-now';
 import { cn } from '@/lib/utils';
@@ -45,11 +47,11 @@ export const SessionsTab = ({ slug, sessions, onNew, onEdit, onHold, onChange }:
         <span className={cn('pill', sessionStatusClass[s.status])}>{sessionStatusLabels[s.status]}</span>
         {s.status === 'scheduled' && (
           <span className="flex flex-wrap gap-1">
-            {s.link && (
-              <a href={s.link} target="_blank" rel="noopener noreferrer" className="btn-alt h-8 px-3 text-xs">
-                <MorphIcon icon={ExternalLink} size={14} />
-                Unirse
-              </a>
+            {s.mode === 'virtual' && (s.provider === 'platform' || s.link) && (
+              <Link href={liveHref('tutoring', s.id)} className="btn-alt h-8 px-3 text-xs">
+                <MorphIcon icon={Video} size={14} />
+                {s.provider === 'platform' ? 'Abrir la sala' : 'Unirse'}
+              </Link>
             )}
             <button type="button" className="btn-brand h-8 px-3 text-xs" disabled={!started} title={started ? undefined : 'Se registra cuando ya se realizó'} onClick={(): void => onHold(s)}>
               <MorphIcon icon={CheckCheck} size={14} />

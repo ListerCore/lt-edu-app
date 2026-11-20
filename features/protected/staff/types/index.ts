@@ -1,4 +1,4 @@
-import type { Assignment, Staff } from '@/lib/api/grpc/gen/joseph/teaching/v1/teaching';
+import type { Assignment, Staff } from '@/lib/api/grpc/gen/ltedu/teaching/v1/teaching';
 
 export type { Assignment, Staff };
 
