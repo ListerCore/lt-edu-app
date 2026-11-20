@@ -7,7 +7,7 @@ import type {
   PermanenceWindow,
   RoomParticipation,
   StudentPermanence,
-} from '@/lib/api/grpc/gen/joseph/participation/v1/participation';
+} from '@/lib/api/grpc/gen/ltedu/participation/v1/participation';
 
 export type { AcademicResult, DistanceSection, PermanenceRule, PermanenceWindow, RemoteState, RoomParticipation, StudentPermanence };
 

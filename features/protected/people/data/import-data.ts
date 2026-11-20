@@ -1,4 +1,4 @@
-import type { ImportRow } from '@/lib/api/grpc/gen/joseph/people/v1/people';
+import type { ImportRow } from '@/lib/api/grpc/gen/ltedu/people/v1/people';
 
 // The columns of the spreadsheet, named as the nómina export names them, so an exported nómina loads back
 export const importColumns: Array<{ key: keyof Omit<ImportRow, 'line'>; header: string; aliases: string[]; required?: boolean; example: string }> = [

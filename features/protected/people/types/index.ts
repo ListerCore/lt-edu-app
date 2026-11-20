@@ -1,9 +1,9 @@
-import type { AcademicContext, Level, Period, Section } from '@/lib/api/grpc/gen/joseph/academic/v1/academic';
+import type { AcademicContext, Level, Period, Section } from '@/lib/api/grpc/gen/ltedu/academic/v1/academic';
 import type { RemoteState } from '@/features/protected/academic/types';
-import type { Subject } from '@/lib/api/grpc/gen/joseph/academic/v1/curriculum';
-import type { Enrollment, EnrollmentFile, Guardian, Placement, RollFilter, RollRow, SectionOccupancy, Student, StudentDetail } from '@/lib/api/grpc/gen/joseph/people/v1/people';
+import type { Subject } from '@/lib/api/grpc/gen/ltedu/academic/v1/curriculum';
+import type { Enrollment, EnrollmentFile, Guardian, Placement, RollFilter, RollRow, SectionOccupancy, Student, StudentDetail } from '@/lib/api/grpc/gen/ltedu/people/v1/people';
 
-import type { GetStudentCertificatesResponse, StudentCertificate, StudyRecord } from '@/lib/api/grpc/gen/joseph/documents/v1/documents';
+import type { GetStudentCertificatesResponse, StudentCertificate, StudyRecord } from '@/lib/api/grpc/gen/ltedu/documents/v1/documents';
 
 export type { GetStudentCertificatesResponse as CertificateBoard, StudentCertificate, StudyRecord };
 

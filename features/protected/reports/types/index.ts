@@ -1,4 +1,4 @@
-import type { AttendanceDay, GetBoardResponse, GroupAttendance, PeriodKpi, ResultMix, StatusCount } from '@/lib/api/grpc/gen/joseph/reports/v1/reports';
+import type { AttendanceDay, GetBoardResponse, GroupAttendance, PeriodKpi, ResultMix, StatusCount } from '@/lib/api/grpc/gen/ltedu/reports/v1/reports';
 
 export type { AttendanceDay, GetBoardResponse as Board, GroupAttendance, PeriodKpi, ResultMix, StatusCount };
 

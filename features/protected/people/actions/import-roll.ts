@@ -3,7 +3,7 @@
 import { notFound, runRpc, validIds } from '@/features/protected/academic/lib/run-rpc';
 import type { AcademicResult } from '@/features/protected/academic/types';
 import { peopleRpc } from '@/lib/api/grpc/people';
-import type { ImportRollResponse, ImportRow } from '@/lib/api/grpc/gen/joseph/people/v1/people';
+import type { ImportRollResponse, ImportRow } from '@/lib/api/grpc/gen/ltedu/people/v1/people';
 
 // Checks (commit false) or imports (commit true) the roll of a period from the rows of a spreadsheet (PeopleService.ImportRoll)
 export const importRollAction = async (slug: string, periodId: string, rows: ImportRow[], commit: boolean): Promise<AcademicResult<ImportRollResponse>> =>

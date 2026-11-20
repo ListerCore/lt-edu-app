@@ -2,7 +2,7 @@
 
 import { useSyncExternalStore } from 'react';
 
-const STORAGE_KEY = 'joseph-notifications-read';
+const STORAGE_KEY = 'lt-edu-notifications-read';
 const EMPTY: string[] = [];
 
 let cached: string[] | null = null;

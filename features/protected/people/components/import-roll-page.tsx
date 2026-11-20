@@ -7,7 +7,7 @@ import { MorphIcon } from '@/components/ui/morph-icon';
 import { AcademicPage, LoadError, PageSkeleton, SelectField } from '@/features/protected/academic/components/academic-ui';
 import { runAcademicAction } from '@/features/protected/academic/hooks/use-academic-form';
 import { cn } from '@/lib/utils';
-import type { ImportRollResponse, ImportRow } from '@/lib/api/grpc/gen/joseph/people/v1/people';
+import type { ImportRollResponse, ImportRow } from '@/lib/api/grpc/gen/ltedu/people/v1/people';
 import { importRollAction } from '../actions/import-roll';
 import { importColumns, importStatusClass, importStatusLabels, parseCsv, readSheet, templateCsv } from '../data/import-data';
 import { usePeopleContext } from '../hooks/use-people-context';

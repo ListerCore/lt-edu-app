@@ -1,5 +1,5 @@
-import type { Certificate, GetInternshipResponse, Internship, InternshipLog, Program, RecordModule, RecordUnit, Requirement, StudentProgress, StudentRecord } from '@/lib/api/grpc/gen/joseph/programs/v1/programs';
-import type { Staff } from '@/lib/api/grpc/gen/joseph/teaching/v1/teaching';
+import type { Certificate, GetInternshipResponse, Internship, InternshipLog, Program, RecordModule, RecordUnit, Requirement, StudentProgress, StudentRecord } from '@/lib/api/grpc/gen/ltedu/programs/v1/programs';
+import type { Staff } from '@/lib/api/grpc/gen/ltedu/teaching/v1/teaching';
 
 export type { Certificate, GetInternshipResponse as InternshipDetail, Internship, InternshipLog, Program, RecordModule, RecordUnit, Requirement, Staff, StudentProgress, StudentRecord };
 
@@ -21,7 +21,7 @@ export interface InternshipValues {
   endsOn: string;
 }
 
-// The frozen certificate (joseph-api service.CertificateContent)
+// The frozen certificate (lt-edu-api service.CertificateContent)
 export interface CertificateContent {
   title: string;
   institution: string;

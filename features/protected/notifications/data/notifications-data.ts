@@ -18,7 +18,7 @@ export const notificationKindMeta: Record<NotificationKind, NotificationKindMeta
 const HOUR = 60;
 const DAY = 24 * HOUR;
 
-// Simulated feed; each role sees only its own (joseph-api will push the real ones)
+// Simulated feed; each role sees only its own (lt-edu-api will push the real ones)
 export const notificationSeeds: NotificationSeed[] = [
   { id: 'nt01', kind: 'announcement', title: 'Nuevo comunicado: horario del periodo', body: 'Ya está disponible el horario del periodo en curso.', minutesAgo: 12, href: '/dashboard/announcements' },
   { id: 'nt02', kind: 'grade', title: 'Se publicaron las notas de Matemática', body: 'Revisa tu avance y lo que falta lograr en la evaluación 2.', minutesAgo: 45, href: '/dashboard/evaluation/grades', roles: ['student', 'guardian'] },
