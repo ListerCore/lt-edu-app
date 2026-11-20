@@ -3,9 +3,9 @@ syntax = "proto3";
 // Study plans (phase 2 of docs/plan-academico.md): versions per level, at most one in force, with their areas and
 // CNEB competencies (Educación Básica), courses and topics (CEPRE), or formative modules, didactic units with
 // credits and capacities, and EFSRT (institutes). Same metadata, scoping and permissions as AcademicService
-package joseph.academic.v1;
+package ltedu.academic.v1;
 
-import "joseph/academic/v1/academic.proto";
+import "ltedu/academic/v1/academic.proto";
 
 option go_package = "api/internal/adapter/inbound/grpc/gen/academicv1;academicv1";
 

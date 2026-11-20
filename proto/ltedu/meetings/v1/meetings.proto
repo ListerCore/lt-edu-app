@@ -1,0 +1,149 @@
+syntax = "proto3";
+
+// Live sessions (clases en vivo): live classes of the virtual classroom, virtual tutoring and psychology
+// appointments. Sources: class (classroom item id) | tutoring (tutoring session id) | psychology (appointment id).
+// Providers: platform (video inside ListerCore Edu, LiveKit) | meet (external link, Google Meet or another). Read
+// and changed by lt-edu-app's server on behalf of the signed-in person
+package ltedu.meetings.v1;
+
+option go_package = "api/internal/adapter/inbound/grpc/gen/meetingsv1;meetingsv1";
+
+// Metadata:
+//   authorization: Bearer <session token>   (every method)
+service MeetingsService {
+  // Whether calls inside the platform are set up (else only Google Meet links are offered)
+  rpc GetLiveConfig(GetLiveConfigRequest) returns (GetLiveConfigResponse);
+  // The person's live sessions between two instants (at most 62 days), soonest first
+  rpc GetAgenda(GetAgendaRequest) returns (GetAgendaResponse);
+  // Enters a session: hosts any time, the rest from 15 minutes before the start to 30 after the end. Logs the entry
+  rpc JoinSession(JoinSessionRequest) returns (JoinSessionResponse);
+  // Who joined a session; hosts only
+  rpc GetAttendance(GetAttendanceRequest) returns (GetAttendanceResponse);
+
+  // Psychology appointments with the student of a case (psychology only)
+  rpc ListAppointments(ListAppointmentsRequest) returns (ListAppointmentsResponse);
+  rpc SaveAppointment(SaveAppointmentRequest) returns (SaveAppointmentResponse);
+  // status: scheduled | held | missed | cancelled
+  rpc SetAppointmentStatus(SetAppointmentStatusRequest) returns (SetAppointmentStatusResponse);
+}
+
+message GetLiveConfigRequest {}
+
+message GetLiveConfigResponse {
+  bool platform_available = 1;
+}
+
+message Session {
+  string source = 1;
+  string id = 2;
+  string title = 3;
+  // Subject and grade, "Tutoría virtual" or "Psicología"
+  string context = 4;
+  // RFC 3339
+  string starts_at = 5;
+  int32 duration_min = 6;
+  string provider = 7;
+  string host_name = 8;
+  bool is_host = 9;
+}
+
+message GetAgendaRequest {
+  string institution_slug = 1;
+  // RFC 3339; empty: from now to 14 days later
+  string from = 2;
+  string to = 3;
+}
+
+message GetAgendaResponse {
+  repeated Session sessions = 1;
+  // Whether calls inside the platform are set up (else only Google Meet links are offered)
+  bool platform_available = 2;
+}
+
+message JoinSessionRequest {
+  string institution_slug = 1;
+  string source = 2;
+  string id = 3;
+}
+
+message JoinSessionResponse {
+  Session session = 1;
+  // meet: the link to open
+  string meet_url = 2;
+  // platform: connect to server_url with token
+  string server_url = 3;
+  string token = 4;
+  string room_name = 5;
+  string identity = 6;
+  string display_name = 7;
+}
+
+message GetAttendanceRequest {
+  string institution_slug = 1;
+  string source = 2;
+  string id = 3;
+}
+
+message Attendee {
+  string user_id = 1;
+  string student_id = 2;
+  string display_name = 3;
+  string first_at = 4;
+  string last_at = 5;
+  int32 joins = 6;
+}
+
+message GetAttendanceResponse {
+  repeated Attendee attendees = 1;
+}
+
+message Appointment {
+  string id = 1;
+  string case_id = 2;
+  string student_id = 3;
+  string student_name = 4;
+  string scheduled_at = 5;
+  int32 duration_min = 6;
+  // virtual | in_person
+  string mode = 7;
+  string provider = 8;
+  string link = 9;
+  string status = 10;
+  string created_name = 11;
+}
+
+message ListAppointmentsRequest {
+  string institution_slug = 1;
+  string case_id = 2;
+}
+
+message ListAppointmentsResponse {
+  repeated Appointment appointments = 1;
+  bool platform_available = 2;
+}
+
+message SaveAppointmentRequest {
+  string institution_slug = 1;
+  // Empty id: a new appointment of case_id
+  string id = 2;
+  string case_id = 3;
+  string scheduled_at = 4;
+  int32 duration_min = 5;
+  string mode = 6;
+  string provider = 7;
+  string link = 8;
+}
+
+message SaveAppointmentResponse {
+  Appointment appointment = 1;
+}
+
+message SetAppointmentStatusRequest {
+  string institution_slug = 1;
+  string id = 2;
+  string status = 3;
+}
+
+message SetAppointmentStatusResponse {
+  Appointment appointment = 1;
+}

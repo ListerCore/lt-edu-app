@@ -5,9 +5,9 @@ syntax = "proto3";
 // | administration | shared; statuses: operational | pending. Check kinds: connectivity | platform_access; links:
 // fiber | adsl | wireless | mobile | other. Reports: platform | equipment. Item sections: informative | classroom |
 // equipment; statuses: pending | verified | not_applicable. Dates "YYYY-MM-DD", instants RFC 3339
-package joseph.compliance.v1;
+package ltedu.compliance.v1;
 
-import "joseph/documents/v1/documents.proto";
+import "ltedu/documents/v1/documents.proto";
 
 option go_package = "api/internal/adapter/inbound/grpc/gen/compliancev1;compliancev1";
 
@@ -253,7 +253,7 @@ message PlatformReportPdfRequest {
 }
 
 message PlatformReportPdfResponse {
-  joseph.documents.v1.PdfFile file = 1;
+  ltedu.documents.v1.PdfFile file = 1;
 }
 
 message EquipmentReportPdfRequest {
@@ -261,5 +261,5 @@ message EquipmentReportPdfRequest {
 }
 
 message EquipmentReportPdfResponse {
-  joseph.documents.v1.PdfFile file = 1;
+  ltedu.documents.v1.PdfFile file = 1;
 }

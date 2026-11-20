@@ -1,11 +1,11 @@
 syntax = "proto3";
 
-// Types shared by every joseph-api gRPC service
-package joseph.common.v1;
+// Types shared by every lt-edu-api gRPC service
+package ltedu.common.v1;
 
 option go_package = "api/internal/adapter/inbound/grpc/gen/commonv1;commonv1";
 
-// Every failure joseph-api expects carries one ErrorDetail in the gRPC status details: the same code, message and
+// Every failure lt-edu-api expects carries one ErrorDetail in the gRPC status details: the same code, message and
 // per-field errors the HTTP API sends in {"error": {...}}
 message ErrorDetail {
   // Stable machine code (validation, not_found, rate_limited, internal, ...)

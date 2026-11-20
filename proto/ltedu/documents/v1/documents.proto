@@ -2,12 +2,12 @@ syntax = "proto3";
 
 // Printable documents generated on the server as PDF: report cards, published timetables, issued actas and payment
 // receipts. Each one checks the same permissions as the screen it comes from. Same metadata and institution
-// scoping as joseph.academic.v1.
+// scoping as ltedu.academic.v1.
 //
 // Timetables are published as versioned documents: dirección or coordinación generate a version (frozen content,
 // verification code, the signatures it needs), the signers sign it and with the last signature it is published.
 // Every sheet carries a QR to the public tracking page (TrackDocument, no session needed)
-package joseph.documents.v1;
+package ltedu.documents.v1;
 
 option go_package = "api/internal/adapter/inbound/grpc/gen/documentsv1;documentsv1";
 
@@ -269,7 +269,7 @@ message EnrollmentFormPdfResponse {
   PdfFile file = 1;
 }
 
-// Same as joseph.people.v1.RollFilter
+// Same as ltedu.people.v1.RollFilter
 message RollQuery {
   string period_id = 1;
   string level_id = 2;

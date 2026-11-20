@@ -2,18 +2,18 @@ syntax = "proto3";
 
 // Academic structure of each institution (phase 1 of docs/plan-academico.md): its profile, levels / cycles / areas /
 // programs with their grades, periods (school year, promotional period, cycle, semester) with their terms, and the
-// sections of every period. Read and changed by joseph-app's server on behalf of the signed-in person
-package joseph.academic.v1;
+// sections of every period. Read and changed by lt-edu-app's server on behalf of the signed-in person
+package ltedu.academic.v1;
 
 option go_package = "api/internal/adapter/inbound/grpc/gen/academicv1;academicv1";
 
 // Metadata:
 //   authorization: Bearer <session token>   (every method)
-//   x-forwarded-for, x-user-agent           (as every joseph-api service)
+//   x-forwarded-for, x-user-agent           (as every lt-edu-api service)
 //
 // Every request carries institution_slug: institution roles work on their own institution whatever it says; the
 // platform superadmin opens the one named. Staff roles read; director, academic coordinator and superadmin change.
-// Dates travel as YYYY-MM-DD. Failed calls return a gRPC status whose details hold one joseph.common.v1.ErrorDetail
+// Dates travel as YYYY-MM-DD. Failed calls return a gRPC status whose details hold one ltedu.common.v1.ErrorDetail
 service AcademicService {
   // Institution profile: names, rules of its kind and settings
   rpc GetContext(GetContextRequest) returns (GetContextResponse);

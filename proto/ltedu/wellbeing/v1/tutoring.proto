@@ -4,7 +4,7 @@ syntax = "proto3";
 // or else their section's. Session kinds: individual | group; modes: virtual | in_person | phone; statuses:
 // scheduled | held | missed | cancelled. Message sides: staff | student. SAANEE statuses: sent | received |
 // attending | closed
-package joseph.wellbeing.v1;
+package ltedu.wellbeing.v1;
 
 option go_package = "api/internal/adapter/inbound/grpc/gen/wellbeingv1;wellbeingv1";
 
@@ -90,6 +90,8 @@ message TutoringSession {
   string held_at = 14;
   string created_name = 15;
   repeated SessionAttendee attendees = 16;
+  // Virtual sessions: platform (video inside ListerCore Edu) | meet (link)
+  string provider = 17;
 }
 
 message Thread {
@@ -234,6 +236,8 @@ message SaveTutoringSessionRequest {
   string reason = 9;
   string alert_kind = 10;
   repeated string student_ids = 11;
+  // platform | meet (empty: meet)
+  string provider = 12;
 }
 
 message SaveTutoringSessionResponse {

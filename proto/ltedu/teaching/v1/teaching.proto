@@ -1,10 +1,10 @@
 syntax = "proto3";
 
 // Staff, teaching load and timetables (phase 4 of docs/plan-academico.md). Same metadata and institution scoping
-// as joseph.academic.v1. Times travel as HH:MM and dates as YYYY-MM-DD; weekdays are 1 = Monday … 7 = Sunday
-package joseph.teaching.v1;
+// as ltedu.academic.v1. Times travel as HH:MM and dates as YYYY-MM-DD; weekdays are 1 = Monday … 7 = Sunday
+package ltedu.teaching.v1;
 
-import "joseph/academic/v1/academic.proto";
+import "ltedu/academic/v1/academic.proto";
 
 option go_package = "api/internal/adapter/inbound/grpc/gen/teachingv1;teachingv1";
 
@@ -192,9 +192,9 @@ message GetPlannerRequest {
 }
 
 message GetPlannerResponse {
-  joseph.academic.v1.AcademicContext context = 1;
-  joseph.academic.v1.Period period = 2;
-  repeated joseph.academic.v1.Section sections = 3;
+  ltedu.academic.v1.AcademicContext context = 1;
+  ltedu.academic.v1.Period period = 2;
+  repeated ltedu.academic.v1.Section sections = 3;
   repeated TimeBlock blocks = 4;
   repeated Assignment assignments = 5;
   repeated ScheduleEntry entries = 6;

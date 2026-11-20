@@ -1,8 +1,8 @@
 syntax = "proto3";
 
-// Announcements, notices and alerts of each institution, read by joseph-app's server: the public site (/news) and
+// Announcements, notices and alerts of each institution, read by lt-edu-app's server: the public site (/news) and
 // the panel feed. Publishing (multipart with images and PDFs) and the files themselves go over HTTP
-package joseph.announcements.v1;
+package ltedu.announcements.v1;
 
 import "google/protobuf/timestamp.proto";
 
@@ -10,9 +10,9 @@ option go_package = "api/internal/adapter/inbound/grpc/gen/announcementsv1;annou
 
 // Metadata:
 //   authorization: Bearer <session token>   (ListAnnouncements)
-//   x-forwarded-for, x-user-agent           (as every joseph-api service)
+//   x-forwarded-for, x-user-agent           (as every lt-edu-api service)
 //
-// Failed calls return a gRPC status whose details hold one joseph.common.v1.ErrorDetail
+// Failed calls return a gRPC status whose details hold one ltedu.common.v1.ErrorDetail
 service AnnouncementService {
   // Public announcements of an institution, pinned first and newest first
   rpc ListPublicAnnouncements(ListPublicAnnouncementsRequest) returns (ListPublicAnnouncementsResponse);
