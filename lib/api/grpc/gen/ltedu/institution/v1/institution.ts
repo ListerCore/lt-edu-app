@@ -191,6 +191,32 @@ export interface RevokeMemberRequest {
 export interface RevokeMemberResponse {
 }
 
+export interface Module {
+  /** Panel module key (payments, classroom, mock-exams, compliance, apafa) */
+  key: string;
+  name: string;
+  enabled: boolean;
+}
+
+export interface ListModulesRequest {
+  institutionSlug: string;
+}
+
+export interface ListModulesResponse {
+  modules: Module[];
+  canManage: boolean;
+}
+
+export interface SetModuleRequest {
+  institutionSlug: string;
+  key: string;
+  enabled: boolean;
+}
+
+export interface SetModuleResponse {
+  module?: Module | undefined;
+}
+
 function createBaseAuthorization(): Authorization {
   return {
     id: "",
@@ -1912,6 +1938,291 @@ export const RevokeMemberResponse: MessageFns<RevokeMemberResponse> = {
   },
 };
 
+function createBaseModule(): Module {
+  return { key: "", name: "", enabled: false };
+}
+
+export const Module: MessageFns<Module> = {
+  encode(message: Module, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.key !== "") {
+      writer.uint32(10).string(message.key);
+    }
+    if (message.name !== "") {
+      writer.uint32(18).string(message.name);
+    }
+    if (message.enabled !== false) {
+      writer.uint32(24).bool(message.enabled);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): Module {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseModule();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.key = reader.string();
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.name = reader.string();
+            continue;
+          }
+          case 3: {
+            if (tag !== 24) {
+              break;
+            }
+
+            message.enabled = reader.bool();
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+};
+
+function createBaseListModulesRequest(): ListModulesRequest {
+  return { institutionSlug: "" };
+}
+
+export const ListModulesRequest: MessageFns<ListModulesRequest> = {
+  encode(message: ListModulesRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.institutionSlug !== "") {
+      writer.uint32(10).string(message.institutionSlug);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): ListModulesRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseListModulesRequest();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.institutionSlug = reader.string();
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+};
+
+function createBaseListModulesResponse(): ListModulesResponse {
+  return { modules: [], canManage: false };
+}
+
+export const ListModulesResponse: MessageFns<ListModulesResponse> = {
+  encode(message: ListModulesResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    for (const v of message.modules) {
+      Module.encode(v!, writer.uint32(10).fork()).join();
+    }
+    if (message.canManage !== false) {
+      writer.uint32(16).bool(message.canManage);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): ListModulesResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseListModulesResponse();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.modules.push(Module.decode(reader, reader.uint32()));
+            continue;
+          }
+          case 2: {
+            if (tag !== 16) {
+              break;
+            }
+
+            message.canManage = reader.bool();
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+};
+
+function createBaseSetModuleRequest(): SetModuleRequest {
+  return { institutionSlug: "", key: "", enabled: false };
+}
+
+export const SetModuleRequest: MessageFns<SetModuleRequest> = {
+  encode(message: SetModuleRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.institutionSlug !== "") {
+      writer.uint32(10).string(message.institutionSlug);
+    }
+    if (message.key !== "") {
+      writer.uint32(18).string(message.key);
+    }
+    if (message.enabled !== false) {
+      writer.uint32(24).bool(message.enabled);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): SetModuleRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseSetModuleRequest();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.institutionSlug = reader.string();
+            continue;
+          }
+          case 2: {
+            if (tag !== 18) {
+              break;
+            }
+
+            message.key = reader.string();
+            continue;
+          }
+          case 3: {
+            if (tag !== 24) {
+              break;
+            }
+
+            message.enabled = reader.bool();
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+};
+
+function createBaseSetModuleResponse(): SetModuleResponse {
+  return { module: undefined };
+}
+
+export const SetModuleResponse: MessageFns<SetModuleResponse> = {
+  encode(message: SetModuleResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.module !== undefined) {
+      Module.encode(message.module, writer.uint32(10).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): SetModuleResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const previousRecursionDepth = (reader as any).__tsProtoDecodeDepth ?? 0;
+    if (previousRecursionDepth >= 100) {
+      throw new globalThis.Error("protobuf decode recursion limit exceeded");
+    }
+    (reader as any).__tsProtoDecodeDepth = previousRecursionDepth + 1;
+    try {
+      const end = length === undefined ? reader.len : reader.pos + length;
+      const message = createBaseSetModuleResponse();
+      while (reader.pos < end) {
+        const tag = reader.uint32();
+        switch (tag >>> 3) {
+          case 1: {
+            if (tag !== 10) {
+              break;
+            }
+
+            message.module = Module.decode(reader, reader.uint32());
+            continue;
+          }
+        }
+        if ((tag & 7) === 4 || tag === 0) {
+          break;
+        }
+        reader.skip(tag & 7);
+      }
+      return message;
+    } finally {
+      (reader as any).__tsProtoDecodeDepth = previousRecursionDepth;
+    }
+  },
+};
+
 /**
  * Dirección, coordinación, secretaría and the Responsable técnico read. Dirección records the authorizations;
  * dirección and the Responsable técnico edit the platform sheet. PDFs and evidence go through the attachments API
@@ -2007,6 +2318,28 @@ export const InstitutionServiceService = {
       Buffer.from(RevokeMemberResponse.encode(value).finish()),
     responseDeserialize: (value: Buffer): RevokeMemberResponse => RevokeMemberResponse.decode(value),
   },
+  /**
+   * Optional modules (RF01): every role reads them, dirección turns them on and off; a module that is off is refused
+   * by the API (module_disabled) and hidden by the panel
+   */
+  listModules: {
+    path: "/ltedu.institution.v1.InstitutionService/ListModules" as const,
+    requestStream: false as const,
+    responseStream: false as const,
+    requestSerialize: (value: ListModulesRequest): Buffer => Buffer.from(ListModulesRequest.encode(value).finish()),
+    requestDeserialize: (value: Buffer): ListModulesRequest => ListModulesRequest.decode(value),
+    responseSerialize: (value: ListModulesResponse): Buffer => Buffer.from(ListModulesResponse.encode(value).finish()),
+    responseDeserialize: (value: Buffer): ListModulesResponse => ListModulesResponse.decode(value),
+  },
+  setModule: {
+    path: "/ltedu.institution.v1.InstitutionService/SetModule" as const,
+    requestStream: false as const,
+    responseStream: false as const,
+    requestSerialize: (value: SetModuleRequest): Buffer => Buffer.from(SetModuleRequest.encode(value).finish()),
+    requestDeserialize: (value: Buffer): SetModuleRequest => SetModuleRequest.decode(value),
+    responseSerialize: (value: SetModuleResponse): Buffer => Buffer.from(SetModuleResponse.encode(value).finish()),
+    responseDeserialize: (value: Buffer): SetModuleResponse => SetModuleResponse.decode(value),
+  },
 } as const;
 
 export interface InstitutionServiceServer extends UntypedServiceImplementation {
@@ -2023,6 +2356,12 @@ export interface InstitutionServiceServer extends UntypedServiceImplementation {
   listMembers: handleUnaryCall<ListMembersRequest, ListMembersResponse>;
   grantMember: handleUnaryCall<GrantMemberRequest, GrantMemberResponse>;
   revokeMember: handleUnaryCall<RevokeMemberRequest, RevokeMemberResponse>;
+  /**
+   * Optional modules (RF01): every role reads them, dirección turns them on and off; a module that is off is refused
+   * by the API (module_disabled) and hidden by the panel
+   */
+  listModules: handleUnaryCall<ListModulesRequest, ListModulesResponse>;
+  setModule: handleUnaryCall<SetModuleRequest, SetModuleResponse>;
 }
 
 export interface InstitutionServiceClient extends Client {
@@ -2150,6 +2489,40 @@ export interface InstitutionServiceClient extends Client {
     metadata: Metadata,
     options: Partial<CallOptions>,
     callback: (error: ServiceError | null, response: RevokeMemberResponse) => void,
+  ): ClientUnaryCall;
+  /**
+   * Optional modules (RF01): every role reads them, dirección turns them on and off; a module that is off is refused
+   * by the API (module_disabled) and hidden by the panel
+   */
+  listModules(
+    request: ListModulesRequest,
+    callback: (error: ServiceError | null, response: ListModulesResponse) => void,
+  ): ClientUnaryCall;
+  listModules(
+    request: ListModulesRequest,
+    metadata: Metadata,
+    callback: (error: ServiceError | null, response: ListModulesResponse) => void,
+  ): ClientUnaryCall;
+  listModules(
+    request: ListModulesRequest,
+    metadata: Metadata,
+    options: Partial<CallOptions>,
+    callback: (error: ServiceError | null, response: ListModulesResponse) => void,
+  ): ClientUnaryCall;
+  setModule(
+    request: SetModuleRequest,
+    callback: (error: ServiceError | null, response: SetModuleResponse) => void,
+  ): ClientUnaryCall;
+  setModule(
+    request: SetModuleRequest,
+    metadata: Metadata,
+    callback: (error: ServiceError | null, response: SetModuleResponse) => void,
+  ): ClientUnaryCall;
+  setModule(
+    request: SetModuleRequest,
+    metadata: Metadata,
+    options: Partial<CallOptions>,
+    callback: (error: ServiceError | null, response: SetModuleResponse) => void,
   ): ClientUnaryCall;
 }
 

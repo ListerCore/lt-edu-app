@@ -115,8 +115,16 @@ export interface WorkspaceProfile {
 }
 
 // Management type of the workspace institution, read from lt-edu-api (a per-type demo default until it arrives)
+// What lt-edu-api answers about the workspace institution (AcademicService.GetManagement)
+export interface InstitutionManagement {
+  management: Management;
+  // Optional modules dirección turned off in Configuración › Institución
+  disabledModules: ModuleKey[];
+}
+
 export interface UseInstitutionManagementResult {
   management: Management;
+  disabledModules: ModuleKey[];
   isPublic: boolean;
   // False while the API answer is pending (management is the fallback meanwhile)
   isLoaded: boolean;

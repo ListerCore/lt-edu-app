@@ -225,6 +225,8 @@ export interface GetManagementResponse {
   institutionSlug: string;
   /** public | private */
   management: string;
+  /** Optional modules the institution turned off (ltedu.institution.v1.InstitutionService.ListModules) */
+  disabledModules: string[];
 }
 
 export interface GetStructureRequest {
@@ -2413,7 +2415,7 @@ export const GetManagementRequest: MessageFns<GetManagementRequest> = {
 };
 
 function createBaseGetManagementResponse(): GetManagementResponse {
-  return { institutionSlug: "", management: "" };
+  return { institutionSlug: "", management: "", disabledModules: [] };
 }
 
 export const GetManagementResponse: MessageFns<GetManagementResponse> = {
@@ -2423,6 +2425,9 @@ export const GetManagementResponse: MessageFns<GetManagementResponse> = {
     }
     if (message.management !== "") {
       writer.uint32(18).string(message.management);
+    }
+    for (const v of message.disabledModules) {
+      writer.uint32(26).string(v!);
     }
     return writer;
   },
@@ -2454,6 +2459,14 @@ export const GetManagementResponse: MessageFns<GetManagementResponse> = {
             }
 
             message.management = reader.string();
+            continue;
+          }
+          case 3: {
+            if (tag !== 26) {
+              break;
+            }
+
+            message.disabledModules.push(reader.string());
             continue;
           }
         }

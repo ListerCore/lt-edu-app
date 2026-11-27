@@ -294,8 +294,22 @@ export const rolePermissions: Record<Role, RolePermissions> = {
 
 // A module is usable when the role exists in the institution type, the type has the module, the management type has
 // it too (managementModules) and the role is granted the action
-export const canAccess = (institutionType: InstitutionType, role: Role, module: ModuleKey, action: PermissionAction = 'view', management: Management = 'private'): boolean =>
-  institutionRoles[institutionType].includes(role) && institutionModules[institutionType].includes(module) && hasManagementModule(management, module) && (rolePermissions[role][module]?.includes(action) ?? false);
+// An optional module the institution turned off also takes the pages that live on its API service with it
+const moduleFamilies: Partial<Record<ModuleKey, ModuleKey[]>> = {
+  'mock-exams': ['mock-exams', 'rankings', 'question-bank'],
+  classroom: ['classroom', 'classroom-library'],
+};
+
+// isModuleDisabled: whether module is off for the institution (directly or through its family)
+export const isModuleDisabled = (module: ModuleKey, disabledModules: readonly ModuleKey[]): boolean =>
+  disabledModules.some((off) => off === module || (moduleFamilies[off]?.includes(module) ?? false));
+
+export const canAccess = (institutionType: InstitutionType, role: Role, module: ModuleKey, action: PermissionAction = 'view', management: Management = 'private', disabledModules: readonly ModuleKey[] = []): boolean =>
+  institutionRoles[institutionType].includes(role) &&
+  institutionModules[institutionType].includes(module) &&
+  hasManagementModule(management, module) &&
+  !isModuleDisabled(module, disabledModules) &&
+  (rolePermissions[role][module]?.includes(action) ?? false);
 
 // ---------- tabs ----------
 

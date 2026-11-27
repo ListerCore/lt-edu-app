@@ -21,4 +21,6 @@ export const institutionRpc = {
   members: institution((c) => c.listMembers),
   grantMember: institution((c) => c.grantMember),
   revokeMember: institution((c) => c.revokeMember),
+  modules: institution((c) => c.listModules),
+  setModule: institution((c) => c.setModule),
 };

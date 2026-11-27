@@ -49,7 +49,7 @@ const subscribe = (listener: () => void): (() => void) => {
 // type (from lt-edu-api) and the permission check, which hides modules the management type does not have
 export const useWorkspace = (): UseWorkspaceResult => {
   const workspace = useSyncExternalStore(subscribe, read, () => DEFAULT_WORKSPACE);
-  const { management, isPublic, reload: reloadManagement } = useInstitutionManagement(workspace.institutionType);
+  const { management, disabledModules, isPublic, reload: reloadManagement } = useInstitutionManagement(workspace.institutionType);
 
   // Changing the type keeps the role when that type has it; otherwise falls back to the type's first role
   const setInstitutionType = useCallback((institutionType: InstitutionType): void => {
@@ -63,7 +63,7 @@ export const useWorkspace = (): UseWorkspaceResult => {
     if (institutionRoles[current.institutionType].includes(role)) write({ ...current, role });
   }, []);
 
-  const can = useCallback((module: ModuleKey, action: PermissionAction = 'view'): boolean => canAccess(workspace.institutionType, workspace.role, module, action, management), [workspace, management]);
+  const can = useCallback((module: ModuleKey, action: PermissionAction = 'view'): boolean => canAccess(workspace.institutionType, workspace.role, module, action, management, disabledModules), [workspace, management, disabledModules]);
 
   const canTab = useCallback((page: TabPage, tab: string): boolean => canSeeTab(workspace.role, page, tab), [workspace]);
 
