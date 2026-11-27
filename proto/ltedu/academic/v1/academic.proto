@@ -244,6 +244,8 @@ message GetManagementResponse {
   string institution_slug = 1;
   // public | private
   string management = 2;
+  // Optional modules the institution turned off (ltedu.institution.v1.InstitutionService.ListModules)
+  repeated string disabled_modules = 3;
 }
 
 message GetStructureRequest {

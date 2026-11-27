@@ -23,6 +23,11 @@ service InstitutionService {
   rpc ListMembers(ListMembersRequest) returns (ListMembersResponse);
   rpc GrantMember(GrantMemberRequest) returns (GrantMemberResponse);
   rpc RevokeMember(RevokeMemberRequest) returns (RevokeMemberResponse);
+
+  // Optional modules (RF01): every role reads them, dirección turns them on and off; a module that is off is refused
+  // by the API (module_disabled) and hidden by the panel
+  rpc ListModules(ListModulesRequest) returns (ListModulesResponse);
+  rpc SetModule(SetModuleRequest) returns (SetModuleResponse);
 }
 
 message Authorization {
@@ -190,3 +195,29 @@ message RevokeMemberRequest {
 }
 
 message RevokeMemberResponse {}
+
+message Module {
+  // Panel module key (payments, classroom, mock-exams, compliance, apafa)
+  string key = 1;
+  string name = 2;
+  bool enabled = 3;
+}
+
+message ListModulesRequest {
+  string institution_slug = 1;
+}
+
+message ListModulesResponse {
+  repeated Module modules = 1;
+  bool can_manage = 2;
+}
+
+message SetModuleRequest {
+  string institution_slug = 1;
+  string key = 2;
+  bool enabled = 3;
+}
+
+message SetModuleResponse {
+  Module module = 1;
+}
