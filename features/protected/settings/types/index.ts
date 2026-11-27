@@ -203,3 +203,22 @@ export interface AuditPageState {
   loadMore: () => void;
   reload: () => void;
 }
+
+// ---------- optional modules ----------
+
+// An optional module of the institution (InstitutionService.ListModules)
+export interface InstitutionModule {
+  key: string;
+  name: string;
+  enabled: boolean;
+}
+
+export interface ModulesData {
+  modules: InstitutionModule[];
+  canManage: boolean;
+}
+
+export interface UseSetModuleResult {
+  setModule: (key: string, enabled: boolean) => void;
+  savingKey: string | null;
+}

@@ -11,6 +11,7 @@ import { useInstitutionPage } from '../hooks/use-institution-page';
 import type { Authorization } from '../types';
 import { AuthorizationDialog } from './authorization-dialog';
 import { AuthorizationList } from './authorization-list';
+import { ModulesCard } from './modules-card';
 import { PlatformSheetCard } from './platform-sheet-card';
 
 // Configuración › Institución: the resolutions that authorize the institution and, in a CEBA, the e-learning
@@ -63,6 +64,8 @@ export const InstitutionPage = (): JSX.Element => {
             <AuthorizationList title="Vigentes" authorizations={page.inForce} canManage={canManage} empty={canManage ? 'Aún no hay autorizaciones. Registra la resolución de creación con «Registrar autorización».' : 'Aún no se registraron autorizaciones.'} deletingId={deletingId} onEdit={setEditing} onDelete={remove} />
             {page.expired.length > 0 && <AuthorizationList title="Vencidas o por empezar" authorizations={page.expired} canManage={canManage} empty="" deletingId={deletingId} onEdit={setEditing} onDelete={remove} />}
           </section>
+
+          <ModulesCard />
 
           {page.isEba && <PlatformSheetCard key={data.platform.updatedAt} institutionId={data.institutionId} platform={data.platform} canEdit={data.canEditPlatform} onSaved={page.reload} />}
 
